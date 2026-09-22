@@ -1,0 +1,28 @@
+// Explicit close action (cancel buttons, corner ✕). Closes the dialog and
+// restores focus to the trigger; submit buttons stay native and are NOT
+// wrapped in this part.
+import { Slot } from "publr-jsx";
+import { closeDialog } from "./Dialog.ptsx";
+
+export type DialogCloseProps = {
+  id?: string;
+  classes?: string;
+  asChild?: boolean;
+  children: JSX.Element;
+};
+
+export function DialogClose({ id, classes = "", asChild = false, children }: DialogCloseProps) {
+  return (
+    <>
+      {asChild ? (
+        <Slot id={id} class={classes} data-part="close" onClick={closeDialog}>
+          {children}
+        </Slot>
+      ) : (
+        <button id={id} class={classes} type="button" data-part="close" onClick={closeDialog}>
+          {children}
+        </button>
+      )}
+    </>
+  );
+}

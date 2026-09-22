@@ -1,0 +1,16 @@
+// Supporting copy under the title — wired onto the panel's
+// aria-describedby by the family effect.
+
+export type DialogDescriptionProps = {
+  id?: string;
+  classes?: string;
+  children: JSX.Element;
+};
+
+export function DialogDescription({ id, classes = "", children }: DialogDescriptionProps) {
+  return (
+    <p id={id} class={["mt-1 text-sm text-muted-foreground", classes]} data-part="description">
+      {children}
+    </p>
+  );
+}

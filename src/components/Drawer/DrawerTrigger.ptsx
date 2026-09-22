@@ -1,0 +1,42 @@
+import { Slot } from "publr-jsx";
+import { openDrawer, state, trigger } from "./Drawer.ptsx";
+
+export type DrawerTriggerProps = {
+  id?: string;
+  classes?: string;
+  asChild?: boolean;
+  children: JSX.Element;
+};
+
+export function DrawerTrigger({ id, classes = "", asChild = false, children }: DrawerTriggerProps) {
+  return (
+    <>
+      {asChild ? (
+        <Slot
+          id={id}
+          class={classes}
+          data-part="trigger"
+          ref={trigger}
+          onClick={openDrawer}
+          aria-haspopup="dialog"
+          aria-expanded={state.open}
+        >
+          {children}
+        </Slot>
+      ) : (
+        <button
+          id={id}
+          class={classes}
+          type="button"
+          data-part="trigger"
+          ref={trigger}
+          onClick={openDrawer}
+          aria-haspopup="dialog"
+          aria-expanded={state.open}
+        >
+          {children}
+        </button>
+      )}
+    </>
+  );
+}

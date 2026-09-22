@@ -1,0 +1,95 @@
+import { RangePickerBase } from "../RangePicker/RangePickerBase.ptsx";
+
+export type RangeScaleOption = {
+  label: string;
+  value: string;
+};
+
+export type RangeScalePickerOptionProps = {
+  children: string;
+  value: string;
+};
+
+export type RangeScalePickerOptionsProps = {
+  children: RangeScaleOption | readonly RangeScaleOption[];
+};
+
+export type RangeScalePickerProps = {
+  id?: string;
+  classes?: string;
+  children: readonly [RangeScaleOption, RangeScaleOption, ...RangeScaleOption[]];
+  value: string;
+  label?: string;
+  disabled?: boolean;
+  onInput?: (value: string) => void;
+  onChange?: (value: string) => void;
+};
+
+export function RangeScalePickerOption({
+  children,
+  value,
+}: RangeScalePickerOptionProps): RangeScaleOption {
+  return { label: children, value };
+}
+
+export function RangeScalePickerOptions({
+  children,
+}: RangeScalePickerOptionsProps): readonly [
+  RangeScaleOption,
+  RangeScaleOption,
+  ...RangeScaleOption[],
+] {
+  const options = (Array.isArray(children) ? children : [children]) as RangeScaleOption[];
+  if (options.length < 2) {
+    throw new TypeError("[publr-design-system] RangeScalePicker requires at least two options");
+  }
+  return options as [RangeScaleOption, RangeScaleOption, ...RangeScaleOption[]];
+}
+
+export function RangeScalePicker({
+  id,
+  classes = "",
+  children,
+  value,
+  label,
+  disabled = false,
+  onInput,
+  onChange,
+}: RangeScalePickerProps) {
+  const emitInput = (event: Event) => {
+    const option = children[Number((event.target as HTMLInputElement).value)];
+    if (option) onInput?.(option.value);
+  };
+  const emitChange = (event: Event) => {
+    const option = children[Number((event.target as HTMLInputElement).value)];
+    if (option) onChange?.(option.value);
+  };
+
+  return (
+    <RangePickerBase
+      id={id}
+      classes={classes}
+      value={Math.max(
+        0,
+        children.findIndex((option) => option.value === value),
+      )}
+      valueText={
+        children[
+          Math.max(
+            0,
+            children.findIndex((option) => option.value === value),
+          )
+        ]!.label
+      }
+      min={0}
+      max={children.length - 1}
+      step={1}
+      label={label}
+      disabled={disabled}
+      segmented={true}
+      component="range-scale-picker"
+      onInput={emitInput}
+      onChange={emitChange}
+    />
+  );
+}

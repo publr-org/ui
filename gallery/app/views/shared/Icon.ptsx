@@ -1,0 +1,8 @@
+// A sprite icon from the icon set, by name.
+export function GIcon({ name, classes = "size-4" }: { name: string; classes?: string }) {
+  return (
+    <svg class={classes} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <use href={"#pbe-i-" + name}></use>
+    </svg>
+  );
+}

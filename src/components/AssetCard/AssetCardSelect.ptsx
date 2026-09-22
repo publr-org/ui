@@ -1,0 +1,24 @@
+// Positions the card's composed selection control (a Checkbox) in the top
+// -left corner and owns its reveal: hidden until the card is hovered, the
+// control is focused, or it is checked. Focus reveal keeps keyboard
+// selection accessible — hover is never the only path.
+
+export type AssetCardSelectProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function AssetCardSelect({ children, classes = "", id }: AssetCardSelectProps) {
+  return (
+    <span
+      id={id}
+      class={[
+        "absolute left-2 top-2 z-10 opacity-0 transition-opacity focus-within:opacity-100 group-hover/asset-card:opacity-100 has-[input:checked]:opacity-100",
+        classes,
+      ]}
+    >
+      {children}
+    </span>
+  );
+}

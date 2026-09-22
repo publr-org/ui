@@ -1,0 +1,294 @@
+import { FolderNav } from "../../../src/components/FolderNav/FolderNav.ptsx";
+import { FolderNavItem } from "../../../src/components/FolderNav/FolderNavItem.ptsx";
+import { FolderNavItemActions } from "../../../src/components/FolderNav/FolderNavItemActions.ptsx";
+import { FolderNavItemCount } from "../../../src/components/FolderNav/FolderNavItemCount.ptsx";
+import { FolderNavItemLink } from "../../../src/components/FolderNav/FolderNavItemLink.ptsx";
+import { Button } from "../../../src/components/Button/Button.ptsx";
+import { Icon } from "../../../src/components/Icon/Icon.ptsx";
+import type { ComponentCanvas, ComponentDemoMeta, ComponentDemoVariant } from "../../gallery-types";
+
+export const meta = {
+  name: "folder-nav",
+  label: "FolderNav",
+  source: "src/components/FolderNav/FolderNav.ptsx",
+  kind: "composite",
+  group: "Navigation",
+  description:
+    "Sidebar folder navigation — a named nav landmark of link rows with counts, hover/focus-revealed actions, and level indentation.",
+  tags: ["folders", "sidebar", "navigation", "taxonomy", "nesting"],
+  usage: `<FolderNav label="Media folders">
+  <FolderNavItem>
+    <FolderNavItemLink href="/media" current>
+      <Icon name="image" size="xs" classes="size-3.5 shrink-0" />
+      All assets
+    </FolderNavItemLink>
+    <FolderNavItemCount persistent>25</FolderNavItemCount>
+  </FolderNavItem>
+  <FolderNavItem level="1">
+    <FolderNavItemLink href="/media?folder=child">
+      <Icon name="folder" size="xs" classes="size-3.5 shrink-0" />
+      Child
+    </FolderNavItemLink>
+    <FolderNavItemCount>1</FolderNavItemCount>
+  </FolderNavItem>
+</FolderNav>`,
+  preview: "demo",
+  previewLabel: "A folder tree with counts and revealed row actions",
+  docs: {
+    purpose: [
+      "FolderNav lists a pane's folders as ordinary navigation links with counts and per-row actions, indented by a closed nesting scale.",
+      "It is deliberately NOT a WAI-ARIA tree: rows are server-filter links, so native link semantics are the whole keyboard contract.",
+    ],
+    useWhen: ["A sidebar filters a list or grid by folder/collection and shows per-folder counts."],
+    avoidWhen: [
+      "The hierarchy needs expand/collapse with roving focus; that is a real tree widget and a different contract.",
+      "The items are app sections; that is the Sidebar navigation family.",
+    ],
+    rules: [
+      {
+        title: "The link owns current state",
+        description:
+          'FolderNavItemLink carries current → aria-current="page"; the row background derives from it. The item has no duplicate active prop.',
+      },
+      {
+        title: "Actions reveal on hover AND focus-within",
+        description:
+          "Row controls are hidden until pointer hover or keyboard focus reaches the row — hover is never the only path.",
+      },
+      {
+        title: "Closed level scale",
+        description: "Nesting indents through level 0–5; deeper hierarchies flatten at 5.",
+      },
+      {
+        title: "Disabled entries omit href",
+        description:
+          "A depth-capped or unavailable folder renders its link part without href — a static span, truly inert.",
+      },
+    ],
+    accessibility: [
+      "The nav landmark requires a label naming the collection.",
+      "Counts and revealed actions are supplementary; the link text names each row.",
+    ],
+    composition: [
+      "Compose Icon + label text inside FolderNavItemLink, then FolderNavItemCount and FolderNavItemActions as row siblings.",
+      "Use persistent counts on rows without actions so the count never yields to an empty control area.",
+    ],
+    agentNotes: [
+      "App data hooks (data-folder-id and friends) authored on component invocations land on the ZSX display:contents wrapper, not the row — scope queries as wrapper[data-…] [data-part=folder-nav-row]. A transpiler-level attribute-forwarding fix is a recorded follow-up.",
+    ],
+    props: [
+      {
+        name: "label",
+        type: "string",
+        description: "Required accessible name for the nav landmark.",
+      },
+      { name: "children", type: "node", description: "FolderNavItem rows." },
+      { name: "id", type: "string", description: "Identifier applied to the nav root." },
+      { name: "classes", type: "string", description: "Layout classes for the nav root." },
+      {
+        name: "FolderNavItem.level",
+        type: '"0" | "1" | "2" | "3" | "4" | "5"',
+        description: "Closed nesting indent.",
+        default: '"0"',
+      },
+      {
+        name: "FolderNavItem.children",
+        type: "node",
+        description: "Link, count, and actions parts.",
+      },
+      { name: "FolderNavItem.id", type: "string", description: "Identifier applied to the li." },
+      { name: "FolderNavItem.classes", type: "string", description: "li overrides." },
+      {
+        name: "FolderNavItemLink.href",
+        type: "string",
+        description: "Filter URL; omit for disabled entries.",
+      },
+      {
+        name: "FolderNavItemLink.current",
+        type: "boolean",
+        description: "Marks the active folder via aria-current.",
+        default: "false",
+      },
+      {
+        name: "FolderNavItemLink.disabled",
+        type: "boolean",
+        description: "Muted inert treatment; pair with omitting href.",
+        default: "false",
+      },
+      {
+        name: "FolderNavItemLink.children",
+        type: "node",
+        description: "Icon and label naming the folder.",
+      },
+      {
+        name: "FolderNavItemLink.id",
+        type: "string",
+        description: "Identifier applied to the link root.",
+      },
+      { name: "FolderNavItemLink.classes", type: "string", description: "Link overrides." },
+      {
+        name: "FolderNavItemCount.persistent",
+        type: "boolean",
+        description: "Keep the count visible on hover/focus (rows without actions).",
+        default: "false",
+      },
+      { name: "FolderNavItemCount.children", type: "node", description: "The count text." },
+      {
+        name: "FolderNavItemCount.id",
+        type: "string",
+        description: "Identifier applied to the count.",
+      },
+      { name: "FolderNavItemCount.classes", type: "string", description: "Count overrides." },
+      {
+        name: "FolderNavItemActions.children",
+        type: "node",
+        description: "Icon Buttons or a DropdownMenu.",
+      },
+      {
+        name: "FolderNavItemActions.id",
+        type: "string",
+        description: "Identifier applied to the actions wrapper.",
+      },
+      { name: "FolderNavItemActions.classes", type: "string", description: "Actions overrides." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const variants = [
+  {
+    label: "Folder tree",
+    description: "Root, nested, current, and disabled rows with counts and actions.",
+    usage: `<FolderNav label="Media folders" classes="w-64">
+  <FolderNavItem>
+    <FolderNavItemLink href="#" current>
+      <Icon name="image" size="xs" classes="size-3.5 shrink-0" />
+      All assets
+    </FolderNavItemLink>
+    <FolderNavItemCount persistent>25</FolderNavItemCount>
+  </FolderNavItem>
+  <FolderNavItem>
+    <FolderNavItemLink href="#">
+      <Icon name="folder" size="xs" classes="size-3.5 shrink-0" />
+      Editorial
+    </FolderNavItemLink>
+    <FolderNavItemCount>12</FolderNavItemCount>
+    <FolderNavItemActions>
+      <Button hierarchy="tertiary" size="sm" label="New subfolder">
+        <Icon name="folder-plus" size="sm" />
+      </Button>
+    </FolderNavItemActions>
+  </FolderNavItem>
+  <FolderNavItem level="1">
+    <FolderNavItemLink disabled>
+      <Icon name="folder" size="xs" classes="size-3.5 shrink-0" />
+      Archived
+    </FolderNavItemLink>
+    <FolderNavItemCount persistent>0</FolderNavItemCount>
+  </FolderNavItem>
+</FolderNav>`,
+    notes: [
+      "Hover or tab into the Editorial row to reveal its action; its count yields while revealed.",
+    ],
+    Demo: () => (
+      <FolderNav label="Media folders" classes="w-64">
+        <FolderNavItem>
+          <FolderNavItemLink href="#" current>
+            <Icon name="image" size="xs" classes="size-3.5 shrink-0" />
+            All assets
+          </FolderNavItemLink>
+          <FolderNavItemCount persistent>25</FolderNavItemCount>
+        </FolderNavItem>
+        <FolderNavItem>
+          <FolderNavItemLink href="#">
+            <Icon name="folder" size="xs" classes="size-3.5 shrink-0" />
+            Editorial
+          </FolderNavItemLink>
+          <FolderNavItemCount>12</FolderNavItemCount>
+          <FolderNavItemActions>
+            <Button hierarchy="tertiary" size="sm" label="New subfolder">
+              <Icon name="folder-plus" size="sm" />
+            </Button>
+          </FolderNavItemActions>
+        </FolderNavItem>
+        <FolderNavItem level="1">
+          <FolderNavItemLink disabled>
+            <Icon name="folder" size="xs" classes="size-3.5 shrink-0" />
+            Archived
+          </FolderNavItemLink>
+          <FolderNavItemCount persistent>0</FolderNavItemCount>
+        </FolderNavItem>
+      </FolderNav>
+    ),
+    node: {
+      component: "FolderNav",
+      props: { label: "Media folders", classes: "w-64" },
+      children: [
+        {
+          component: "FolderNavItem",
+          props: {},
+          children: [
+            {
+              component: "FolderNavItemLink",
+              props: { href: "#", current: true, children: "All assets" },
+            },
+            { component: "FolderNavItemCount", props: { persistent: true, children: "25" } },
+          ],
+        },
+        {
+          component: "FolderNavItem",
+          props: {},
+          children: [
+            { component: "FolderNavItemLink", props: { href: "#", children: "Editorial" } },
+            { component: "FolderNavItemCount", props: { children: "12" } },
+          ],
+        },
+        {
+          component: "FolderNavItem",
+          props: { level: "1" },
+          children: [
+            { component: "FolderNavItemLink", props: { disabled: true, children: "Archived" } },
+            { component: "FolderNavItemCount", props: { persistent: true, children: "0" } },
+          ],
+        },
+      ],
+    },
+  },
+] satisfies ComponentDemoVariant[];
+
+export const canvas = {
+  controls: [
+    { name: "label", type: "text", default: "Folder" },
+    {
+      name: "level",
+      type: "select",
+      default: "0",
+      options: ["0", "1", "2", "3", "4", "5"],
+    },
+    { name: "current", type: "boolean", default: false },
+    { name: "count", type: "text", default: "12" },
+  ],
+  node: (values) => ({
+    component: "FolderNav",
+    props: { label: "Media folders", classes: "w-64" },
+    children: [
+      {
+        component: "FolderNavItem",
+        props: { level: String(values.level) },
+        children: [
+          {
+            component: "FolderNavItemLink",
+            props: {
+              href: "#",
+              current: Boolean(values.current),
+              children: String(values.label),
+            },
+          },
+          {
+            component: "FolderNavItemCount",
+            props: { persistent: true, children: String(values.count) },
+          },
+        ],
+      },
+    ],
+  }),
+} satisfies ComponentCanvas;

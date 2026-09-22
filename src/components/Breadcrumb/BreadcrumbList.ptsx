@@ -1,0 +1,16 @@
+// Ordered breadcrumb list; the APG pattern requires list semantics so
+// assistive technology announces trail length and position.
+
+export type BreadcrumbListProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function BreadcrumbList({ children, classes = "", id }: BreadcrumbListProps) {
+  return (
+    <ol id={id} class={["m-0 flex min-w-0 list-none items-center gap-2 p-0 text-body-sm", classes]}>
+      {children}
+    </ol>
+  );
+}

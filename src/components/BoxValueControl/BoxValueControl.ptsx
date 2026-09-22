@@ -1,0 +1,260 @@
+// Composed value editor: a named scale or an arbitrary number+unit. The
+// family store is declared here at module level; the picker parts import
+// `state`/`toggleMode` and bind through the ancestry wire.
+import { Publr } from "publr-jsx";
+import type { CssUnit } from "../UnitControl/UnitControl.ptsx";
+
+export type BoxValue = string | readonly [number, CssUnit];
+
+export const state = Publr.reactive({
+  disabled: false,
+  arbitrary: false,
+  named: "",
+  namedLabel: "",
+  number: 0,
+  unit: "px",
+  pendingKind: "named",
+  pendingNamed: "",
+  pendingNumber: 0,
+  pendingUnit: "px",
+  inputRevision: 0,
+  changeRevision: 0,
+});
+
+export const root = Publr.ref();
+let initialized = false;
+let deliveredInputRevision = 0;
+let deliveredChangeRevision = 0;
+
+const owner = () => root.current as HTMLFieldSetElement | null;
+const options = () => [
+  ...(owner()?.querySelectorAll<HTMLInputElement>(
+    ':scope [data-part="box-value-control-option"]',
+  ) ?? []),
+];
+const optionAt = (index: number) => options()[index];
+const detail = () =>
+  state.pendingKind === "named" ? state.pendingNamed : [state.pendingNumber, state.pendingUnit];
+
+export const toggleMode = () => {
+  if (!state.disabled) state.arbitrary = !state.arbitrary;
+};
+
+const capture = (event: Event, revision: "inputRevision" | "changeRevision") => {
+  if (state.disabled) return;
+  const input = event.target;
+  if (!(input instanceof HTMLInputElement) || input.type !== "range") return;
+  const namedPart = input.closest<HTMLElement>('[data-part="box-value-control-named"]');
+  if (namedPart) {
+    const option = optionAt(Number(input.value));
+    if (!option) return;
+    state.named = option.value;
+    state.namedLabel = option.dataset.label ?? "";
+    state.pendingKind = "named";
+    state.pendingNamed = option.value;
+  } else {
+    state.number = input.valueAsNumber;
+    state.pendingKind = "arbitrary";
+    state.pendingNumber = input.valueAsNumber;
+    state.pendingUnit = state.unit;
+  }
+  state[revision]++;
+};
+
+export const rangeInput = (event: Event) => {
+  capture(event, "inputRevision");
+};
+
+export const rangeChange = (event: Event) => {
+  capture(event, "changeRevision");
+};
+
+export const unitChanged = (event: Event) => {
+  if (state.disabled || !(event instanceof CustomEvent) || !Array.isArray(event.detail)) {
+    return;
+  }
+  state.number = Number(event.detail[0]);
+  state.unit = String(event.detail[1]);
+  state.pendingKind = "arbitrary";
+  state.pendingNumber = state.number;
+  state.pendingUnit = state.unit;
+  state.inputRevision++;
+  state.changeRevision++;
+};
+
+Publr.effect(() => {
+  if (initialized) return;
+  const seed = owner()?.querySelector<HTMLInputElement>(
+    ':scope > [data-part="box-value-control-default"]',
+  );
+  if (!seed) return;
+  initialized = true;
+  state.arbitrary = seed.dataset.kind === "arbitrary";
+  state.named = seed.value || options()[0]?.value || "";
+  state.number = Number(seed.dataset.number ?? "0");
+  state.unit = seed.dataset.unit ?? "px";
+  const selected = options().find((option) => option.value === state.named) ?? options()[0];
+  state.namedLabel = selected?.dataset.label ?? "";
+});
+
+Publr.effect(() => {
+  const arbitrary = state.arbitrary;
+  const named = state.named;
+  const namedLabel = state.namedLabel;
+  const number = state.number;
+  const unit = state.unit;
+  const disabled = state.disabled;
+  const host = owner();
+  if (!host) return;
+
+  const namedPart = host.querySelector<HTMLElement>(':scope [data-part="box-value-control-named"]');
+  const arbitraryPart = host.querySelector<HTMLElement>(
+    ':scope [data-part="box-value-control-arbitrary"]',
+  );
+  if (namedPart) namedPart.hidden = arbitrary;
+  if (arbitraryPart) arbitraryPart.hidden = !arbitrary;
+
+  const namedInput = namedPart?.querySelector<HTMLInputElement>('input[type="range"]');
+  const scaleMaximum = Math.max(1, options().length - 1);
+  const selectedIndex = Math.max(
+    0,
+    options().findIndex((option) => option.value === named),
+  );
+  if (namedInput) {
+    namedInput.max = String(scaleMaximum);
+    namedInput.value = String(selectedIndex);
+    namedInput.disabled = disabled;
+    namedInput.setAttribute("aria-label", host.dataset.label ?? "Value");
+    namedInput.setAttribute("aria-valuetext", namedLabel);
+  }
+  const namedRange = namedPart?.querySelector<HTMLElement>('[data-part="range-scale-picker"]');
+  namedRange?.style.setProperty("--range-min", "0");
+  namedRange?.style.setProperty("--range-max", String(scaleMaximum));
+  namedRange?.style.setProperty("--range-step", "1");
+  namedRange?.style.setProperty("--range-value", String(selectedIndex));
+  const label = namedPart?.querySelector<HTMLElement>('[data-part="box-value-control-label"]');
+  if (label) {
+    label.textContent = namedLabel;
+    label.setAttribute("aria-label", `Selected ${host.dataset.label ?? "value"}`);
+  }
+  const tooltipLabel = namedPart?.querySelector<HTMLElement>(
+    '[data-part="range-picker-tooltip"] [data-text-variant]',
+  );
+  if (tooltipLabel) tooltipLabel.textContent = namedLabel;
+
+  const numberInput = arbitraryPart?.querySelector<HTMLInputElement>('input[type="number"]');
+  if (numberInput) numberInput.value = String(number);
+  const numberOwner = numberInput?.closest<HTMLElement>('[data-part="unit-control-number"]');
+  if (numberOwner) numberOwner.dataset.publrValue = String(number);
+  const valueProbe = numberOwner?.querySelector<HTMLElement>(
+    '[data-part="unit-control-width-probe"][data-probe="value"]',
+  );
+  if (valueProbe) valueProbe.dataset.value = String(number);
+  const rangeInputElement = arbitraryPart?.querySelector<HTMLInputElement>('input[type="range"]');
+  if (rangeInputElement) {
+    rangeInputElement.value = String(number);
+    rangeInputElement.disabled = disabled;
+    rangeInputElement.setAttribute("aria-valuetext", String(number));
+  }
+  const range = arbitraryPart?.querySelector<HTMLElement>('[data-part="range-picker"]');
+  range?.style.setProperty("--range-value", String(number));
+
+  const select = arbitraryPart?.querySelector<HTMLElement>('[data-part="select"]');
+  if (select) select.dataset.publrValue = unit;
+  const unitValue = select?.querySelector<HTMLInputElement>('input[data-part="value"]');
+  if (unitValue) unitValue.value = unit;
+  const unitLabel = select?.querySelector<HTMLElement>('[data-part="label"]');
+  if (unitLabel) unitLabel.textContent = unit;
+});
+
+Publr.effect(() => {
+  const revision = state.inputRevision;
+  if (!revision || revision === deliveredInputRevision) return;
+  deliveredInputRevision = revision;
+  owner()?.dispatchEvent(
+    new CustomEvent("boxvaluecontrolinput", {
+      detail: detail(),
+      bubbles: true,
+    }),
+  );
+});
+
+Publr.effect(() => {
+  const revision = state.changeRevision;
+  if (!revision || revision === deliveredChangeRevision) return;
+  deliveredChangeRevision = revision;
+  owner()?.dispatchEvent(
+    new CustomEvent("boxvaluecontrolchange", {
+      detail: detail(),
+      bubbles: true,
+    }),
+  );
+});
+
+export type BoxValueControlProps = {
+  children: JSX.Element;
+  classes?: string;
+  id?: string;
+  label: string;
+  defaultValue: BoxValue;
+  disabled?: boolean;
+  onInput?: (value: BoxValue) => void;
+  onChange?: (value: BoxValue) => void;
+};
+
+export function BoxValueControl({
+  children,
+  classes = "",
+  id,
+  label,
+  defaultValue,
+  disabled = false,
+  onInput,
+  onChange,
+}: BoxValueControlProps) {
+  state.disabled = disabled;
+
+  const emitInput = (event: Event) => {
+    onInput?.((event as CustomEvent<BoxValue>).detail);
+  };
+  const emitChange = (event: Event) => {
+    onChange?.((event as CustomEvent<BoxValue>).detail);
+  };
+
+  return (
+    <fieldset
+      id={id}
+      class={["m-0 min-w-0 border-0 p-0 disabled:pointer-events-none disabled:opacity-45", classes]}
+      disabled={disabled}
+      data-part="box-value-control"
+      data-label={label}
+      onBoxValueControlInput={emitInput}
+      onBoxValueControlChange={emitChange}
+      ref={root}
+      onInput={rangeInput}
+      onChange={rangeChange}
+      onUnitControlChange={unitChanged}
+    >
+      <input
+        type="hidden"
+        data-part="box-value-control-default"
+        data-kind={typeof defaultValue === "string" ? "named" : "arbitrary"}
+        data-number={typeof defaultValue === "string" ? undefined : defaultValue[0]}
+        data-unit={typeof defaultValue === "string" ? undefined : defaultValue[1]}
+        value={typeof defaultValue === "string" ? defaultValue : ""}
+      />
+      <div class="grid min-h-9 flex items-center gap-2" data-part="box-value-control-layout">
+        {children}
+      </div>
+    </fieldset>
+  );
+}
+
+export { BoxValueControlIcon } from "./BoxValueControlIcon.ptsx";
+export { BoxValueControlRangeScalePicker } from "./BoxValueControlRangeScalePicker.ptsx";
+export { BoxValueControlRangeScalePickerOption } from "./BoxValueControlRangeScalePickerOption.ptsx";
+export { BoxValueControlRangePicker } from "./BoxValueControlRangePicker.ptsx";
+export type { BoxValueControlIconProps } from "./BoxValueControlIcon.ptsx";
+export type { BoxValueControlRangeScalePickerProps } from "./BoxValueControlRangeScalePicker.ptsx";
+export type { BoxValueControlRangeScalePickerOptionProps } from "./BoxValueControlRangeScalePickerOption.ptsx";
+export type { BoxValueControlRangePickerProps } from "./BoxValueControlRangePicker.ptsx";

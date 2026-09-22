@@ -1,0 +1,33 @@
+import { state, content, contentKeydown, dismiss } from "./Select.ptsx";
+
+export type SelectContentProps = {
+  id?: string;
+  children: JSX.Element;
+  align?: "left" | "right";
+  classes?: string;
+};
+
+export function SelectContent({ id, children, align = "left", classes = "" }: SelectContentProps) {
+  return (
+    <div
+      id={id}
+      role="listbox"
+      data-part="content"
+      data-publr-position-offset="2"
+      ref={content}
+      onKeyDown={contentKeydown}
+      onDismiss={dismiss}
+      portal
+      position={align}
+      hidden={!state.open}
+      class={[
+        "hidden fixed z-50 max-h-[var(--publr-available-height)] w-max max-w-[calc(100vw-1rem)] flex-col gap-[1px] overflow-auto rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-lg",
+        state.open ? "flex" : "",
+        state.autoWidth ? "min-w-0" : "min-w-[var(--publr-anchor-width)]",
+        classes,
+      ]}
+    >
+      {children}
+    </div>
+  );
+}

@@ -1,0 +1,61 @@
+// One option of a choice among a few, drawn as a card: a native radio, a title and a
+// line of what the option means. The card is the label, so the whole surface selects
+// it, and the checked card is outlined. Siblings share a name; the parent lays them
+// out (a grid of two or three). Plain form semantics: no state, no script.
+import { Text } from "../Text/Text.ptsx";
+
+export type ChoiceCardProps = {
+  id?: string;
+  name: string;
+  value: string;
+  checked?: boolean;
+  /** Fixed: shown as chosen or not, but no longer a choice. */
+  disabled?: boolean;
+  title: string;
+  description?: string;
+  classes?: string;
+  onChange?: (event: Event) => void;
+};
+
+export function ChoiceCard({
+  id,
+  name,
+  value,
+  checked = false,
+  disabled = false,
+  title,
+  description,
+  classes = "",
+  onChange,
+}: ChoiceCardProps) {
+  return (
+    <label
+      id={id}
+      class={[
+        "flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-card px-4 py-3.5 shadow-xs transition-colors hover:border-input has-[:checked]:border-ring has-[:checked]:bg-ui-accent has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60 has-[:disabled]:hover:border-border",
+        classes,
+      ]}
+      data-part="choice-card"
+    >
+      <input
+        type="radio"
+        name={name}
+        value={value}
+        checked={checked}
+        disabled={disabled}
+        class="mt-0.5 size-4 shrink-0 cursor-pointer accent-primary focus-visible:outline-none disabled:cursor-not-allowed"
+        onChange={onChange}
+      />
+      <span class="flex min-w-0 flex-col gap-0.5">
+        <Text as="span" variant="heading-xs">
+          {title}
+        </Text>
+        {description && (
+          <Text as="span" variant="body-sm" tone="muted">
+            {description}
+          </Text>
+        )}
+      </span>
+    </label>
+  );
+}

@@ -1,0 +1,116 @@
+import { TabNav } from "../../../src/components/TabNav/TabNav.ptsx";
+import { TabNavLink } from "../../../src/components/TabNav/TabNavLink.ptsx";
+import type { ComponentDemoMeta, ComponentDemoVariant, DemoNode } from "../../gallery-types";
+
+const usage = `<TabNav label="Entry status">
+  <TabNavLink href="?" active={true}>All</TabNavLink>
+  <TabNavLink href="?status=published">Published</TabNavLink>
+  <TabNavLink href="?status=review">Needs review</TabNavLink>
+  <TabNavLink href="?status=draft">Drafts</TabNavLink>
+</TabNav>`;
+
+export const meta = {
+  name: "tab-nav",
+  label: "TabNav",
+  source: "src/components/TabNav/TabNav.ptsx",
+  kind: "composite",
+  group: "Navigation",
+  description:
+    "Server-navigation tab bar: real links with an active underline for switching between views of a list or page.",
+  tags: ["tabs", "navigation", "filter", "views", "links"],
+  usage,
+  preview: "toolbar",
+  previewLabel: "View tabs with an active underline",
+  docs: {
+    purpose: [
+      "TabNav renders view-switching tabs as real links — status filters, sub-sections, saved views — with the active tab underlined and announced as the current page.",
+      "It is pure server navigation: no tab panels, no client tab state, and deliberately no ARIA tablist (these are links, not tabs over local panels).",
+    ],
+    useWhen: [
+      "Switching between server-rendered views of the same list or page (status filters, sub-navigation).",
+      "Each tab has a canonical URL.",
+    ],
+    avoidWhen: [
+      "Local panel switching without navigation — that is a future panel-Tabs component.",
+      "Primary app navigation — compose the Sidebar family.",
+    ],
+    rules: [
+      {
+        title: "The active tab keeps its href",
+        description:
+          'Unlike Pagination\'s current page, the active tab stays a link to its canonical URL and is announced via aria-current="page".',
+      },
+      {
+        title: "URLs preserve compatible filters",
+        description:
+          "Build tab hrefs from the view's filter-preserving base (search, type) and always drop the page param.",
+      },
+    ],
+    accessibility: [
+      'The nav landmark is named by label; pass something specific like "Entry status".',
+      'The active tab carries aria-current="page"; all tabs keep the shared focus-visible outline.',
+    ],
+    composition: ["TabNavLinks directly inside TabNav, in view order."],
+    agentNotes: [
+      'Do not add panels, roving focus, or role="tablist" — server navigation only.',
+      "Height is owned (h-12 toolbar rhythm); override with classes only for exceptional composition.",
+    ],
+    props: [
+      {
+        name: "TabNav.label",
+        type: "string",
+        description: "Accessible name for the nav landmark.",
+        default: '"Tabs"',
+      },
+      { name: "TabNav.children", type: "node", description: "TabNavLinks in order." },
+      { name: "TabNav.classes", type: "string", description: "Layout classes on the nav." },
+      { name: "TabNav.id", type: "string", description: "Optional identifier." },
+      { name: "TabNavLink.href", type: "string", description: "The view's canonical URL." },
+      {
+        name: "TabNavLink.active",
+        type: "boolean",
+        description: "Marks the current view (underline + aria-current).",
+        default: "false",
+      },
+      { name: "TabNavLink.children", type: "node", description: "The tab label." },
+      {
+        name: "TabNavLink.classes",
+        type: "string",
+        description: "Exceptional composition classes.",
+      },
+      { name: "TabNavLink.id", type: "string", description: "Optional identifier." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+const CANONICAL_NODE: DemoNode = {
+  component: "TabNav",
+  props: { label: "Entry status" },
+  wrapper: "w-full",
+  children: [
+    { component: "TabNavLink", props: { href: "?", active: true, children: "All" } },
+    { component: "TabNavLink", props: { href: "?status=published", children: "Published" } },
+    { component: "TabNavLink", props: { href: "?status=review", children: "Needs review" } },
+    { component: "TabNavLink", props: { href: "?status=draft", children: "Drafts" } },
+  ],
+};
+
+export const variants = [
+  {
+    label: "Status tabs",
+    description: "The content list's status views: the active tab is underlined and aria-current.",
+    usage,
+    notes: ["The active tab remains a real link to its canonical URL."],
+    Demo: () => (
+      <TabNav label="Entry status">
+        <TabNavLink href="?" active={true}>
+          All
+        </TabNavLink>
+        <TabNavLink href="?status=published">Published</TabNavLink>
+        <TabNavLink href="?status=review">Needs review</TabNavLink>
+        <TabNavLink href="?status=draft">Drafts</TabNavLink>
+      </TabNav>
+    ),
+    node: CANONICAL_NODE,
+  },
+] satisfies ComponentDemoVariant[];

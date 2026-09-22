@@ -1,0 +1,40 @@
+// Icon-only rail navigation link. A real anchor (APG link pattern) whose
+// required label names the otherwise unnamed icon; the active link is
+// announced with aria-current="page". Children compose Icon.
+
+export type RailLinkProps = {
+  active?: boolean;
+  children?: JSX.Element;
+  classes?: string;
+  href: string;
+  id?: string;
+  label: string;
+};
+
+export function RailLink({
+  active = false,
+  children,
+  classes = "",
+  href,
+  id,
+  label,
+}: RailLinkProps) {
+  return (
+    <a
+      id={id}
+      href={href}
+      aria-label={label}
+      title={label}
+      aria-current={active ? "page" : undefined}
+      class={[
+        "relative inline-flex size-8 items-center justify-center rounded-md border transition duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+        active
+          ? "border-transparent bg-ui-accent text-primary"
+          : "border-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+        classes,
+      ]}
+    >
+      {children}
+    </a>
+  );
+}

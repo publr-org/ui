@@ -1,0 +1,123 @@
+// Portable accordion root. The family store is declared here at module level
+// — the compiler generates the createLocalStore island from it and sibling
+// part files import `state`/`toggle` to bind through the ancestry wire.
+import { Publr } from "publr-jsx";
+
+export const state = Publr.reactive({
+  controlled: false,
+  multiple: false,
+  changed: false,
+  current: [] as string[],
+  revision: 0,
+  pendingValues: [] as string[],
+  changeRevision: 0,
+  get values(): string[] {
+    void state.revision;
+    if (state.changed) return state.current;
+    const owner = root.current as HTMLElement | null;
+    if (!owner) return [];
+    return [...owner.querySelectorAll<HTMLInputElement>('input[data-part="value"]')]
+      .filter((input) => input.closest<HTMLElement>('[data-part="accordion"]') === owner)
+      .map((input) => input.value);
+  },
+});
+
+const root = Publr.ref();
+let deliveredRevision = 0;
+
+const normalize = (values: readonly string[]) => {
+  const unique = [...new Set(values.filter(Boolean))];
+  return state.multiple ? unique : unique.slice(0, 1);
+};
+
+export const toggle = (event: Event) => {
+  const owner = root.current as HTMLElement | null;
+  const item = event.currentTarget as HTMLElement | null;
+  const target = event.target as Element | null;
+  const trigger = target?.closest<HTMLElement>('[data-part="trigger"]');
+  if (
+    event.defaultPrevented ||
+    !owner ||
+    !item ||
+    !trigger ||
+    trigger.closest<HTMLElement>('[data-part="accordion"]') !== owner ||
+    item.dataset.disabled !== undefined
+  ) {
+    return;
+  }
+  const itemValue = item.dataset.value ?? "";
+  if (!itemValue) return;
+  const current = state.values;
+  const next = current.includes(itemValue)
+    ? current.filter((value) => value !== itemValue)
+    : state.multiple
+      ? normalize([...current, itemValue])
+      : [itemValue];
+  if (!state.controlled) {
+    state.changed = true;
+    state.current = next;
+  }
+  state.pendingValues = next;
+  state.changeRevision++;
+};
+
+Publr.effect(() => {
+  const changeRevision = state.changeRevision;
+  if (!changeRevision || changeRevision === deliveredRevision) return;
+  deliveredRevision = changeRevision;
+  (root.current as HTMLElement | null)?.dispatchEvent(
+    new CustomEvent("accordionchange", { detail: [...state.pendingValues] }),
+  );
+  if (state.controlled) state.revision++;
+});
+
+export type AccordionProps = {
+  id?: string;
+  classes?: string;
+  defaultValue?: readonly string[];
+  value?: readonly string[];
+  multiple?: boolean;
+  children: JSX.Element;
+  onValueChange?: (value: readonly string[]) => void;
+};
+
+export function Accordion({
+  id,
+  classes = "",
+  defaultValue,
+  value,
+  multiple = false,
+  children,
+  onValueChange,
+}: AccordionProps) {
+  state.controlled = value !== undefined;
+  state.multiple = multiple;
+
+  const emitValueChange = (event: Event) => {
+    onValueChange?.((event as CustomEvent<readonly string[]>).detail);
+  };
+
+  return (
+    <div
+      id={id}
+      class={["w-full", classes]}
+      data-part="accordion"
+      data-publr-controlled={value === undefined ? "false" : "true"}
+      data-publr-multiple={multiple ? "true" : "false"}
+      onAccordionChange={emitValueChange}
+      ref={root}
+    >
+      {(value ?? defaultValue ?? []).map((itemValue) => (
+        <input type="hidden" data-part="value" value={itemValue} />
+      ))}
+      {children}
+    </div>
+  );
+}
+
+export { AccordionContent } from "./AccordionContent.ptsx";
+export { AccordionItem } from "./AccordionItem.ptsx";
+export { AccordionTrigger } from "./AccordionTrigger.ptsx";
+export type { AccordionContentProps } from "./AccordionContent.ptsx";
+export type { AccordionItemProps } from "./AccordionItem.ptsx";
+export type { AccordionTriggerProps } from "./AccordionTrigger.ptsx";

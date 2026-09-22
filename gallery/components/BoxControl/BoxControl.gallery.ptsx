@@ -1,0 +1,525 @@
+import { CSS_UNITS } from "../../../src/components/UnitControl/UnitControl.ptsx";
+import {
+  BoxControl,
+  BoxControlIcon,
+  BoxControlRangePicker,
+  BoxControlRangeScalePicker,
+  BoxControlRangeScalePickerOption,
+} from "../../../src/components/BoxControl/BoxControl.next.ptsx";
+import { SelectedSidesIcon } from "../../../src/components/SelectedSidesIcon/SelectedSidesIcon.ptsx";
+import type { ComponentCanvas, ComponentDemoMeta, DemoNode } from "../../gallery-types";
+
+const OPTIONS = [
+  { label: "None", value: "" },
+  { label: "2XS", value: "0.25rem" },
+  { label: "XS", value: "0.5rem" },
+  { label: "S", value: "0.75rem" },
+  { label: "M", value: "1rem" },
+  { label: "L", value: "1.5rem" },
+  { label: "XL", value: "2rem" },
+] as const;
+
+const referenceUsage = `<BoxControl
+  id="padding-control"
+  title="Padding"
+  label="Padding value"
+  defaultValue="0.5rem"
+  onSelectionChange={selectSides}
+  onClose={closeControl}
+  onInput={previewPadding}
+  onChange={commitPadding}
+>
+  <BoxControlIcon>
+    <SelectedSidesIcon left size="xl" />
+  </BoxControlIcon>
+  <BoxControlRangeScalePicker>
+    <BoxControlRangeScalePickerOption value="">None</BoxControlRangeScalePickerOption>
+    <BoxControlRangeScalePickerOption value="0.25rem">2XS</BoxControlRangeScalePickerOption>
+    <BoxControlRangeScalePickerOption value="0.5rem">XS</BoxControlRangeScalePickerOption>
+    <BoxControlRangeScalePickerOption value="0.75rem">S</BoxControlRangeScalePickerOption>
+    <BoxControlRangeScalePickerOption value="1rem">M</BoxControlRangeScalePickerOption>
+    <BoxControlRangeScalePickerOption value="1.5rem">L</BoxControlRangeScalePickerOption>
+    <BoxControlRangeScalePickerOption value="2rem">XL</BoxControlRangeScalePickerOption>
+  </BoxControlRangeScalePicker>
+  <BoxControlRangePicker min={0} max={100} step={1} label="Custom padding" />
+</BoxControl>`;
+
+export const meta = {
+  name: "box-control",
+  label: "Box control",
+  source: "src/components/BoxControl/BoxControl.next.ptsx",
+  portableName: "BoxControlNext",
+  kind: "composite",
+  group: "Editor",
+  description: "Side selection and named/arbitrary value editing inside StyleControl.",
+  tags: ["inspector", "box", "sides", "tokens"],
+  usage: referenceUsage,
+  preview: "inspector",
+  previewLabel: "Padding side and value control",
+  docs: {
+    purpose: [
+      "BoxControl specializes StyleControl for side-based padding, margin, and border-width editing.",
+      "It owns side or corner selection and synchronization while BoxValueControl owns named and arbitrary CSS values.",
+    ],
+    useWhen: ["One box-model value can target any combination of sides or corners."],
+    avoidWhen: ["Editing a value without side selection; use BoxValueControl directly."],
+    rules: [
+      {
+        title: "The icon is the selection seed",
+        description:
+          "BoxControlIcon accepts either SelectedSidesIcon or SelectedCornersIcon. That composed icon's props initialize the same local selection shown by BoxValueControl; there is no parallel selection prop.",
+      },
+      {
+        title: "Opposite sync follows orientation",
+        description:
+          "Top/Bottom uses the sync icon rotated 90 degrees; Left/Right uses its horizontal orientation. The action selects the matching pair.",
+      },
+      {
+        title: "All sides is exclusive",
+        description:
+          "Sync all selects all four sides or corners and clears the opposite-pair pressed state. The opposite-pair action remains available from all sides and switches to Left, Right.",
+      },
+      {
+        title: "Value composition stays typed",
+        description:
+          "Named options and arbitrary range bounds are authored with BoxControlRangeScalePicker and BoxControlRangePicker children.",
+      },
+    ],
+    accessibility: [
+      "Every icon-only action has an accessible label and title.",
+      "Pressed state identifies the active synchronization mode.",
+      "label names every native value editor rendered by BoxValueControl.",
+      "StyleControlCloseTrigger preserves the shared close-button semantics.",
+    ],
+    composition: [
+      "BoxControl renders StyleControlActions and StyleControlContent internally.",
+      "BoxControlIcon follows BoxValueControlIcon composition exactly: it wraps one SelectedSidesIcon or SelectedCornersIcon, including that component's size and root props.",
+      "BoxControl derives its reactive indicator from that authored child and passes it through BoxValueControlIcon.",
+      "Compose BoxControlIcon first, the named-scale child second, and the arbitrary-range child third.",
+    ],
+    agentNotes: [
+      "Do not expose Icon names or raw action slots; BoxControl owns its three concrete header actions.",
+      "Do not flatten named options into a public options prop; keep configuration children in authored PJSX.",
+    ],
+    props: [
+      { name: "title", type: "string", description: "StyleControl header title.", required: true },
+      {
+        name: "label",
+        type: "string",
+        description: "Accessible name for the value editors.",
+        required: true,
+      },
+      {
+        name: "defaultValue",
+        type: "string | readonly [number, CssUnit]",
+        description: "Initial BoxValueControl value and mode.",
+        required: true,
+      },
+      {
+        name: "disabled",
+        type: "boolean",
+        description: "Disables selection and value actions.",
+        default: "false",
+      },
+      {
+        name: "onSelectionChange",
+        type: "(event: CustomEvent<BoxControlSelection>) => void",
+        description: "Reports the selected side, pair, or all-sides value in event.detail.",
+      },
+      {
+        name: "onClose",
+        type: "(event: MouseEvent) => void",
+        description: "Close-trigger callback.",
+      },
+      {
+        name: "onInput",
+        type: "(value: BoxValue) => void",
+        description: "Value preview callback.",
+      },
+      {
+        name: "onChange",
+        type: "(value: BoxValue) => void",
+        description: "Value commit callback.",
+      },
+      {
+        name: "children",
+        type: "[BoxControlIcon, BoxControlRangeScalePicker, BoxControlRangePicker]",
+        description: "Geometry selection, named-scale options, and arbitrary-range configuration.",
+        required: true,
+      },
+      { name: "id", type: "string", description: "Identifier applied to the BoxControl root." },
+      { name: "classes", type: "string", description: "Additional root composition classes." },
+      {
+        name: "BoxControlIcon.children",
+        type: "SelectedSidesIcon | SelectedCornersIcon",
+        description: "One composed geometry icon that initializes BoxControl selection.",
+        required: true,
+      },
+      {
+        name: "SelectedSidesIcon.id",
+        type: "string",
+        description: "Identifier applied to the side icon root.",
+      },
+      {
+        name: "SelectedSidesIcon.classes",
+        type: "string",
+        description: "Additional side icon composition classes.",
+      },
+      {
+        name: "SelectedSidesIcon.size",
+        type: '"xs" | "sm" | "md" | "lg" | "xl"',
+        description: "Side icon size.",
+        default: '"md"',
+      },
+      {
+        name: "SelectedSidesIcon.top",
+        type: "boolean",
+        description: "Selects the top side.",
+        default: "false",
+      },
+      {
+        name: "SelectedSidesIcon.right",
+        type: "boolean",
+        description: "Selects the right side.",
+        default: "false",
+      },
+      {
+        name: "SelectedSidesIcon.bottom",
+        type: "boolean",
+        description: "Selects the bottom side.",
+        default: "false",
+      },
+      {
+        name: "SelectedSidesIcon.left",
+        type: "boolean",
+        description: "Selects the left side.",
+        default: "false",
+      },
+      {
+        name: "SelectedCornersIcon.id",
+        type: "string",
+        description: "Identifier applied to the corner icon root.",
+      },
+      {
+        name: "SelectedCornersIcon.classes",
+        type: "string",
+        description: "Additional corner icon composition classes.",
+      },
+      {
+        name: "SelectedCornersIcon.size",
+        type: '"xs" | "sm" | "md" | "lg" | "xl"',
+        description: "Corner icon size.",
+        default: '"md"',
+      },
+      {
+        name: "SelectedCornersIcon.topLeft",
+        type: "boolean",
+        description: "Selects the top-left corner.",
+        default: "false",
+      },
+      {
+        name: "SelectedCornersIcon.topRight",
+        type: "boolean",
+        description: "Selects the top-right corner.",
+        default: "false",
+      },
+      {
+        name: "SelectedCornersIcon.bottomRight",
+        type: "boolean",
+        description: "Selects the bottom-right corner.",
+        default: "false",
+      },
+      {
+        name: "SelectedCornersIcon.bottomLeft",
+        type: "boolean",
+        description: "Selects the bottom-left corner.",
+        default: "false",
+      },
+      {
+        name: "BoxControlRangeScalePicker.children",
+        type: "BoxControlRangeScalePickerOption[]",
+        description: "At least two ordered named values.",
+        required: true,
+      },
+      {
+        name: "BoxControlRangeScalePickerOption.value",
+        type: "string",
+        description: "Semantic CSS value returned by the named scale.",
+        required: true,
+      },
+      {
+        name: "BoxControlRangeScalePickerOption.children",
+        type: "string",
+        description: "Visible compact option label.",
+        required: true,
+      },
+      {
+        name: "BoxControlRangePicker.min",
+        type: "number",
+        description: "Arbitrary range minimum.",
+        default: "0",
+      },
+      {
+        name: "BoxControlRangePicker.max",
+        type: "number",
+        description: "Arbitrary range maximum.",
+        default: "300",
+      },
+      {
+        name: "BoxControlRangePicker.step",
+        type: "number",
+        description: "Arbitrary range increment.",
+        default: "1",
+      },
+      {
+        name: "BoxControlRangePicker.label",
+        type: "string",
+        description: "Accessible arbitrary-range name.",
+        required: true,
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const node = {
+  component: "BoxControlNext",
+  props: {
+    title: "Padding",
+    label: "Padding value",
+    defaultValue: "0.5rem",
+  },
+  children: [
+    {
+      component: "BoxControlIcon",
+      props: {},
+      children: [{ component: "SelectedSidesIcon", props: { left: true, size: "xl" } }],
+    },
+    {
+      component: "BoxControlRangeScalePicker",
+      props: {},
+      children: OPTIONS.map((option) => ({
+        component: "BoxControlRangeScalePickerOption",
+        props: { value: option.value, children: option.label },
+      })),
+    },
+    {
+      component: "BoxControlRangePicker",
+      props: { min: 0, max: 100, step: 1, label: "Custom padding" },
+    },
+  ],
+} satisfies DemoNode;
+
+export function Demo() {
+  return (
+    <BoxControl title="Padding" label="Padding value" defaultValue="0.5rem">
+      <BoxControlIcon>
+        <SelectedSidesIcon left size="xl" />
+      </BoxControlIcon>
+      <BoxControlRangeScalePicker>
+        {OPTIONS.map((option) => (
+          <BoxControlRangeScalePickerOption value={option.value}>
+            {option.label}
+          </BoxControlRangeScalePickerOption>
+        ))}
+      </BoxControlRangeScalePicker>
+      <BoxControlRangePicker min={0} max={100} step={1} label="Custom padding" />
+    </BoxControl>
+  );
+}
+
+export const canvas = {
+  controls: [
+    { name: "id", type: "text", default: "", placeholder: "Optional root id" },
+    { name: "classes", type: "text", default: "", placeholder: "e.g. max-w-md" },
+    { name: "title", type: "text", default: "Padding" },
+    { name: "label", type: "text", default: "Padding value" },
+    {
+      name: "defaultValue",
+      label: "defaultValue",
+      type: "box-value",
+      default: "0.5rem",
+      namedDefault: "0.5rem",
+      arbitraryDefault: [50, "px"],
+      unitOptions: CSS_UNITS,
+    },
+    { name: "disabled", type: "boolean", default: false },
+    {
+      name: "icon",
+      labelControl: "iconComponent",
+      type: "group",
+      controls: [
+        {
+          name: "iconComponent",
+          label: "component",
+          type: "select",
+          default: "SelectedSidesIcon",
+          options: ["SelectedSidesIcon", "SelectedCornersIcon"],
+        },
+        { name: "iconId", label: "id", type: "text", default: "" },
+        { name: "iconClasses", label: "classes", type: "text", default: "" },
+        {
+          name: "iconSize",
+          label: "size",
+          type: "select",
+          default: "xl",
+          options: ["xs", "sm", "md", "lg", "xl"],
+        },
+        {
+          name: "iconTop",
+          label: "top",
+          type: "boolean",
+          default: false,
+          visibleWhen: { control: "iconComponent", equals: "SelectedSidesIcon" },
+        },
+        {
+          name: "iconRight",
+          label: "right",
+          type: "boolean",
+          default: false,
+          visibleWhen: { control: "iconComponent", equals: "SelectedSidesIcon" },
+        },
+        {
+          name: "iconBottom",
+          label: "bottom",
+          type: "boolean",
+          default: false,
+          visibleWhen: { control: "iconComponent", equals: "SelectedSidesIcon" },
+        },
+        {
+          name: "iconLeft",
+          label: "left",
+          type: "boolean",
+          default: true,
+          visibleWhen: { control: "iconComponent", equals: "SelectedSidesIcon" },
+        },
+        {
+          name: "iconTopLeft",
+          label: "topLeft",
+          type: "boolean",
+          default: true,
+          visibleWhen: { control: "iconComponent", equals: "SelectedCornersIcon" },
+        },
+        {
+          name: "iconTopRight",
+          label: "topRight",
+          type: "boolean",
+          default: false,
+          visibleWhen: { control: "iconComponent", equals: "SelectedCornersIcon" },
+        },
+        {
+          name: "iconBottomRight",
+          label: "bottomRight",
+          type: "boolean",
+          default: false,
+          visibleWhen: { control: "iconComponent", equals: "SelectedCornersIcon" },
+        },
+        {
+          name: "iconBottomLeft",
+          label: "bottomLeft",
+          type: "boolean",
+          default: false,
+          visibleWhen: { control: "iconComponent", equals: "SelectedCornersIcon" },
+        },
+      ],
+    },
+    {
+      name: "rangeScalePicker",
+      label: "BoxControlRangeScalePicker",
+      type: "group",
+      controls: [
+        {
+          name: "rangeScalePickerOptions",
+          label: "children",
+          type: "options",
+          default: OPTIONS,
+        },
+      ],
+    },
+    {
+      name: "rangePicker",
+      label: "BoxControlRangePicker",
+      type: "group",
+      controls: [
+        { name: "rangePickerMin", label: "min", type: "number", default: 0 },
+        { name: "rangePickerMax", label: "max", type: "number", default: 100 },
+        {
+          name: "rangePickerStep",
+          label: "step",
+          type: "number",
+          default: 1,
+          min: 0.01,
+          step: 0.01,
+        },
+        { name: "rangePickerLabel", label: "label", type: "text", default: "Custom padding" },
+      ],
+    },
+  ],
+  node: (values) => {
+    const defaultValue = Array.isArray(values.defaultValue)
+      ? [Number(values.defaultValue[0]), String(values.defaultValue[1])]
+      : String(values.defaultValue);
+    const options =
+      Array.isArray(values.rangeScalePickerOptions) && values.rangeScalePickerOptions.length >= 2
+        ? values.rangeScalePickerOptions
+        : OPTIONS;
+    const isCorners = String(values.iconComponent) === "SelectedCornersIcon";
+    const iconProps = {
+      id: String(values.iconId) || undefined,
+      classes: String(values.iconClasses),
+      size: String(values.iconSize),
+      ...(isCorners
+        ? {
+            topLeft: Boolean(values.iconTopLeft),
+            topRight: Boolean(values.iconTopRight),
+            bottomRight: Boolean(values.iconBottomRight),
+            bottomLeft: Boolean(values.iconBottomLeft),
+          }
+        : {
+            top: Boolean(values.iconTop),
+            right: Boolean(values.iconRight),
+            bottom: Boolean(values.iconBottom),
+            left: Boolean(values.iconLeft),
+          }),
+    };
+    return {
+      component: "BoxControlNext",
+      props: {
+        id: String(values.id) || undefined,
+        classes: String(values.classes),
+        title: String(values.title),
+        label: String(values.label),
+        defaultValue,
+        disabled: Boolean(values.disabled),
+      },
+      children: [
+        {
+          component: "BoxControlIcon",
+          props: {},
+          children: [
+            {
+              component: isCorners ? "SelectedCornersIcon" : "SelectedSidesIcon",
+              props: iconProps,
+            },
+          ],
+        },
+        {
+          component: "BoxControlRangeScalePicker",
+          props: {},
+          children: options.map((option) => ({
+            component: "BoxControlRangeScalePickerOption",
+            props: { value: option.value, children: option.label },
+          })),
+        },
+        {
+          component: "BoxControlRangePicker",
+          props: {
+            min: Number(values.rangePickerMin),
+            max: Number(values.rangePickerMax),
+            step: Number(values.rangePickerStep),
+            label: String(values.rangePickerLabel),
+          },
+        },
+      ],
+    };
+  },
+} satisfies ComponentCanvas;

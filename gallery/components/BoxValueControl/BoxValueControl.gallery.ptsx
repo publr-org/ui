@@ -1,0 +1,342 @@
+import { CSS_UNITS } from "../../../src/components/UnitControl/UnitControl.ptsx";
+import type { ComponentCanvas, ComponentDemoMeta, DemoNode } from "../../gallery-types";
+
+const OPTIONS = [
+  { label: "None", value: "" },
+  { label: "2XS", value: "0.25rem" },
+  { label: "XS", value: "0.5rem" },
+  { label: "S", value: "0.75rem" },
+  { label: "M", value: "1rem" },
+  { label: "L", value: "1.5rem" },
+  { label: "XL", value: "2rem" },
+] as const;
+
+export const meta = {
+  name: "box-value-control",
+  label: "Box value control",
+  source: "src/components/BoxValueControl/BoxValueControl.ptsx",
+  kind: "composite",
+  group: "Editor",
+  description: "Edits a named option or arbitrary number/unit value.",
+  tags: ["box", "range", "value", "unit"],
+  usage: `<BoxValueControl
+  id="box-value-control"
+  label="Left padding"
+  defaultValue={[50, "px"]}
+  onInput={previewValue}
+  onChange={commitValue}
+>
+  <BoxValueControlIcon>
+    <SelectedSidesIcon top bottom size="xl" />
+  </BoxValueControlIcon>
+  <BoxValueControlRangeScalePicker>
+    <BoxValueControlRangeScalePickerOption value="small">Small</BoxValueControlRangeScalePickerOption>
+    <BoxValueControlRangeScalePickerOption value="medium">Medium</BoxValueControlRangeScalePickerOption>
+    <BoxValueControlRangeScalePickerOption value="large">Large</BoxValueControlRangeScalePickerOption>
+  </BoxValueControlRangeScalePicker>
+  <BoxValueControlRangePicker min={0} max={100} step={1} label="Custom left padding" />
+</BoxValueControl>`,
+  preview: "inspector",
+  previewLabel: "Named and arbitrary box value",
+  docs: {
+    purpose: [
+      "BoxValueControl owns the complete named/arbitrary editing interaction.",
+      "Its callbacks expose only a named string or an arbitrary [number, unit] tuple.",
+    ],
+    useWhen: ["A box-model property supports both design tokens and arbitrary CSS lengths."],
+    avoidWhen: ["Editing a plain number without named options; use RangePicker."],
+    rules: [
+      {
+        title: "Mode follows the default value",
+        description: "A string starts named mode; a tuple starts arbitrary mode.",
+      },
+      {
+        title: "One pair of callbacks",
+        description:
+          "onInput previews and onChange commits for both modes. The composed RangeScalePicker and UnitControl never surface their own callbacks.",
+      },
+      {
+        title: "Named values use RangeScalePicker",
+        description:
+          "The named mode is a RangeScalePicker over the supplied options, with the active label mirrored in a read-only output.",
+      },
+      {
+        title: "Free values use UnitControl",
+        description:
+          "Arbitrary mode composes UnitControl and therefore uses px, %, em, rem, vw, and vh without a units prop.",
+      },
+      {
+        title: "Free range has useful defaults",
+        description:
+          "BoxValueControlRangePicker defaults to min 0, max 300, and step 1 when those bounds are omitted.",
+      },
+    ],
+    accessibility: [
+      "label names the active native range/number controls.",
+      "The settings action communicates which mode it activates.",
+    ],
+    composition: [
+      "Compose BoxValueControlIcon, BoxValueControlRangeScalePicker, and BoxValueControlRangePicker in that order.",
+    ],
+    agentNotes: [
+      "Do not split arbitrary number/unit state into public props.",
+      "Do not add per-control callbacks; the single onInput/onChange pair is the contract.",
+    ],
+    props: [
+      { name: "label", type: "string", description: "Accessible value name.", required: true },
+      {
+        name: "defaultValue",
+        type: "string | readonly [number, CssUnit]",
+        description: "Initial value and mode discriminator.",
+        required: true,
+      },
+      { name: "disabled", type: "boolean", description: "Disables every editor control." },
+      {
+        name: "onInput",
+        type: "(value: string | readonly [number, string]) => void",
+        description: "Preview callback for both modes.",
+      },
+      {
+        name: "onChange",
+        type: "(value: string | readonly [number, string]) => void",
+        description: "Commit callback for both modes.",
+      },
+      {
+        name: "children",
+        type: "[BoxValueControlIcon, BoxValueControlRangeScalePicker, BoxValueControlRangePicker]",
+        description: "Declarative geometry icon plus named and arbitrary picker configuration.",
+        required: true,
+      },
+      { name: "id", type: "string", description: "Identifier applied to the editor fieldset." },
+      { name: "classes", type: "string", description: "Additional root classes." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+// Declarative, so the DOM and ZSX targets render the same compound tree.
+export const node = {
+  component: "BoxValueControl",
+  props: {
+    label: "Left padding",
+    defaultValue: "0.5rem",
+  },
+  children: [
+    {
+      component: "BoxValueControlIcon",
+      props: {},
+      children: [{ component: "SelectedSidesIcon", props: { left: true, size: "xl" } }],
+    },
+    {
+      component: "BoxValueControlRangeScalePicker",
+      props: {},
+      children: OPTIONS.map((option) => ({
+        component: "BoxValueControlRangeScalePickerOption",
+        props: { value: option.value, children: option.label },
+      })),
+    },
+    {
+      component: "BoxValueControlRangePicker",
+      props: { min: 0, max: 300, step: 1, label: "Custom left padding" },
+    },
+  ],
+} satisfies DemoNode;
+
+export const canvas = {
+  controls: [
+    {
+      name: "defaultValue",
+      label: "Default value",
+      type: "box-value",
+      default: "0.5rem",
+      namedDefault: "0.5rem",
+      arbitraryDefault: [50, "px"],
+      unitOptions: CSS_UNITS,
+    },
+    {
+      name: "icon",
+      labelControl: "iconComponent",
+      type: "group",
+      controls: [
+        {
+          name: "iconComponent",
+          label: "component",
+          type: "select",
+          default: "SelectedSidesIcon",
+          options: ["SelectedSidesIcon", "SelectedCornersIcon"],
+        },
+        {
+          name: "iconTop",
+          label: "top",
+          type: "boolean",
+          default: false,
+          visibleWhen: { control: "iconComponent", equals: "SelectedSidesIcon" },
+        },
+        {
+          name: "iconRight",
+          label: "right",
+          type: "boolean",
+          default: false,
+          visibleWhen: { control: "iconComponent", equals: "SelectedSidesIcon" },
+        },
+        {
+          name: "iconBottom",
+          label: "bottom",
+          type: "boolean",
+          default: false,
+          visibleWhen: { control: "iconComponent", equals: "SelectedSidesIcon" },
+        },
+        {
+          name: "iconLeft",
+          label: "left",
+          type: "boolean",
+          default: true,
+          visibleWhen: { control: "iconComponent", equals: "SelectedSidesIcon" },
+        },
+        {
+          name: "iconTopLeft",
+          label: "topLeft",
+          type: "boolean",
+          default: true,
+          visibleWhen: { control: "iconComponent", equals: "SelectedCornersIcon" },
+        },
+        {
+          name: "iconTopRight",
+          label: "topRight",
+          type: "boolean",
+          default: false,
+          visibleWhen: { control: "iconComponent", equals: "SelectedCornersIcon" },
+        },
+        {
+          name: "iconBottomRight",
+          label: "bottomRight",
+          type: "boolean",
+          default: false,
+          visibleWhen: { control: "iconComponent", equals: "SelectedCornersIcon" },
+        },
+        {
+          name: "iconBottomLeft",
+          label: "bottomLeft",
+          type: "boolean",
+          default: false,
+          visibleWhen: { control: "iconComponent", equals: "SelectedCornersIcon" },
+        },
+        {
+          name: "iconSize",
+          label: "size",
+          type: "select",
+          default: "xl",
+          options: ["xs", "sm", "md", "lg", "xl"],
+        },
+      ],
+    },
+    {
+      name: "rangeScalePicker",
+      label: "RangeScalePicker",
+      type: "group",
+      controls: [
+        {
+          name: "rangeScalePickerOptions",
+          label: "options",
+          type: "options",
+          default: OPTIONS,
+        },
+      ],
+    },
+    {
+      name: "rangePicker",
+      label: "RangePicker",
+      type: "group",
+      controls: [
+        { name: "rangePickerMin", label: "min", type: "number", default: 0 },
+        { name: "rangePickerMax", label: "max", type: "number", default: 100 },
+        {
+          name: "rangePickerStep",
+          label: "step",
+          type: "number",
+          default: 1,
+          min: 0.01,
+          step: 0.01,
+        },
+        {
+          name: "rangePickerLabel",
+          label: "label",
+          type: "text",
+          default: "Custom left padding",
+        },
+      ],
+    },
+    { name: "label", type: "text", default: "Left padding" },
+    { name: "disabled", type: "boolean", default: false },
+    {
+      name: "classes",
+      type: "text",
+      default: "",
+      placeholder: "e.g. max-w-md",
+    },
+  ],
+  // The controls drive a composition (the geometry icon is its own component),
+  // so the canvas must state the node rather than let the frame treat every
+  // control value as a BoxValueControl prop.
+  node: (values) => {
+    const defaultValue = Array.isArray(values.defaultValue)
+      ? [Number(values.defaultValue[0]), String(values.defaultValue[1])]
+      : String(values.defaultValue);
+    const options =
+      Array.isArray(values.rangeScalePickerOptions) && values.rangeScalePickerOptions.length >= 2
+        ? values.rangeScalePickerOptions
+        : OPTIONS;
+    const size = String(values.iconSize);
+    const icon: DemoNode =
+      String(values.iconComponent) === "SelectedCornersIcon"
+        ? {
+            component: "SelectedCornersIcon",
+            props: {
+              topLeft: Boolean(values.iconTopLeft),
+              topRight: Boolean(values.iconTopRight),
+              bottomRight: Boolean(values.iconBottomRight),
+              bottomLeft: Boolean(values.iconBottomLeft),
+              size,
+            },
+          }
+        : {
+            component: "SelectedSidesIcon",
+            props: {
+              top: Boolean(values.iconTop),
+              right: Boolean(values.iconRight),
+              bottom: Boolean(values.iconBottom),
+              left: Boolean(values.iconLeft),
+              size,
+            },
+          };
+
+    return {
+      component: "BoxValueControl",
+      props: {
+        label: String(values.label),
+        defaultValue,
+        disabled: Boolean(values.disabled),
+        classes: String(values.classes),
+      },
+      children: [
+        { component: "BoxValueControlIcon", props: {}, children: [icon] },
+        {
+          component: "BoxValueControlRangeScalePicker",
+          props: {},
+          children: options.map((option) => ({
+            component: "BoxValueControlRangeScalePickerOption",
+            props: { value: option.value, children: option.label },
+          })),
+        },
+        {
+          component: "BoxValueControlRangePicker",
+          props: {
+            min: Number(values.rangePickerMin),
+            max: Number(values.rangePickerMax),
+            step: Number(values.rangePickerStep),
+            label: String(values.rangePickerLabel),
+          },
+        },
+      ],
+    };
+  },
+} satisfies ComponentCanvas;

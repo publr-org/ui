@@ -1,0 +1,22 @@
+// Inline code: a handle, a slug, a field path, set in the mono face on a
+// muted chip so it reads as a literal inside running text.
+
+export type CodeProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function Code({ children, classes = "", id }: CodeProps) {
+  return (
+    <code
+      id={id}
+      class={["rounded-md bg-muted px-1.5 py-0.5 font-mono text-2xs text-foreground", classes]}
+    >
+      {children}
+    </code>
+  );
+}
+
+export { CodeBlock } from "./CodeBlock.ptsx";
+export type { CodeBlockProps } from "./CodeBlock.ptsx";

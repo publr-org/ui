@@ -1,0 +1,540 @@
+import { Accordion, type AccordionProps } from "../../../src/components/Accordion/Accordion.ptsx";
+import { Button } from "../../../src/components/Button/Button.ptsx";
+import { AccordionContent } from "../../../src/components/Accordion/AccordionContent.ptsx";
+import { AccordionItem } from "../../../src/components/Accordion/AccordionItem.ptsx";
+import { AccordionTrigger } from "../../../src/components/Accordion/AccordionTrigger.ptsx";
+import type {
+  ComponentCanvas,
+  ComponentCanvasChildInstance,
+  ComponentDemoMeta,
+  ComponentDemoVariant,
+  DemoNode,
+} from "../../gallery-types";
+
+const usage = `<Accordion defaultValue={["item-1"]}>
+  <AccordionItem value="item-1">
+    <AccordionTrigger>Is it accessible?</AccordionTrigger>
+    <AccordionContent>
+      Yes. It adheres to the WAI-ARIA design pattern.
+    </AccordionContent>
+  </AccordionItem>
+</Accordion>`;
+
+export const meta = {
+  name: "accordion",
+  label: "Accordion",
+  source: "src/components/Accordion/Accordion.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description: "A portable compound disclosure list with controlled and uncontrolled value state.",
+  tags: ["accordion", "disclosure", "button", "panel", "interactive"],
+  usage,
+  preview: "inspector",
+  previewLabel: "Accessible disclosure items",
+  docs: {
+    purpose: [
+      "Accordion groups related disclosure items with single-open or multiple-open behavior.",
+      "Its compound parts keep item identity, trigger semantics, and disclosed content explicit.",
+    ],
+    useWhen: [
+      "Several related sections should be independently expanded and collapsed.",
+      "Content can be understood from a concise trigger label.",
+    ],
+    avoidWhen: [
+      "Only one disclosure exists; native details may be sufficient.",
+      "Changing sections should replace a single panel rather than reveal content in place; use Tabs.",
+    ],
+    rules: [
+      {
+        title: "Give every item a stable value",
+        description:
+          "AccordionItem.value is the identity used by value, defaultValue, and onValueChange.",
+      },
+      {
+        title: "Compose Trigger before Content",
+        description: "Each item contains one AccordionTrigger followed by its AccordionContent.",
+      },
+      {
+        title: "Adopt a trigger deliberately",
+        description:
+          "AccordionTrigger asChild merges disclosure behavior onto exactly one Element child; that child must provide appropriate interactive semantics.",
+      },
+      {
+        title: "defaultValue is initial state",
+        description:
+          "Omit it to start with every item closed. When supplied, it chooses the initially open items and the Accordion owns later uncontrolled interaction.",
+      },
+      {
+        title: "value is controlled state",
+        description:
+          "When value is supplied, update it from onValueChange. Until then, the rendered panels remain aligned with the supplied array.",
+      },
+    ],
+    accessibility: [
+      "By default AccordionTrigger renders a native button with aria-expanded and aria-controls linked to its panel.",
+      "With asChild, the adopted trigger element must remain keyboard accessible; Button is the normal choice.",
+      "Use concise trigger text that identifies the content it reveals.",
+      "The chevron is decorative and hidden from assistive technology by Icon.",
+    ],
+    composition: [
+      "Accordion accepts AccordionItem children.",
+      "AccordionItem composes AccordionTrigger and AccordionContent in that order.",
+      "Trigger and Content accept visible Publr JSX children rather than title or body shorthand props.",
+    ],
+    agentNotes: [
+      "Use values that are unique within one Accordion.",
+      "Use multiple when more than one item may stay open.",
+      "Do not pass value and defaultValue together; value selects controlled state.",
+      "Listen to onValueChange for the complete array of currently open values.",
+    ],
+    props: [
+      { name: "Accordion.id", type: "string", description: "Optional root identifier." },
+      {
+        name: "Accordion.classes",
+        type: "string",
+        description: "Exceptional classes merged into the root.",
+      },
+      {
+        name: "Accordion.defaultValue",
+        type: "readonly string[]",
+        description:
+          "Optional item values open on first mount. When omitted, every item starts closed.",
+      },
+      {
+        name: "Accordion.value",
+        type: "readonly string[]",
+        description: "Controlled array of currently open item values.",
+      },
+      {
+        name: "Accordion.multiple",
+        type: "boolean",
+        description: "Whether more than one item may remain open.",
+        default: "false",
+      },
+      {
+        name: "Accordion.children",
+        type: "unknown",
+        description: "Composed AccordionItem children.",
+        required: true,
+      },
+      {
+        name: "Accordion.onValueChange",
+        type: "(value: readonly string[]) => void",
+        description: "Called with all open item values after a disclosure toggles.",
+      },
+      {
+        name: "AccordionItem.value",
+        type: "string",
+        description: "Stable item identity used by root values.",
+        required: true,
+      },
+      {
+        name: "AccordionItem.disabled",
+        type: "boolean",
+        description: "Prevents the item trigger from changing its open state.",
+        default: "false",
+      },
+      { name: "AccordionItem.id", type: "string", description: "Optional item identifier." },
+      {
+        name: "AccordionItem.classes",
+        type: "string",
+        description: "Exceptional classes merged into the item.",
+      },
+      {
+        name: "AccordionItem.children",
+        type: "unknown",
+        description: "Trigger and Content composition.",
+        required: true,
+      },
+      { name: "AccordionTrigger.id", type: "string", description: "Optional trigger identifier." },
+      {
+        name: "AccordionTrigger.classes",
+        type: "string",
+        description: "Exceptional classes merged into the trigger.",
+      },
+      {
+        name: "AccordionTrigger.asChild",
+        type: "boolean",
+        description: "Merges trigger behavior onto exactly one Element child.",
+        default: "false",
+      },
+      {
+        name: "AccordionTrigger.children",
+        type: "unknown",
+        description: "Visible disclosure label.",
+        required: true,
+      },
+      { name: "AccordionContent.id", type: "string", description: "Optional content identifier." },
+      {
+        name: "AccordionContent.classes",
+        type: "string",
+        description: "Exceptional classes merged into the content.",
+      },
+      { name: "AccordionContent.children", type: "unknown", description: "Disclosed content." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+const itemNode = (value: string, trigger: string, content: string): DemoNode => ({
+  component: "AccordionItem",
+  props: { value },
+  children: [
+    { component: "AccordionTrigger", props: { children: trigger } },
+    { component: "AccordionContent", props: { children: content } },
+  ],
+});
+
+const canonicalNode: DemoNode = {
+  component: "Accordion",
+  wrapper: "w-full max-w-lg",
+  props: { defaultValue: ["item-1"] },
+  children: [
+    itemNode("item-1", "Is it accessible?", "Yes. It adheres to the WAI-ARIA design pattern."),
+    itemNode(
+      "item-2",
+      "Can multiple items stay open?",
+      "Yes. multiple allows each item to own independent disclosure state.",
+    ),
+  ],
+};
+
+function ReferenceDemo() {
+  return (
+    <Accordion defaultValue={["item-1"]}>
+      <AccordionItem value="item-1">
+        <AccordionTrigger>Is it accessible?</AccordionTrigger>
+        <AccordionContent>Yes. It adheres to the WAI-ARIA design pattern.</AccordionContent>
+      </AccordionItem>
+      <AccordionItem value="item-2">
+        <AccordionTrigger>Can multiple items stay open?</AccordionTrigger>
+        <AccordionContent>
+          Yes. multiple allows each item to own independent disclosure state.
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  );
+}
+
+function MultipleOpenDemo() {
+  return (
+    <Accordion multiple defaultValue={["item-1", "item-2"]}>
+      <AccordionItem value="item-1">
+        <AccordionTrigger>First section</AccordionTrigger>
+        <AccordionContent>First section content.</AccordionContent>
+      </AccordionItem>
+      <AccordionItem value="item-2">
+        <AccordionTrigger>Second section</AccordionTrigger>
+        <AccordionContent>Second section content.</AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  );
+}
+
+function ControlledDemo() {
+  return (
+    <Accordion value={["item-2"]}>
+      <AccordionItem value="item-1">
+        <AccordionTrigger>First section</AccordionTrigger>
+        <AccordionContent>First section content.</AccordionContent>
+      </AccordionItem>
+      <AccordionItem value="item-2">
+        <AccordionTrigger>Second section</AccordionTrigger>
+        <AccordionContent>Second section content.</AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  );
+}
+
+function AdoptedAndDisabledDemo() {
+  return (
+    <Accordion>
+      <AccordionItem value="item-1">
+        <AccordionTrigger asChild>
+          <Button hierarchy="secondary">Adopted button trigger</Button>
+        </AccordionTrigger>
+        <AccordionContent>The Button owns the trigger element.</AccordionContent>
+      </AccordionItem>
+      <AccordionItem value="item-2" disabled={true}>
+        <AccordionTrigger>Disabled item</AccordionTrigger>
+        <AccordionContent>This item cannot be toggled by its trigger.</AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  );
+}
+
+export const variants = [
+  {
+    label: "Reference usage",
+    description: "One item is initially open and opening another closes it.",
+    usage,
+    Demo: ReferenceDemo,
+    node: canonicalNode,
+  },
+  {
+    label: "Multiple open",
+    description: "The array value can initialize more than one open disclosure.",
+    usage: `<Accordion multiple defaultValue={["item-1", "item-2"]}>…</Accordion>`,
+    Demo: MultipleOpenDemo,
+    node: {
+      component: "Accordion",
+      wrapper: "w-full max-w-lg",
+      props: { multiple: true, defaultValue: ["item-1", "item-2"] },
+      children: [
+        itemNode("item-1", "First section", "First section content."),
+        itemNode("item-2", "Second section", "Second section content."),
+      ],
+    },
+  },
+  {
+    label: "Controlled",
+    description: "value owns the open item until onValueChange produces a parent update.",
+    usage: `<Accordion value={["item-2"]} onValueChange={setValue}>…</Accordion>`,
+    Demo: ControlledDemo,
+    node: {
+      component: "Accordion",
+      wrapper: "w-full max-w-lg",
+      props: { value: ["item-2"] },
+      children: [
+        itemNode("item-1", "First section", "First section content."),
+        itemNode("item-2", "Second section", "Second section content."),
+      ],
+    },
+  },
+  {
+    label: "Adopted and disabled",
+    description: "A Button can own trigger behavior, while disabled belongs to AccordionItem.",
+    usage: `<Accordion>
+  <AccordionItem value="item-1">
+    <AccordionTrigger asChild>
+      <Button hierarchy="secondary">Adopted button trigger</Button>
+    </AccordionTrigger>
+    <AccordionContent>The Button owns the trigger element.</AccordionContent>
+  </AccordionItem>
+  <AccordionItem value="item-2" disabled={true}>
+    <AccordionTrigger>Disabled item</AccordionTrigger>
+    <AccordionContent>This item cannot be toggled by its trigger.</AccordionContent>
+  </AccordionItem>
+</Accordion>`,
+    Demo: AdoptedAndDisabledDemo,
+    node: {
+      component: "Accordion",
+      wrapper: "w-full max-w-lg",
+      props: {},
+      children: [
+        {
+          component: "AccordionItem",
+          props: { value: "item-1" },
+          children: [
+            {
+              component: "AccordionTrigger",
+              props: { asChild: true },
+              children: [
+                {
+                  component: "Button",
+                  props: { children: "Adopted button trigger", hierarchy: "secondary" },
+                },
+              ],
+            },
+            {
+              component: "AccordionContent",
+              props: { children: "The Button owns the trigger element." },
+            },
+          ],
+        },
+        {
+          component: "AccordionItem",
+          props: { value: "item-2", disabled: true },
+          children: [
+            { component: "AccordionTrigger", props: { children: "Disabled item" } },
+            {
+              component: "AccordionContent",
+              props: { children: "This item cannot be toggled by its trigger." },
+            },
+          ],
+        },
+      ],
+    },
+  },
+] satisfies ComponentDemoVariant[];
+
+const scopedValue = (scope: string, name: string) => (scope ? `${scope}::${name}` : name);
+const stringValue = (values: Readonly<Record<string, unknown>>, name: string, scope = ""): string =>
+  String(values[scopedValue(scope, name)] ?? "");
+const booleanValue = (
+  values: Readonly<Record<string, unknown>>,
+  name: string,
+  scope = "",
+): boolean => Boolean(values[scopedValue(scope, name)]);
+const childValues = (
+  values: Readonly<Record<string, unknown>>,
+  name: string,
+  scope = "",
+): readonly ComponentCanvasChildInstance[] => {
+  const value = values[scopedValue(scope, name)];
+  return Array.isArray(value)
+    ? value.filter(
+        (item): item is ComponentCanvasChildInstance =>
+          Boolean(item) && typeof item === "object" && "id" in item && "type" in item,
+      )
+    : [];
+};
+
+export const canvas = {
+  controls: [
+    { name: "accordion.id", label: "id", type: "text", default: "" },
+    { name: "accordion.classes", label: "classes", type: "text", default: "" },
+    { name: "accordion.multiple", label: "multiple", type: "boolean", default: false },
+    {
+      name: "accordion.value",
+      label: "value",
+      type: "optional-strings",
+      default: null,
+      enabledDefault: ["item-1"],
+      description: "Controlled open item values. Leave omitted for uncontrolled state.",
+    },
+    {
+      name: "accordion.defaultValue",
+      label: "defaultValue",
+      type: "optional-strings",
+      default: null,
+      enabledDefault: ["item-1"],
+      description: "Values initially open on mount.",
+    },
+    {
+      name: "accordion.children",
+      label: "children",
+      type: "children",
+      allowMultiple: true,
+      default: [
+        "item",
+        {
+          type: "item",
+          values: {
+            "item.value": "item-2",
+            "trigger.children": "Can multiple items stay open?",
+            "content.children":
+              "Yes. multiple allows each item to own independent disclosure state.",
+          },
+        },
+      ],
+      options: [
+        {
+          name: "item",
+          label: "AccordionItem",
+          labelControl: "item.value",
+          type: "group",
+          controls: [
+            { name: "item.value", label: "value", type: "text", default: "item-1" },
+            { name: "item.id", label: "id", type: "text", default: "" },
+            { name: "item.classes", label: "classes", type: "text", default: "" },
+            { name: "item.disabled", label: "disabled", type: "boolean", default: false },
+            {
+              name: "item.children",
+              label: "children",
+              type: "children",
+              default: ["trigger", "content"],
+              options: [
+                {
+                  name: "trigger",
+                  label: "AccordionTrigger",
+                  type: "group",
+                  controls: [
+                    {
+                      name: "trigger.children",
+                      label: "children",
+                      type: "text",
+                      default: "Is it accessible?",
+                    },
+                    { name: "trigger.id", label: "id", type: "text", default: "" },
+                    { name: "trigger.classes", label: "classes", type: "text", default: "" },
+                    { name: "trigger.asChild", label: "asChild", type: "boolean", default: false },
+                  ],
+                },
+                {
+                  name: "content",
+                  label: "AccordionContent",
+                  type: "group",
+                  controls: [
+                    {
+                      name: "content.children",
+                      label: "children",
+                      type: "text",
+                      default: "Yes. It adheres to the WAI-ARIA design pattern.",
+                    },
+                    { name: "content.id", label: "id", type: "text", default: "" },
+                    { name: "content.classes", label: "classes", type: "text", default: "" },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+  node: (values) => {
+    const text = (scope: string, name: string) => stringValue(values, name, scope);
+    const children = (scope: string, name: string) => childValues(values, name, scope);
+    const defaultValue = values["accordion.defaultValue"];
+    const value = values["accordion.value"];
+
+    return {
+      component: "Accordion",
+      wrapper: "w-full max-w-lg",
+      props: {
+        id: text("", "accordion.id"),
+        classes: text("", "accordion.classes"),
+        multiple: booleanValue(values, "accordion.multiple"),
+        ...(Array.isArray(value)
+          ? { value: value.map(String) }
+          : Array.isArray(defaultValue)
+            ? { defaultValue: defaultValue.map(String) }
+            : {}),
+      } satisfies Partial<AccordionProps>,
+      children: children("", "accordion.children").map((item): DemoNode => ({
+        component: "AccordionItem",
+        props: {
+          value: text(item.id, "item.value"),
+          id: text(item.id, "item.id"),
+          classes: text(item.id, "item.classes"),
+          disabled: booleanValue(values, "item.disabled", item.id),
+        },
+        children: children(item.id, "item.children").map((part): DemoNode =>
+          part.type === "trigger"
+            ? {
+                component: "AccordionTrigger",
+                props: {
+                  id: text(part.id, "trigger.id"),
+                  classes: text(part.id, "trigger.classes"),
+                  asChild: booleanValue(values, "trigger.asChild", part.id),
+                  ...(booleanValue(values, "trigger.asChild", part.id)
+                    ? {}
+                    : { children: text(part.id, "trigger.children") }),
+                },
+                ...(booleanValue(values, "trigger.asChild", part.id)
+                  ? {
+                      children: [
+                        {
+                          component: "Button",
+                          props: {
+                            children: text(part.id, "trigger.children"),
+                            hierarchy: "secondary",
+                          },
+                        },
+                      ],
+                    }
+                  : {}),
+              }
+            : {
+                component: "AccordionContent",
+                props: {
+                  children: text(part.id, "content.children"),
+                  id: text(part.id, "content.id"),
+                  classes: text(part.id, "content.classes"),
+                },
+              },
+        ),
+      })),
+    };
+  },
+} satisfies ComponentCanvas;

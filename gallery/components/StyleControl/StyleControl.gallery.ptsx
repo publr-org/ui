@@ -1,0 +1,628 @@
+import {
+  Button,
+  BUTTON_HIERARCHIES,
+  BUTTON_INTENTS,
+  BUTTON_SIZES,
+} from "../../../src/components/Button/Button.ptsx";
+import { Icon, ICON_SIZES } from "../../../src/components/Icon/Icon.ptsx";
+import { StyleControl } from "../../../src/components/StyleControl/StyleControl.ptsx";
+import { StyleControlActions } from "../../../src/components/StyleControl/StyleControlActions.ptsx";
+import { StyleControlCloseTrigger } from "../../../src/components/StyleControl/StyleControlCloseTrigger.ptsx";
+import { StyleControlContent } from "../../../src/components/StyleControl/StyleControlContent.ptsx";
+import { Text, TEXT_TONES, TEXT_VARIANTS } from "../../../src/components/Text/Text.ptsx";
+import { ICON_NAMES } from "../../../src/icons";
+import type {
+  ComponentCanvas,
+  ComponentCanvasChildInstance,
+  ComponentDemoMeta,
+  DemoNode,
+} from "../../gallery-types";
+
+const referenceUsage = `<StyleControl title="Padding" subtitle="Left">
+  <StyleControlActions>
+    <Button hierarchy="tertiary" size="sm" label="Sync opposite sides" onClick={handleSync}>
+      <Icon name="spacing-sync-left-right" size="sm" />
+    </Button>
+    <StyleControlCloseTrigger asChild onClick={handleClose}>
+      <Button hierarchy="tertiary" size="sm" label="Close">
+        <Icon name="close" size="sm" />
+      </Button>
+    </StyleControlCloseTrigger>
+  </StyleControlActions>
+  <StyleControlContent>
+    <Text variant="body-sm">Child control</Text>
+  </StyleControlContent>
+</StyleControl>`;
+
+export const meta = {
+  name: "style-control",
+  label: "Style control",
+  source: "src/components/StyleControl/StyleControl.ptsx",
+  kind: "composite",
+  group: "Editor",
+  description: "A titled inspector region composed from actions, a close trigger, and content.",
+  tags: ["inspector", "label", "compound", "slot"],
+  usage: referenceUsage,
+  preview: "inspector",
+  previewLabel: "Titled control with actions and child content",
+  docs: {
+    purpose: [
+      "StyleControl provides the consistent title, contextual subtitle, action area, close trigger, and content structure used by inspector controls.",
+    ],
+    useWhen: [
+      "A style editor needs a stable header and a freely composed control body.",
+      "Header actions and dismissal must remain explicit parts of the authored component tree.",
+    ],
+    avoidWhen: [
+      "The pattern is already represented by a more specialized composite.",
+      "The content has no inspector title or header behavior.",
+    ],
+    rules: [
+      {
+        title: "Compose explicit parts",
+        description:
+          "Place header actions in StyleControlActions, keep StyleControlCloseTrigger last in that action row, and put body controls in StyleControlContent.",
+      },
+      {
+        title: "Keep title strings on the root",
+        description: "StyleControl owns title and subtitle typography consistently.",
+      },
+      {
+        title: "Use asChild deliberately",
+        description:
+          "asChild merges close-trigger behavior onto exactly one child. Supply label when Close is not the correct accessible name.",
+      },
+    ],
+    accessibility: [
+      "Every Button in StyleControlActions requires its own accessible label.",
+      "StyleControlCloseTrigger defaults its accessible name to Close.",
+      "Child form controls retain responsibility for their accessible names.",
+    ],
+    composition: [
+      "The root only owns layout and title typography; each child part renders real target-portable anatomy.",
+      "StyleControlCloseTrigger is the final child of StyleControlActions, so all header actions share one aligned row.",
+      "StyleControlContent accepts arbitrary component children.",
+    ],
+    agentNotes: [
+      "Do not restore JSX-valued actions props; actions are rendered children.",
+      "Prefer the compound parts so DOM, ZSX, and future targets see the same tree.",
+    ],
+    props: [
+      {
+        name: "title",
+        type: "string",
+        description: "Required primary inspector label.",
+        required: true,
+      },
+      { name: "subtitle", type: "string", description: "Optional contextual label." },
+      {
+        name: "children",
+        type: "StyleControl part nodes",
+        description: "Actions and content.",
+        required: true,
+      },
+      { name: "id", type: "string", description: "Identifier applied to the root section." },
+      { name: "classes", type: "string", description: "Classes merged into the root section." },
+      {
+        name: "StyleControlActions.children",
+        type: "unknown",
+        description: "Header action controls, ending with the close trigger when present.",
+        required: true,
+      },
+      {
+        name: "StyleControlActions.id / classes",
+        type: "string",
+        description: "Universal part identifiers and classes.",
+      },
+      {
+        name: "StyleControlCloseTrigger.asChild",
+        type: "boolean",
+        description: "Merges trigger behavior onto one child.",
+        default: "false",
+      },
+      {
+        name: "StyleControlCloseTrigger.label",
+        type: "string",
+        description: "Accessible trigger name required by the icon-only control.",
+        default: '"Close"',
+      },
+      {
+        name: "StyleControlCloseTrigger.onClick",
+        type: "(event: MouseEvent) => void",
+        description: "Dismissal callback.",
+      },
+      {
+        name: "StyleControlCloseTrigger.children",
+        type: "unknown",
+        description: "One adopted child or regular button content.",
+        required: true,
+      },
+      {
+        name: "StyleControlCloseTrigger.id / classes",
+        type: "string",
+        description: "Universal part identifiers and classes.",
+      },
+      {
+        name: "StyleControlContent.children",
+        type: "unknown",
+        description: "Arbitrary inspector body content.",
+        required: true,
+      },
+      {
+        name: "StyleControlContent.id / classes",
+        type: "string",
+        description: "Universal part identifiers and classes.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const node = {
+  component: "StyleControl",
+  props: { title: "Padding", subtitle: "Left" },
+  children: [
+    {
+      component: "StyleControlActions",
+      props: {},
+      children: [
+        {
+          component: "Button",
+          props: { hierarchy: "tertiary", size: "sm", label: "Sync opposite sides" },
+          children: [{ component: "Icon", props: { name: "spacing-sync-left-right", size: "sm" } }],
+        },
+        {
+          component: "StyleControlCloseTrigger",
+          props: { asChild: true },
+          children: [
+            {
+              component: "Button",
+              props: { hierarchy: "tertiary", size: "sm", label: "Close" },
+              children: [{ component: "Icon", props: { name: "close", size: "sm" } }],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      component: "StyleControlContent",
+      props: {},
+      children: [
+        {
+          component: "Text",
+          props: { variant: "body-sm", tone: "muted", children: "Child control" },
+        },
+      ],
+    },
+  ],
+  wrapper: "w-full",
+} satisfies DemoNode;
+
+export function Demo() {
+  return (
+    <StyleControl title="Padding" subtitle="Left">
+      <StyleControlActions>
+        <Button hierarchy="tertiary" size="sm" label="Sync opposite sides">
+          <Icon name="spacing-sync-left-right" size="sm" />
+        </Button>
+        <StyleControlCloseTrigger asChild>
+          <Button hierarchy="tertiary" size="sm" label="Close">
+            <Icon name="close" size="sm" />
+          </Button>
+        </StyleControlCloseTrigger>
+      </StyleControlActions>
+      <StyleControlContent>
+        <Text variant="body-sm" tone="muted">
+          Child control
+        </Text>
+      </StyleControlContent>
+    </StyleControl>
+  );
+}
+
+const scoped = (scope: string, name: string) => (scope ? `${scope}::${name}` : name);
+const instances = (
+  values: Readonly<Record<string, unknown>>,
+  scope: string,
+  name: string,
+): readonly ComponentCanvasChildInstance[] => {
+  const value = values[scoped(scope, name)];
+  return Array.isArray(value)
+    ? value.filter(
+        (item): item is ComponentCanvasChildInstance =>
+          Boolean(item) && typeof item === "object" && "id" in item && "type" in item,
+      )
+    : [];
+};
+
+export const canvas = {
+  controls: [
+    { name: "styleControl.id", label: "id", type: "text", default: "" },
+    { name: "styleControl.classes", label: "classes", type: "text", default: "" },
+    { name: "styleControl.title", label: "title", type: "text", default: "Padding" },
+    { name: "styleControl.subtitle", label: "subtitle", type: "text", default: "Left" },
+    {
+      name: "styleControl.children",
+      label: "children",
+      type: "children",
+      default: [
+        {
+          type: "actions",
+          values: { "actions.children": ["button", "closeTrigger"] },
+        },
+        { type: "content", values: { "content.children": ["contentText"] } },
+      ],
+      options: [
+        {
+          name: "actions",
+          label: "StyleControlActions",
+          type: "group",
+          controls: [
+            { name: "actions.id", label: "id", type: "text", default: "" },
+            { name: "actions.classes", label: "classes", type: "text", default: "" },
+            {
+              name: "actions.children",
+              label: "children",
+              type: "children",
+              default: ["button", "closeTrigger"],
+              allowMultiple: true,
+              options: [
+                {
+                  name: "button",
+                  label: "Button",
+                  type: "group",
+                  controls: [
+                    { name: "button.id", label: "id", type: "text", default: "" },
+                    {
+                      name: "button.label",
+                      label: "label",
+                      type: "text",
+                      default: "Sync opposite sides",
+                    },
+                    {
+                      name: "button.hierarchy",
+                      label: "hierarchy",
+                      type: "select",
+                      default: "tertiary",
+                      options: BUTTON_HIERARCHIES,
+                    },
+                    {
+                      name: "button.intent",
+                      label: "intent",
+                      type: "select",
+                      default: "default",
+                      options: BUTTON_INTENTS,
+                    },
+                    {
+                      name: "button.size",
+                      label: "size",
+                      type: "select",
+                      default: "sm",
+                      options: BUTTON_SIZES,
+                    },
+                    { name: "button.disabled", label: "disabled", type: "boolean", default: false },
+                    { name: "button.loading", label: "loading", type: "boolean", default: false },
+                    { name: "button.classes", label: "classes", type: "text", default: "" },
+                    {
+                      name: "button.children",
+                      label: "children",
+                      type: "children",
+                      default: ["buttonIcon"],
+                      options: [
+                        {
+                          name: "buttonText",
+                          label: "Text",
+                          type: "group",
+                          controls: [
+                            {
+                              name: "text.children",
+                              label: "children",
+                              type: "text",
+                              default: "Action 1",
+                            },
+                            {
+                              name: "text.variant",
+                              label: "variant",
+                              type: "select",
+                              default: "body-md",
+                              options: Object.keys(TEXT_VARIANTS),
+                            },
+                            {
+                              name: "text.tone",
+                              label: "tone",
+                              type: "select",
+                              default: "default",
+                              options: Object.keys(TEXT_TONES),
+                            },
+                            { name: "text.classes", label: "classes", type: "text", default: "" },
+                          ],
+                        },
+                        {
+                          name: "buttonIcon",
+                          label: "Icon",
+                          type: "group",
+                          controls: [
+                            {
+                              name: "icon.name",
+                              label: "name",
+                              type: "select",
+                              default: "spacing-sync-left-right",
+                              options: ICON_NAMES,
+                            },
+                            {
+                              name: "icon.size",
+                              label: "size",
+                              type: "select",
+                              default: "sm",
+                              options: Object.keys(ICON_SIZES),
+                            },
+                            { name: "icon.classes", label: "classes", type: "text", default: "" },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  name: "closeTrigger",
+                  label: "StyleControlCloseTrigger",
+                  type: "group",
+                  controls: [
+                    { name: "closeTrigger.id", label: "id", type: "text", default: "" },
+                    { name: "closeTrigger.classes", label: "classes", type: "text", default: "" },
+                    {
+                      name: "closeTrigger.asChild",
+                      label: "asChild",
+                      type: "boolean",
+                      default: true,
+                    },
+                    { name: "closeTrigger.label", label: "label", type: "text", default: "Close" },
+                    {
+                      name: "closeTrigger.children",
+                      label: "children",
+                      type: "children",
+                      default: ["closeButton"],
+                      options: [
+                        {
+                          name: "closeButton",
+                          label: "Button",
+                          type: "group",
+                          controls: [
+                            {
+                              name: "button.label",
+                              label: "label",
+                              type: "text",
+                              default: "Close",
+                            },
+                            {
+                              name: "button.hierarchy",
+                              label: "hierarchy",
+                              type: "select",
+                              default: "tertiary",
+                              options: BUTTON_HIERARCHIES,
+                            },
+                            {
+                              name: "button.size",
+                              label: "size",
+                              type: "select",
+                              default: "sm",
+                              options: BUTTON_SIZES,
+                            },
+                            { name: "button.classes", label: "classes", type: "text", default: "" },
+                            {
+                              name: "button.children",
+                              label: "children",
+                              type: "children",
+                              default: ["closeIcon"],
+                              options: [
+                                {
+                                  name: "closeIcon",
+                                  label: "Icon",
+                                  type: "group",
+                                  controls: [
+                                    {
+                                      name: "icon.name",
+                                      label: "name",
+                                      type: "select",
+                                      default: "close",
+                                      options: ICON_NAMES,
+                                    },
+                                    {
+                                      name: "icon.size",
+                                      label: "size",
+                                      type: "select",
+                                      default: "sm",
+                                      options: Object.keys(ICON_SIZES),
+                                    },
+                                    {
+                                      name: "icon.classes",
+                                      label: "classes",
+                                      type: "text",
+                                      default: "",
+                                    },
+                                  ],
+                                },
+                              ],
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          name: "content",
+          label: "StyleControlContent",
+          type: "group",
+          controls: [
+            { name: "content.id", label: "id", type: "text", default: "" },
+            { name: "content.classes", label: "classes", type: "text", default: "" },
+            {
+              name: "content.children",
+              label: "children",
+              type: "children",
+              default: ["contentText"],
+              allowMultiple: true,
+              options: [
+                {
+                  name: "contentText",
+                  label: "Text",
+                  type: "group",
+                  controls: [
+                    {
+                      name: "text.children",
+                      label: "children",
+                      type: "text",
+                      default: "Child control",
+                    },
+                    {
+                      name: "text.variant",
+                      label: "variant",
+                      type: "select",
+                      default: "body-sm",
+                      options: Object.keys(TEXT_VARIANTS),
+                    },
+                    {
+                      name: "text.tone",
+                      label: "tone",
+                      type: "select",
+                      default: "muted",
+                      options: Object.keys(TEXT_TONES),
+                    },
+                    { name: "text.classes", label: "classes", type: "text", default: "" },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+  node: (values): DemoNode => {
+    const text = (scope: string, name: string) => String(values[scoped(scope, name)] ?? "");
+    const bool = (scope: string, name: string) => Boolean(values[scoped(scope, name)]);
+    const optional = (scope: string, name: string) => {
+      const value = text(scope, name);
+      return value ? { [name.split(".").at(-1)!]: value } : {};
+    };
+    const iconNode = (instance: ComponentCanvasChildInstance): DemoNode => ({
+      component: "Icon",
+      props: {
+        name: text(instance.id, "icon.name"),
+        size: text(instance.id, "icon.size"),
+        classes: text(instance.id, "icon.classes"),
+      },
+    });
+    const textNode = (instance: ComponentCanvasChildInstance): DemoNode => ({
+      component: "Text",
+      props: {
+        variant: text(instance.id, "text.variant"),
+        tone: text(instance.id, "text.tone"),
+        classes: text(instance.id, "text.classes"),
+        children: text(instance.id, "text.children"),
+      },
+    });
+    const actionButtonNode = (button: ComponentCanvasChildInstance): DemoNode => {
+      const children = instances(values, button.id, "button.children").map((child) =>
+        child.type === "buttonIcon" ? iconNode(child) : textNode(child),
+      );
+      return {
+        component: "Button",
+        props: {
+          ...optional(button.id, "button.id"),
+          label: text(button.id, "button.label"),
+          hierarchy: text(button.id, "button.hierarchy"),
+          intent: text(button.id, "button.intent"),
+          size: text(button.id, "button.size"),
+          disabled: bool(button.id, "button.disabled"),
+          loading: bool(button.id, "button.loading"),
+          classes: text(button.id, "button.classes"),
+        },
+        ...(children.length ? { children } : {}),
+      };
+    };
+    const closeTriggerNode = (trigger: ComponentCanvasChildInstance): DemoNode => {
+      const children = instances(values, trigger.id, "closeTrigger.children").flatMap(
+        (button): DemoNode[] => {
+          if (button.type !== "closeButton") return [];
+          const buttonChildren = instances(values, button.id, "button.children").map(iconNode);
+          return [
+            {
+              component: "Button",
+              props: {
+                label: text(button.id, "button.label"),
+                hierarchy: text(button.id, "button.hierarchy"),
+                size: text(button.id, "button.size"),
+                classes: text(button.id, "button.classes"),
+              },
+              ...(buttonChildren.length ? { children: buttonChildren } : {}),
+            },
+          ];
+        },
+      );
+      return {
+        component: "StyleControlCloseTrigger",
+        props: {
+          ...optional(trigger.id, "closeTrigger.id"),
+          classes: text(trigger.id, "closeTrigger.classes"),
+          asChild: children.length ? bool(trigger.id, "closeTrigger.asChild") : false,
+          label: text(trigger.id, "closeTrigger.label"),
+          ...(children.length ? {} : { children: "" }),
+        },
+        ...(children.length ? { children } : {}),
+      };
+    };
+    const rootChildren = instances(values, "", "styleControl.children").flatMap(
+      (part): DemoNode[] => {
+        if (part.type === "actions") {
+          const children = instances(values, part.id, "actions.children").map((child) =>
+            child.type === "closeTrigger" ? closeTriggerNode(child) : actionButtonNode(child),
+          );
+          return [
+            {
+              component: "StyleControlActions",
+              props: {
+                ...optional(part.id, "actions.id"),
+                classes: text(part.id, "actions.classes"),
+                ...(children.length ? {} : { children: "" }),
+              },
+              ...(children.length ? { children } : {}),
+            },
+          ];
+        }
+        if (part.type === "content") {
+          const children = instances(values, part.id, "content.children").map(textNode);
+          return [
+            {
+              component: "StyleControlContent",
+              props: {
+                ...optional(part.id, "content.id"),
+                classes: text(part.id, "content.classes"),
+                ...(children.length ? {} : { children: "" }),
+              },
+              ...(children.length ? { children } : {}),
+            },
+          ];
+        }
+        return [];
+      },
+    );
+
+    return {
+      component: "StyleControl",
+      props: {
+        ...optional("", "styleControl.id"),
+        classes: text("", "styleControl.classes"),
+        title: text("", "styleControl.title"),
+        ...optional("", "styleControl.subtitle"),
+        ...(rootChildren.length ? {} : { children: "" }),
+      },
+      ...(rootChildren.length ? { children: rootChildren } : {}),
+      wrapper: "w-full",
+    };
+  },
+} satisfies ComponentCanvas;

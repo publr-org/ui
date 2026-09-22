@@ -1,0 +1,48 @@
+// One bulk action. Compose Icon + text children (no icon-name props). Links
+// navigate; buttons are parent-wired via onClick or a page-store @click at
+// the call site. Disabled is button-only, mirroring Button's href union.
+
+import { Dynamic } from "publr-jsx";
+
+export const BULK_ACTIONS_ITEM_VARIANTS = ["default", "destructive"] as const;
+
+export type BulkActionsItemVariant = (typeof BULK_ACTIONS_ITEM_VARIANTS)[number];
+
+export type BulkActionsItemBaseProps = {
+  id?: string;
+  classes?: string;
+  variant?: BulkActionsItemVariant;
+  children: JSX.Element;
+};
+
+export type BulkActionsItemProps = BulkActionsItemBaseProps &
+  ({ href: string; disabled?: never } | { href?: undefined; disabled?: boolean });
+
+export function BulkActionsItem({
+  id,
+  classes = "",
+  variant = "default",
+  href,
+  disabled = false,
+  children,
+}: BulkActionsItemProps) {
+  return (
+    <Dynamic
+      as={href === undefined ? "button" : "a"}
+      id={id}
+      href={href}
+      type={href === undefined ? "button" : undefined}
+      disabled={href === undefined ? disabled : undefined}
+      data-part="item"
+      class={[
+        "group relative inline-flex h-8 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-transparent px-2.5 text-xs font-semibold transition duration-150 ease-out hover:underline active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50",
+        variant === "destructive"
+          ? "text-destructive hover:text-destructive/80"
+          : "text-primary hover:text-primary/80",
+        classes,
+      ]}
+    >
+      {children}
+    </Dynamic>
+  );
+}

@@ -1,0 +1,128 @@
+import { PageHeader } from "../../../src/components/PageHeader/PageHeader.ptsx";
+import { Button } from "../../../src/components/Button/Button.ptsx";
+import type { ComponentCanvas, ComponentDemoMeta, ComponentDemoVariant } from "../../gallery-types";
+
+export const meta = {
+  name: "page-header",
+  label: "PageHeader",
+  source: "src/components/PageHeader/PageHeader.ptsx",
+  kind: "composite",
+  group: "Essentials",
+  description:
+    "The page's title band: a back link to the parent page, the h1, a muted description, and the page's actions right-aligned.",
+  tags: ["header", "page", "title", "actions", "back"],
+  usage: `<PageHeader title="Posts" description="6 shown">
+  <Button size="sm">New post</Button>
+</PageHeader>`,
+  preview: "canvas",
+  previewLabel: "A page header with one action",
+  docs: {
+    purpose: [
+      "PageHeader is the one title band a page has: it names the page (as its h1), says where it sits (the back link), and hosts the actions that act on the whole page.",
+    ],
+    useWhen: ["A page needs its title, and its primary action belongs beside it."],
+    avoidWhen: [
+      "The heading names a pane's data set inside a page; that is PaneHeader.",
+      "The heading is a section within a page; compose Heading in the page layout.",
+    ],
+    rules: [
+      {
+        title: "One per page",
+        description:
+          "The title renders as the h1, so a page composes exactly one PageHeader, at the top of its content.",
+      },
+      {
+        title: "Actions, not text, in children",
+        description:
+          "Children are the page's controls (Buttons, forms that submit a Button); the description prop is the only text slot.",
+      },
+    ],
+    accessibility: [
+      "The back link is a real anchor named by its label; the arrow is decorative.",
+      "Buttons inside forms outside the header submit through Button's form prop.",
+    ],
+    composition: ["Compose Buttons or single-button forms as trailing children."],
+    agentNotes: ["back_label and back_href come together; a label without a href is a dead link."],
+    props: [
+      { name: "title", type: "string", description: "Required page title (renders as the h1)." },
+      { name: "description", type: "string", description: "Optional muted line under the title." },
+      {
+        name: "back_label",
+        type: "string",
+        description: "The parent page's name, shown as a back link above the title.",
+      },
+      { name: "back_href", type: "string", description: "Where the back link goes." },
+      { name: "children", type: "node", description: "Trailing right-aligned actions." },
+      { name: "id", type: "string", description: "Identifier applied to the header root." },
+      {
+        name: "classes",
+        type: "string",
+        description: "Layout or exceptional composition classes.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const variants = [
+  {
+    label: "With action",
+    description: "Title, count, and the page's primary action.",
+    usage: `<PageHeader title="Posts" description="6 shown">
+  <Button size="sm">New post</Button>
+</PageHeader>`,
+    Demo: () => (
+      <div class="w-[36rem]">
+        <PageHeader title="Posts" description="6 shown">
+          <Button size="sm">New post</Button>
+        </PageHeader>
+      </div>
+    ),
+    node: {
+      component: "PageHeader",
+      props: { title: "Posts", description: "6 shown" },
+      children: [{ component: "Button", props: { size: "sm", children: "New post" } }],
+      wrapper: "w-[36rem]",
+    },
+  },
+  {
+    label: "With back link",
+    description: "A detail page under a list.",
+    usage: `<PageHeader title="Welcome to Publr" back_label="Posts" back_href="/admin/content?type=post" />`,
+    Demo: () => (
+      <div class="w-[36rem]">
+        <PageHeader
+          title="Welcome to Publr"
+          back_label="Posts"
+          back_href="/admin/content?type=post"
+        />
+      </div>
+    ),
+    node: {
+      component: "PageHeader",
+      props: {
+        title: "Welcome to Publr",
+        back_label: "Posts",
+        back_href: "/admin/content?type=post",
+      },
+      wrapper: "w-[36rem]",
+    },
+  },
+] satisfies ComponentDemoVariant[];
+
+export const canvas = {
+  controls: [
+    { name: "title", type: "text", default: "Posts" },
+    { name: "description", type: "text", default: "6 shown" },
+    { name: "back_label", type: "text", default: "" },
+  ],
+  node: (values) => ({
+    component: "PageHeader",
+    props: {
+      title: String(values.title),
+      description: String(values.description) || undefined,
+      back_label: String(values.back_label) || undefined,
+      back_href: String(values.back_label) ? "#" : undefined,
+    },
+    wrapper: "w-[36rem]",
+  }),
+} satisfies ComponentCanvas;

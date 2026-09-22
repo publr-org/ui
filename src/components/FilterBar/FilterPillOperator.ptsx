@@ -1,0 +1,58 @@
+// The pill's operator (`is`, `by`, `in the last`, `before`): a light pill overlapping the
+// left edge of the FilterPillBody that follows (which takes `attached`), so the value
+// begins where the operator ends. A button by default, so a DropdownMenuTrigger takes it
+// `asChild` and a menu of operators opens from it; `fixed` when the filter has one
+// operator only: plain text, no chevron, nothing to open.
+import { Icon } from "../Icon/Icon.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type FilterPillOperatorProps = {
+  children?: JSX.Element;
+  classes?: string;
+  /** The only operator there is: shown, not offered. */
+  fixed?: boolean;
+  id?: string;
+  /** The accessible name, saying what the menu offers: "Change how status is matched". */
+  label?: string;
+};
+
+export function FilterPillOperator({
+  children,
+  classes = "",
+  fixed = false,
+  id,
+  label,
+}: FilterPillOperatorProps) {
+  return (
+    <span class="relative z-10 -mr-7 inline-flex items-center" data-part="filter-pill-operator">
+      {fixed ? (
+        <span
+          id={id}
+          class={[
+            "inline-flex h-8 w-14 items-center justify-center rounded-l-full bg-card px-0 text-foreground shadow-xs",
+            classes,
+          ]}
+        >
+          <Text as="span" variant="body-sm" classes="font-medium">
+            {children}
+          </Text>
+        </span>
+      ) : (
+        <button
+          id={id}
+          type="button"
+          aria-label={label}
+          class={[
+            "inline-flex h-8 min-w-14 cursor-pointer items-center justify-center gap-1 rounded-l-full border-0 bg-card pl-4 pr-2 text-foreground shadow-xs transition-colors hover:bg-card/90 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-ring aria-expanded:bg-ui-accent",
+            classes,
+          ]}
+        >
+          <Text as="span" variant="body-sm" classes="font-medium">
+            {children}
+          </Text>
+          <Icon name="chevron-down" size="xs" classes="shrink-0 text-muted-foreground" />
+        </button>
+      )}
+    </span>
+  );
+}

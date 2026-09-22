@@ -1,0 +1,17 @@
+// Accessible table summary. caption-bottom on the Table root renders it under
+// the rows; the muted body treatment is bare text because <caption> is not in
+// Text's finite root set.
+
+export type TableCaptionProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function TableCaption({ children, classes = "", id }: TableCaptionProps) {
+  return (
+    <caption id={id} class={["mt-4 text-sm text-muted-foreground", classes]}>
+      {children}
+    </caption>
+  );
+}

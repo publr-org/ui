@@ -1,0 +1,89 @@
+// Every component at a glance: a card per component with its canvas live on
+// the dotted stage, and the way into its preview page and its canvas.
+import { GIcon } from "./shared/Icon.ptsx";
+import { Frame } from "./shared/Frame.ptsx";
+import { SectionHeading } from "./shared/Hero.ptsx";
+import { Topbar } from "./shared/Topbar.ptsx";
+import { defaultVariantIndex } from "../frames/previews";
+import { KIND_HELP, KIND_LABELS, entries, selectRoute, type DemoEntry } from "../state/gallery";
+import type { ComponentKind } from "../../gallery-types";
+
+function Card({ entry }: { entry: DemoEntry }) {
+  return (
+    <article class="flex min-w-0 flex-col overflow-hidden rounded-xl border border-border bg-background">
+      <button
+        type="button"
+        class="block w-full cursor-pointer border-b border-border bg-muted/30 p-3 text-left hover:bg-muted/50"
+        aria-label={"Open " + entry.label}
+        onClick={() => selectRoute({ kind: "component", name: entry.name, page: "overview" })}
+      >
+        <div class="h-44 overflow-hidden rounded-lg border border-border bg-background shadow-sm">
+          <Frame entry={entry} variant={defaultVariantIndex(entry)} mode="canvas" lazy={true} title={entry.label + " canvas"} classes="block h-full w-full pointer-events-none" />
+        </div>
+      </button>
+      <div class="flex min-w-0 flex-1 flex-col gap-2 p-4">
+        <div class="flex items-center justify-between gap-2">
+          <h3 class="truncate text-[13px] font-semibold">{entry.label}</h3>
+          <span class="shrink-0 text-[10px] text-muted-foreground">{entry.group}</span>
+        </div>
+        <p class="line-clamp-2 text-[11px] leading-4 text-muted-foreground">{entry.description}</p>
+        <div class="mt-auto flex items-center gap-1.5 pt-2">
+          <button
+            type="button"
+            class="flex cursor-pointer items-center gap-1.5 rounded-md border border-border bg-background px-2 py-1 text-[10px] font-medium text-foreground hover:bg-muted"
+            onClick={() => selectRoute({ kind: "component", name: entry.name, page: "preview" })}
+          >
+            <span class="text-sky-400">
+              <GIcon name="bookmark" classes="size-3" />
+            </span>
+            Preview
+          </button>
+          <button
+            type="button"
+            class="flex cursor-pointer items-center gap-1.5 rounded-md border border-border bg-background px-2 py-1 text-[10px] font-medium text-foreground hover:bg-muted"
+            onClick={() => selectRoute({ kind: "component", name: entry.name, page: "canvas" })}
+          >
+            <span class="text-sky-400">
+              <GIcon name="package" classes="size-3" />
+            </span>
+            Canvas
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function KindGrid({ kind }: { kind: ComponentKind }) {
+  const items = entries.filter((entry) => entry.kind === kind);
+  return (
+    <section class="mt-10" hidden={items.length === 0}>
+      <SectionHeading title={KIND_LABELS[kind]} description={KIND_HELP[kind]} />
+      <div class="mt-5 grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4">
+        {items.map((entry) => (
+          <Card entry={entry} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function Components() {
+  return (
+    <div>
+      <Topbar parts={["Design system", "Components"]} />
+      <article class="mx-auto max-w-[1260px] px-8 py-10">
+        <header class="max-w-4xl">
+          <p class="mb-3 text-[11px] font-semibold tracking-[0.1em] text-muted-foreground uppercase">Components</p>
+          <h1 class="text-[32px] leading-tight font-semibold tracking-[-0.03em]">Every component, live</h1>
+          <p class="mt-3 max-w-3xl text-[15px] leading-6 text-muted-foreground">
+            {entries.length} components, each shown as its default example. Open one for its guidelines, every
+            variant in both appearances, a canvas to try its props on, and its API.
+          </p>
+        </header>
+        <KindGrid kind="primitive" />
+        <KindGrid kind="composite" />
+      </article>
+    </div>
+  );
+}

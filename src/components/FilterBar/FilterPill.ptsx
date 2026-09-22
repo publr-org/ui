@@ -1,0 +1,23 @@
+// One active filter in a FilterBar, read left to right as a sentence: what is filtered
+// (FilterPillLabel, plain on the band), how (FilterPillOperator, a light pill straddling
+// the edge of the strip that follows, opening a menu of operators), then the answer on a
+// quiet strip (FilterPillBody): the value (FilterPillValue, the primary pill, opening a
+// menu of values) and the way out (FilterPillRemove). The pill is the band's full height.
+
+export type FilterPillProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function FilterPill({ children, classes = "", id }: FilterPillProps) {
+  return (
+    <span
+      id={id}
+      class={["inline-flex h-full shrink-0 items-center", classes]}
+      data-part="filter-pill"
+    >
+      {children}
+    </span>
+  );
+}

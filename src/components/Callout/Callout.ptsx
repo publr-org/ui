@@ -1,0 +1,46 @@
+// A short notice inside a page: why something is not available, what to watch out
+// for. An icon for the tone, a title, and a line or two of children.
+import { Icon } from "../Icon/Icon.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type CalloutProps = {
+  tone?: "info" | "warning";
+  title: string;
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function Callout({ tone = "info", title, children, classes = "", id }: CalloutProps) {
+  return (
+    <div
+      id={id}
+      role="note"
+      class={[
+        "flex items-start gap-3 rounded-xl border px-5 py-4",
+        tone === "warning" ? "border-warning/40 bg-warning/5" : "border-border bg-muted/40",
+        classes,
+      ]}
+      data-part="callout"
+      data-tone={tone}
+    >
+      <span class={tone === "warning" ? "mt-0.5 text-warning" : "mt-0.5 text-muted-foreground"}>
+        {tone === "warning" ? (
+          <Icon name="alert-triangle" size="md" />
+        ) : (
+          <Icon name="info-circle" size="md" />
+        )}
+      </span>
+      <span class="flex min-w-0 flex-col gap-1">
+        <Text as="span" variant="heading-xs">
+          {title}
+        </Text>
+        {children && (
+          <Text as="span" variant="body-sm" tone="muted">
+            {children}
+          </Text>
+        )}
+      </span>
+    </div>
+  );
+}

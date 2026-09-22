@@ -1,0 +1,40 @@
+// Data-table root: a native <table> inside a component-owned overflow
+// container so wide tables scroll instead of breaking the page. id/classes
+// apply to the semantic <table> root; the wrapper is fixed chrome. The root
+// owns the dense bare-text treatment (text-sm) — cells compose Text when a
+// different semantic role is needed. Tables run edge to edge: the outer cells
+// carry the sheet gutter, so the table sits directly in its pane, unpadded.
+
+export type TableProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function Table({ children, classes = "", id }: TableProps) {
+  return (
+    <div class="relative w-full overflow-x-auto">
+      <table
+        id={id}
+        class={["w-full caption-bottom border-collapse text-left text-sm text-foreground", classes]}
+      >
+        {children}
+      </table>
+    </div>
+  );
+}
+
+export { TableCaption } from "./TableCaption.ptsx";
+export { TableHeader } from "./TableHeader.ptsx";
+export { TableBody } from "./TableBody.ptsx";
+export { TableFooter } from "./TableFooter.ptsx";
+export { TableRow } from "./TableRow.ptsx";
+export { TableHead } from "./TableHead.ptsx";
+export { TableCell } from "./TableCell.ptsx";
+export type { TableCaptionProps } from "./TableCaption.ptsx";
+export type { TableHeaderProps } from "./TableHeader.ptsx";
+export type { TableBodyProps } from "./TableBody.ptsx";
+export type { TableFooterProps } from "./TableFooter.ptsx";
+export type { TableRowProps } from "./TableRow.ptsx";
+export type { TableHeadProps } from "./TableHead.ptsx";
+export type { TableCellProps } from "./TableCell.ptsx";

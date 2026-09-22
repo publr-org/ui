@@ -1,0 +1,239 @@
+import { Avatar, AVATAR_SIZES } from "../../../src/components/Avatar/Avatar.ptsx";
+import type { AvatarSize } from "../../../src/components/Avatar/Avatar.ptsx";
+import { AvatarGroup } from "../../../src/components/AvatarGroup/AvatarGroup.ptsx";
+import { AvatarGroupCount } from "../../../src/components/AvatarGroup/AvatarGroupCount.ptsx";
+import type {
+  ComponentCanvas,
+  ComponentCanvasChildInstance,
+  ComponentDemoMeta,
+  ComponentDemoVariant,
+  DemoNode,
+} from "../../gallery-types";
+
+export const meta = {
+  name: "avatar-group",
+  label: "AvatarGroup",
+  source: "src/components/AvatarGroup/AvatarGroup.ptsx",
+  kind: "composite",
+  group: "Essentials",
+  description:
+    "Overlapping stack of Avatars with an optional +N overflow count for multi-author attribution.",
+  tags: ["avatar", "group", "stack", "authors", "overflow"],
+  usage: `<AvatarGroup>
+  <Avatar size="sm" name="Olivia Martin" />
+  <Avatar size="sm" name="James Lee" />
+  <Avatar size="sm" name="Kate Rose" />
+  <AvatarGroupCount size="sm" count={3} />
+</AvatarGroup>`,
+  preview: "canvas",
+  previewLabel: "Three stacked avatars with a +3 overflow count",
+  docs: {
+    purpose: [
+      "AvatarGroup attributes shared work to several people in one compact stack.",
+      "The group owns the overlap and the divider ring on its direct children, so Avatar and AvatarGroupCount need no stack-aware props of their own.",
+    ],
+    useWhen: [
+      "A row, card, or timeline credits more than one person.",
+      "More people contributed than fit; AvatarGroupCount shows the +N overflow.",
+    ],
+    avoidWhen: [
+      "One person owns the content; use a single Avatar.",
+      "Every person must be individually named and actionable; render a list instead of a stack.",
+    ],
+    rules: [
+      {
+        title: "One size per stack",
+        description:
+          "Give every Avatar and the AvatarGroupCount the same named size so the overlap stays even.",
+      },
+      {
+        title: "Count is data, not decoration",
+        description:
+          "count is the number of additional people not shown. The component renders the +N text itself.",
+      },
+      {
+        title: "The group owns the stack treatment",
+        description:
+          "Overlap spacing and the background divider ring come from AvatarGroup. Do not restyle children to fake the stack.",
+      },
+    ],
+    accessibility: [
+      "Each Avatar keeps its own name-derived semantics; the stack adds no ARIA of its own.",
+      "When the full author list matters, pair the stack with visible text naming the people or the count.",
+    ],
+    composition: [
+      "Author same-size Avatars in display order and finish with AvatarGroupCount when people overflow.",
+      "Avatars inside the stack accept AvatarImage exactly as they do standalone.",
+    ],
+    agentNotes: [
+      "Compose Avatar children; there is no names-array or data API.",
+      "Keep the AvatarGroupCount size equal to the stacked Avatars' size.",
+    ],
+    props: [
+      {
+        name: "AvatarGroup.children",
+        type: "node",
+        description: "Same-size Avatars in display order, then an optional AvatarGroupCount.",
+      },
+      {
+        name: "AvatarGroup.classes",
+        type: "string",
+        description: "Layout or exceptional composition classes on the stack root.",
+      },
+      {
+        name: "AvatarGroup.id",
+        type: "string",
+        description: "Optional identifier applied to the stack root.",
+      },
+      {
+        name: "AvatarGroupCount.count",
+        type: "number",
+        description: "Required number of additional people, rendered as +N.",
+      },
+      {
+        name: "AvatarGroupCount.size",
+        type: "AvatarSize",
+        description: "Named diameter matching the stacked Avatars.",
+        default: "md",
+      },
+      {
+        name: "AvatarGroupCount.classes",
+        type: "string",
+        description: "Exceptional composition classes on the count marker.",
+      },
+      {
+        name: "AvatarGroupCount.id",
+        type: "string",
+        description: "Optional identifier applied to the count marker.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+const AVATAR_SIZE_NAMES = Object.keys(AVATAR_SIZES) as AvatarSize[];
+
+const stackNode = (size: AvatarSize, names: string[], count?: number): DemoNode => ({
+  component: "AvatarGroup",
+  props: {},
+  children: [
+    ...names.map((name): DemoNode => ({ component: "Avatar", props: { size, name } })),
+    ...(count ? [{ component: "AvatarGroupCount", props: { size, count } } as DemoNode] : []),
+  ],
+});
+
+export const variants = [
+  {
+    label: "Stack with overflow",
+    description: "The canonical multi-author attribution: three people and a +3 overflow.",
+    usage: `<AvatarGroup>
+  <Avatar size="sm" name="Olivia Martin" />
+  <Avatar size="sm" name="James Lee" />
+  <Avatar size="sm" name="Kate Rose" />
+  <AvatarGroupCount size="sm" count={3} />
+</AvatarGroup>`,
+    notes: [
+      "The group applies the overlap and the divider ring; children stay unmodified.",
+      "The count shares the avatars' size.",
+    ],
+    Demo: () => (
+      <AvatarGroup>
+        <Avatar size="sm" name="Olivia Martin" />
+        <Avatar size="sm" name="James Lee" />
+        <Avatar size="sm" name="Kate Rose" />
+        <AvatarGroupCount size="sm" count={3} />
+      </AvatarGroup>
+    ),
+    node: stackNode("sm", ["Olivia Martin", "James Lee", "Kate Rose"], 3),
+  },
+  {
+    label: "Complete stack",
+    description: "When everyone fits, the count is simply omitted.",
+    usage: `<AvatarGroup>
+  <Avatar size="md" name="Olivia Martin" />
+  <Avatar size="md" name="James Lee" />
+</AvatarGroup>`,
+    notes: ["No overflow, no marker — the parts are the API."],
+    Demo: () => (
+      <AvatarGroup>
+        <Avatar name="Olivia Martin" />
+        <Avatar name="James Lee" />
+      </AvatarGroup>
+    ),
+    node: stackNode("md", ["Olivia Martin", "James Lee"]),
+  },
+] satisfies ComponentDemoVariant[];
+
+const scopedValue = (scope: string, name: string) => (scope ? `${scope}::${name}` : name);
+const stringValue = (values: Readonly<Record<string, unknown>>, name: string, scope = ""): string =>
+  String(values[scopedValue(scope, name)] ?? "");
+const numberValue = (values: Readonly<Record<string, unknown>>, name: string, scope = ""): number =>
+  Number(values[scopedValue(scope, name)] ?? 0);
+const childValues = (
+  values: Readonly<Record<string, unknown>>,
+  name: string,
+): readonly ComponentCanvasChildInstance[] => {
+  const value = values[name];
+  return Array.isArray(value)
+    ? value.filter(
+        (item): item is ComponentCanvasChildInstance =>
+          Boolean(item) && typeof item === "object" && "id" in item && "type" in item,
+      )
+    : [];
+};
+
+export const canvas = {
+  controls: [
+    {
+      name: "size",
+      type: "select",
+      default: "sm",
+      options: AVATAR_SIZE_NAMES,
+    },
+    { name: "classes", type: "text", default: "" },
+    {
+      name: "children",
+      type: "children",
+      allowMultiple: true,
+      default: ["avatar", "avatar", "avatar", "count"],
+      options: [
+        {
+          name: "avatar",
+          label: "Avatar",
+          labelControl: "avatar.name",
+          type: "group",
+          controls: [
+            { name: "avatar.name", label: "name", type: "text", default: "Olivia Martin" },
+            { name: "avatar.src", label: "src", type: "text", default: "" },
+          ],
+        },
+        {
+          name: "count",
+          label: "AvatarGroupCount",
+          type: "group",
+          controls: [{ name: "count.count", label: "count", type: "number", default: 3, min: 0 }],
+        },
+      ],
+    },
+  ],
+  node: (values) => {
+    const size = String(values.size) as AvatarSize;
+    return {
+      component: "AvatarGroup",
+      props: { classes: String(values.classes) },
+      children: childValues(values, "children").map((child): DemoNode => {
+        if (child.type === "count") {
+          return {
+            component: "AvatarGroupCount",
+            props: { size, count: numberValue(values, "count.count", child.id) },
+          };
+        }
+        const src = stringValue(values, "avatar.src", child.id);
+        return {
+          component: "Avatar",
+          props: { size, name: stringValue(values, "avatar.name", child.id) },
+          children: src ? [{ component: "AvatarImage", props: { src } }] : [],
+        };
+      }),
+    };
+  },
+} satisfies ComponentCanvas;

@@ -1,0 +1,21 @@
+// Accessible form field composition. Field owns the vertical rhythm only; the
+// label/control/description/error relationship is expressed with native
+// elements so any control composes without Field knowing its shape.
+//
+// The text parts live in sibling modules because the ZSX target lowers exactly
+// one JSX component per file. Import them from FieldLabel.ptsx,
+// FieldDescription.ptsx, and FieldError.ptsx.
+
+export type FieldProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function Field({ children, classes = "", id }: FieldProps) {
+  return (
+    <div id={id} class={["grid gap-2", classes]} data-part="field">
+      {children}
+    </div>
+  );
+}

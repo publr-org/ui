@@ -1,0 +1,25 @@
+// Media asset card root. Selection styling derives from the composed
+// selection checkbox (any checked input inside the card) — the card itself
+// keeps no selected prop, so there is exactly one source of selection truth.
+// Compose AssetCardSelect + Checkbox, AssetCardPreview, and a caller-owned
+// activation control (button or link) carrying AssetCardTitle/AssetCardMeta.
+
+export type AssetCardProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function AssetCard({ children, classes = "", id }: AssetCardProps) {
+  return (
+    <article
+      id={id}
+      class={[
+        "group/asset-card relative overflow-hidden rounded-lg border border-border bg-card transition-shadow hover:shadow-md has-[input:checked]:border-primary has-[input:checked]:ring-2 has-[input:checked]:ring-primary/30",
+        classes,
+      ]}
+    >
+      {children}
+    </article>
+  );
+}

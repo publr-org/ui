@@ -1,0 +1,22 @@
+// The dashed slot under a reference field's cards, holding whatever adds one: a button,
+// or a picker and a button. Centred, so a lone button sits in the middle like the CMS's.
+export type ReferenceAddCardProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function ReferenceAddCard({ children, classes = "", id }: ReferenceAddCardProps) {
+  return (
+    <div
+      id={id}
+      class={[
+        "flex min-h-28 items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-muted/10 px-4 py-6 transition-colors hover:border-input hover:bg-muted/20",
+        classes,
+      ]}
+      data-part="add-reference-card"
+    >
+      {children}
+    </div>
+  );
+}

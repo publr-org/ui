@@ -1,0 +1,29 @@
+// Hideable column header. Owns TableHead's exact visual layer (kept verbatim
+// until transparent attribute forwarding makes composing TableHead portable)
+// plus the column key the visibility menu toggles. Non-hideable columns use
+// plain TableHead.
+import { Publr } from "publr-jsx";
+import { state } from "./DataTable.ptsx";
+
+export type DataTableHeadProps = {
+  id?: string;
+  classes?: string;
+  column: string;
+  children?: JSX.Element;
+};
+
+export function DataTableHead({ id, classes = "", column, children }: DataTableHeadProps) {
+  return (
+    <th
+      id={id}
+      class={[
+        "h-12 whitespace-nowrap px-5 text-left align-middle text-xs font-medium text-muted-foreground",
+        classes,
+        state.hiddenColumns.includes(Publr.dataset("column")) ? "hidden!" : "",
+      ]}
+      data-column={column}
+    >
+      {children}
+    </th>
+  );
+}

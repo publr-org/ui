@@ -1,0 +1,605 @@
+import { DropdownMenu } from "../Dropdown/Dropdown.ptsx";
+import { DropdownMenuContent } from "../Dropdown/DropdownMenuContent.ptsx";
+import { DropdownMenuItem } from "../Dropdown/DropdownMenuItem.ptsx";
+import { DropdownMenuTrigger } from "../Dropdown/DropdownMenuTrigger.ptsx";
+import { FilterBar } from "../FilterBar/FilterBar.ptsx";
+import { Icon } from "../Icon/Icon.ptsx";
+import { Input } from "../Input/Input.ptsx";
+import { DropdownMenuCheckboxItem } from "../Dropdown/DropdownMenuCheckboxItem.ptsx";
+import { FilterPill } from "../FilterBar/FilterPill.ptsx";
+import { FilterPillBody } from "../FilterBar/FilterPillBody.ptsx";
+import { FilterPillLabel } from "../FilterBar/FilterPillLabel.ptsx";
+import { FilterPillOperator } from "../FilterBar/FilterPillOperator.ptsx";
+import { FilterPillRemove } from "../FilterBar/FilterPillRemove.ptsx";
+import { FilterPillValue } from "../FilterBar/FilterPillValue.ptsx";
+import { DropdownMenuSearch } from "../Dropdown/DropdownMenuSearch.ptsx";
+import { DropdownMenuSeparator } from "../Dropdown/DropdownMenuSeparator.ptsx";
+import { Table } from "../Table/Table.ptsx";
+import { TableHeader } from "../Table/TableHeader.ptsx";
+import { TableHead } from "../Table/TableHead.ptsx";
+import { TableBody } from "../Table/TableBody.ptsx";
+import { TableRow } from "../Table/TableRow.ptsx";
+import { TableCell } from "../Table/TableCell.ptsx";
+import { Link } from "../Link/Link.ptsx";
+import { Empty } from "../Empty/Empty.ptsx";
+import { EmptyTitle } from "../Empty/EmptyTitle.ptsx";
+import { EmptyDescription } from "../Empty/EmptyDescription.ptsx";
+import { Status } from "../Status/Status.ptsx";
+import { Publr } from "publr-jsx";
+import { awaited as awaitData } from "publr/runtime";
+import { httpOperation } from "publr/transport";
+import { Button } from "../Button/Button.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type DataTableProps = {
+  id?: string;
+  classes?: string;
+  search_name?: string;
+  children?: JSX.Element;
+  address?: string;
+  columns?: Array<{ id: string; label: string; href: string; active: boolean }>;
+  rows?: Array<{
+    id: string;
+    cells: Array<{
+      id: string;
+      text: string;
+      href: string;
+      kind: string;
+      tone: string;
+      extra: string;
+      extra_tone: string;
+    }>;
+  }>;
+  filters?: Array<{
+    id: string;
+    name: string;
+    label: string;
+    operator: string;
+    operator_id: string;
+    operator_name: string;
+    operators: Array<{ label: string; href: string; selected: boolean }>;
+    value: string;
+    value_kind: string;
+    day: string;
+    options: Array<{ label: string; href: string; selected: boolean }>;
+    carried: Array<{ id: string; name: string; value: string }>;
+    remove_href: string;
+    reset_href: string;
+    searchable: boolean;
+  }>;
+  hidden?: Array<{ id: string; name: string; value: string }>;
+  search?: string;
+  add_filters?: Array<{ label: string; href: string; added: boolean }>;
+  empty_text?: string;
+};
+
+export const state = Publr.reactive({
+  address: "",
+  columns: [] as NonNullable<DataTableProps["columns"]>,
+  rows: [] as NonNullable<DataTableProps["rows"]>,
+  filters: [] as NonNullable<DataTableProps["filters"]>,
+  hidden: [] as NonNullable<DataTableProps["hidden"]>,
+  search: "",
+  add_filters: [] as NonNullable<DataTableProps["add_filters"]>,
+  empty_text: "",
+  empty: true,
+  request_url: "",
+  busy: false,
+  error: "",
+  revision: 0,
+  selectedRowIds: [] as string[],
+  hiddenRowIds: [] as string[],
+  hiddenColumns: [] as string[],
+  allSelected: false,
+  partiallySelected: false,
+  anySelected: false,
+  selectedCount: 0,
+  visibleCount: 0,
+  selectionRevision: 0,
+});
+
+export const root_ref = Publr.ref<HTMLElement>((element) => {
+  const reconcile = () => {
+    const rows = page_rows();
+    const ids = new Set(rows.map((row) => row.dataset.rowId!));
+    const selected = state.selectedRowIds.filter((id) => ids.has(id));
+    if (selected.length !== state.selectedRowIds.length) selection(selected);
+    state.visibleCount = rows.filter(
+      (row) => !state.hiddenRowIds.includes(row.dataset.rowId!),
+    ).length;
+    state.allSelected = selected.length > 0 && selected.length === rows.length;
+    state.partiallySelected = selected.length > 0 && !state.allSelected;
+  };
+  const observer = new MutationObserver(reconcile);
+  observer.observe(element, { childList: true, subtree: true });
+  reconcile();
+  return () => {
+    clearTimeout(search_timer);
+    observer.disconnect();
+  };
+});
+export const search_ref = Publr.ref<HTMLInputElement>();
+const triggers = new Map<string, HTMLElement>();
+export const trigger_ref = Publr.ref<HTMLElement>((element) => {
+  triggers.set(element.dataset.tableTrigger!, element);
+  return () => {
+    if (triggers.get(element.dataset.tableTrigger!) === element)
+      triggers.delete(element.dataset.tableTrigger!);
+  };
+});
+let search_timer: ReturnType<typeof setTimeout> | undefined = undefined;
+let push_history = false;
+let committed: unknown = null;
+let open_filter = "";
+
+const table_url = (href: string) => {
+  const url = new URL(href, location.href);
+  if (!state.address) return null;
+  const address = new URL(state.address, location.href);
+  return url.origin === address.origin && url.pathname === address.pathname ? url : null;
+};
+
+const result = awaitData(
+  () => {
+    if (!state.request_url) return null;
+    return httpOperation<{
+      data: Required<Omit<DataTableProps, "children" | "search_name" | "id" | "classes">>;
+      context?: unknown;
+    }>(state.request_url, {
+      headers: { Accept: "application/json" },
+    })();
+  },
+  {
+    key: () => ["data-table", state.request_url],
+    cache: { ttl: 15000 },
+  },
+);
+
+const navigate = (url: URL, push: boolean) => {
+  clearTimeout(search_timer);
+  push_history = push;
+  open_filter = url.hash.startsWith("#filter-") ? url.hash.slice(1) : "";
+  url.hash = "";
+  state.error = "";
+  if (state.request_url === url.toString()) result.refresh();
+  else state.request_url = url.toString();
+};
+
+export const onNavigate = (event: Event) => {
+  if (!(event instanceof MouseEvent) || event.defaultPrevented || event.button !== 0) return;
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  const anchor = event.currentTarget;
+  if (
+    !(anchor instanceof HTMLAnchorElement) ||
+    anchor.hasAttribute("download") ||
+    (anchor.target && anchor.target !== "_self")
+  )
+    return;
+  const url = table_url(anchor.href);
+  if (!url) return;
+  event.preventDefault();
+  navigate(url, true);
+};
+
+export const onSubmit = (event: Event) => {
+  const form = event.target;
+  if (!(form instanceof HTMLFormElement) || event.defaultPrevented || form.method !== "get") return;
+  if (form.target && form.target !== "_self") return;
+  const url = table_url(form.action);
+  if (!url) return;
+  event.preventDefault();
+  const params = new URLSearchParams();
+  for (const [name, value] of new FormData(form)) {
+    if (typeof value === "string") params.append(name, value);
+  }
+  url.search = params.toString();
+  navigate(url, true);
+};
+
+export const onSearch = (event: Event) => {
+  const box = event.target;
+  if (!(box instanceof HTMLInputElement)) return;
+  clearTimeout(search_timer);
+  state.request_url = "";
+  state.busy = false;
+  if (event instanceof InputEvent && event.isComposing) return;
+  search_timer = setTimeout(() => {
+    if (root_ref.current?.isConnected && box.isConnected) box.form?.requestSubmit();
+  }, 300);
+};
+
+export const onPopState = () => {
+  const url = table_url(location.href);
+  if (url) navigate(url, false);
+};
+
+const page_rows = () =>
+  [...(root_ref.current?.querySelectorAll<HTMLElement>("[data-row-id]") ?? [])].filter(
+    (row) => row.closest('[data-part="data-table"]') === root_ref.current,
+  );
+
+const selection = (ids: string[]) => {
+  state.selectedRowIds = ids;
+  state.selectedCount = ids.length;
+  state.anySelected = ids.length > 0;
+  state.allSelected = ids.length > 0 && ids.length === page_rows().length;
+  state.partiallySelected = ids.length > 0 && !state.allSelected;
+  state.selectionRevision++;
+};
+
+export const clearSelection = () => selection([]);
+export const rowSelectionChanged = (event: Event) => {
+  const input = event.target;
+  if (!(input instanceof HTMLInputElement)) return;
+  const id = input.closest<HTMLElement>("[data-row-id]")?.dataset.rowId;
+  if (!id) return;
+  const ids = state.selectedRowIds.filter((value) => value !== id);
+  selection(input.checked ? [...ids, id] : ids);
+};
+export const pageSelectionChanged = (event: Event) => {
+  const input = event.target;
+  if (!(input instanceof HTMLInputElement)) return;
+  selection(input.checked ? page_rows().map((row) => row.dataset.rowId!) : []);
+};
+export const toggleColumn = (event: Event) => {
+  const column = (event.currentTarget as HTMLElement).dataset.columnToggle!;
+  state.hiddenColumns = state.hiddenColumns.includes(column)
+    ? state.hiddenColumns.filter((value) => value !== column)
+    : [...state.hiddenColumns, column];
+};
+export const filterRows = (event: Event) => {
+  const query = (event.target as HTMLInputElement).value.trim().toLowerCase();
+  const rows = page_rows();
+  state.hiddenRowIds = rows
+    .filter((row) => row.dataset.search && !row.dataset.search.toLowerCase().includes(query))
+    .map((row) => row.dataset.rowId!);
+  state.visibleCount = rows.length - state.hiddenRowIds.length;
+};
+Publr.effect(() => {
+  const revision = state.selectionRevision;
+  if (!revision) return;
+  root_ref.current?.dispatchEvent(
+    new CustomEvent("datatableselectionchange", {
+      bubbles: true,
+      detail: { selectedRowIds: [...state.selectedRowIds] },
+    }),
+  );
+});
+
+export const retry = () => result.refresh();
+
+Publr.effect(() => {
+  state.busy = result.pending();
+  const failed = result.isError();
+  const next = result.peek();
+  if (result.pending()) return;
+  Publr.untrack(() => {
+    const root = root_ref.current;
+    if (!root?.isConnected || !state.request_url) return;
+    if (failed) {
+      state.error = "Could not load results. Try again.";
+      return;
+    }
+    if (!next || next === committed) return;
+    if (!next.data || !Array.isArray(next.data.rows) || !table_url(next.data.address)) {
+      state.error = "Could not load results. Try again.";
+      return;
+    }
+    committed = next;
+    state.address = next.data.address;
+    state.columns = next.data.columns;
+    state.rows = next.data.rows;
+    state.empty = next.data.rows.length === 0;
+    clearSelection();
+    state.filters = next.data.filters;
+    state.hidden = next.data.hidden;
+    state.search = next.data.search;
+    state.add_filters = next.data.add_filters;
+    state.empty_text = next.data.empty_text;
+    state.error = "";
+    root.dispatchEvent(new CustomEvent("datatableload", { bubbles: true, detail: next.context }));
+    if (push_history && location.pathname + location.search !== next.data.address)
+      history.pushState(null, "", next.data.address);
+    state.revision++;
+  });
+});
+
+Publr.effect(() => {
+  const revision = state.revision;
+  if (!revision || !open_filter) return;
+  const trigger = triggers.get(open_filter);
+  open_filter = "";
+  if (trigger?.isConnected && trigger.getAttribute("aria-expanded") !== "true") trigger.click();
+});
+
+export function DataTable({
+  id,
+  classes = "",
+  address = "",
+  columns = [],
+  rows = [],
+  filters = [],
+  hidden = [],
+  search = "",
+  add_filters = [],
+  empty_text = "",
+  search_name = "q",
+  children,
+}: DataTableProps) {
+  state.address = address;
+  state.columns = columns;
+  state.rows = rows;
+  state.filters = filters;
+  state.hidden = hidden;
+  state.search = search;
+  state.add_filters = add_filters;
+  state.empty_text = empty_text;
+  state.empty = rows.length === 0;
+
+  return (
+    <div
+      id={id}
+      class={classes}
+      data-part="data-table"
+      ref={root_ref}
+      data-address={state.address}
+      aria-busy={state.busy}
+      onSubmit={onSubmit}
+      onWindowPopState={onPopState}
+    >
+      {children}
+      {address && (
+        <div>
+          <FilterBar classes="pl-8 pr-5">
+            {state.filters.map((filter) => (
+              <FilterPill key={filter.id} id={filter.id}>
+                <FilterPillLabel>{filter.label}</FilterPillLabel>
+                {filter.operators.length > 1 ? (
+                  <DropdownMenu classes="flex">
+                    <DropdownMenuTrigger asChild>
+                      <FilterPillOperator label="Change filter operator">
+                        {filter.operator}
+                      </FilterPillOperator>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      {filter.operators.map((option) => (
+                        <DropdownMenuCheckboxItem
+                          key={option.label}
+                          onClick={onNavigate}
+                          href={option.href}
+                          checked={option.selected}
+                        >
+                          {option.label}
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <FilterPillOperator fixed>{filter.operator}</FilterPillOperator>
+                )}
+                <FilterPillBody attached>
+                  {filter.value_kind !== "none" && (
+                    <DropdownMenu classes="flex">
+                      <DropdownMenuTrigger asChild ref={trigger_ref} data-table-trigger={filter.id}>
+                        <FilterPillValue attached>{filter.value}</FilterPillValue>
+                      </DropdownMenuTrigger>
+                      {filter.value_kind === "day" ? (
+                        <DropdownMenuContent>
+                          <form
+                            onSubmit={onSubmit}
+                            method="get"
+                            action={state.address}
+                            class="flex items-center gap-2 p-1"
+                          >
+                            {filter.carried.map((field) => (
+                              <input
+                                key={field.id}
+                                type="hidden"
+                                name={field.name}
+                                value={field.value}
+                              />
+                            ))}
+                            <input
+                              type="hidden"
+                              name={filter.operator_name}
+                              value={filter.operator_id}
+                            />
+                            <Input
+                              type="date"
+                              size="sm"
+                              name={filter.name}
+                              value={filter.day}
+                              required
+                              classes="w-40"
+                            />
+                            <Button type="submit" size="sm">
+                              Apply
+                            </Button>
+                          </form>
+                        </DropdownMenuContent>
+                      ) : (
+                        <DropdownMenuContent>
+                          {filter.searchable && <DropdownMenuSearch placeholder="Search options" />}
+                          {filter.options.map((option) => (
+                            <DropdownMenuCheckboxItem
+                              key={option.label}
+                              onClick={onNavigate}
+                              href={option.href}
+                              checked={option.selected}
+                            >
+                              {option.label}
+                            </DropdownMenuCheckboxItem>
+                          ))}
+                          {filter.reset_href && <DropdownMenuSeparator />}
+                          {filter.reset_href && (
+                            <DropdownMenuItem onClick={onNavigate} href={filter.reset_href}>
+                              Reset to Any
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      )}
+                    </DropdownMenu>
+                  )}
+                  {filter.remove_href && (
+                    <FilterPillRemove
+                      onClick={onNavigate}
+                      href={filter.remove_href}
+                      label="Remove filter"
+                    />
+                  )}
+                </FilterPillBody>
+              </FilterPill>
+            ))}
+            <form method="get" action={state.address} class="flex min-w-40 flex-1 items-stretch">
+              {state.hidden.map((field) => (
+                <input key={field.id} type="hidden" name={field.name} value={field.value} />
+              ))}
+              <Input
+                ref={search_ref}
+                onInput={onSearch}
+                onCompositionEnd={onSearch}
+                inset
+                size="sm"
+                type="search"
+                aria-label="Search table"
+                name={search_name}
+                value={state.search}
+                placeholder="Type to search"
+                classes="px-0"
+              />
+            </form>
+            <DropdownMenu classes="flex items-center">
+              <DropdownMenuTrigger asChild>
+                <Button type="button" hierarchy="tertiary" size="sm">
+                  <Icon name="filter-lines" size="sm" />
+                  <span>Filter</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="right">
+                {state.add_filters.map((item) => (
+                  <span key={item.label} class="contents">
+                    {item.added ? (
+                      <DropdownMenuItem disabled>{item.label}</DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem onClick={onNavigate} href={item.href}>
+                        {item.label}
+                      </DropdownMenuItem>
+                    )}
+                  </span>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </FilterBar>
+        </div>
+      )}
+      {state.error && (
+        <div role="alert" class="flex items-center gap-3 px-8 py-3">
+          <Text variant="body-md">{state.error}</Text>
+          <Button hierarchy="secondary" size="sm" onClick={retry}>
+            Retry
+          </Button>
+        </div>
+      )}
+      {address && (
+        <div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {state.columns.map((column) => (
+                  <TableHead key={column.id} classes="first-of-type:pl-8">
+                    {column.href ? (
+                      <Link
+                        onClick={onNavigate}
+                        href={column.href}
+                        variant="body-sm"
+                        tone="quiet"
+                        data-sort-active={column.active ? "true" : "false"}
+                        classes="data-[sort-active=true]:text-foreground"
+                      >
+                        {column.label}
+                      </Link>
+                    ) : (
+                      column.label
+                    )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {state.rows.map((row) => (
+                <TableRow key={row.id} data-row-id={row.id}>
+                  {row.cells.map((cell) => (
+                    <TableCell
+                      key={cell.id}
+                      data-cell-kind={cell.kind}
+                      classes="first-of-type:pl-8 data-[cell-kind=numeric]:whitespace-nowrap data-[cell-kind=numeric]:tabular-nums data-[cell-kind=action]:text-right"
+                    >
+                      {cell.kind === "action" ? (
+                        <Link href={cell.href} label={cell.text} tone="quiet" classes="inline-flex">
+                          <Icon name="chevron-right" size="sm" />
+                        </Link>
+                      ) : cell.kind === "status" ? (
+                        <span>
+                          {cell.tone === "success" ? (
+                            <Status tone="success">{cell.text}</Status>
+                          ) : cell.tone === "error" ? (
+                            <Status tone="error">{cell.text}</Status>
+                          ) : cell.tone === "warning" ? (
+                            <Status tone="warning">{cell.text}</Status>
+                          ) : cell.tone === "accent" ? (
+                            <Status tone="accent">{cell.text}</Status>
+                          ) : cell.tone === "review" ? (
+                            <Status tone="review">{cell.text}</Status>
+                          ) : (
+                            <Status tone="neutral">{cell.text}</Status>
+                          )}
+                        </span>
+                      ) : cell.href ? (
+                        <Link href={cell.href} variant="body-md" tone="default">
+                          {cell.text}
+                        </Link>
+                      ) : cell.kind === "mono" ? (
+                        <Text as="span" variant="mono-xs" tone="muted">
+                          {cell.text}
+                        </Text>
+                      ) : (
+                        <Text as="span" variant="body-md" tone="muted">
+                          {cell.text}
+                        </Text>
+                      )}
+                      {cell.extra && (
+                        <span class="ml-3">
+                          {cell.extra_tone === "success" ? (
+                            <Status tone="success">{cell.extra}</Status>
+                          ) : cell.extra_tone === "error" ? (
+                            <Status tone="error">{cell.extra}</Status>
+                          ) : cell.extra_tone === "warning" ? (
+                            <Status tone="warning">{cell.extra}</Status>
+                          ) : cell.extra_tone === "accent" ? (
+                            <Status tone="accent">{cell.extra}</Status>
+                          ) : cell.extra_tone === "review" ? (
+                            <Status tone="review">{cell.extra}</Status>
+                          ) : (
+                            <Status tone="neutral">{cell.extra}</Status>
+                          )}
+                        </span>
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          {state.empty && (
+            <div class="mx-8">
+              <Empty>
+                <EmptyTitle>Nothing here</EmptyTitle>
+                <EmptyDescription>{state.empty_text}</EmptyDescription>
+              </Empty>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

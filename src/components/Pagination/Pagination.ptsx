@@ -1,0 +1,31 @@
+// Page-navigation family (shadcn-shaped parts, ported from the old design
+// system). Pure server navigation: links carry hrefs the page builds; the
+// current page is a non-link marked with aria-current. No behavior store.
+
+export type PaginationProps = {
+  id?: string;
+  classes?: string;
+  label?: string;
+  children: JSX.Element;
+};
+
+export function Pagination({ id, classes = "", label = "Pagination", children }: PaginationProps) {
+  return (
+    <nav id={id} class={["mx-auto flex w-full justify-center", classes]} aria-label={label}>
+      {children}
+    </nav>
+  );
+}
+
+export { PaginationContent } from "./PaginationContent.ptsx";
+export { PaginationItem } from "./PaginationItem.ptsx";
+export { PaginationLink } from "./PaginationLink.ptsx";
+export { PaginationPrevious } from "./PaginationPrevious.ptsx";
+export { PaginationNext } from "./PaginationNext.ptsx";
+export { PaginationEllipsis } from "./PaginationEllipsis.ptsx";
+export type { PaginationContentProps } from "./PaginationContent.ptsx";
+export type { PaginationItemProps } from "./PaginationItem.ptsx";
+export type { PaginationLinkProps } from "./PaginationLink.ptsx";
+export type { PaginationPreviousProps } from "./PaginationPrevious.ptsx";
+export type { PaginationNextProps } from "./PaginationNext.ptsx";
+export type { PaginationEllipsisProps } from "./PaginationEllipsis.ptsx";

@@ -1,0 +1,229 @@
+// Compound action-menu root. The family store is declared here at module
+// level; sibling parts import `state`, the refs, and the actions, and the
+// compiler lowers every reference onto the ancestry wire transport.
+import { Publr } from "publr-jsx";
+
+export const state = Publr.reactive({
+  open: false,
+  query: "",
+  focusIndex: 0,
+  focusRevision: 0,
+  restoreFocusRevision: 0,
+  activationIndex: -1,
+  activationRevision: 0,
+});
+
+export const trigger = Publr.ref();
+export const content = Publr.ref();
+
+let focusedRevision = 0;
+let restoredRevision = 0;
+let activatedRevision = 0;
+
+const isDisabled = (element: HTMLElement) =>
+  ("disabled" in element && Boolean((element as HTMLButtonElement).disabled)) ||
+  element.getAttribute("aria-disabled") === "true";
+
+const items = () =>
+  content.current
+    ? [
+        ...(content.current as HTMLElement).querySelectorAll<HTMLElement>(
+          '[role="menuitem"], [role="menuitemcheckbox"]',
+        ),
+      ].filter((item) => !isDisabled(item) && !item.hidden)
+    : [];
+
+/** The DropdownMenuSearch box, when the menu has one. */
+const searchBox = () =>
+  (content.current as HTMLElement | null)?.querySelector<HTMLInputElement>(
+    '[data-part="search"] input',
+  ) ?? null;
+
+const isSearchBox = (target: EventTarget | null) =>
+  target instanceof HTMLElement && target.closest('[data-part="search"]') !== null;
+
+// Index -1 is the search box: the menu opens there when it has one.
+const focusItem = (index: number) => {
+  const box = searchBox();
+  if (index < 0 && box) {
+    items().forEach((item) => (item.tabIndex = -1));
+    box.focus();
+    return;
+  }
+  const enabled = items();
+  if (!enabled.length) return;
+  const active = (index + enabled.length) % enabled.length;
+  enabled.forEach((item, itemIndex) => (item.tabIndex = itemIndex === active ? 0 : -1));
+  enabled[active]?.focus();
+};
+
+const openAt = (index: "first" | "last") => {
+  state.open = true;
+  state.query = "";
+  const box = searchBox();
+  if (box) box.value = "";
+  state.focusIndex = index === "first" ? (box ? -1 : 0) : items().length - 1;
+  state.focusRevision++;
+};
+
+export const search = (event: Event) => {
+  state.query = (event.target as HTMLInputElement).value;
+};
+
+const close = (restoreFocus = false) => {
+  state.open = false;
+  if (restoreFocus) state.restoreFocusRevision++;
+};
+
+export const toggle = (event: Event) => {
+  if (event.defaultPrevented || (trigger.current && isDisabled(trigger.current as HTMLElement)))
+    return;
+  if (state.open) close();
+  else openAt("first");
+};
+
+export const triggerKeydown = (event: Event) => {
+  if (!(event instanceof KeyboardEvent)) return;
+  if (trigger.current && isDisabled(trigger.current as HTMLElement)) return;
+  if (event.key === "ArrowDown") {
+    event.preventDefault();
+    openAt("first");
+  } else if (event.key === "ArrowUp") {
+    event.preventDefault();
+    openAt("last");
+  } else if (event.key === "Escape") {
+    event.preventDefault();
+    close(true);
+  }
+};
+
+export const contentKeydown = (event: Event) => {
+  if (!(event instanceof KeyboardEvent)) return;
+  const enabled = items();
+  const current = enabled.indexOf(
+    (content.current as HTMLElement | null)?.ownerDocument.activeElement as HTMLElement,
+  );
+  const typing = isSearchBox(event.target);
+  if (event.key === "Escape") {
+    event.preventDefault();
+    close(true);
+  } else if (event.key === "Tab") {
+    close();
+  } else if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+    event.preventDefault();
+    if (typing) state.focusIndex = event.key === "ArrowDown" ? 0 : enabled.length - 1;
+    else if (event.key === "ArrowUp" && current === 0 && searchBox()) state.focusIndex = -1;
+    else state.focusIndex = current + (event.key === "ArrowDown" ? 1 : -1);
+    state.focusRevision++;
+  } else if (typing) {
+    return;
+  } else if (event.key === "Home" || event.key === "End") {
+    event.preventDefault();
+    state.focusIndex = event.key === "Home" ? 0 : enabled.length - 1;
+    state.focusRevision++;
+  } else if ((event.key === "Enter" || event.key === " ") && current >= 0) {
+    event.preventDefault();
+    state.activationIndex = current;
+    state.activationRevision++;
+  } else if (
+    event.key !== " " &&
+    event.key.length === 1 &&
+    !event.ctrlKey &&
+    !event.metaKey &&
+    !event.altKey
+  ) {
+    const query = event.key.toLowerCase();
+    const match = enabled.findIndex((item) =>
+      (item.textContent ?? "").trim().toLowerCase().startsWith(query),
+    );
+    if (match >= 0) {
+      state.focusIndex = match;
+      state.focusRevision++;
+    }
+  }
+};
+
+export const activate = (event: Event) => {
+  // Only plain menuitems dismiss the menu on activation — checkbox items
+  // (role="menuitemcheckbox") toggle in place and stay open.
+  const item = (event.target as Element | null)?.closest<HTMLElement>('[role="menuitem"]');
+  if (
+    item &&
+    (content.current as HTMLElement | null)?.contains(item) &&
+    !isDisabled(item) &&
+    !event.defaultPrevented
+  ) {
+    close();
+  }
+};
+
+export const dismiss = (event: Event) => {
+  const reason = (event as CustomEvent<{ reason?: string }>).detail?.reason;
+  close(reason === "escape");
+};
+
+Publr.effect(() => {
+  if (!state.open) items().forEach((item) => (item.tabIndex = -1));
+});
+
+// The search box hides the items whose text does not contain the query.
+Publr.effect(() => {
+  const query = state.query.trim().toLowerCase();
+  const panel = content.current as HTMLElement | null;
+  if (!panel) return;
+  for (const item of panel.querySelectorAll<HTMLElement>(
+    '[role="menuitem"], [role="menuitemcheckbox"]',
+  )) {
+    item.hidden = query !== "" && !(item.textContent ?? "").toLowerCase().includes(query);
+  }
+});
+
+Publr.effect(() => {
+  const control = trigger.current as HTMLElement | null;
+  const panel = content.current as HTMLElement | null;
+  if (!control || !panel) return;
+  if (!panel.id) {
+    let sequence = 0;
+    let candidate = "";
+    do {
+      candidate = `publr-menu-${++sequence}`;
+    } while (panel.ownerDocument.getElementById(candidate));
+    panel.id = candidate;
+  }
+  control.setAttribute("aria-controls", panel.id);
+});
+
+Publr.effect(() => {
+  const revision = state.focusRevision;
+  if (!revision || revision === focusedRevision) return;
+  focusedRevision = revision;
+  focusItem(state.focusIndex);
+});
+
+Publr.effect(() => {
+  const revision = state.restoreFocusRevision;
+  if (!revision || revision === restoredRevision) return;
+  restoredRevision = revision;
+  (trigger.current as HTMLElement | null)?.focus();
+});
+
+Publr.effect(() => {
+  const revision = state.activationRevision;
+  if (!revision || revision === activatedRevision) return;
+  activatedRevision = revision;
+  items()[state.activationIndex]?.click();
+});
+
+export type DropdownMenuProps = {
+  id?: string;
+  classes?: string;
+  children: JSX.Element;
+};
+
+export function DropdownMenu({ id, classes = "", children }: DropdownMenuProps) {
+  return (
+    <div id={id} class={["inline-block", classes]} data-part="dropdown-menu">
+      {children}
+    </div>
+  );
+}

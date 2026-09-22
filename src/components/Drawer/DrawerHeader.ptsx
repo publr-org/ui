@@ -1,0 +1,20 @@
+// Header row at the top of the panel: composed title (DrawerTitle) and
+// close control (DrawerClose), pinned while the body scrolls.
+
+export type DrawerHeaderProps = {
+  id?: string;
+  classes?: string;
+  children?: JSX.Element;
+};
+
+export function DrawerHeader({ id, classes = "", children }: DrawerHeaderProps) {
+  return (
+    <div
+      id={id}
+      class={["flex h-12 shrink-0 items-center gap-2 border-b border-border px-4", classes]}
+      data-part="header"
+    >
+      {children}
+    </div>
+  );
+}

@@ -1,0 +1,36 @@
+import { Icon } from "../Icon/Icon.ptsx";
+import type { IconName } from "../Icon/Icon.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type LinkCardProps = {
+  href: string;
+  title: string;
+  description: string;
+  icon_name: IconName;
+  size?: "default" | "large";
+};
+
+export function LinkCard({ href, title, description, icon_name, size = "default" }: LinkCardProps) {
+  return (
+    <a
+      href={href}
+      class={[
+        "group flex rounded-xl border border-border bg-card text-foreground transition-colors hover:border-input hover:bg-muted/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+        size === "large" ? "min-h-56 flex-col gap-6 p-7" : "items-start gap-4 p-5",
+      ]}
+    >
+      <Icon name={icon_name} size={size === "large" ? "lg" : "md"} />
+      <div class="flex min-w-0 flex-1 flex-col gap-2">
+        <Text as="span" variant={size === "large" ? "heading-lg" : "heading-sm"}>
+          {title}
+        </Text>
+        <Text as="span" variant="body-md" tone="muted">
+          {description}
+        </Text>
+      </div>
+      <span class={size === "large" ? "flex justify-end" : "mt-0.5"}>
+        <Icon name="chevron-right" size="sm" />
+      </span>
+    </a>
+  );
+}

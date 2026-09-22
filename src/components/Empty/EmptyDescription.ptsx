@@ -1,0 +1,17 @@
+// Muted body text below the title. Composes Text body-sm; the part owns its
+// offset and measure, the caller layer stays last.
+import { Text } from "../Text/Text.ptsx";
+
+export type EmptyDescriptionProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function EmptyDescription({ children, classes = "", id }: EmptyDescriptionProps) {
+  return (
+    <Text id={id} as="p" variant="body-sm" tone="muted" classes={`mt-1 max-w-sm ${classes}`}>
+      {children}
+    </Text>
+  );
+}

@@ -1,0 +1,40 @@
+// The outline of a split button: one bordered, rounded, clipped group around a face
+// (`Button attach="start"`, usually a submit in its own form) and an arrow
+// (`Button attach="end"`, usually a menu trigger). The halves draw no border of their
+// own, so nothing can misalign at the seam.
+export const SPLIT_BUTTON_HIERARCHIES = ["primary", "secondary"] as const;
+
+export type SplitButtonHierarchy = (typeof SPLIT_BUTTON_HIERARCHIES)[number];
+
+export type SplitButtonProps = {
+  hierarchy?: SplitButtonHierarchy;
+  children: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+const HIERARCHY_CLASSES: Record<SplitButtonHierarchy, string> = {
+  primary: "border-primary",
+  secondary: "border-border",
+};
+
+export function SplitButton({
+  hierarchy = "primary",
+  children,
+  classes = "",
+  id,
+}: SplitButtonProps) {
+  return (
+    <div
+      id={id}
+      class={[
+        "inline-flex h-9 items-stretch overflow-hidden rounded-lg border shadow-xs",
+        HIERARCHY_CLASSES[hierarchy],
+        classes,
+      ]}
+      data-part="split-button"
+    >
+      {children}
+    </div>
+  );
+}

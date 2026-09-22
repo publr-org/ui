@@ -1,0 +1,145 @@
+import { FilterChip } from "../../../src/components/FilterChip/FilterChip.ptsx";
+import type {
+  ComponentCanvas,
+  ComponentDemoMeta,
+  ComponentDemoVariant,
+  DemoNode,
+} from "../../gallery-types";
+
+export const meta = {
+  name: "filter-chip",
+  label: "FilterChip",
+  source: "src/components/FilterChip/FilterChip.ptsx",
+  kind: "composite",
+  group: "Navigation",
+  description:
+    "Taxonomy/filter pill with a DS-owned middot count treatment; href navigates, no href renders a static span.",
+  tags: ["chip", "tag", "filter", "taxonomy", "pill", "count"],
+  usage: `<FilterChip href="/media?tag=editorial" count="5">editorial</FilterChip>
+<FilterChip href="/media" selected count="2">website</FilterChip>`,
+  preview: "canvas",
+  previewLabel: "Default, selected, and disabled chips with counts",
+  docs: {
+    purpose: [
+      "FilterChip renders one taxonomy or filter value as a compact pill, owning the pill treatment and the middot count separator so every taxonomy surface reads identically.",
+      "Chips are server-navigation controls: choosing one navigates to the filtered view.",
+    ],
+    useWhen: [
+      "A sidebar or toolbar lists taxonomy values (tags, categories) that filter the current view via links.",
+      "A value carries an item count that should render in the standard muted middot treatment.",
+    ],
+    avoidWhen: [
+      "The chip toggles client-side state without navigation; that is a different, button-based contract that has not been approved.",
+      "The value expresses workflow state; that is Status.",
+    ],
+    rules: [
+      {
+        title: "Counts are a prop, not authored text",
+        description:
+          "Pass count and let the chip render the separator and muted treatment. Do not bake ' · 2' into children.",
+      },
+      {
+        title: "Disabled chips omit href",
+        description:
+          "A disabled chip renders as a static span. Callers drop href so the entry is truly inert rather than merely unclickable.",
+      },
+    ],
+    accessibility: [
+      "Chips with href are ordinary links in the tab order; selected sets aria-current.",
+      "Disabled chips are static spans — nothing focusable is left behind.",
+    ],
+    composition: ["Wrap chips in a flex-wrap gap-1.5 container; the chip owns only its own pill."],
+    agentNotes: [
+      "selected + href is the active filter link; selected alone renders a static selected pill.",
+      "Never re-create the pill with raw utilities in call sites — compose this component.",
+    ],
+    props: [
+      { name: "children", type: "node", description: "The visible value label." },
+      {
+        name: "count",
+        type: "string",
+        description: "Optional count rendered after a middot in the muted treatment.",
+      },
+      {
+        name: "href",
+        type: "string",
+        description: "Navigation target; renders an anchor when set.",
+      },
+      {
+        name: "selected",
+        type: "boolean",
+        description: "Active-filter treatment; sets aria-current on anchors.",
+        default: "false",
+      },
+      {
+        name: "disabled",
+        type: "boolean",
+        description: "Inert muted treatment; pair with omitting href.",
+        default: "false",
+      },
+      { name: "id", type: "string", description: "Identifier applied to the chip root." },
+      {
+        name: "classes",
+        type: "string",
+        description: "Layout or exceptional composition classes.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+const ROW = "flex flex-wrap items-center gap-1.5";
+
+export const variants = [
+  {
+    label: "States",
+    description: "Default link, selected, and disabled chips with counts.",
+    usage: `<FilterChip href="#" count="5">editorial</FilterChip>
+<FilterChip href="#" selected count="2">website</FilterChip>
+<FilterChip disabled count="0">archived</FilterChip>`,
+    notes: ["The disabled chip omits href and renders as a span."],
+    Demo: () => (
+      <div class={ROW}>
+        <FilterChip href="#" count="5">
+          editorial
+        </FilterChip>
+        <FilterChip href="#" selected count="2">
+          website
+        </FilterChip>
+        <FilterChip disabled count="0">
+          archived
+        </FilterChip>
+      </div>
+    ),
+    node: {
+      fragment: true,
+      wrapper: ROW,
+      children: [
+        { component: "FilterChip", props: { href: "#", count: "5", children: "editorial" } },
+        {
+          component: "FilterChip",
+          props: { href: "#", selected: true, count: "2", children: "website" },
+        },
+        { component: "FilterChip", props: { disabled: true, count: "0", children: "archived" } },
+      ] satisfies DemoNode[],
+    },
+  },
+] satisfies ComponentDemoVariant[];
+
+export const canvas = {
+  controls: [
+    { name: "children", type: "text", default: "editorial" },
+    { name: "count", type: "text", default: "5" },
+    { name: "selected", type: "boolean", default: false },
+    { name: "disabled", type: "boolean", default: false },
+  ],
+  node: (values) => ({
+    component: "FilterChip",
+    props: {
+      children: String(values.children),
+      count: String(values.count) || undefined,
+      selected: Boolean(values.selected),
+      disabled: Boolean(values.disabled),
+      href: values.disabled ? undefined : "#",
+    },
+  }),
+} satisfies ComponentCanvas;

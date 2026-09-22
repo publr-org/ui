@@ -1,0 +1,53 @@
+import { Publr, Slot } from "publr-jsx";
+import { state } from "./Accordion.ptsx";
+import { Icon } from "../Icon/Icon.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type AccordionTriggerProps = {
+  id?: string;
+  classes?: string;
+  asChild?: boolean;
+  children: JSX.Element;
+};
+
+export function AccordionTrigger({
+  id,
+  classes = "",
+  asChild = false,
+  children,
+}: AccordionTriggerProps) {
+  return (
+    <>
+      {asChild ? (
+        <Slot
+          id={id}
+          class={classes}
+          data-part="trigger"
+          aria-expanded={state.values.includes(Publr.dataset("value"))}
+        >
+          {children}
+        </Slot>
+      ) : (
+        <button
+          id={id}
+          type="button"
+          class={[
+            "group/accordion-trigger flex min-h-12 w-full cursor-pointer items-center gap-3 border-0 bg-transparent py-3 text-left text-foreground outline-ring transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed",
+            classes,
+          ]}
+          data-part="trigger"
+          aria-expanded={state.values.includes(Publr.dataset("value"))}
+        >
+          <Text variant="heading-sm" classes="min-w-0">
+            {children}
+          </Text>
+          <Icon
+            name="chevron-down"
+            size="sm"
+            classes="ml-auto shrink-0 text-muted-foreground transition-transform duration-150 group-data-[open]/accordion-item:rotate-180"
+          />
+        </button>
+      )}
+    </>
+  );
+}

@@ -1,0 +1,467 @@
+import { reactive } from "../../../src/publr-runtime";
+import {
+  CSS_UNITS,
+  UNIT_CONTROL_INPUT_MODES,
+  UnitControl,
+  UnitControlInput,
+  UnitControlUnit,
+  type CssUnit,
+  type UnitControlValue,
+} from "../../../src/components/UnitControl/UnitControl.ptsx";
+import type {
+  ComponentCanvas,
+  ComponentCanvasChildInstance,
+  ComponentDemoMeta,
+  ComponentDemoVariant,
+  DemoNode,
+} from "../../gallery-types";
+
+export const meta = {
+  name: "unit-control",
+  label: "Unit control",
+  source: "src/components/UnitControl/UnitControl.ptsx",
+  kind: "composite",
+  group: "Forms",
+  description: "One numeric value composed from an Input and a fixed CSS-unit picker.",
+  tags: ["input", "number", "unit", "form"],
+  usage: `<UnitControl autoWidth onChange={(next) => (state.size = next)}>
+  <UnitControlInput
+    id="width"
+    name="width"
+    value={state.size[0]}
+    min="0"
+    max="999"
+    step="any"
+  />
+  <UnitControlUnit name="widthUnit" value={state.size[1]} />
+</UnitControl>`,
+  preview: "inspector",
+  previewLabel: "Numeric value and CSS unit",
+  docs: {
+    purpose: [
+      "UnitControl presents a number and its CSS unit as one field and reports both through one callback.",
+      "The root owns joined-field behavior; UnitControlInput and UnitControlUnit own their relevant form props.",
+    ],
+    useWhen: [
+      "A numeric CSS length needs one of px, %, em, rem, vw, or vh.",
+      "The number and unit should be edited together while remaining separately nameable for form submission.",
+    ],
+    avoidWhen: [
+      "The value has no unit; use Input with type number.",
+      "The valid units are dynamic or differ from the fixed set.",
+    ],
+    rules: [
+      {
+        title: "Compose the two parts",
+        description:
+          "UnitControlInput and UnitControlUnit are explicit children. Native numeric props belong to the input part; unit naming belongs to the unit part.",
+      },
+      {
+        title: "One change contract",
+        description:
+          "Changing either part calls UnitControl onChange with [number, unit]. The parts expose no independent callbacks.",
+      },
+      {
+        title: "Width is explicit",
+        description:
+          "By default the field fills its container. autoWidth makes the number segment fit the widest min, max, value, placeholder, or zero while the unit segment fits its options.",
+      },
+      {
+        title: "The unit list is fixed",
+        description: "Callers choose the current unit but cannot replace the six CSS-unit options.",
+      },
+    ],
+    accessibility: [
+      "UnitControlInput id can be targeted by FieldLabel; label names a standalone compact input only when needed.",
+      "UnitControlUnit label names the otherwise ambiguous unit trigger and defaults to Unit.",
+      "disabled, invalid, and readOnly are shared root states rather than duplicated across both children.",
+    ],
+    composition: [
+      "UnitControlInput retains native number semantics and UnitControlUnit retains Select listbox behavior.",
+      "The root owns the shared border, sizing mode, state, and tuple notification.",
+    ],
+    agentNotes: [
+      "Always compose one UnitControlInput and one UnitControlUnit.",
+      "Keep the number and unit in one parent tuple and update both from UnitControl onChange.",
+      "Do not add callbacks to either child or pass a configurable units array.",
+    ],
+    props: [
+      {
+        name: "children",
+        type: "[UnitControlInput, UnitControlUnit]",
+        description: "The numeric input and fixed unit picker.",
+        required: true,
+      },
+      {
+        name: "autoWidth",
+        type: "boolean",
+        description: "Fits the field to numeric content instead of filling its container.",
+        default: "false",
+      },
+      { name: "disabled", type: "boolean", description: "Disables both parts.", default: "false" },
+      {
+        name: "invalid",
+        type: "boolean",
+        description: "Applies shared invalid semantics and border.",
+        default: "false",
+      },
+      {
+        name: "readOnly",
+        type: "boolean",
+        description: "Prevents changes through either part.",
+        default: "false",
+      },
+      {
+        name: "id",
+        type: "string",
+        description: "Optional identifier applied to the compound root.",
+      },
+      { name: "classes", type: "string", description: "Classes merged into the compound root." },
+      {
+        name: "onChange",
+        type: "(value: readonly [number, CssUnit]) => void",
+        description: "Combined notification fired when either part changes.",
+      },
+      {
+        name: "UnitControlInput.value",
+        type: "number",
+        description: "Controlled numeric value.",
+        required: true,
+      },
+      {
+        name: "UnitControlInput.id",
+        type: "string",
+        description: "Identifier for labels and forms.",
+      },
+      { name: "UnitControlInput.name", type: "string", description: "Numeric form field name." },
+      {
+        name: "UnitControlInput.label",
+        type: "string",
+        description: "Optional accessible numeric-input name when no FieldLabel is available.",
+      },
+      {
+        name: "UnitControlInput.placeholder",
+        type: "string",
+        description: "Native numeric placeholder.",
+      },
+      {
+        name: "UnitControlInput.required",
+        type: "boolean",
+        description: "Native required state.",
+        default: "false",
+      },
+      {
+        name: "UnitControlInput.autocomplete",
+        type: "string",
+        description: "Native autocomplete hint.",
+      },
+      {
+        name: "UnitControlInput.min",
+        type: "string",
+        description: "Native minimum constraint and width candidate.",
+      },
+      {
+        name: "UnitControlInput.max",
+        type: "string",
+        description: "Native maximum constraint and width candidate.",
+      },
+      { name: "UnitControlInput.step", type: "string", description: "Native numeric increment." },
+      {
+        name: "UnitControlInput.inputMode",
+        type: UNIT_CONTROL_INPUT_MODES.join(" | "),
+        description: "Closed native virtual-keyboard hint.",
+      },
+      {
+        name: "UnitControlInput.classes",
+        type: "string",
+        description: "Classes merged into the numeric part.",
+      },
+      {
+        name: "UnitControlUnit.value",
+        type: CSS_UNITS.join(" | "),
+        description: "Controlled unit.",
+        required: true,
+      },
+      {
+        name: "UnitControlUnit.id",
+        type: "string",
+        description: "Optional identifier applied to the unit part root.",
+      },
+      { name: "UnitControlUnit.name", type: "string", description: "Unit form field name." },
+      {
+        name: "UnitControlUnit.label",
+        type: "string",
+        description: "Accessible unit-trigger name.",
+        default: '"Unit"',
+      },
+      {
+        name: "UnitControlUnit.classes",
+        type: "string",
+        description: "Classes merged into the unit part.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+function ControlledDemo() {
+  const state = reactive({ value: 0, unit: "px" as CssUnit });
+  const update = (next: UnitControlValue) => {
+    state.value = next[0];
+    state.unit = next[1];
+  };
+
+  return (
+    <UnitControl autoWidth={true} onChange={update}>
+      <UnitControlInput
+        id="spacing"
+        name="spacing"
+        value={state.value}
+        min="0"
+        max="100"
+        step="any"
+      />
+      <UnitControlUnit name="spacingUnit" value={state.unit} />
+    </UnitControl>
+  );
+}
+
+const stateVariant =
+  (
+    props: Partial<{
+      value: number;
+      unit: CssUnit;
+      placeholder: string;
+      disabled: boolean;
+      invalid: boolean;
+      readOnly: boolean;
+      autoWidth: boolean;
+    }>,
+  ) =>
+  () => (
+    <UnitControl
+      autoWidth={props.autoWidth ?? true}
+      disabled={props.disabled}
+      invalid={props.invalid}
+      readOnly={props.readOnly}
+    >
+      <UnitControlInput value={props.value ?? 12} placeholder={props.placeholder} />
+      <UnitControlUnit value={props.unit ?? "rem"} />
+    </UnitControl>
+  );
+
+const unitControlNode = ({
+  value = 12,
+  unit = "rem",
+  autoWidth = true,
+  placeholder,
+  disabled = false,
+  invalid = false,
+  readOnly = false,
+}: {
+  value?: number;
+  unit?: CssUnit;
+  autoWidth?: boolean;
+  placeholder?: string;
+  disabled?: boolean;
+  invalid?: boolean;
+  readOnly?: boolean;
+}): DemoNode => ({
+  component: "UnitControl",
+  props: { autoWidth, disabled, invalid, readOnly },
+  children: [
+    {
+      component: "UnitControlInput",
+      props: { value, ...(placeholder ? { placeholder } : {}) },
+    },
+    { component: "UnitControlUnit", props: { value: unit } },
+  ],
+});
+
+export const variants = [
+  {
+    label: "Default",
+    description: "A controlled number and unit rendered as one intrinsically sized field.",
+    node: {
+      component: "UnitControl",
+      props: { autoWidth: true },
+      children: [
+        {
+          component: "UnitControlInput",
+          props: {
+            id: "spacing",
+            name: "spacing",
+            value: 0,
+            min: "0",
+            max: "100",
+            step: "any",
+            inputMode: "decimal",
+          },
+        },
+        { component: "UnitControlUnit", props: { name: "spacingUnit", value: "px" } },
+      ],
+    },
+    Demo: ControlledDemo,
+  },
+  {
+    label: "Fill width",
+    description: "Without autoWidth, the numeric segment takes the available inline space.",
+    node: unitControlNode({ value: 0, unit: "px", autoWidth: false }),
+    Demo: stateVariant({ value: 0, unit: "px", autoWidth: false }),
+  },
+  {
+    label: "Invalid",
+    description: "Invalid state is communicated around the joined field.",
+    node: unitControlNode({ invalid: true }),
+    Demo: stateVariant({ invalid: true }),
+  },
+  {
+    label: "Read only",
+    description: "The value remains readable while both editing paths are frozen.",
+    node: unitControlNode({ readOnly: true }),
+    Demo: stateVariant({ readOnly: true }),
+  },
+  {
+    label: "Disabled",
+    description: "Both controls share one disabled treatment.",
+    node: unitControlNode({ disabled: true }),
+    Demo: stateVariant({ disabled: true }),
+  },
+] satisfies readonly ComponentDemoVariant[];
+
+const scopedValue = (scope: string, name: string) => (scope ? `${scope}::${name}` : name);
+const childValues = (
+  values: Readonly<Record<string, unknown>>,
+  name: string,
+  scope = "",
+): readonly ComponentCanvasChildInstance[] => {
+  const value = values[scopedValue(scope, name)];
+  return Array.isArray(value)
+    ? value.filter(
+        (item): item is ComponentCanvasChildInstance =>
+          Boolean(item) && typeof item === "object" && "id" in item && "type" in item,
+      )
+    : [];
+};
+
+export const canvas = {
+  controls: [
+    { name: "unitControl.id", label: "id", type: "text", default: "" },
+    { name: "unitControl.classes", label: "classes", type: "text", default: "" },
+    { name: "unitControl.autoWidth", label: "autoWidth", type: "boolean", default: true },
+    { name: "unitControl.disabled", label: "disabled", type: "boolean", default: false },
+    { name: "unitControl.invalid", label: "invalid", type: "boolean", default: false },
+    { name: "unitControl.readOnly", label: "readOnly", type: "boolean", default: false },
+    {
+      name: "unitControl.children",
+      label: "children",
+      type: "children",
+      default: ["input", "unit"],
+      options: [
+        {
+          name: "input",
+          label: "UnitControlInput",
+          type: "group",
+          controls: [
+            { name: "input.value", label: "value", type: "number", default: 0 },
+            { name: "input.id", label: "id", type: "text", default: "spacing" },
+            { name: "input.name", label: "name", type: "text", default: "spacing" },
+            { name: "input.label", label: "label", type: "text", default: "Spacing" },
+            { name: "input.placeholder", label: "placeholder", type: "text", default: "" },
+            { name: "input.required", label: "required", type: "boolean", default: false },
+            { name: "input.autocomplete", label: "autocomplete", type: "text", default: "" },
+            { name: "input.min", label: "min", type: "text", default: "0" },
+            { name: "input.max", label: "max", type: "text", default: "100" },
+            { name: "input.step", label: "step", type: "text", default: "any" },
+            {
+              name: "input.inputMode",
+              label: "inputMode",
+              type: "select",
+              default: "decimal",
+              options: UNIT_CONTROL_INPUT_MODES,
+            },
+            { name: "input.classes", label: "classes", type: "text", default: "" },
+          ],
+        },
+        {
+          name: "unit",
+          label: "UnitControlUnit",
+          type: "group",
+          controls: [
+            { name: "unit.id", label: "id", type: "text", default: "" },
+            {
+              name: "unit.value",
+              label: "value",
+              type: "select",
+              default: "px",
+              options: CSS_UNITS,
+            },
+            { name: "unit.name", label: "name", type: "text", default: "spacingUnit" },
+            { name: "unit.label", label: "label", type: "text", default: "Unit" },
+            { name: "unit.classes", label: "classes", type: "text", default: "" },
+          ],
+        },
+      ],
+    },
+  ],
+  node: (values): DemoNode => {
+    const text = (scope: string, name: string) => String(values[scopedValue(scope, name)] ?? "");
+    const on = (scope: string, name: string) => Boolean(values[scopedValue(scope, name)]);
+    const optional = (scope: string, name: string) => {
+      const value = text(scope, name);
+      return value ? { [name.split(".").at(-1)!]: value } : {};
+    };
+    const children = childValues(values, "unitControl.children").flatMap((instance): DemoNode[] => {
+      if (instance.type === "input") {
+        return [
+          {
+            component: "UnitControlInput",
+            props: {
+              value: Number(values[scopedValue(instance.id, "input.value")] ?? 0),
+              ...optional(instance.id, "input.id"),
+              ...optional(instance.id, "input.name"),
+              ...optional(instance.id, "input.label"),
+              ...optional(instance.id, "input.placeholder"),
+              required: on(instance.id, "input.required"),
+              ...optional(instance.id, "input.autocomplete"),
+              ...optional(instance.id, "input.min"),
+              ...optional(instance.id, "input.max"),
+              ...optional(instance.id, "input.step"),
+              ...optional(instance.id, "input.inputMode"),
+              classes: text(instance.id, "input.classes"),
+            },
+          },
+        ];
+      }
+      if (instance.type === "unit") {
+        return [
+          {
+            component: "UnitControlUnit",
+            props: {
+              id: text(instance.id, "unit.id"),
+              value: text(instance.id, "unit.value"),
+              ...optional(instance.id, "unit.name"),
+              label: text(instance.id, "unit.label"),
+              classes: text(instance.id, "unit.classes"),
+            },
+          },
+        ];
+      }
+      return [];
+    });
+
+    return {
+      component: "UnitControl",
+      props: {
+        ...optional("", "unitControl.id"),
+        classes: text("", "unitControl.classes"),
+        autoWidth: on("", "unitControl.autoWidth"),
+        disabled: on("", "unitControl.disabled"),
+        invalid: on("", "unitControl.invalid"),
+        readOnly: on("", "unitControl.readOnly"),
+        ...(children.length === 0 ? { children: "" } : {}),
+      },
+      ...(children.length === 0 ? {} : { children }),
+      wrapper: "w-full flex justify-center",
+    };
+  },
+} satisfies ComponentCanvas;

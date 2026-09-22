@@ -1,0 +1,50 @@
+import { Select } from "../Select/Select.ptsx";
+import { SelectContent } from "../Select/SelectContent.ptsx";
+import { SelectItem } from "../Select/SelectItem.ptsx";
+import { SelectTrigger } from "../Select/SelectTrigger.ptsx";
+import { SelectValue } from "../Select/SelectValue.ptsx";
+import { type CssUnit } from "./UnitControl.ptsx";
+
+export type UnitControlUnitProps = {
+  id?: string;
+  value: CssUnit;
+  name?: string;
+  label?: string;
+  classes?: string;
+};
+
+export function UnitControlUnit({
+  id,
+  value,
+  name,
+  label = "Unit",
+  classes = "",
+}: UnitControlUnitProps) {
+  return (
+    <span id={id} class={["h-full min-w-0", classes]} data-part="unit-control-unit">
+      <Select
+        name={name}
+        value={value}
+        autoWidth={true}
+        classes="h-full shrink-0 [--select-trigger-height:100%] [--select-trigger-gap:0.125rem] [--select-trigger-padding-x:0.375rem]"
+      >
+        <SelectTrigger
+          label={label}
+          classes="rounded-none border-0 border-l border-input bg-transparent shadow-none hover:border-input focus-visible:border-input focus-visible:ring-0 disabled:opacity-100"
+        >
+          <span class="contents" aria-hidden="true">
+            <SelectValue>{value}</SelectValue>
+          </span>
+        </SelectTrigger>
+        <SelectContent align="right" classes="min-w-20">
+          <SelectItem value="px">px</SelectItem>
+          <SelectItem value="%">%</SelectItem>
+          <SelectItem value="em">em</SelectItem>
+          <SelectItem value="rem">rem</SelectItem>
+          <SelectItem value="vw">vw</SelectItem>
+          <SelectItem value="vh">vh</SelectItem>
+        </SelectContent>
+      </Select>
+    </span>
+  );
+}

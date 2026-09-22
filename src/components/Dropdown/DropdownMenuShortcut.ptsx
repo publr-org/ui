@@ -1,0 +1,21 @@
+import { Text } from "../Text/Text.ptsx";
+
+export type DropdownMenuShortcutProps = {
+  id?: string;
+  classes?: string;
+  children?: JSX.Element;
+};
+
+export function DropdownMenuShortcut({ id, classes = "", children }: DropdownMenuShortcutProps) {
+  return (
+    <Text
+      id={id}
+      variant="body-sm"
+      tone="muted"
+      classes={`${classes} ml-auto tracking-wide`}
+      data-part="shortcut"
+    >
+      {children}
+    </Text>
+  );
+}

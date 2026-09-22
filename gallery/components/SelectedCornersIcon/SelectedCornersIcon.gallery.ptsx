@@ -1,0 +1,111 @@
+import type { IconSize } from "../../../src/components/Icon/Icon.ptsx";
+import { SelectedCornersIcon } from "../../../src/components/SelectedCornersIcon/SelectedCornersIcon.ptsx";
+import type { ComponentCanvas, ComponentDemoMeta, DemoNode } from "../../gallery-types";
+
+export const meta = {
+  name: "selected-corners-icon",
+  label: "Selected corners icon",
+  source: "src/components/SelectedCornersIcon/SelectedCornersIcon.ptsx",
+  kind: "composite",
+  group: "Other",
+  description: "Overlays library artwork for the currently selected box corners.",
+  tags: ["icon", "corners", "radius", "box"],
+  usage: `<SelectedCornersIcon topLeft bottomRight size="lg" />`,
+  preview: "inspector",
+  previewLabel: "Opposite corners",
+  docs: {
+    purpose: ["Represent one or more selected border-radius corners with library icons."],
+    useWhen: ["A radius control needs to show which corners its value edits."],
+    avoidWhen: ["A single ordinary library icon already represents the action."],
+    rules: [
+      {
+        title: "Supply selected corners",
+        description: "Enable each camel-cased corner independently with a boolean prop.",
+      },
+      {
+        title: "Do not supply a name",
+        description: "The component owns the four library icon names and overlays them.",
+      },
+      {
+        title: "Nothing selected still draws the box",
+        description:
+          "With every corner off the component renders the unselected guide artwork, so the control never collapses to empty space.",
+      },
+    ],
+    accessibility: ["The geometry artwork is decorative and hidden from assistive technology."],
+    composition: ["Compose it inside BoxValueControlIcon for border-radius value rows."],
+    agentNotes: ["Do not draw corner paths inline or add duplicate combined icons."],
+    props: [
+      {
+        name: "topLeft",
+        type: "boolean",
+        description: "Highlights the top-left corner.",
+        default: "false",
+      },
+      {
+        name: "topRight",
+        type: "boolean",
+        description: "Highlights the top-right corner.",
+        default: "false",
+      },
+      {
+        name: "bottomRight",
+        type: "boolean",
+        description: "Highlights the bottom-right corner.",
+        default: "false",
+      },
+      {
+        name: "bottomLeft",
+        type: "boolean",
+        description: "Highlights the bottom-left corner.",
+        default: "false",
+      },
+      {
+        name: "size",
+        type: "IconSize",
+        description: "The ordinary Icon size scale.",
+        default: "md",
+      },
+      { name: "id", type: "string", description: "Identifier applied to the overlay root." },
+      { name: "classes", type: "string", description: "Additional root classes." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const node = {
+  component: "SelectedCornersIcon",
+  props: { topLeft: true, bottomRight: true, size: "xl" },
+} satisfies DemoNode;
+
+export function Demo() {
+  return <SelectedCornersIcon topLeft bottomRight size="xl" />;
+}
+
+export const canvas = {
+  controls: [
+    { name: "id", type: "text", default: "" },
+    { name: "topLeft", type: "boolean", default: true },
+    { name: "topRight", type: "boolean", default: false },
+    { name: "bottomRight", type: "boolean", default: true },
+    { name: "bottomLeft", type: "boolean", default: false },
+    {
+      name: "size",
+      type: "select",
+      default: "xl",
+      options: ["xs", "sm", "md", "lg", "xl"],
+    },
+    { name: "classes", type: "text", default: "" },
+  ],
+  node: (values) => ({
+    component: "SelectedCornersIcon",
+    props: {
+      id: String(values.id),
+      topLeft: Boolean(values.topLeft),
+      topRight: Boolean(values.topRight),
+      bottomRight: Boolean(values.bottomRight),
+      bottomLeft: Boolean(values.bottomLeft),
+      size: String(values.size) as IconSize,
+      classes: String(values.classes),
+    },
+  }),
+} satisfies ComponentCanvas;

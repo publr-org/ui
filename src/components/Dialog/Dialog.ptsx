@@ -1,0 +1,72 @@
+import { Publr } from "publr-jsx";
+import { trapFocus } from "publr/focus";
+
+export const state = Publr.reactive({ open: false });
+export const trigger = Publr.ref<HTMLElement>();
+export const backdrop = Publr.ref<HTMLElement>();
+export const panel = Publr.ref<HTMLElement>();
+
+export const openDialog = (event: Event) => {
+  const element = trigger.current;
+  if (event.defaultPrevented || element?.getAttribute("aria-disabled") === "true" ||
+      (element instanceof HTMLButtonElement && element.disabled)) return;
+  state.open = true;
+};
+
+export const closeDialog = (event: Event) => {
+  if (!event.defaultPrevented) state.open = false;
+};
+
+export const backdropDismiss = (event: Event) => {
+  if (event.target === backdrop.current) state.open = false;
+};
+
+export const dialogKeydown = (event: Event) => {
+  if (event instanceof KeyboardEvent && event.key === "Escape" && !event.defaultPrevented) {
+    event.preventDefault();
+    state.open = false;
+  }
+};
+
+Publr.effect(() => {
+  if (state.open && panel.current) {
+    return trapFocus(panel.current, { restoreFocusEl: trigger.current });
+  }
+});
+
+Publr.effect(() => {
+  const shell = panel.current as HTMLElement | null;
+  if (!shell) return;
+  if (!shell.id) {
+    let sequence = 0;
+    let candidate = "";
+    do {
+      candidate = `publr-dialog-${++sequence}`;
+    } while (shell.ownerDocument.getElementById(candidate));
+    shell.id = candidate;
+  }
+  const title = shell.querySelector<HTMLElement>('[data-part="title"]');
+  if (title) {
+    if (!title.id) title.id = `${shell.id}-title`;
+    shell.setAttribute("aria-labelledby", title.id);
+  }
+  const description = shell.querySelector<HTMLElement>('[data-part="description"]');
+  if (description) {
+    if (!description.id) description.id = `${shell.id}-description`;
+    shell.setAttribute("aria-describedby", description.id);
+  }
+});
+
+export type DialogProps = {
+  id?: string;
+  classes?: string;
+  children: JSX.Element;
+};
+
+export function Dialog({ id, classes = "", children }: DialogProps) {
+  return (
+    <div id={id} class={["inline-block", classes]} data-part="dialog">
+      {children}
+    </div>
+  );
+}

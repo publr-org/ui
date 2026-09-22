@@ -1,0 +1,58 @@
+// Semantic divider for meaningful separation between interface groups.
+// PTSX owns the complete render; PublrJS bindings are compiler-generated.
+export const SEPARATOR_ORIENTATIONS = ["horizontal", "vertical"] as const;
+export const SEPARATOR_SPACINGS = ["none", "sm", "md", "lg", "xl"] as const;
+
+export type SeparatorOrientation = (typeof SEPARATOR_ORIENTATIONS)[number];
+export type SeparatorSpacing = (typeof SEPARATOR_SPACINGS)[number];
+export type SeparatorProps = {
+  classes?: string;
+  id?: string;
+  orientation?: SeparatorOrientation;
+  spacing?: SeparatorSpacing;
+};
+
+const ORIENTATION_CLASSES: Record<SeparatorOrientation, string> = {
+  horizontal: "w-full border-t border-border",
+  vertical: "self-stretch min-h-4 border-l border-border",
+};
+
+const HORIZONTAL_SPACING_CLASSES: Record<SeparatorSpacing, string> = {
+  none: "",
+  sm: "my-2",
+  md: "my-3",
+  lg: "my-4",
+  xl: "my-6",
+};
+
+const VERTICAL_SPACING_CLASSES: Record<SeparatorSpacing, string> = {
+  none: "",
+  sm: "mx-2",
+  md: "mx-3",
+  lg: "mx-4",
+  xl: "mx-6",
+};
+
+export function Separator({
+  classes = "",
+  id,
+  orientation = "horizontal",
+  spacing = "none",
+}: SeparatorProps) {
+  // ZSX preserves this self-closing non-void root as balanced `<div></div>` HTML.
+  return (
+    <div
+      id={id}
+      class={[
+        ORIENTATION_CLASSES[orientation],
+        orientation === "horizontal"
+          ? HORIZONTAL_SPACING_CLASSES[spacing]
+          : VERTICAL_SPACING_CLASSES[spacing],
+        classes,
+      ]}
+      data-part="separator"
+      role="separator"
+      aria-orientation={orientation}
+    />
+  );
+}

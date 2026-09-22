@@ -1,0 +1,24 @@
+// The row's trailing controls, revealed on hover AND focus-within so
+// keyboard users reach them — hover is never the only path. Compose icon
+// Buttons or a DropdownMenu inside.
+
+export type FolderNavItemActionsProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function FolderNavItemActions({ children, classes = "", id }: FolderNavItemActionsProps) {
+  return (
+    <span
+      id={id}
+      data-part="folder-nav-actions"
+      class={[
+        "hidden shrink-0 items-center gap-0.5 group-hover/folder-row:flex group-focus-within/folder-row:flex",
+        classes,
+      ]}
+    >
+      {children}
+    </span>
+  );
+}

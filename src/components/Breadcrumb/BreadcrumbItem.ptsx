@@ -1,0 +1,15 @@
+// One breadcrumb list entry wrapping a BreadcrumbLink or BreadcrumbPage.
+
+export type BreadcrumbItemProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function BreadcrumbItem({ children, classes = "", id }: BreadcrumbItemProps) {
+  return (
+    <li id={id} class={["flex min-w-0 items-center gap-2", classes]}>
+      {children}
+    </li>
+  );
+}

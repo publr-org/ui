@@ -1,0 +1,60 @@
+// Styled native <select> for plain form submits (GET filters, POST forms).
+// The compound Select remains the rich listbox; NativeSelect exists for the
+// cases where native form semantics — submit-on-change, no-JS fallback,
+// form= association — are the point. Selection is authored natively via
+// `selected` on option children; there is no options-array or value API.
+
+export type NativeSelectProps = {
+  children?: JSX.Element;
+  label?: string;
+  classes?: string;
+  disabled?: boolean;
+  form?: string;
+  id?: string;
+  invalid?: boolean;
+  name?: string;
+  onChange?: (event: Event) => void;
+  onInput?: (event: Event) => void;
+  required?: boolean;
+  /** Drawn without its own border and shadow: inside an InputGroup, which owns them. */
+  inset?: boolean;
+};
+
+export function NativeSelect({
+  children,
+  label,
+  classes = "",
+  disabled = false,
+  form,
+  id,
+  invalid = false,
+  name,
+  onChange,
+  onInput,
+  required = false,
+  inset = false,
+}: NativeSelectProps) {
+  return (
+    <select
+      aria-label={label}
+      id={id}
+      name={name}
+      form={form}
+      disabled={disabled}
+      required={required}
+      aria-invalid={invalid}
+      onInput={onInput}
+      onChange={onChange}
+      class={[
+        "flex w-full min-w-0 cursor-pointer appearance-none px-3.5 py-2 text-base leading-6 font-normal text-foreground transition duration-150 placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+        inset
+          ? "shrink-0 border-0 border-l border-input bg-muted/40 rounded-none shadow-none"
+          : "rounded-lg border bg-card shadow-xs hover:border-muted-foreground/40 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/15",
+        inset ? "" : invalid ? "border-destructive" : "border-input",
+        classes,
+      ]}
+    >
+      {children}
+    </select>
+  );
+}

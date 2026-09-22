@@ -1,0 +1,16 @@
+// The card's primary line — a truncated filename. Deliberately dense
+// bare-text treatment (12px medium) so tight grids stay one line.
+
+export type AssetCardTitleProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function AssetCardTitle({ children, classes = "", id }: AssetCardTitleProps) {
+  return (
+    <span id={id} class={["block truncate text-xs font-medium text-foreground", classes]}>
+      {children}
+    </span>
+  );
+}

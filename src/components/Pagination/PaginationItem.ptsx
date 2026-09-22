@@ -1,0 +1,13 @@
+export type PaginationItemProps = {
+  id?: string;
+  classes?: string;
+  children: JSX.Element;
+};
+
+export function PaginationItem({ id, classes = "", children }: PaginationItemProps) {
+  return (
+    <li id={id} class={["list-none", classes]}>
+      {children}
+    </li>
+  );
+}

@@ -1,0 +1,35 @@
+// Filterable, selectable data row. Owns TableRow's exact visual layer (kept
+// verbatim until transparent attribute forwarding makes composing TableRow
+// portable — see migrations/35a-data-table.md) plus the row anatomy the store
+// needs: data-row-id for identity, data-search for the quick filter, and the
+// membership binding that hides rows the current filter excludes. The
+// membership is over HIDDEN rows (falsy default = visible) so rows cloned
+// into a live list are visible before their identity bind has written.
+import { Publr } from "publr-jsx";
+import { state } from "./DataTable.ptsx";
+
+export type DataTableRowProps = {
+  id?: string;
+  classes?: string;
+  rowId: string;
+  searchText?: string;
+  children: JSX.Element;
+};
+
+export function DataTableRow({ id, classes = "", rowId, searchText, children }: DataTableRowProps) {
+  return (
+    <tr
+      id={id}
+      class={[
+        "border-b border-border transition-colors last:border-b-0 hover:bg-muted/30",
+        classes,
+        state.hiddenRowIds.includes(Publr.dataset("rowId")) ? "hidden!" : "",
+      ]}
+      data-part="row"
+      data-row-id={rowId}
+      data-search={searchText}
+    >
+      {children}
+    </tr>
+  );
+}

@@ -1,0 +1,164 @@
+import { NativeSelect } from "../../../src/components/NativeSelect/NativeSelect.ptsx";
+import type { ComponentCanvas, ComponentDemoMeta, ComponentDemoVariant } from "../../gallery-types";
+
+export const meta = {
+  name: "native-select",
+  label: "NativeSelect",
+  source: "src/components/NativeSelect/NativeSelect.ptsx",
+  kind: "composite",
+  group: "Forms",
+  description:
+    "Styled native select for plain form submits — native form semantics are the point, not a rich listbox.",
+  tags: ["select", "native", "form", "filter", "dropdown"],
+  usage: `<NativeSelect name="year">
+  <option value="">All years</option>
+  <option value="2026" selected>2026</option>
+</NativeSelect>`,
+  preview: "demo",
+  previewLabel: "A form filter with native option children",
+  docs: {
+    purpose: [
+      "NativeSelect styles the browser's own select control so plain GET/POST filter forms keep native semantics: submit-on-change, form association, and no-JS operation.",
+      "The compound Select remains the rich listbox; NativeSelect exists for the cases where the native element is the contract.",
+    ],
+    useWhen: [
+      "A sidebar or toolbar filter submits a form on change (year/month filters, page-size pickers).",
+      "The control must participate in native form submission, including the form attribute.",
+    ],
+    avoidWhen: [
+      "The picker needs search, grouped rich content, or collision-aware overlay behavior; that is Select.",
+      "The value drives client-side state rather than a form submit; compose Select with a store instead.",
+    ],
+    rules: [
+      {
+        title: "Options are native children",
+        description:
+          "Callers author <option> elements, including selected for the current value. There is no options-array API and no value prop — selection is native document state.",
+      },
+      {
+        title: "One input treatment",
+        description:
+          "NativeSelect renders the same border, focus ring, and body-sm type as Input so mixed forms read as one system.",
+      },
+    ],
+    accessibility: [
+      "The native select owns keyboard and screen-reader behavior; nothing is re-implemented.",
+      "Associate a visible label via Field/FieldLabel with htmlFor; invalid state sets aria-invalid.",
+    ],
+    composition: [
+      "Compose inside Field with FieldLabel for labeled filters.",
+      "Pair two NativeSelects in a grid for dependent filters (year + month).",
+    ],
+    agentNotes: [
+      "Author the selected option with the native selected attribute; do not look for a value prop.",
+      "Submit-on-change belongs to the surrounding form/store wiring, not to this component.",
+      "Declarative DemoNodes cannot express native <option> children, so these demos are imperative; extending the DemoNode vocabulary to intrinsic elements is a recorded follow-up.",
+    ],
+    props: [
+      {
+        name: "children",
+        type: "node",
+        description: "Native <option> (and <optgroup>) elements; author selected natively.",
+      },
+      { name: "name", type: "string", description: "Form field name." },
+      { name: "form", type: "string", description: "Explicit form association by id." },
+      {
+        name: "disabled",
+        type: "boolean",
+        description: "Native disabled state.",
+        default: "false",
+      },
+      {
+        name: "required",
+        type: "boolean",
+        description: "Native required state.",
+        default: "false",
+      },
+      {
+        name: "invalid",
+        type: "boolean",
+        description: "Marks the control aria-invalid and switches to the destructive border.",
+        default: "false",
+      },
+      { name: "id", type: "string", description: "Identifier applied to the native select." },
+      {
+        name: "classes",
+        type: "string",
+        description: "Layout or exceptional composition classes.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const variants = [
+  {
+    label: "Filter pair",
+    description: "Two dependent filters composed in a grid.",
+    usage: `<div class="grid w-64 grid-cols-2 gap-2">
+  <NativeSelect name="year">
+    <option value="">All years</option>
+    <option value="2026" selected>2026</option>
+    <option value="2025">2025</option>
+  </NativeSelect>
+  <NativeSelect name="month">
+    <option value="">All months</option>
+    <option value="7">July</option>
+  </NativeSelect>
+</div>`,
+    notes: ["Selection is authored on the option children, exactly like plain HTML."],
+    Demo: () => (
+      <div class="grid w-64 grid-cols-2 gap-2">
+        <NativeSelect name="year">
+          <option value="">All years</option>
+          <option value="2026" selected>
+            2026
+          </option>
+          <option value="2025">2025</option>
+        </NativeSelect>
+        <NativeSelect name="month">
+          <option value="">All months</option>
+          <option value="7">July</option>
+        </NativeSelect>
+      </div>
+    ),
+  },
+  {
+    label: "States",
+    description: "Disabled and invalid follow the shared input treatment.",
+    usage: `<NativeSelect name="a" disabled><option>Disabled</option></NativeSelect>
+<NativeSelect name="b" invalid><option>Invalid</option></NativeSelect>`,
+    notes: ["Invalid sets aria-invalid and the destructive border."],
+    Demo: () => (
+      <div class="flex w-64 flex-col gap-2">
+        <NativeSelect name="a" disabled>
+          <option>Disabled</option>
+        </NativeSelect>
+        <NativeSelect name="b" invalid>
+          <option>Invalid</option>
+        </NativeSelect>
+      </div>
+    ),
+  },
+] satisfies ComponentDemoVariant[];
+
+export const canvas = {
+  controls: [
+    { name: "disabled", type: "boolean", default: false },
+    { name: "invalid", type: "boolean", default: false },
+    { name: "classes", type: "text", default: "w-56", placeholder: "e.g. w-56" },
+  ],
+  Demo: (values) => (
+    <NativeSelect
+      name="canvas"
+      disabled={Boolean(values.disabled)}
+      invalid={Boolean(values.invalid)}
+      classes={String(values.classes)}
+    >
+      <option value="">All years</option>
+      <option value="2026" selected>
+        2026
+      </option>
+      <option value="2025">2025</option>
+    </NativeSelect>
+  ),
+} satisfies ComponentCanvas;

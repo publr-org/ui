@@ -1,0 +1,35 @@
+// The card's media area: a fixed-ratio muted stage for the thumbnail image
+// or a file-type fallback. The closed aspect vocabulary covers the two
+// demonstrated grids — square (CMS media library) and 4:3 landscape
+// (editorial POC) — instead of an open ratio prop.
+
+export const ASSET_CARD_ASPECTS = ["square", "landscape"] as const;
+
+export type AssetCardAspect = (typeof ASSET_CARD_ASPECTS)[number];
+
+export type AssetCardPreviewProps = {
+  aspect?: AssetCardAspect;
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function AssetCardPreview({
+  aspect = "square",
+  children,
+  classes = "",
+  id,
+}: AssetCardPreviewProps) {
+  return (
+    <span
+      id={id}
+      class={[
+        "relative flex w-full items-center justify-center overflow-hidden bg-muted",
+        aspect === "square" ? "aspect-square" : "aspect-4/3",
+        classes,
+      ]}
+    >
+      {children}
+    </span>
+  );
+}

@@ -1,0 +1,21 @@
+// Help text below a control. The semantic root owns its dense muted default.
+
+export type FieldDescriptionProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function FieldDescription({ children, classes = "", id }: FieldDescriptionProps) {
+  return (
+    <p
+      id={id}
+      class={["text-body-sm font-normal text-muted-foreground", classes]}
+      data-part="field-description"
+      data-text-variant="body-sm"
+      data-text-tone="muted"
+    >
+      {children}
+    </p>
+  );
+}

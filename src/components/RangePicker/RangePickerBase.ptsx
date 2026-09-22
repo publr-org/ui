@@ -1,0 +1,117 @@
+import { Text } from "../Text/Text.ptsx";
+
+export type RangePickerBaseProps = {
+  id?: string;
+  classes?: string;
+  value: number;
+  valueText: string;
+  min: number;
+  max: number;
+  step: number;
+  label?: string;
+  disabled: boolean;
+  segmented: boolean;
+  component: string;
+  onInput?: (event: Event) => void;
+  onChange?: (event: Event) => void;
+};
+
+export function RangePickerBase({
+  id,
+  classes = "",
+  value,
+  valueText,
+  min,
+  max,
+  step,
+  label,
+  disabled,
+  segmented,
+  component,
+  onInput,
+  onChange,
+}: RangePickerBaseProps) {
+  return (
+    <div
+      class={["relative h-8 min-w-0", disabled ? "opacity-50" : "", classes]}
+      data-part={component}
+      style={`--range-value:${value};--range-min:${min};--range-max:${max};--range-step:${step}`}
+    >
+      {segmented ? (
+        <div
+          class="absolute top-3.5 right-2 left-2 h-[5px] overflow-hidden rounded-[1px] text-input"
+          aria-hidden="true"
+          data-part="range-picker-track"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, currentColor calc(100% - 4px), transparent calc(100% - 4px))",
+            backgroundSize:
+              "calc(100% / ((var(--range-max) - var(--range-min)) / var(--range-step))) 100%",
+          }}
+        >
+          <i
+            class="absolute inset-0 block text-ring"
+            style={{
+              clipPath:
+                "inset(0 calc(100% - (var(--range-value) - var(--range-min)) / (var(--range-max) - var(--range-min)) * 100%) 0 0)",
+              backgroundImage:
+                "linear-gradient(to right, currentColor calc(100% - 4px), transparent calc(100% - 4px))",
+              backgroundSize:
+                "calc(100% / ((var(--range-max) - var(--range-min)) / var(--range-step))) 100%",
+            }}
+            data-part="range-picker-progress"
+          ></i>
+        </div>
+      ) : (
+        <div
+          class="absolute top-3.5 right-2 left-2 h-[5px] overflow-hidden rounded-full bg-input"
+          aria-hidden="true"
+          data-part="range-picker-track"
+        >
+          <i
+            class="block h-full rounded-full bg-ring"
+            style={{
+              width:
+                "calc((var(--range-value) - var(--range-min)) / (var(--range-max) - var(--range-min)) * 100%)",
+            }}
+            data-part="range-picker-progress"
+          ></i>
+        </div>
+      )}
+      <span
+        class="pointer-events-none absolute top-2 z-[1] size-4 -translate-x-1/2 rounded-full border-2 border-popover bg-ring shadow-[0_0_0_1px_var(--ring)]"
+        style={{
+          left: "calc(8px + (100% - 16px) * (var(--range-value) - var(--range-min)) / (var(--range-max) - var(--range-min)))",
+        }}
+        aria-hidden="true"
+        data-part="range-picker-thumb"
+      ></span>
+      <input
+        id={id}
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        disabled={disabled}
+        aria-label={label}
+        aria-valuetext={valueText}
+        class="peer relative z-[2] h-8 w-full cursor-pointer appearance-none bg-transparent p-0 outline-none disabled:cursor-default disabled:opacity-45 [&::-moz-range-thumb]:size-4 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:opacity-0 [&::-moz-range-track]:h-[5px] [&::-moz-range-track]:bg-transparent [&::-webkit-slider-runnable-track]:h-[5px] [&::-webkit-slider-runnable-track]:bg-transparent [&::-webkit-slider-thumb]:mt-[-6px] [&::-webkit-slider-thumb]:size-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:opacity-0"
+        data-part="range-picker-input"
+        onInput={onInput}
+        onChange={onChange}
+      />
+      <span
+        class="pointer-events-none invisible absolute bottom-[29px] z-[3] flex max-w-[88px] -translate-x-1/2 items-center overflow-hidden rounded border border-border bg-popover px-[5px] py-[3px] leading-none text-ellipsis whitespace-nowrap opacity-0 shadow-sm transition-opacity duration-100 peer-hover:visible peer-hover:opacity-100 peer-focus:visible peer-focus:opacity-100"
+        style={{
+          left: "calc(8px + (100% - 16px) * (var(--range-value) - var(--range-min)) / (var(--range-max) - var(--range-min)))",
+        }}
+        data-part="range-picker-tooltip"
+      >
+        <Text variant="body-sm" classes="block font-semibold">
+          {valueText}
+        </Text>
+      </span>
+    </div>
+  );
+}

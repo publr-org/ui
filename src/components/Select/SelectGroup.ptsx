@@ -1,0 +1,13 @@
+export type SelectGroupProps = {
+  id?: string;
+  classes?: string;
+  children: JSX.Element;
+};
+
+export function SelectGroup({ id, classes = "", children }: SelectGroupProps) {
+  return (
+    <div id={id} role="group" class={classes}>
+      {children}
+    </div>
+  );
+}

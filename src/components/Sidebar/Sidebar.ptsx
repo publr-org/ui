@@ -1,0 +1,30 @@
+// Icon rail: the narrow first tier of the two-tier admin sidebar. A plain
+// container, not a landmark — consumers author labeled <nav> groups inside
+// it per the WAI-ARIA APG landmarks pattern.
+
+export type SidebarRailProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function SidebarRail({ children, classes = "", id }: SidebarRailProps) {
+  return (
+    <div
+      id={id}
+      class={[
+        "flex w-12 shrink-0 flex-col items-center border-r border-input bg-card pb-2",
+        classes,
+      ]}
+    >
+      {children}
+    </div>
+  );
+}
+
+export { RailLink } from "./RailLink.ptsx";
+export { SidebarNavEyebrow } from "./SidebarNavEyebrow.ptsx";
+export { SidebarNavItem } from "./SidebarNavItem.ptsx";
+export type { RailLinkProps } from "./RailLink.ptsx";
+export type { SidebarNavEyebrowProps } from "./SidebarNavEyebrow.ptsx";
+export type { SidebarNavItemProps } from "./SidebarNavItem.ptsx";

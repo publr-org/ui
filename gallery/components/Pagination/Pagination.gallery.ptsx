@@ -1,0 +1,316 @@
+import { Pagination } from "../../../src/components/Pagination/Pagination.ptsx";
+import { PaginationContent } from "../../../src/components/Pagination/PaginationContent.ptsx";
+import { PaginationEllipsis } from "../../../src/components/Pagination/PaginationEllipsis.ptsx";
+import { PaginationItem } from "../../../src/components/Pagination/PaginationItem.ptsx";
+import { PaginationLink } from "../../../src/components/Pagination/PaginationLink.ptsx";
+import { PaginationNext } from "../../../src/components/Pagination/PaginationNext.ptsx";
+import { PaginationPrevious } from "../../../src/components/Pagination/PaginationPrevious.ptsx";
+import type { ComponentDemoMeta, ComponentDemoVariant, DemoNode } from "../../gallery-types";
+
+const usage = `<Pagination>
+  <PaginationContent>
+    <PaginationItem><PaginationPrevious /></PaginationItem>
+    <PaginationItem><PaginationLink href="?page=1">1</PaginationLink></PaginationItem>
+    <PaginationItem><PaginationEllipsis /></PaginationItem>
+    <PaginationItem><PaginationLink href="?page=4">4</PaginationLink></PaginationItem>
+    <PaginationItem><PaginationLink isActive={true}>5</PaginationLink></PaginationItem>
+    <PaginationItem><PaginationLink href="?page=6">6</PaginationLink></PaginationItem>
+    <PaginationItem><PaginationEllipsis /></PaginationItem>
+    <PaginationItem><PaginationLink href="?page=20">20</PaginationLink></PaginationItem>
+    <PaginationItem><PaginationNext href="?page=6" /></PaginationItem>
+  </PaginationContent>
+</Pagination>`;
+
+export const meta = {
+  name: "pagination",
+  label: "Pagination",
+  source: "src/components/Pagination/Pagination.ptsx",
+  kind: "composite",
+  group: "Essentials",
+  description: "Server-navigation page controls: previous/next, page links, and ellipsis.",
+  tags: ["pagination", "pages", "navigation", "list"],
+  usage,
+  preview: "toolbar",
+  previewLabel: "Windowed pages with ellipsis",
+  docs: {
+    purpose: [
+      "Pagination renders page navigation as real links the server builds — a nav landmark with previous/next controls, page links, and ellipsis for windowed page lists.",
+      "It is purely presentational: the page (or its data loader) owns page math, windowing, and URL construction, including preserved filters.",
+    ],
+    useWhen: ["A server-paged list needs page navigation.", "Page URLs are known at render time."],
+    avoidWhen: [
+      "Client-side paging of already-loaded rows — that is DataTable/store territory.",
+      "Infinite scrolling or load-more patterns.",
+    ],
+    rules: [
+      {
+        title: "The current page is not a link",
+        description:
+          'PaginationLink with isActive renders a span with aria-current="page"; navigating to the page you are on is not an action.',
+      },
+      {
+        title: "Absent href IS the disabled state",
+        description:
+          "PaginationPrevious/Next without href render a non-interactive aria-disabled span; there is no separate disabled prop.",
+      },
+      {
+        title: "URLs preserve the view's filters",
+        description:
+          "Build hrefs from the page's filter-preserving base (search, status, type) and always drop the page param from that base.",
+      },
+    ],
+    accessibility: [
+      'The nav landmark is named by label (default "Pagination").',
+      "Previous/next are icon-only and carry accessible names via their label prop.",
+      'The current page is announced through aria-current="page"; the ellipsis is aria-hidden.',
+    ],
+    composition: [
+      "Pagination > PaginationContent > PaginationItem wrapping one control each.",
+      "Compose window logic upstream: first page, ellipsis, window around current, last page.",
+    ],
+    agentNotes: [
+      "No page-count/current-page math props — pass finished URLs. The CMS pagination loader (buildTruncatedPageUrls) is the canonical producer.",
+      "Do not add onClick paging; this family is server navigation only.",
+    ],
+    props: [
+      {
+        name: "Pagination.label",
+        type: "string",
+        description: "Accessible name for the nav landmark.",
+        default: '"Pagination"',
+      },
+      {
+        name: "Pagination.children",
+        type: "node",
+        description: "One PaginationContent.",
+      },
+      {
+        name: "Pagination.classes",
+        type: "string",
+        description: "Layout classes on the nav.",
+      },
+      { name: "Pagination.id", type: "string", description: "Optional identifier." },
+      {
+        name: "PaginationContent.children",
+        type: "node",
+        description: "PaginationItems in order.",
+      },
+      {
+        name: "PaginationContent.classes",
+        type: "string",
+        description: "Exceptional composition classes on the ul.",
+      },
+      { name: "PaginationContent.id", type: "string", description: "Optional identifier." },
+      { name: "PaginationItem.children", type: "node", description: "One control." },
+      {
+        name: "PaginationItem.classes",
+        type: "string",
+        description: "Exceptional composition classes on the li.",
+      },
+      { name: "PaginationItem.id", type: "string", description: "Optional identifier." },
+      { name: "PaginationLink.href", type: "string", description: "Page target URL." },
+      {
+        name: "PaginationLink.isActive",
+        type: "boolean",
+        description: "Marks the current page (renders a span with aria-current).",
+        default: "false",
+      },
+      { name: "PaginationLink.children", type: "node", description: "The page number." },
+      {
+        name: "PaginationLink.classes",
+        type: "string",
+        description: "Exceptional composition classes.",
+      },
+      { name: "PaginationLink.id", type: "string", description: "Optional identifier." },
+      {
+        name: "PaginationPrevious.href",
+        type: "string",
+        description: "Previous-page URL; omit on the first page to render the disabled state.",
+      },
+      {
+        name: "PaginationPrevious.label",
+        type: "string",
+        description: "Accessible name.",
+        default: '"Go to previous page"',
+      },
+      {
+        name: "PaginationPrevious.classes",
+        type: "string",
+        description: "Exceptional composition classes.",
+      },
+      { name: "PaginationPrevious.id", type: "string", description: "Optional identifier." },
+      {
+        name: "PaginationNext.href",
+        type: "string",
+        description: "Next-page URL; omit on the last page to render the disabled state.",
+      },
+      {
+        name: "PaginationNext.label",
+        type: "string",
+        description: "Accessible name.",
+        default: '"Go to next page"',
+      },
+      {
+        name: "PaginationNext.classes",
+        type: "string",
+        description: "Exceptional composition classes.",
+      },
+      { name: "PaginationNext.id", type: "string", description: "Optional identifier." },
+      {
+        name: "PaginationEllipsis.classes",
+        type: "string",
+        description: "Exceptional composition classes.",
+      },
+      { name: "PaginationEllipsis.id", type: "string", description: "Optional identifier." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+const link = (page: string, active = false): DemoNode => ({
+  component: "PaginationItem",
+  props: {},
+  children: [
+    {
+      component: "PaginationLink",
+      props: active
+        ? { isActive: true, children: page }
+        : { href: `?page=${page}`, children: page },
+    },
+  ],
+});
+
+const CANONICAL_NODE: DemoNode = {
+  component: "Pagination",
+  props: {},
+  wrapper: "w-full",
+  children: [
+    {
+      component: "PaginationContent",
+      props: {},
+      children: [
+        {
+          component: "PaginationItem",
+          props: {},
+          children: [{ component: "PaginationPrevious", props: { href: "?page=4" } }],
+        },
+        link("1"),
+        {
+          component: "PaginationItem",
+          props: {},
+          children: [{ component: "PaginationEllipsis", props: {} }],
+        },
+        link("4"),
+        link("5", true),
+        link("6"),
+        {
+          component: "PaginationItem",
+          props: {},
+          children: [{ component: "PaginationEllipsis", props: {} }],
+        },
+        link("20"),
+        {
+          component: "PaginationItem",
+          props: {},
+          children: [{ component: "PaginationNext", props: { href: "?page=6" } }],
+        },
+      ],
+    },
+  ],
+};
+
+export const variants = [
+  {
+    label: "Windowed pages",
+    description:
+      "First page, ellipsis, a window around the current page, and the last page — with real link targets.",
+    usage,
+    notes: ["The current page is a span with aria-current, not a link."],
+    Demo: () => (
+      <Pagination classes="justify-start">
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious href="?page=4" />
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationLink href="?page=1">1</PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationEllipsis />
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationLink href="?page=4">4</PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationLink isActive={true}>5</PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationLink href="?page=6">6</PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationEllipsis />
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationLink href="?page=20">20</PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationNext href="?page=6" />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    ),
+    node: CANONICAL_NODE,
+  },
+  {
+    label: "First page",
+    description: "On the first page the previous control has no href and renders disabled.",
+    usage: `<PaginationItem><PaginationPrevious /></PaginationItem>`,
+    notes: ["Absent href is the disabled state — there is no disabled prop."],
+    Demo: () => (
+      <Pagination classes="justify-start">
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious />
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationLink isActive={true}>1</PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationLink href="?page=2">2</PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationLink href="?page=3">3</PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationNext href="?page=2" />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    ),
+    node: {
+      component: "Pagination",
+      props: {},
+      wrapper: "w-full",
+      children: [
+        {
+          component: "PaginationContent",
+          props: {},
+          children: [
+            {
+              component: "PaginationItem",
+              props: {},
+              children: [{ component: "PaginationPrevious", props: {} }],
+            },
+            link("1", true),
+            link("2"),
+            link("3"),
+            {
+              component: "PaginationItem",
+              props: {},
+              children: [{ component: "PaginationNext", props: { href: "?page=2" } }],
+            },
+          ],
+        },
+      ],
+    },
+  },
+] satisfies ComponentDemoVariant[];

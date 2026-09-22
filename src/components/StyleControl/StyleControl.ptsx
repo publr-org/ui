@@ -1,0 +1,38 @@
+import { Text } from "../Text/Text.ptsx";
+
+export type StyleControlProps = {
+  id?: string;
+  classes?: string;
+  title: string;
+  subtitle?: string;
+  children: JSX.Element;
+};
+
+export function StyleControl({ id, classes = "", title, subtitle, children }: StyleControlProps) {
+  return (
+    <section
+      id={id}
+      class={["grid w-full grid-cols-[minmax(0,1fr)_auto] items-start gap-x-1", classes]}
+      data-part="style-control"
+    >
+      <header class="col-start-1 row-start-1 min-h-8 min-w-0">
+        <Text as="strong" variant="body-sm" classes="block">
+          {title}
+        </Text>
+        {subtitle && (
+          <Text variant="body-sm" tone="muted" classes="block" data-part="style-control-subtitle">
+            {subtitle}
+          </Text>
+        )}
+      </header>
+      {children}
+    </section>
+  );
+}
+
+export { StyleControlActions } from "./StyleControlActions.ptsx";
+export { StyleControlCloseTrigger } from "./StyleControlCloseTrigger.ptsx";
+export { StyleControlContent } from "./StyleControlContent.ptsx";
+export type { StyleControlActionsProps } from "./StyleControlActions.ptsx";
+export type { StyleControlCloseTriggerProps } from "./StyleControlCloseTrigger.ptsx";
+export type { StyleControlContentProps } from "./StyleControlContent.ptsx";

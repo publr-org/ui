@@ -1,0 +1,278 @@
+// The navigation: search, the introduction, then components by kind and
+// group, each expanding to its five pages. Hovering a component shows its
+// default preview beside the sidebar.
+import { GIcon } from "./shared/Icon.ptsx";
+import { Frame } from "./shared/Frame.ptsx";
+import { mount } from "publr/dom";
+import { component } from "publr-jsx";
+import { defaultVariantIndex } from "../frames/previews";
+import {
+  KIND_LABELS,
+  entries,
+  filteredEntries,
+  groupCount,
+  selectRoute,
+  state,
+  update,
+  type ComponentPage,
+  type DemoEntry,
+} from "../state/gallery";
+import type { ComponentKind } from "../../gallery-types";
+
+const PAGES: { page: ComponentPage; label: string; icon: string; iconClass: string }[] = [
+  { page: "overview", label: "Overview", icon: "preformatted", iconClass: "text-orange-500" },
+  { page: "guidelines", label: "Usage guidelines", icon: "preformatted", iconClass: "text-orange-500" },
+  { page: "preview", label: "Preview", icon: "bookmark", iconClass: "text-sky-400" },
+  { page: "canvas", label: "Canvas", icon: "package", iconClass: "text-sky-400" },
+  { page: "api", label: "API", icon: "code", iconClass: "text-violet-500" },
+];
+
+// ── Hover preview ──────────────────────────────────────────────────────────
+
+const PANEL_WIDTH = 300;
+const SOURCE_WIDTH = 320;
+let hoverPanel: HTMLElement | null = null;
+let hoverDispose: (() => void) | null = null;
+let hideTimer: number | undefined;
+
+function HoverPreview({ entry, scale }: { entry: DemoEntry; scale: number }) {
+  return (
+    <div class="mx-auto" style={"width:" + SOURCE_WIDTH + "px;zoom:" + scale}>
+      <Frame entry={entry} variant={defaultVariantIndex(entry)} mode="hover" title={entry.label + " sidebar preview"} />
+    </div>
+  );
+}
+
+export function clearHoverPreview(): void {
+  if (hideTimer !== undefined) clearTimeout(hideTimer);
+  hideTimer = undefined;
+  hoverDispose?.();
+  hoverDispose = null;
+  hoverPanel?.remove();
+  hoverPanel = null;
+}
+
+function scheduleHide(): void {
+  if (hideTimer !== undefined) clearTimeout(hideTimer);
+  hideTimer = window.setTimeout(clearHoverPreview, 100);
+}
+
+function showHoverPreview(entry: DemoEntry, anchor: HTMLElement): void {
+  clearHoverPreview();
+  if (state.route.kind === "component" && state.route.name === entry.name) return;
+  const rect = anchor.getBoundingClientRect();
+  const left = Math.min(rect.right + 8, innerWidth - 220);
+  const width = Math.min(PANEL_WIDTH, Math.max(200, innerWidth - left - 8));
+  const scale = Math.min(1, (width - 26) / SOURCE_WIDTH);
+  const panel = document.createElement("aside");
+  panel.dataset.hoverPreview = entry.name;
+  panel.setAttribute("aria-label", entry.label + " default preview");
+  panel.className =
+    "fixed z-[60] max-h-[calc(100dvh-16px)] overflow-auto rounded-xl border border-border bg-background p-3 text-foreground shadow-2xl";
+  panel.style.left = left + "px";
+  panel.style.width = width + "px";
+  panel.style.top = Math.max(8, rect.top - 8) + "px";
+  panel.addEventListener("mouseenter", () => {
+    if (hideTimer !== undefined) clearTimeout(hideTimer);
+    hideTimer = undefined;
+  });
+  panel.addEventListener("mouseleave", scheduleHide);
+  document.body.append(panel);
+  hoverDispose = mount(panel, () => component(HoverPreview, { entry, scale }), {});
+  panel.style.top = Math.min(Math.max(8, rect.top - 8), Math.max(8, innerHeight - panel.offsetHeight - 8)) + "px";
+  hoverPanel = panel;
+}
+
+// ── Navigation ─────────────────────────────────────────────────────────────
+
+function toggleComponent(entry: DemoEntry): void {
+  const selected = state.route.kind === "component" && state.route.name === entry.name;
+  if (selected && state.expandedComponents.has(entry.name)) {
+    state.expandedComponents.delete(entry.name);
+    update();
+    return;
+  }
+  state.expandedComponents.add(entry.name);
+  const page = state.route.kind === "component" ? state.route.page : "overview";
+  selectRoute({ kind: "component", name: entry.name, page });
+}
+
+function ComponentPages({ entry }: { entry: DemoEntry }) {
+  const currentPage = state.route.kind === "component" && state.route.name === entry.name ? state.route.page : undefined;
+  return (
+    <div class="mt-0.5 mb-2 ml-[15px] border-l border-border pl-2" hidden={!state.expandedComponents.has(entry.name)}>
+      {PAGES.map((item) => (
+        <button
+          type="button"
+          class={
+            "flex h-7 w-full cursor-pointer items-center gap-2 rounded px-2 text-left text-[11px] " +
+            (currentPage === item.page ? "bg-muted font-medium text-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground")
+          }
+          onClick={() => selectRoute({ kind: "component", name: entry.name, page: item.page })}
+        >
+          <span class={"shrink-0 " + item.iconClass}>
+            <GIcon name={item.icon} classes="size-3.5" />
+          </span>
+          <span>{item.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function ComponentRow({ entry }: { entry: DemoEntry }) {
+  const selected = state.route.kind === "component" && state.route.name === entry.name;
+  const expanded = state.expandedComponents.has(entry.name);
+  return (
+    <div class="mb-0.5">
+      <button
+        type="button"
+        data-toggle-component={entry.name}
+        aria-expanded={String(expanded)}
+        class={
+          "group flex h-8 w-full cursor-pointer items-center gap-2 rounded-md px-2 text-left text-[12px] transition-colors " +
+          (selected ? "bg-ui-accent font-medium text-accent-foreground" : "text-foreground hover:bg-muted")
+        }
+        onClick={() => toggleComponent(entry)}
+        onMouseEnter={(event: MouseEvent) => showHoverPreview(entry, event.currentTarget as HTMLElement)}
+        onMouseLeave={() => scheduleHide()}
+        onFocus={(event: FocusEvent) => showHoverPreview(entry, event.currentTarget as HTMLElement)}
+        onBlur={() => scheduleHide()}
+      >
+        <span class="shrink-0 text-violet-500">
+          <GIcon name="folder" />
+        </span>
+        <span class="min-w-0 flex-1 truncate">{entry.label}</span>
+        <span class={"shrink-0 text-muted-foreground transition-transform " + (expanded ? "rotate-90" : "")}>
+          <GIcon name="chevron-right" classes="size-3" />
+        </span>
+      </button>
+      <ComponentPages entry={entry} />
+    </div>
+  );
+}
+
+function KindSection({ kind, shown }: { kind: ComponentKind; shown: DemoEntry[] }) {
+  const kindEntries = shown.filter((entry) => entry.kind === kind);
+  const expanded = state.query.trim() ? true : state.expandedKinds.has(kind);
+  const groups = [...new Set(kindEntries.map((entry) => entry.group))];
+  return (
+    <section hidden={kindEntries.length === 0}>
+      <button
+        type="button"
+        aria-expanded={String(expanded)}
+        class="group flex w-full cursor-pointer items-center gap-2 border-y border-border px-3 py-1.5 text-left hover:bg-muted"
+        onClick={() => {
+          if (state.expandedKinds.has(kind)) state.expandedKinds.delete(kind);
+          else state.expandedKinds.add(kind);
+          update();
+        }}
+      >
+        <span class="min-w-0 flex-1">
+          <strong class="block py-3 text-[11px] font-semibold tracking-[0.08em] text-foreground uppercase">{KIND_LABELS[kind]}</strong>
+        </span>
+        <span class={"shrink-0 text-muted-foreground transition-transform " + (expanded ? "rotate-90" : "")}>
+          <GIcon name="chevron-right" classes="size-3.5" />
+        </span>
+      </button>
+      <div class="p-3" hidden={!expanded}>
+        {groups.map((group) => (
+          <div>
+            <p class="mb-1 text-[10px] font-medium text-muted-foreground">{group}</p>
+            {kindEntries
+              .filter((entry) => entry.group === group)
+              .map((entry) => (
+                <ComponentRow entry={entry} />
+              ))}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function Sidebar() {
+  const shown = filteredEntries();
+  const introductionSelected = state.route.kind === "introduction";
+  return (
+    <aside class="flex min-h-0 flex-col border-r border-border bg-background">
+      <div class="flex h-14 shrink-0 items-center gap-3 border-b border-border px-4">
+        <span class="grid size-8 place-items-center rounded-lg bg-foreground text-background">
+          <GIcon name="components" classes="size-[18px]" />
+        </span>
+        <span class="min-w-0">
+          <strong class="block truncate text-[13px] font-semibold">Publr Design System</strong>
+          <span class="block text-[11px] text-muted-foreground">Components and usage rules</span>
+        </span>
+      </div>
+      <div class="border-b border-border p-3">
+        <label class="relative block">
+          <span class="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-muted-foreground">
+            <GIcon name="search" />
+          </span>
+          <span class="sr-only">Search documentation</span>
+          <input
+            id="g-search"
+            type="search"
+            placeholder="Search documentation"
+            value={state.query}
+            class="h-9 w-full rounded-lg border border-input bg-background pr-9 pl-8 text-[12px] outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/15"
+            onInput={(event: Event) => {
+              state.query = (event.target as HTMLInputElement).value;
+              update();
+              const next = document.getElementById("g-search") as HTMLInputElement | null;
+              next?.focus();
+              next?.setSelectionRange(state.query.length, state.query.length);
+            }}
+          />
+          <kbd class="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 rounded border border-border bg-muted px-1.5 py-0.5 font-sans text-[9px] text-muted-foreground">/</kbd>
+        </label>
+      </div>
+      <nav data-gallery-navigation class="min-h-0 flex-1 overflow-y-auto" aria-label="Design system">
+        <button
+          type="button"
+          class={
+            "flex w-full cursor-pointer items-center gap-2 rounded-md px-3 py-4 text-left text-[14px] transition-colors " +
+            (introductionSelected ? "bg-ui-accent font-medium" : "hover:bg-muted")
+          }
+          onClick={() => selectRoute({ kind: "introduction" })}
+        >
+          <span class="grid size-4 place-items-center text-orange-500">
+            <GIcon name="preformatted" classes="size-[15px]" />
+          </span>
+          <span>Introduction</span>
+        </button>
+        <button
+          type="button"
+          class={
+            "flex w-full cursor-pointer items-center gap-2 rounded-md px-3 py-4 text-left text-[14px] transition-colors " +
+            (state.route.kind === "components" ? "bg-ui-accent font-medium" : "hover:bg-muted")
+          }
+          onClick={() => selectRoute({ kind: "components" })}
+        >
+          <span class="grid size-4 place-items-center text-sky-400">
+            <GIcon name="components" classes="size-[15px]" />
+          </span>
+          <span>Components</span>
+        </button>
+        {shown.length > 0 ? (
+          <div>
+            <KindSection kind="primitive" shown={shown} />
+            <KindSection kind="composite" shown={shown} />
+          </div>
+        ) : (
+          <div class="px-2 py-8 text-center">
+            <span class="mx-auto mb-3 grid size-9 place-items-center rounded-full bg-muted text-muted-foreground">
+              <GIcon name="search" />
+            </span>
+            <p class="font-medium">No documentation found</p>
+            <p class="mt-1 text-[11px] text-muted-foreground">Try a component, rule, prop, or product area.</p>
+          </div>
+        )}
+      </nav>
+      <footer class="flex h-11 shrink-0 items-center border-t border-border px-4 text-[11px] text-muted-foreground">
+        {entries.length} components · {groupCount} groups
+      </footer>
+    </aside>
+  );
+}

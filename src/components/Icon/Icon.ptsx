@@ -1,0 +1,36 @@
+// Shared icon primitive. Artwork and sprite references always come through
+// the design system's @publr/icons adapter; callers only choose the icon and size.
+import type { IconName } from "../../icons";
+export type { IconName } from "../../icons";
+
+export const ICON_SIZES = {
+  xs: "size-3",
+  sm: "size-4",
+  md: "size-5",
+  lg: "size-6",
+  xl: "size-8",
+} as const;
+
+export type IconSize = keyof typeof ICON_SIZES;
+
+export type IconProps = {
+  id?: string;
+  name: IconName;
+  size?: IconSize;
+  classes?: string;
+};
+
+export function Icon({ classes = "", id, name, size = "md" }: IconProps) {
+  return (
+    <svg
+      id={id}
+      class={["shrink-0", ICON_SIZES[size], classes]}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      data-part="icon"
+    >
+      <use href={`#pbe-i-${name}`} />
+    </svg>
+  );
+}

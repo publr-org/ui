@@ -1,0 +1,282 @@
+import { AssetCard } from "../../../src/components/AssetCard/AssetCard.ptsx";
+import { AssetCardMeta } from "../../../src/components/AssetCard/AssetCardMeta.ptsx";
+import { AssetCardPreview } from "../../../src/components/AssetCard/AssetCardPreview.ptsx";
+import { AssetCardSelect } from "../../../src/components/AssetCard/AssetCardSelect.ptsx";
+import { AssetCardTitle } from "../../../src/components/AssetCard/AssetCardTitle.ptsx";
+import { Checkbox } from "../../../src/components/Checkbox/Checkbox.ptsx";
+import { Icon } from "../../../src/components/Icon/Icon.ptsx";
+import type { ComponentCanvas, ComponentDemoMeta, ComponentDemoVariant } from "../../gallery-types";
+
+export const meta = {
+  name: "asset-card",
+  label: "AssetCard",
+  source: "src/components/AssetCard/AssetCard.ptsx",
+  kind: "composite",
+  group: "Essentials",
+  description:
+    "Media asset card: fixed-ratio preview, dense title/meta lines, and a composed selection checkbox that drives the card's selected ring.",
+  tags: ["media", "asset", "card", "grid", "selection", "thumbnail"],
+  usage: `<AssetCard>
+  <AssetCardSelect>
+    <Checkbox value="m_1" />
+  </AssetCardSelect>
+  <button type="button" class="block w-full cursor-pointer border-0 bg-transparent p-0 text-left">
+    <AssetCardPreview>
+      <img src="/thumb.jpg" alt="" class="size-full object-cover" />
+    </AssetCardPreview>
+    <span class="block border-t border-border px-2.5 py-2">
+      <AssetCardTitle>cover-final.jpg</AssetCardTitle>
+      <AssetCardMeta>3.2 MB · 2400 × 1600</AssetCardMeta>
+    </span>
+  </button>
+</AssetCard>`,
+  preview: "demo",
+  previewLabel: "A selectable asset card with preview, title, and meta",
+  docs: {
+    purpose: [
+      "AssetCard is the media library's grid unit: one asset with its preview, filename, metadata, and selection control in a consistent card treatment.",
+    ],
+    useWhen: ["A grid lists media assets that open a detail surface and support multi-selection."],
+    avoidWhen: [
+      "The row is tabular metadata; that is Table/DataTable.",
+      "The card represents a document or entry rather than a media asset; compose a product card instead.",
+    ],
+    rules: [
+      {
+        title: "The checkbox owns selection",
+        description:
+          "The card has no selected prop. Its ring derives from the composed checkbox's checked state, so there is exactly one source of selection truth.",
+      },
+      {
+        title: "Closed aspect vocabulary",
+        description:
+          "AssetCardPreview ships square (media library) and landscape 4:3 (editorial grids). There is no open ratio prop.",
+      },
+      {
+        title: "Activation is caller-composed",
+        description:
+          "The card's click target — a button opening details or a link — belongs to the caller, kept as a sibling of the selection control, never wrapping it.",
+      },
+    ],
+    accessibility: [
+      "The selection checkbox reveals on hover, focus, and while checked — keyboard users reach it without hover.",
+      'Give the checkbox an accessible name that includes the asset name (for example aria-label="Select cover-final.jpg").',
+      "Preview imagery is decorative when the title names the activation control; give such images empty alt.",
+    ],
+    composition: [
+      "Compose AssetCardSelect + Checkbox first, then the caller's activation control containing AssetCardPreview, AssetCardTitle, and AssetCardMeta.",
+    ],
+    agentNotes: [
+      "Do not add data-selected attributes or JS class toggling — :has(input:checked) already styles the card.",
+      "Non-image assets compose an Icon fallback inside AssetCardPreview.",
+    ],
+    props: [
+      {
+        name: "children",
+        type: "node",
+        description: "Card content: selection, activation control, preview, text lines.",
+      },
+      { name: "id", type: "string", description: "Identifier applied to the article root." },
+      {
+        name: "classes",
+        type: "string",
+        description: "Layout or exceptional composition classes.",
+      },
+      {
+        name: "AssetCardSelect.children",
+        type: "node",
+        description: "The composed selection Checkbox.",
+      },
+      {
+        name: "AssetCardSelect.id",
+        type: "string",
+        description: "Identifier applied to the select wrapper.",
+      },
+      { name: "AssetCardSelect.classes", type: "string", description: "Positioning overrides." },
+      {
+        name: "AssetCardPreview.aspect",
+        type: '"square" | "landscape"',
+        description: "Closed preview ratio.",
+        default: "square",
+      },
+      {
+        name: "AssetCardPreview.children",
+        type: "node",
+        description: "Thumbnail img or icon fallback.",
+      },
+      {
+        name: "AssetCardPreview.id",
+        type: "string",
+        description: "Identifier applied to the preview stage.",
+      },
+      { name: "AssetCardPreview.classes", type: "string", description: "Stage overrides." },
+      {
+        name: "AssetCardTitle.children",
+        type: "node",
+        description: "Truncated primary line (filename).",
+      },
+      {
+        name: "AssetCardTitle.id",
+        type: "string",
+        description: "Identifier applied to the title.",
+      },
+      { name: "AssetCardTitle.classes", type: "string", description: "Title overrides." },
+      {
+        name: "AssetCardMeta.children",
+        type: "node",
+        description: "Muted secondary line (size, visibility).",
+      },
+      {
+        name: "AssetCardMeta.id",
+        type: "string",
+        description: "Identifier applied to the meta line.",
+      },
+      { name: "AssetCardMeta.classes", type: "string", description: "Meta overrides." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const variants = [
+  {
+    label: "File fallback",
+    description: "A non-image asset composes an Icon fallback in the preview stage.",
+    usage: `<AssetCard classes="w-56">
+  <AssetCardSelect>
+    <Checkbox value="m_2" />
+  </AssetCardSelect>
+  <AssetCardPreview>
+    <Icon name="file" size="lg" classes="text-muted-foreground" />
+  </AssetCardPreview>
+  <span class="block border-t border-border px-2.5 py-2">
+    <AssetCardTitle>brand-guide.pdf</AssetCardTitle>
+    <AssetCardMeta>4.7 MB · private</AssetCardMeta>
+  </span>
+</AssetCard>`,
+    notes: ["Check the checkbox to see the derived selection ring — no selected prop exists."],
+    Demo: () => (
+      <AssetCard classes="w-56">
+        <AssetCardSelect>
+          <Checkbox value="m_2" />
+        </AssetCardSelect>
+        <AssetCardPreview>
+          <Icon name="file" size="lg" classes="text-muted-foreground" />
+        </AssetCardPreview>
+        <span class="block border-t border-border px-2.5 py-2">
+          <AssetCardTitle>brand-guide.pdf</AssetCardTitle>
+          <AssetCardMeta>4.7 MB · private</AssetCardMeta>
+        </span>
+      </AssetCard>
+    ),
+    node: {
+      component: "AssetCard",
+      props: { classes: "w-56" },
+      children: [
+        {
+          component: "AssetCardSelect",
+          props: {},
+          children: [{ component: "Checkbox", props: { value: "m_2" } }],
+        },
+        {
+          component: "AssetCardPreview",
+          props: {},
+          children: [
+            {
+              component: "Icon",
+              props: { name: "file", size: "lg", classes: "text-muted-foreground" },
+            },
+          ],
+        },
+        {
+          component: "AssetCardTitle",
+          props: { children: "brand-guide.pdf", classes: "mt-2 px-2.5" },
+        },
+        {
+          component: "AssetCardMeta",
+          props: { children: "4.7 MB · private", classes: "mb-2 px-2.5" },
+        },
+      ],
+    },
+  },
+  {
+    label: "Landscape preview",
+    description: "The 4:3 landscape ratio for editorial grids.",
+    usage: `<AssetCardPreview aspect="landscape">…</AssetCardPreview>`,
+    Demo: () => (
+      <AssetCard classes="w-64">
+        <AssetCardPreview aspect="landscape">
+          <Icon name="image" size="lg" classes="text-muted-foreground" />
+        </AssetCardPreview>
+        <span class="block border-t border-border px-2.5 py-2">
+          <AssetCardTitle>coastline-aerial.jpg</AssetCardTitle>
+          <AssetCardMeta>3.1 MB · 3000 × 2000</AssetCardMeta>
+        </span>
+      </AssetCard>
+    ),
+    node: {
+      component: "AssetCard",
+      props: { classes: "w-64" },
+      children: [
+        {
+          component: "AssetCardPreview",
+          props: { aspect: "landscape" },
+          children: [
+            {
+              component: "Icon",
+              props: { name: "image", size: "lg", classes: "text-muted-foreground" },
+            },
+          ],
+        },
+        {
+          component: "AssetCardTitle",
+          props: { children: "coastline-aerial.jpg", classes: "mt-2 px-2.5" },
+        },
+        {
+          component: "AssetCardMeta",
+          props: { children: "3.1 MB · 3000 × 2000", classes: "mb-2 px-2.5" },
+        },
+      ],
+    },
+  },
+] satisfies ComponentDemoVariant[];
+
+export const canvas = {
+  controls: [
+    { name: "title", type: "text", default: "cover-final.jpg" },
+    { name: "meta", type: "text", default: "3.2 MB · 2400 × 1600" },
+    {
+      name: "aspect",
+      type: "select",
+      default: "square",
+      options: ["square", "landscape"],
+    },
+  ],
+  node: (values) => ({
+    component: "AssetCard",
+    props: { classes: "w-56" },
+    children: [
+      {
+        component: "AssetCardSelect",
+        props: {},
+        children: [{ component: "Checkbox", props: { value: "canvas" } }],
+      },
+      {
+        component: "AssetCardPreview",
+        props: { aspect: String(values.aspect) },
+        children: [
+          {
+            component: "Icon",
+            props: { name: "image", size: "lg", classes: "text-muted-foreground" },
+          },
+        ],
+      },
+      {
+        component: "AssetCardTitle",
+        props: { children: String(values.title), classes: "mt-2 px-2.5" },
+      },
+      {
+        component: "AssetCardMeta",
+        props: { children: String(values.meta), classes: "mb-2 px-2.5" },
+      },
+    ],
+  }),
+} satisfies ComponentCanvas;

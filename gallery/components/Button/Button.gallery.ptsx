@@ -1,0 +1,367 @@
+import {
+  BUTTON_HIERARCHIES,
+  BUTTON_INTENTS,
+  BUTTON_SIZES,
+  Button,
+} from "../../../src/components/Button/Button.ptsx";
+import type {
+  ButtonHierarchy,
+  ButtonIntent,
+  ButtonSize,
+} from "../../../src/components/Button/Button.ptsx";
+import { Icon } from "../../../src/components/Icon/Icon.ptsx";
+import { Text } from "../../../src/components/Text/Text.ptsx";
+import type { ComponentCanvas, ComponentDemoMeta, ComponentDemoVariant } from "../../gallery-types";
+
+export const meta = {
+  name: "button",
+  label: "Button",
+  source: "src/components/Button/Button.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description:
+    "A dumb action primitive with closed hierarchy, intent, size, and native state contracts.",
+  tags: ["button", "action", "interactive", "intent", "loading"],
+  usage: `<Button>Save changes</Button>
+
+<Button intent="destructive">Delete</Button>
+
+<Button label="Settings" hierarchy="tertiary" size="sm" title="Settings">
+  <Icon name="settings" />
+</Button>
+
+<Button loading={state.publishing} type="submit">Publish</Button>`,
+  preview: "toolbar",
+  previewLabel: "Hierarchy, intent, size, content, and state",
+  docs: {
+    purpose: [
+      "Button is the standard immediate-action control. It owns its visual hierarchy, semantic intent, dimensions, and native state reflection.",
+      "Button is dumb: parents own every state value and async operation. The component only renders the supplied props.",
+    ],
+    useWhen: [
+      "Activation performs an immediate action such as saving, toggling, opening, or deleting.",
+      "A toolbar, menu, form, or dialog needs a consistently styled native button.",
+      "A link must deliberately use Button styling rather than the ordinary Link component.",
+    ],
+    avoidWhen: [
+      "Ordinary navigation is the goal; use Link so MPA and Publr-router behavior remain centralized.",
+      "The control has a specialized contract such as a tab, selection card, or resize handle.",
+      "You are about to reproduce routine Button color, size, typography, padding, or radius through class.",
+    ],
+    rules: [
+      {
+        title: "Hierarchy owns emphasis",
+        description:
+          "Choose primary, secondary, tertiary, or link from action prominence—not from a preferred color utility.",
+      },
+      {
+        title: "Intent owns consequence",
+        description:
+          "Use default for ordinary actions and destructive when activation can remove or irreversibly replace data.",
+      },
+      {
+        title: "Parents own state",
+        description:
+          "Pass disabled and loading from parent state. Button starts no request and tracks no promise; loading only reflects busy/disabled UI.",
+      },
+      {
+        title: "Prefer the visible name",
+        description:
+          "Visible children provide the accessible name. Add label only when the content has no usable name, such as an icon-only Button.",
+      },
+      {
+        title: "The destination chooses the element",
+        description: "href renders an anchor; without href, Button renders a native button.",
+      },
+    ],
+    accessibility: [
+      "Visible text names ordinary Buttons without redundant ARIA. Icon-only Buttons require label.",
+      "Set pressed when a Button represents an on/off state; Button reflects it as native aria-pressed.",
+      "Pass additional ARIA attributes directly with hyphenated names such as aria-controls or aria-describedby.",
+      "Loading sets aria-busy and disables native buttons without changing their accessible name.",
+    ],
+    composition: [
+      "Supply visible text directly as children for ordinary actions.",
+      "Supply Icon and Text children for icon/text or richer content; a single Icon produces the matching square control and requires label.",
+      "Compose split actions from sibling Button and Dropdown controls in a local wrapper; Button does not own Dropdown.",
+    ],
+    agentNotes: [
+      "Use hierarchy, intent, and size before considering classes.",
+      "Use pressed instead of a visual-only active flag.",
+      'Use role="menuitem" when Button is composed inside a menu.',
+      "Never pass disabled, loading, or type together with href.",
+      "When composing an Icon WITH text, wrap the text in an element (span or Text) — the icon-only sizing selector uses :only-child, and bare text nodes are invisible to it, so unwrapped text collapses the button to icon width.",
+    ],
+    props: [
+      {
+        name: "label",
+        type: "string",
+        description:
+          "Accessible name for content that cannot name itself, such as an icon-only control.",
+      },
+      {
+        name: "hierarchy",
+        type: "ButtonHierarchy",
+        description: "Primary, secondary, tertiary, or link visual emphasis.",
+        default: "primary",
+      },
+      {
+        name: "intent",
+        type: "ButtonIntent",
+        description: "Default or destructive semantic consequence.",
+        default: "default",
+      },
+      {
+        name: "size",
+        type: "ButtonSize",
+        description: "Closed xs through lg dimension scale.",
+        default: "md",
+      },
+      {
+        name: "children",
+        type: "unknown",
+        description: "Required visible Button content.",
+        required: true,
+      },
+      {
+        name: "title",
+        type: "string",
+        description: "Native title attribute.",
+      },
+      {
+        name: "disabled",
+        type: "boolean",
+        description: "Parent-controlled disabled state for button roots.",
+      },
+      {
+        name: "loading",
+        type: "boolean",
+        description: "Parent-controlled busy state for button roots.",
+      },
+      {
+        name: "pressed",
+        type: "boolean",
+        description: "Semantic toggle state reflected as native aria-pressed.",
+      },
+      {
+        name: "role",
+        type: "'menuitem'",
+        description: "Optional menu-item role when composed inside a menu.",
+      },
+      {
+        name: "type",
+        type: "'button' | 'submit' | 'reset'",
+        description: "Native button type. Component-created buttons default to button.",
+        default: "button",
+      },
+      {
+        name: "href",
+        type: "string",
+        description: "When present, renders an anchor styled as a Button.",
+      },
+      {
+        name: "name",
+        type: "string",
+        description:
+          "Native form name of a submit button, sent with value so one form can tell its submit buttons apart.",
+      },
+      {
+        name: "value",
+        type: "string",
+        description: "Native form value of a submit button; meaningful with name.",
+      },
+      {
+        name: "classes",
+        type: "string",
+        description: "Layout, responsive placement, state selectors, or exceptional composition.",
+      },
+      {
+        name: "id",
+        type: "string",
+        description: "Optional identifier applied to the button or anchor root.",
+      },
+      {
+        name: "onClick",
+        type: "(event: MouseEvent) => void",
+        description: "Parent-owned click callback.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const canvas = {
+  controls: [
+    { name: "children", label: "Content", type: "text", default: "Button CTA" },
+    {
+      name: "hierarchy",
+      type: "select",
+      default: "primary",
+      options: BUTTON_HIERARCHIES,
+    },
+    {
+      name: "intent",
+      type: "select",
+      default: "default",
+      options: BUTTON_INTENTS,
+    },
+    {
+      name: "size",
+      type: "select",
+      default: "md",
+      options: BUTTON_SIZES,
+    },
+    { name: "title", type: "text", default: "" },
+    { name: "disabled", type: "boolean", default: false },
+    { name: "loading", type: "boolean", default: false },
+    {
+      name: "classes",
+      type: "text",
+      default: "",
+      placeholder: "e.g. w-full",
+    },
+  ],
+  node: (values) => ({
+    component: "Button",
+    props: {
+      children: String(values.children),
+      hierarchy: String(values.hierarchy) as ButtonHierarchy,
+      intent: String(values.intent) as ButtonIntent,
+      size: String(values.size) as ButtonSize,
+      title: String(values.title),
+      disabled: Boolean(values.disabled),
+      loading: Boolean(values.loading),
+      classes: String(values.classes),
+    },
+  }),
+} satisfies ComponentCanvas;
+
+const hierarchyDescriptions: Record<ButtonHierarchy, string> = {
+  primary: "Highest-emphasis solid action.",
+  secondary: "Bordered action with lower visual weight.",
+  tertiary: "Transparent action for toolbars and low-emphasis controls.",
+  link: "Text-link treatment for an action that remains a button.",
+};
+
+const matrixTreatments = BUTTON_HIERARCHIES.flatMap((hierarchy) =>
+  BUTTON_INTENTS.map((intent) => [hierarchy, intent] as const),
+);
+
+const matrixVariants = matrixTreatments.map(([hierarchy, intent]): ComponentDemoVariant => ({
+  label: `${hierarchy} · ${intent}`,
+  description: `${hierarchyDescriptions[hierarchy]} ${intent === "destructive" ? "Uses destructive semantic tokens." : "Uses default semantic tokens."}`,
+  usage: `<Button hierarchy="${hierarchy}" intent="${intent}">${intent === "destructive" ? "Delete" : "Continue"}</Button>`,
+  Demo: () => (
+    <Button hierarchy={hierarchy} intent={intent}>
+      {intent === "destructive" ? "Delete" : "Continue"}
+    </Button>
+  ),
+  node: {
+    component: "Button",
+    props: {
+      children: intent === "destructive" ? "Delete" : "Continue",
+      hierarchy,
+      intent,
+    },
+  },
+}));
+
+const sizeVariants = BUTTON_SIZES.map((size): ComponentDemoVariant => ({
+  label: `size: ${size}`,
+  description: `The ${size} Button treatment owns its dimensions, label role, gap, and radius.`,
+  usage: `<Button size="${size}">${size.toUpperCase()} action</Button>`,
+  Demo: () => <Button size={size}>{`${size.toUpperCase()} action`}</Button>,
+  node: {
+    component: "Button",
+    props: { children: `${size.toUpperCase()} action`, size },
+  },
+}));
+
+function IconTextDemo() {
+  return (
+    <Button hierarchy="secondary">
+      <Icon name="duplicate" size="sm" />
+      <Text variant="body-md">Duplicate</Text>
+    </Button>
+  );
+}
+
+function IconOnlyDemo() {
+  return (
+    <Button label="Settings" hierarchy="tertiary" size="sm" title="Settings">
+      <Icon name="settings" size="sm" />
+    </Button>
+  );
+}
+
+function LinkButtonDemo() {
+  return (
+    <Button hierarchy="secondary" href="#button-link-demo">
+      View details
+    </Button>
+  );
+}
+
+export const variants = [
+  ...matrixVariants,
+  ...sizeVariants,
+  {
+    label: "Icon and text",
+    description: "Visible composed content supplies the accessible name without redundant ARIA.",
+    usage: `<Button hierarchy="secondary">
+  <Icon name="duplicate" />
+  <Text variant="body-md">Duplicate</Text>
+</Button>`,
+    Demo: IconTextDemo,
+    node: {
+      component: "Button",
+      props: { hierarchy: "secondary" },
+      children: [
+        { component: "Icon", props: { name: "duplicate", size: "sm" } },
+        { component: "Text", props: { variant: "body-md", children: "Duplicate" } },
+      ],
+    },
+  },
+  {
+    label: "Icon only",
+    description: "A single Icon receives square dimensions from the selected Button size.",
+    usage: `<Button label="Settings" hierarchy="tertiary" size="sm" title="Settings">
+  <Icon name="settings" />
+</Button>`,
+    Demo: IconOnlyDemo,
+    node: {
+      component: "Button",
+      props: {
+        label: "Settings",
+        hierarchy: "tertiary",
+        size: "sm",
+        title: "Settings",
+      },
+      children: [{ component: "Icon", props: { name: "settings", size: "sm" } }],
+    },
+  },
+  {
+    label: "Parent-controlled loading",
+    description: "External state drives loading; Button owns no operation or promise.",
+    usage: `<Button loading={state.saving}>Save changes</Button>`,
+    notes: ["The static specimen shows Button's parent-controlled busy state."],
+    Demo: () => <Button loading>Saving</Button>,
+    node: {
+      component: "Button",
+      props: { children: "Saving", loading: true },
+    },
+  },
+  {
+    label: "Button-styled link",
+    description: "href renders an anchor with Button styling; ordinary navigation uses Link.",
+    usage: `<Button hierarchy="secondary" href="/details">View details</Button>`,
+    Demo: LinkButtonDemo,
+    node: {
+      component: "Button",
+      props: {
+        children: "View details",
+        hierarchy: "secondary",
+        href: "#button-link-demo",
+      },
+    },
+  },
+] satisfies ComponentDemoVariant[];

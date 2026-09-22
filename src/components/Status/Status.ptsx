@@ -1,0 +1,55 @@
+// Dot-prefixed inline status text. The closed semantic tone map owns the dot
+// and label color through theme tokens; the visible label children name the
+// component. Workflow vocabularies (Published, Draft, …) belong to product
+// composites, not this primitive.
+
+export const STATUS_TONES = ["neutral", "success", "warning", "error", "accent", "review"] as const;
+
+export type StatusTone = (typeof STATUS_TONES)[number];
+
+export type StatusProps = {
+  children: JSX.Element;
+  classes?: string;
+  id?: string;
+  tone?: StatusTone;
+};
+
+const TONE_TEXT_CLASSES: Record<StatusTone, string> = {
+  neutral: "text-muted-foreground",
+  success: "text-success",
+  warning: "text-warning",
+  error: "text-destructive",
+  accent: "text-primary",
+  review: "text-review",
+};
+
+const TONE_DOT_CLASSES: Record<StatusTone, string> = {
+  neutral: "bg-muted-foreground",
+  success: "bg-success",
+  warning: "bg-warning",
+  error: "bg-destructive",
+  accent: "bg-primary",
+  review: "bg-review",
+};
+
+export function Status({ children, classes = "", id, tone = "neutral" }: StatusProps) {
+  return (
+    <span
+      id={id}
+      // Deliberately dense bare-text treatment: status rows sit at 12px medium,
+      // one step below Text's body-sm scale.
+      class={[
+        "inline-flex items-center gap-1.5 whitespace-nowrap text-[13px] font-medium",
+        TONE_TEXT_CLASSES[tone],
+        classes,
+      ]}
+      data-status-tone={tone}
+    >
+      <span
+        aria-hidden="true"
+        class={["size-1.5 shrink-0 rounded-full", TONE_DOT_CLASSES[tone]]}
+      ></span>
+      {children}
+    </span>
+  );
+}

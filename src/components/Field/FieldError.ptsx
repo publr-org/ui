@@ -1,0 +1,23 @@
+// Validation message for a field. role="alert" announces the message when it
+// appears; the control still owns its own invalid state and aria-invalid.
+
+export type FieldErrorProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function FieldError({ children, classes = "", id }: FieldErrorProps) {
+  return (
+    <p
+      id={id}
+      class={["text-body-sm font-normal text-destructive", classes]}
+      role="alert"
+      data-part="field-error"
+      data-text-variant="body-sm"
+      data-text-tone="error"
+    >
+      {children}
+    </p>
+  );
+}

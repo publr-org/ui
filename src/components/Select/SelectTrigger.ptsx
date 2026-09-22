@@ -1,0 +1,64 @@
+import { Slot } from "publr-jsx";
+import { state, toggle, trigger, triggerKeydown } from "./Select.ptsx";
+import { Icon } from "../Icon/Icon.ptsx";
+
+export type SelectTriggerProps = {
+  id?: string;
+  children: JSX.Element;
+  classes?: string;
+  asChild?: boolean;
+  label?: string;
+};
+
+export function SelectTrigger({
+  id,
+  children,
+  classes = "",
+  asChild = false,
+  label,
+}: SelectTriggerProps) {
+  return (
+    <>
+      {asChild ? (
+        <Slot
+          id={id}
+          class={classes}
+          data-part="trigger"
+          anchor
+          ref={trigger}
+          onClick={toggle}
+          onKeyDown={triggerKeydown}
+          aria-haspopup="listbox"
+          aria-label={label}
+          aria-expanded={state.open}
+          disabled={state.disabled}
+        >
+          {children}
+        </Slot>
+      ) : (
+        <button
+          id={id}
+          type="button"
+          data-part="trigger"
+          anchor
+          ref={trigger}
+          onClick={toggle}
+          onKeyDown={triggerKeydown}
+          aria-haspopup="listbox"
+          aria-label={label}
+          aria-expanded={state.open}
+          disabled={state.disabled}
+          class={[
+            "inline-flex h-[var(--select-trigger-height,2.25rem)] items-center justify-between gap-[var(--select-trigger-gap,0.5rem)] rounded-md border border-input bg-background px-[var(--select-trigger-padding-x,0.75rem)] py-0 text-left shadow-xs transition duration-150 hover:border-muted-foreground/50 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+            classes,
+          ]}
+        >
+          <span class="grid h-5 min-w-0 items-center" data-part="value-slot">
+            {children}
+          </span>
+          <Icon name="chevron-down" size="sm" classes="shrink-0 text-muted-foreground" />
+        </button>
+      )}
+    </>
+  );
+}

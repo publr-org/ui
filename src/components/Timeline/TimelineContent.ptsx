@@ -1,0 +1,16 @@
+// The entry's text column beside the gutter marker: fills the row, clips
+// long content, and nudges down to align its first line with the marker.
+
+export type TimelineContentProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function TimelineContent({ children, classes = "", id }: TimelineContentProps) {
+  return (
+    <div id={id} class={["min-w-0 flex-1 pt-0.5", classes]}>
+      {children}
+    </div>
+  );
+}

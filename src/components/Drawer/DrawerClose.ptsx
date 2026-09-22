@@ -1,0 +1,27 @@
+// Explicit close action (header ✕, cancel buttons). Closes the drawer and
+// restores focus to the trigger.
+import { Slot } from "publr-jsx";
+import { closeDrawer } from "./Drawer.ptsx";
+
+export type DrawerCloseProps = {
+  id?: string;
+  classes?: string;
+  asChild?: boolean;
+  children: JSX.Element;
+};
+
+export function DrawerClose({ id, classes = "", asChild = false, children }: DrawerCloseProps) {
+  return (
+    <>
+      {asChild ? (
+        <Slot id={id} class={classes} data-part="close" onClick={closeDrawer}>
+          {children}
+        </Slot>
+      ) : (
+        <button id={id} class={classes} type="button" data-part="close" onClick={closeDrawer}>
+          {children}
+        </button>
+      )}
+    </>
+  );
+}

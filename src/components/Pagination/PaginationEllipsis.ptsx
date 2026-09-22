@@ -1,0 +1,19 @@
+export type PaginationEllipsisProps = {
+  id?: string;
+  classes?: string;
+};
+
+export function PaginationEllipsis({ id, classes = "" }: PaginationEllipsisProps) {
+  return (
+    <span
+      id={id}
+      class={[
+        "inline-flex h-8 w-8 items-center justify-center text-sm text-muted-foreground",
+        classes,
+      ]}
+      aria-hidden="true"
+    >
+      …
+    </span>
+  );
+}

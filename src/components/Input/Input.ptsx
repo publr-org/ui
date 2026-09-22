@@ -1,0 +1,123 @@
+import { Dynamic } from "publr-jsx";
+
+export const INPUT_TYPES = [
+  "text",
+  "email",
+  "password",
+  "search",
+  "tel",
+  "url",
+  "number",
+  "file",
+  "date",
+  "datetime-local",
+  "range",
+  "color",
+  "time",
+] as const;
+
+export type InputType = (typeof INPUT_TYPES)[number];
+
+export const INPUT_MODES = [
+  "none",
+  "text",
+  "decimal",
+  "numeric",
+  "tel",
+  "search",
+  "email",
+  "url",
+] as const;
+
+export type InputMode = (typeof INPUT_MODES)[number];
+
+export type InputProps = {
+  type?: InputType;
+  id?: string;
+  name?: string;
+  form?: string;
+  value?: string;
+  placeholder?: string;
+  disabled?: boolean;
+  invalid?: boolean;
+  required?: boolean;
+  readOnly?: boolean;
+  autocomplete?: string;
+  min?: string;
+  max?: string;
+  step?: string;
+  minLength?: number;
+  maxLength?: number;
+  inputMode?: InputMode;
+  /** Drawn without its own border and shadow: inside an InputGroup, which owns them. */
+  inset?: boolean;
+  /** The text size: `md` the form default, `sm` for dense places such as a filter band. */
+  size?: "sm" | "md";
+  classes?: string;
+  onInput?: (event: Event) => void;
+  onChange?: (event: Event) => void;
+};
+
+const SIZE_CLASSES: Record<"sm" | "md", string> = {
+  sm: "text-body-sm",
+  md: "text-base leading-6",
+};
+
+export function Input({
+  classes = "",
+  inset = false,
+  size = "md",
+  type = "text",
+  id,
+  name,
+  form,
+  value,
+  placeholder,
+  disabled = false,
+  invalid = false,
+  required = false,
+  readOnly = false,
+  autocomplete,
+  min,
+  max,
+  step,
+  minLength,
+  maxLength,
+  inputMode,
+  onInput,
+  onChange,
+}: InputProps) {
+  return (
+    <Dynamic
+      as="input"
+      type={type}
+      id={id}
+      name={name}
+      form={form}
+      value={value}
+      placeholder={placeholder}
+      disabled={disabled}
+      required={required}
+      readonly={readOnly}
+      autocomplete={autocomplete}
+      min={min}
+      max={max}
+      step={step}
+      minlength={minLength}
+      maxlength={maxLength}
+      inputmode={inputMode}
+      aria-invalid={invalid}
+      class={[
+        "flex w-full px-[var(--input-padding-x,0.875rem)] py-[var(--input-padding-y,0.5rem)] font-normal text-foreground bg-card transition duration-150 placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+        SIZE_CLASSES[size],
+        inset
+          ? "min-w-0 flex-1 rounded-none border-0 bg-transparent shadow-none"
+          : "rounded-lg border shadow-xs hover:border-muted-foreground/40 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/15",
+        inset ? "" : invalid ? "border-destructive" : "border-input",
+        classes,
+      ]}
+      onInput={onInput}
+      onChange={onChange}
+    />
+  );
+}

@@ -1,0 +1,481 @@
+import { DataTable } from "../../../src/components/DataTable/DataTable.ptsx";
+import { DataTableCell } from "../../../src/components/DataTable/DataTableCell.ptsx";
+import { DataTableFilter } from "../../../src/components/DataTable/DataTableFilter.ptsx";
+import { DataTableHead } from "../../../src/components/DataTable/DataTableHead.ptsx";
+import { DataTableRow } from "../../../src/components/DataTable/DataTableRow.ptsx";
+import { DataTableRowSelect } from "../../../src/components/DataTable/DataTableRowSelect.ptsx";
+import { DataTableSelectAll } from "../../../src/components/DataTable/DataTableSelectAll.ptsx";
+import { Status } from "../../../src/components/Status/Status.ptsx";
+import { Table } from "../../../src/components/Table/Table.ptsx";
+import { TableBody } from "../../../src/components/Table/TableBody.ptsx";
+import { TableCell } from "../../../src/components/Table/TableCell.ptsx";
+import { TableHead } from "../../../src/components/Table/TableHead.ptsx";
+import { TableHeader } from "../../../src/components/Table/TableHeader.ptsx";
+import { TableRow } from "../../../src/components/Table/TableRow.ptsx";
+import type {
+  ComponentCanvas,
+  ComponentDemoMeta,
+  ComponentDemoVariant,
+  DemoNode,
+} from "../../gallery-types";
+
+const usage = `<DataTable>
+  <div class="flex items-center gap-2 border-b border-border px-5 py-3">
+    <DataTableFilter placeholder="Filter entries…" classes="max-w-xs" />
+    <span class="ml-auto text-sm text-muted-foreground">
+      <span :text="$selectedCount"></span> selected
+    </span>
+  </div>
+  <Table>
+    <TableHeader>
+      <TableRow>
+        <TableHead classes="w-12"><DataTableSelectAll /></TableHead>
+        <TableHead>Title</TableHead>
+        <DataTableHead column="status">Status</DataTableHead>
+      </TableRow>
+    </TableHeader>
+    <TableBody>
+      <DataTableRow rowId="1" searchText="hello world draft">
+        <TableCell classes="w-12"><DataTableRowSelect /></TableCell>
+        <TableCell>Hello world</TableCell>
+        <DataTableCell column="status">Draft</DataTableCell>
+      </DataTableRow>
+    </TableBody>
+  </Table>
+</DataTable>`;
+
+type EntryRow = readonly [id: string, title: string, type: string, status: string];
+
+const ENTRIES: readonly EntryRow[] = [
+  ["1", "Welcome to Publr", "Page", "Published"],
+  ["2", "Autumn release notes", "Article", "Draft"],
+  ["3", "Pricing overview", "Page", "Draft"],
+  ["4", "Interview: design systems", "Article", "Published"],
+];
+
+export const meta = {
+  name: "data-table",
+  label: "DataTable",
+  source: "src/components/DataTable/DataTable.ptsx",
+  kind: "composite",
+  group: "Essentials",
+  description:
+    "Server-rendered data tables with JSON filtering, search, sorting and history; composed tables also support selection and column visibility.",
+  tags: ["table", "data", "selection", "filter", "columns", "list"],
+  usage,
+  preview: "canvas",
+  previewLabel: "Filterable entries with row selection",
+  docs: {
+    purpose: [
+      "DataTable adds interactive behavior — row selection with a tri-state select-all, an instant quick filter, and column hiding — to a composed Table without owning the table markup.",
+      "Provide address, columns, rows and filters for a data-driven table. PTSX renders the initial page; PublrJS awaited fetches JSON and updates keyed rows and controls. See docs/data-table.md.",
+    ],
+    useWhen: [
+      "An admin list needs row selection, an instant filter over the rendered page, or hideable columns.",
+      "The rows are server-rendered and interactivity must attach to that existing markup.",
+    ],
+    avoidWhen: [
+      "A plain read-only table — compose the Table family directly.",
+      "Spreadsheet editing, virtualization, or arbitrary custom cell widgets require a specialized grid.",
+    ],
+    rules: [
+      {
+        title: "The quick filter narrows the rendered page only",
+        description:
+          "filterRows hides non-matching rows that are already on the page. Searching across all pages belongs to the page's server form and query.",
+      },
+      {
+        title: "Select-all scope is the rendered page",
+        description:
+          "pageSelectionChanged selects or clears every row on the page, including rows the quick filter is currently hiding. Selection resets on server navigation.",
+      },
+      {
+        title: "Hideable columns are opt-in",
+        description:
+          "Only columns rendered with DataTableHead/DataTableCell (a shared column key) can be hidden. Keep identity columns — selection, title — as plain TableHead/TableCell.",
+      },
+      {
+        title: "Rows carry their own search text",
+        description:
+          "data-search comes from the rowId'd row's searchText prop. A row without searchText always matches, because it cannot be judged.",
+      },
+    ],
+    accessibility: [
+      "The selection controls are native checkboxes (Checkbox) with per-control aria-labels; the select-all mixed state is the real indeterminate property, never a stale aria-checked attribute.",
+      "Filtered-out rows get the hidden display class and hidden columns the important hidden! class (it must beat responsive display utilities like md:table-cell); both remove the content from the accessibility tree.",
+      "The filter is a native search input named by its label prop.",
+    ],
+    composition: [
+      "Compose Table inside DataTable; put DataTableSelectAll in the header's selection TableHead and DataTableRowSelect in each row's selection TableCell.",
+      'Compose BulkActions above the Table for the selection bar, and DataTableColumnToggle items inside a DropdownMenuContent for the column-visibility menu; counts are call-site bindings (:text="$selectedCount" / :text="$visibleCount").',
+      "Action names resolve upward through nested stores, so a DropdownMenu column menu inside DataTable reaches toggleColumn without extra wiring.",
+    ],
+    agentNotes: [
+      "The data-driven mode owns reactive rows, filter controls, search and sorting links. The endpoint owns query semantics and returns canonical addresses.",
+      "Do not rewrite row visibility imperatively; DataTableRow's hidden-membership class binding (hiddenRowIds) is the only mechanism.",
+      "The store emits datatableselectionchange (detail.selectedRowIds) from a revision-gated effect for composition outside the store.",
+    ],
+    props: [
+      {
+        name: "DataTable.children",
+        type: "node",
+        description: "The composed toolbar markup, Table, and footer.",
+      },
+      {
+        name: "DataTable.classes",
+        type: "string",
+        description: "Layout classes on the region root.",
+      },
+      {
+        name: "DataTable.id",
+        type: "string",
+        description: "Optional identifier applied to the region root.",
+      },
+      {
+        name: "DataTableFilter.name",
+        type: "string",
+        description: "Native form field name for the search input.",
+      },
+      {
+        name: "DataTableFilter.value",
+        type: "string",
+        description: "Initial input value — e.g. a server-echoed search query.",
+      },
+      {
+        name: "DataTableFilter.placeholder",
+        type: "string",
+        description: "Native placeholder.",
+        default: '"Filter rows…"',
+      },
+      {
+        name: "DataTableFilter.label",
+        type: "string",
+        description: "Accessible name applied as aria-label.",
+        default: '"Filter rows"',
+      },
+      {
+        name: "DataTableFilter.classes",
+        type: "string",
+        description: "Layout classes merged into the input (width caps).",
+      },
+      {
+        name: "DataTableFilter.id",
+        type: "string",
+        description: "Optional identifier applied to the native input.",
+      },
+      {
+        name: "DataTableSelectAll.label",
+        type: "string",
+        description: "Accessible name for the page selector.",
+        default: '"Select all rows"',
+      },
+      {
+        name: "DataTableSelectAll.classes",
+        type: "string",
+        description: "Classes merged into the checkbox.",
+      },
+      {
+        name: "DataTableSelectAll.id",
+        type: "string",
+        description: "Optional identifier applied to the checkbox.",
+      },
+      {
+        name: "DataTableRowSelect.label",
+        type: "string",
+        description: "Accessible name for the row selector.",
+        default: '"Select row"',
+      },
+      {
+        name: "DataTableRowSelect.classes",
+        type: "string",
+        description: "Classes merged into the checkbox.",
+      },
+      {
+        name: "DataTableRowSelect.id",
+        type: "string",
+        description: "Optional identifier applied to the checkbox.",
+      },
+      {
+        name: "DataTableColumnToggle.column",
+        type: "string",
+        description: "Column key this menu item toggles (dims while hidden).",
+      },
+      {
+        name: "DataTableColumnToggle.children",
+        type: "node",
+        description: "The column's visible name.",
+      },
+      {
+        name: "DataTableColumnToggle.classes",
+        type: "string",
+        description: "Exceptional composition classes.",
+      },
+      {
+        name: "DataTableColumnToggle.id",
+        type: "string",
+        description: "Optional identifier.",
+      },
+      {
+        name: "DataTableRow.rowId",
+        type: "string",
+        description: "Stable row identity for selection and filtering.",
+      },
+      {
+        name: "DataTableRow.searchText",
+        type: "string",
+        description: "Lower-cased haystack the quick filter matches against.",
+      },
+      {
+        name: "DataTableRow.children",
+        type: "node",
+        description: "The row's cells.",
+      },
+      {
+        name: "DataTableRow.classes",
+        type: "string",
+        description: "Exceptional composition classes on the row.",
+      },
+      {
+        name: "DataTableRow.id",
+        type: "string",
+        description: "Optional identifier applied to the row.",
+      },
+      {
+        name: "DataTableHead.column",
+        type: "string",
+        description: "Column key shared with the matching DataTableCells.",
+      },
+      {
+        name: "DataTableHead.children",
+        type: "node",
+        description: "The column label.",
+      },
+      {
+        name: "DataTableHead.classes",
+        type: "string",
+        description: "Column width and alignment classes.",
+      },
+      {
+        name: "DataTableHead.id",
+        type: "string",
+        description: "Optional identifier applied to the header cell.",
+      },
+      {
+        name: "DataTableCell.column",
+        type: "string",
+        description: "Column key pairing the cell with its DataTableHead.",
+      },
+      {
+        name: "DataTableCell.children",
+        type: "node",
+        description: "The cell content.",
+      },
+      {
+        name: "DataTableCell.classes",
+        type: "string",
+        description: "Alignment and emphasis classes matching the column.",
+      },
+      {
+        name: "DataTableCell.id",
+        type: "string",
+        description: "Optional identifier applied to the cell.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+const entryRowNode = ([id, title, type, status]: EntryRow): DemoNode => ({
+  component: "DataTableRow",
+  props: { rowId: id, searchText: `${title} ${type} ${status}`.toLowerCase() },
+  children: [
+    {
+      component: "TableCell",
+      props: { classes: "w-12" },
+      children: [{ component: "DataTableRowSelect", props: {} }],
+    },
+    { component: "TableCell", props: { classes: "font-medium", children: title } },
+    { component: "DataTableCell", props: { column: "type", children: type } },
+    { component: "DataTableCell", props: { column: "status" }, children: [statusNode(status)] },
+  ],
+});
+
+function statusNode(status: string): DemoNode {
+  return {
+    component: "Status",
+    props: { tone: status === "Published" ? "success" : "neutral", children: status },
+  };
+}
+
+const CANONICAL_NODE: DemoNode = {
+  component: "DataTable",
+  props: {},
+  wrapper: "w-full",
+  children: [
+    {
+      component: "DataTableFilter",
+      props: { placeholder: "Filter entries…", classes: "m-3 max-w-xs" },
+    },
+    {
+      component: "Table",
+      props: {},
+      children: [
+        {
+          component: "TableHeader",
+          props: {},
+          children: [
+            {
+              component: "TableRow",
+              props: {},
+              children: [
+                {
+                  component: "TableHead",
+                  props: { classes: "w-12" },
+                  children: [{ component: "DataTableSelectAll", props: {} }],
+                },
+                { component: "TableHead", props: { children: "Title" } },
+                { component: "DataTableHead", props: { column: "type", children: "Type" } },
+                { component: "DataTableHead", props: { column: "status", children: "Status" } },
+              ],
+            },
+          ],
+        },
+        { component: "TableBody", props: {}, children: ENTRIES.map(entryRowNode) },
+      ],
+    },
+  ],
+};
+
+export const variants = [
+  {
+    label: "Selection and quick filter",
+    description:
+      "The canonical entries list: tri-state select-all, per-row selection, and an instant filter over the rendered rows.",
+    usage,
+    notes: [
+      "Type in the filter to narrow rows; select rows to see the tri-state select-all.",
+      "Bulk bars and counts are call-site markup bound to the store vocabulary.",
+    ],
+    Demo: () => (
+      <DataTable>
+        <DataTableFilter placeholder="Filter entries…" classes="m-3 max-w-xs" />
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead classes="w-12">
+                <DataTableSelectAll />
+              </TableHead>
+              <TableHead>Title</TableHead>
+              <DataTableHead column="type">Type</DataTableHead>
+              <DataTableHead column="status">Status</DataTableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {ENTRIES.map((entry) => (
+              <DataTableRow rowId={entry[0]} searchText={`${entry[1]} ${entry[2]} ${entry[3]}`.toLowerCase()}>
+                <TableCell classes="w-12">
+                  <DataTableRowSelect />
+                </TableCell>
+                <TableCell classes="font-medium">{entry[1]}</TableCell>
+                <DataTableCell column="type">{entry[2]}</DataTableCell>
+                <DataTableCell column="status">
+                  <Status tone={entry[3] === "Published" ? "success" : "neutral"}>{entry[3]}</Status>
+                </DataTableCell>
+              </DataTableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </DataTable>
+    ),
+    node: CANONICAL_NODE,
+  },
+] satisfies ComponentDemoVariant[];
+
+const canvasEntryRow = ([id, title, type, status]: EntryRow, rowSelectLabel: string): DemoNode => ({
+  component: "DataTableRow",
+  props: { rowId: id, searchText: `${title} ${type} ${status}`.toLowerCase() },
+  children: [
+    {
+      component: "TableCell",
+      props: { classes: "w-12" },
+      children: [{ component: "DataTableRowSelect", props: { label: rowSelectLabel } }],
+    },
+    { component: "TableCell", props: { classes: "font-medium", children: title } },
+    { component: "DataTableCell", props: { column: "type", children: type } },
+    { component: "DataTableCell", props: { column: "status" }, children: [statusNode(status)] },
+  ],
+});
+
+export const canvas = {
+  controls: [
+    { name: "classes", type: "text", default: "" },
+    {
+      name: "filter.placeholder",
+      label: "filter placeholder",
+      type: "text",
+      default: "Filter entries…",
+    },
+    { name: "filter.label", label: "filter label", type: "text", default: "Filter rows" },
+    { name: "filter.value", label: "filter value", type: "text", default: "" },
+    {
+      name: "selectAll.label",
+      label: "select-all label",
+      type: "text",
+      default: "Select all rows",
+    },
+    { name: "rowSelect.label", label: "row-select label", type: "text", default: "Select row" },
+  ],
+  node: (values) => ({
+    component: "DataTable",
+    props: { classes: String(values.classes) },
+    wrapper: "w-full",
+    children: [
+      {
+        component: "DataTableFilter",
+        props: {
+          placeholder: String(values["filter.placeholder"]),
+          label: String(values["filter.label"]),
+          ...(String(values["filter.value"]) ? { value: String(values["filter.value"]) } : {}),
+          classes: "m-3 max-w-xs",
+        },
+      },
+      {
+        component: "Table",
+        props: {},
+        children: [
+          {
+            component: "TableHeader",
+            props: {},
+            children: [
+              {
+                component: "TableRow",
+                props: {},
+                children: [
+                  {
+                    component: "TableHead",
+                    props: { classes: "w-12" },
+                    children: [
+                      {
+                        component: "DataTableSelectAll",
+                        props: { label: String(values["selectAll.label"]) },
+                      },
+                    ],
+                  },
+                  { component: "TableHead", props: { children: "Title" } },
+                  { component: "DataTableHead", props: { column: "type", children: "Type" } },
+                  { component: "DataTableHead", props: { column: "status", children: "Status" } },
+                ],
+              },
+            ],
+          },
+          {
+            component: "TableBody",
+            props: {},
+            children: ENTRIES.map((entry) =>
+              canvasEntryRow(entry, String(values["rowSelect.label"])),
+            ),
+          },
+        ],
+      },
+    ],
+  }),
+} satisfies ComponentCanvas;

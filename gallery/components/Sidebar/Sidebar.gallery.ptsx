@@ -1,0 +1,399 @@
+import { Icon } from "../../../src/components/Icon/Icon.ptsx";
+import { RailLink } from "../../../src/components/Sidebar/RailLink.ptsx";
+import { SidebarNavEyebrow } from "../../../src/components/Sidebar/SidebarNavEyebrow.ptsx";
+import { SidebarNavItem } from "../../../src/components/Sidebar/SidebarNavItem.ptsx";
+import { SidebarRail } from "../../../src/components/Sidebar/Sidebar.ptsx";
+import type {
+  ComponentCanvas,
+  ComponentCanvasChildInstance,
+  ComponentDemoMeta,
+  ComponentDemoVariant,
+  DemoNode,
+} from "../../gallery-types";
+
+export const meta = {
+  name: "sidebar",
+  label: "Sidebar",
+  source: "src/components/Sidebar/Sidebar.ptsx",
+  portableName: "SidebarRail",
+  kind: "composite",
+  group: "Navigation",
+  description:
+    "Two-tier admin navigation parts: the icon rail with labeled RailLinks and the dense context nav of eyebrows and items.",
+  tags: ["sidebar", "navigation", "rail", "nav", "landmark"],
+  usage: `<SidebarRail>
+  <nav aria-label="Primary" class="flex flex-col gap-1">
+    <RailLink href="/admin" label="Dashboard" active>
+      <Icon name="grid" size="sm" />
+    </RailLink>
+    <RailLink href="/admin/content" label="Content">
+      <Icon name="file" size="sm" />
+    </RailLink>
+  </nav>
+</SidebarRail>
+
+<nav aria-label="Sections">
+  <SidebarNavEyebrow first>Workspace</SidebarNavEyebrow>
+  <SidebarNavItem href="/admin" active>Overview</SidebarNavItem>
+  <SidebarNavItem href="/admin/content" classes="mt-0.5">Content</SidebarNavItem>
+</nav>`,
+  preview: "canvas",
+  previewLabel: "Icon rail beside a grouped context nav",
+  docs: {
+    purpose: [
+      "These parts build the admin's two-tier sidebar: a narrow icon rail for top-level surfaces and a dense context nav for the sections within them.",
+      "Semantics follow the WAI-ARIA APG landmarks and link patterns: consumers author labeled nav landmarks, the parts render real anchors, and the active link is announced with aria-current=page.",
+    ],
+    useWhen: [
+      "An admin shell needs the standard icon rail and grouped section nav.",
+      "Navigation entries are real links to pages.",
+    ],
+    avoidWhen: [
+      "The control opens actions rather than navigating; that is DropdownMenu.",
+      "Entries form an interactive widget tree with expand/collapse state; that contract is deliberately deferred.",
+    ],
+    rules: [
+      {
+        title: "Landmarks come from consumers",
+        description:
+          "SidebarRail is a plain container. Wrap link groups in nav elements with distinct aria-labels (Primary, System, Sections) per the landmarks pattern.",
+      },
+      {
+        title: "RailLinks are named",
+        description:
+          "label is required: it is the accessible name (aria-label and title) for an otherwise unnamed icon link. Children compose Icon.",
+      },
+      {
+        title: "Active means aria-current",
+        description:
+          "active renders aria-current=page plus the active surface. Never mark more than one link per nav group active.",
+      },
+      {
+        title: "No menu or tree roles",
+        description:
+          "Site navigation is labeled landmarks of links. APG menu, menubar, and tree roles are for application menus and widget trees, not nav.",
+      },
+    ],
+    accessibility: [
+      "Every part renders native elements: anchors for links, a p for the eyebrow.",
+      "Icon-only rail links carry aria-label and a matching title tooltip.",
+      "aria-current=page announces the current location in each tier.",
+    ],
+    composition: [
+      "Compose Icon inside RailLink; text children inside SidebarNavItem.",
+      "Group items under SidebarNavEyebrow headings; pass first on a group's first eyebrow.",
+      "The aside root, mobile drawer state, and search trigger stay shell-owned.",
+    ],
+    agentNotes: [
+      'Give sibling SidebarNavItems classes="mt-0.5" after the first, matching the dense rhythm.',
+      "Do not add icon-name props; Icon is composed as children.",
+      "SidebarNavTree/SidebarNavSubItem are deliberately not shipped yet; do not invent them.",
+    ],
+    props: [
+      {
+        name: "SidebarRail.children",
+        type: "node",
+        description: "Logo slot and labeled nav groups of RailLinks.",
+      },
+      {
+        name: "SidebarRail.classes",
+        type: "string",
+        description: "Layout or exceptional composition classes.",
+      },
+      {
+        name: "SidebarRail.id",
+        type: "string",
+        description: "Optional identifier applied to the rail.",
+      },
+      {
+        name: "RailLink.href",
+        type: "string",
+        description: "Required destination.",
+      },
+      {
+        name: "RailLink.label",
+        type: "string",
+        description: "Required accessible name for the icon-only link; also the tooltip.",
+      },
+      {
+        name: "RailLink.active",
+        type: "boolean",
+        description: "Marks the current surface; renders aria-current=page.",
+        default: "false",
+      },
+      {
+        name: "RailLink.children",
+        type: "node",
+        description: "The composed Icon.",
+      },
+      {
+        name: "RailLink.classes",
+        type: "string",
+        description: "Exceptional composition classes.",
+      },
+      {
+        name: "RailLink.id",
+        type: "string",
+        description: "Optional identifier applied to the link.",
+      },
+      {
+        name: "SidebarNavEyebrow.children",
+        type: "node",
+        description: "The group label text.",
+      },
+      {
+        name: "SidebarNavEyebrow.first",
+        type: "boolean",
+        description: "Tightens top padding on the nav's first eyebrow.",
+        default: "false",
+      },
+      {
+        name: "SidebarNavEyebrow.classes",
+        type: "string",
+        description: "Exceptional composition classes.",
+      },
+      {
+        name: "SidebarNavEyebrow.id",
+        type: "string",
+        description: "Optional identifier applied to the eyebrow.",
+      },
+      {
+        name: "SidebarNavItem.href",
+        type: "string",
+        description: "Required destination.",
+      },
+      {
+        name: "SidebarNavSubItem.href",
+        type: "string",
+        description: "The sub-view's URL (second-level row under an active item).",
+      },
+      {
+        name: "SidebarNavSubItem.active",
+        type: "boolean",
+        description: "Marks the current sub-view (aria-current).",
+        default: "false",
+      },
+      {
+        name: "SidebarNavSubItem.children",
+        type: "node",
+        description: "The sub-item label.",
+      },
+      {
+        name: "SidebarNavSubItem.classes",
+        type: "string",
+        description: "Exceptional composition classes.",
+      },
+      { name: "SidebarNavSubItem.id", type: "string", description: "Optional identifier." },
+      {
+        name: "SidebarNavItem.active",
+        type: "boolean",
+        description: "Marks the current section; renders aria-current=page.",
+        default: "false",
+      },
+      {
+        name: "SidebarNavItem.children",
+        type: "node",
+        description: "The visible link label.",
+      },
+      {
+        name: "SidebarNavItem.classes",
+        type: "string",
+        description: "Row rhythm (mt-0.5) and exceptional composition classes.",
+      },
+      {
+        name: "SidebarNavItem.id",
+        type: "string",
+        description: "Optional identifier applied to the link.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+const RAIL_NODE: DemoNode = {
+  component: "SidebarRail",
+  props: { classes: "h-64" },
+  children: [
+    {
+      component: "RailLink",
+      props: { href: "#dashboard", label: "Dashboard", active: true, classes: "mt-2" },
+      children: [{ component: "Icon", props: { name: "grid", size: "sm" } }],
+    },
+    {
+      component: "RailLink",
+      props: { href: "#content", label: "Content", classes: "mt-1" },
+      children: [{ component: "Icon", props: { name: "file", size: "sm" } }],
+    },
+    {
+      component: "RailLink",
+      props: { href: "#media", label: "Media", classes: "mt-1" },
+      children: [{ component: "Icon", props: { name: "image", size: "sm" } }],
+    },
+  ],
+};
+
+const NAV_NODE: DemoNode = {
+  fragment: true,
+  wrapper: "w-52 px-2",
+  children: [
+    { component: "SidebarNavEyebrow", props: { first: true, children: "Workspace" } },
+    {
+      component: "SidebarNavItem",
+      props: { href: "#overview", active: true, children: "Overview" },
+    },
+    {
+      component: "SidebarNavItem",
+      props: { href: "#content", classes: "mt-0.5", children: "Content" },
+    },
+    {
+      component: "SidebarNavItem",
+      props: { href: "#media", classes: "mt-0.5", children: "Media" },
+    },
+    { component: "SidebarNavEyebrow", props: { children: "System" } },
+    { component: "SidebarNavItem", props: { href: "#settings", children: "Settings" } },
+  ],
+};
+
+export const variants = [
+  {
+    label: "Icon rail",
+    description: "Labeled icon links in the narrow first tier.",
+    usage: `<SidebarRail>
+  <nav aria-label="Primary" class="flex flex-col gap-1">
+    <RailLink href="/admin" label="Dashboard" active>
+      <Icon name="grid" size="sm" />
+    </RailLink>
+    <RailLink href="/admin/content" label="Content">
+      <Icon name="file" size="sm" />
+    </RailLink>
+    <RailLink href="/admin/media" label="Media">
+      <Icon name="image" size="sm" />
+    </RailLink>
+  </nav>
+</SidebarRail>`,
+    notes: [
+      "label is the accessible name and tooltip for each icon-only link.",
+      "The active link carries aria-current=page.",
+    ],
+    Demo: () => (
+      <SidebarRail classes="h-64">
+        <RailLink href="#dashboard" label="Dashboard" active classes="mt-2">
+          <Icon name="grid" size="sm" />
+        </RailLink>
+        <RailLink href="#content" label="Content" classes="mt-1">
+          <Icon name="file" size="sm" />
+        </RailLink>
+        <RailLink href="#media" label="Media" classes="mt-1">
+          <Icon name="image" size="sm" />
+        </RailLink>
+      </SidebarRail>
+    ),
+    node: RAIL_NODE,
+  },
+  {
+    label: "Context nav",
+    description: "Eyebrow-grouped dense nav rows in the second tier.",
+    usage: `<nav aria-label="Sections">
+  <SidebarNavEyebrow first>Workspace</SidebarNavEyebrow>
+  <SidebarNavItem href="/admin" active>Overview</SidebarNavItem>
+  <SidebarNavItem href="/admin/content" classes="mt-0.5">Content</SidebarNavItem>
+  <SidebarNavEyebrow>System</SidebarNavEyebrow>
+  <SidebarNavItem href="/admin/settings">Settings</SidebarNavItem>
+</nav>`,
+    notes: ["Each group starts with an eyebrow; the first eyebrow tightens its top padding."],
+    Demo: () => (
+      <div class="w-52 px-2">
+        <SidebarNavEyebrow first>Workspace</SidebarNavEyebrow>
+        <SidebarNavItem href="#overview" active>
+          Overview
+        </SidebarNavItem>
+        <SidebarNavItem href="#content" classes="mt-0.5">
+          Content
+        </SidebarNavItem>
+        <SidebarNavItem href="#media" classes="mt-0.5">
+          Media
+        </SidebarNavItem>
+        <SidebarNavEyebrow>System</SidebarNavEyebrow>
+        <SidebarNavItem href="#settings">Settings</SidebarNavItem>
+      </div>
+    ),
+    node: NAV_NODE,
+  },
+] satisfies ComponentDemoVariant[];
+
+const scopedValue = (scope: string, name: string) => (scope ? `${scope}::${name}` : name);
+const stringValue = (values: Readonly<Record<string, unknown>>, name: string, scope = ""): string =>
+  String(values[scopedValue(scope, name)] ?? "");
+const booleanValue = (
+  values: Readonly<Record<string, unknown>>,
+  name: string,
+  scope = "",
+): boolean => Boolean(values[scopedValue(scope, name)]);
+const childValues = (
+  values: Readonly<Record<string, unknown>>,
+  name: string,
+): readonly ComponentCanvasChildInstance[] => {
+  const value = values[name];
+  return Array.isArray(value)
+    ? value.filter(
+        (item): item is ComponentCanvasChildInstance =>
+          Boolean(item) && typeof item === "object" && "id" in item && "type" in item,
+      )
+    : [];
+};
+
+export const canvas = {
+  controls: [
+    {
+      name: "items",
+      type: "children",
+      allowMultiple: true,
+      default: ["eyebrow", "item", "item"],
+      options: [
+        {
+          name: "eyebrow",
+          label: "SidebarNavEyebrow",
+          labelControl: "eyebrow.children",
+          type: "group",
+          controls: [
+            { name: "eyebrow.children", label: "children", type: "text", default: "Workspace" },
+            { name: "eyebrow.first", label: "first", type: "boolean", default: false },
+          ],
+        },
+        {
+          name: "item",
+          label: "SidebarNavItem",
+          labelControl: "item.children",
+          type: "group",
+          controls: [
+            { name: "item.children", label: "children", type: "text", default: "Overview" },
+            { name: "item.href", label: "href", type: "text", default: "#overview" },
+            { name: "item.active", label: "active", type: "boolean", default: false },
+          ],
+        },
+      ],
+    },
+  ],
+  node: (values) => ({
+    fragment: true,
+    wrapper: "w-52 px-2",
+    children: childValues(values, "items").map((child): DemoNode => {
+      if (child.type === "eyebrow") {
+        return {
+          component: "SidebarNavEyebrow",
+          props: {
+            children: stringValue(values, "eyebrow.children", child.id),
+            first: booleanValue(values, "eyebrow.first", child.id),
+          },
+        };
+      }
+      return {
+        component: "SidebarNavItem",
+        props: {
+          children: stringValue(values, "item.children", child.id),
+          href: stringValue(values, "item.href", child.id),
+          active: booleanValue(values, "item.active", child.id),
+        },
+      };
+    }),
+  }),
+} satisfies ComponentCanvas;

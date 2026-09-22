@@ -1,0 +1,207 @@
+import {
+  HEADING_LEVELS,
+  HEADING_SIZES,
+  Heading,
+} from "../../../src/components/Heading/Heading.ptsx";
+import type { HeadingLevel, HeadingSize } from "../../../src/components/Heading/Heading.ptsx";
+import { TEXT_TONES } from "../../../src/components/Text/Text.ptsx";
+import type { TextTone } from "../../../src/components/Text/Text.ptsx";
+import type { ComponentCanvas, ComponentDemoMeta, ComponentDemoVariant } from "../../gallery-types";
+
+export const meta = {
+  name: "heading",
+  label: "Heading",
+  source: "src/components/Heading/Heading.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description: "Keeps document-outline level independent from the heading's visual size.",
+  tags: ["typography", "heading", "semantic", "outline"],
+  usage: `<Heading level={1} size="xs">
+  Compact page title
+</Heading>
+
+<Heading level={6} size="2xl">
+  Visually prominent nested heading
+</Heading>`,
+  preview: "canvas",
+  previewLabel: "Independent semantic levels and visual sizes",
+  docs: {
+    purpose: [
+      "Heading combines an explicit document-outline level with an independent visual heading size.",
+      "The component exists so callers never choose an h1–h6 tag merely to obtain a particular appearance.",
+    ],
+    useWhen: [
+      "The text introduces a document, page, section, panel, or nested subsection.",
+      "Semantic hierarchy and visual prominence need to vary independently.",
+    ],
+    avoidWhen: [
+      "The text is only a visual label with no section-heading meaning; use Text.",
+      "A parent composite already owns and renders the heading element.",
+    ],
+    rules: [
+      {
+        title: "Level follows the outline",
+        description:
+          "Choose level from surrounding document structure. Do not skip or reorder levels to change appearance.",
+      },
+      {
+        title: "Size follows visual hierarchy",
+        description:
+          "Choose size independently from level. An h6 may be heading-2xl and an h1 may be heading-xs.",
+      },
+      {
+        title: "Level is the root choice",
+        description:
+          "Level directly selects h1–h6. Heading does not accept a separate as or authored-element escape that could contradict it.",
+      },
+    ],
+    accessibility: [
+      "Heading levels form a navigable outline for assistive technology.",
+      "Visual size does not change the announced heading level.",
+    ],
+    composition: [
+      "Heading shares Text's reviewed typography and tone contract.",
+      "Use tone for semantic color and class or style for contextual layout, not to replace size.",
+    ],
+    agentNotes: [
+      "Derive level from semantics before selecting size.",
+      "Never infer level from a design's font size.",
+      "Use only xs, sm, md, lg, xl, or 2xl for size.",
+    ],
+    props: [
+      {
+        name: "level",
+        type: "1 | 2 | 3 | 4 | 5 | 6",
+        description: "Required semantic heading level.",
+        required: true,
+      },
+      {
+        name: "size",
+        type: "HeadingSize",
+        description: "Required visual treatment from xs through 2xl.",
+        required: true,
+      },
+      {
+        name: "children",
+        type: "unknown",
+        description: "Heading content.",
+      },
+      {
+        name: "tone",
+        type: "TextTone",
+        description: "Optional semantic color intent inherited from Text.",
+      },
+      {
+        name: "classes",
+        type: "string",
+        description: "Additional classes merged into the heading root.",
+      },
+      {
+        name: "style",
+        type: "TextStyle",
+        description: "Inline styles applied to the semantic heading root.",
+      },
+      {
+        name: "id",
+        type: "string",
+        description: "Optional identifier applied to the heading root.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+function CompactTopLevelDemo() {
+  return (
+    <Heading level={1} size="xs">
+      Compact top-level heading
+    </Heading>
+  );
+}
+
+function ProminentNestedDemo() {
+  return (
+    <Heading level={6} size="2xl">
+      Prominent nested heading
+    </Heading>
+  );
+}
+
+export const canvas = {
+  controls: [
+    {
+      name: "level",
+      type: "select",
+      default: "2",
+      options: HEADING_LEVELS.map(String),
+    },
+    {
+      name: "size",
+      type: "select",
+      default: "lg",
+      options: HEADING_SIZES,
+    },
+    {
+      name: "children",
+      label: "Content",
+      type: "text",
+      default: "Semantic heading",
+    },
+    {
+      name: "tone",
+      type: "select",
+      default: "default",
+      options: Object.keys(TEXT_TONES),
+    },
+    {
+      name: "classes",
+      type: "text",
+      default: "",
+      placeholder: "e.g. truncate",
+    },
+  ],
+  node: (values) => ({
+    component: "Heading",
+    props: {
+      level: Number(values.level),
+      size: String(values.size) as HeadingSize,
+      tone: String(values.tone) as TextTone,
+      classes: String(values.classes),
+      children: String(values.children),
+    },
+  }),
+} satisfies ComponentCanvas;
+
+export const variants = [
+  {
+    label: "H1 with heading-xs",
+    description: "The document's top-level heading can use the smallest visual treatment.",
+    usage: `<Heading level={1} size="xs">
+  Compact top-level heading
+</Heading>`,
+    notes: [
+      "Level 1 communicates top-level document structure.",
+      "The xs size changes appearance without weakening the semantic level.",
+    ],
+    Demo: CompactTopLevelDemo,
+    node: {
+      component: "Heading",
+      props: { level: 1, size: "xs", children: "Compact top-level heading" },
+    },
+  },
+  {
+    label: "H6 with heading-2xl",
+    description: "A deeply nested heading can use the largest visual treatment.",
+    usage: `<Heading level={6} size="2xl">
+  Prominent nested heading
+</Heading>`,
+    notes: [
+      "Level 6 remains a deeply nested heading for assistive technology.",
+      "The 2xl size may provide visual emphasis without falsifying the outline.",
+    ],
+    Demo: ProminentNestedDemo,
+    node: {
+      component: "Heading",
+      props: { level: 6, size: "2xl", children: "Prominent nested heading" },
+    },
+  },
+] satisfies ComponentDemoVariant[];

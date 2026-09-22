@@ -1,0 +1,25 @@
+// Dense admin section header: an h-12 bordered row whose root owns the title
+// string (StyleControl precedent); children are the optional right-aligned
+// actions. The title composes Text's eyebrow variant as a fixed <h2>: every
+// demonstrated call site sits one level under the page h1, and PJSX lowers
+// dynamic roots only at component-root position, so a level prop would need
+// a nested-Dynamic compiler feature no use case currently justifies.
+import { Text } from "../Text/Text.ptsx";
+
+export type SectionTitleProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+  title: string;
+};
+
+export function SectionTitle({ children, classes = "", id, title }: SectionTitleProps) {
+  return (
+    <div id={id} class={["flex h-12 items-center border-b border-border px-5", classes]}>
+      <Text as="h2" variant="eyebrow" tone="muted" classes="m-0">
+        {title}
+      </Text>
+      {children && <div class="ml-auto flex items-center gap-2">{children}</div>}
+    </div>
+  );
+}

@@ -1,0 +1,31 @@
+import { Publr } from "publr-jsx";
+import { state } from "./Select.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type SelectValueProps = {
+  id?: string;
+  children: string;
+  classes?: string;
+};
+
+export function SelectValue({ id, children, classes = "" }: SelectValueProps) {
+  return (
+    <Text
+      id={id}
+      variant="body-md"
+      classes={`col-start-1 row-start-1 min-w-0 truncate [grid-area:1/1] ${classes}`}
+    >
+      <span
+        class={[
+          "block min-w-0 truncate",
+          state.label ? "text-foreground" : "text-muted-foreground",
+        ]}
+        data-part="label"
+        data-placeholder={children}
+        data-text-tone="muted"
+      >
+        {state.label || Publr.dataset("placeholder")}
+      </span>
+    </Text>
+  );
+}

@@ -1,0 +1,145 @@
+import { reactive } from "../../../src/publr-runtime";
+import { RangePicker } from "../../../src/components/RangePicker/RangePicker.ptsx";
+import type { ComponentCanvas, ComponentDemoMeta, DemoNode } from "../../gallery-types";
+
+export const meta = {
+  name: "range-picker",
+  label: "Range picker",
+  source: "src/components/RangePicker/RangePicker.ptsx",
+  kind: "primitive",
+  group: "Forms",
+  description: "Selects a numeric value within free min, max, and step bounds.",
+  tags: ["range", "number", "input"],
+  usage: `<RangePicker
+  value={state.value}
+  min={0}
+  max={100}
+  step={1}
+  label="Opacity"
+  onInput={previewOpacity}
+  onChange={commitOpacity}
+/>`,
+  preview: "inspector",
+  previewLabel: "Interactive numeric range",
+  docs: {
+    purpose: [
+      "RangePicker is the free numeric primitive: it renders a continuous filled rail and a native range input.",
+      "The current numeric value appears above the thumb on hover or keyboard focus.",
+    ],
+    useWhen: [
+      "Selecting a numeric value within known bounds.",
+      "Preview and commit need separate events.",
+    ],
+    avoidWhen: [
+      "Selecting named values from an ordered design-token scale; use RangeScalePicker.",
+      "Selecting unordered categories better represented by a select or segmented control.",
+    ],
+    rules: [
+      {
+        title: "Numeric values only",
+        description:
+          "Pass numeric value, min, max, and step semantics; do not map token labels here.",
+      },
+      {
+        title: "Controlled",
+        description:
+          "The parent owns value and handles input preview separately from change commit.",
+      },
+    ],
+    accessibility: [
+      "Use a visible FieldLabel through id whenever possible. Supply label only when the range has no other accessible name.",
+      "Keyboard, pointer, focus, and disabled behavior come from the native range input.",
+    ],
+    composition: [
+      "RangeScalePicker builds its ordered-option interaction on the same range foundation.",
+    ],
+    agentNotes: ["Do not add displayValue or option-scale geometry to RangePicker."],
+    props: [
+      { name: "value", type: "number", description: "Controlled numeric value.", required: true },
+      { name: "max", type: "number", description: "Maximum range value.", required: true },
+      {
+        name: "label",
+        type: "string",
+        description: "Accessible range name used only when no visible label is associated.",
+      },
+      { name: "min", type: "number", description: "Minimum range value.", default: "0" },
+      { name: "step", type: "number", description: "Native range increment.", default: "1" },
+      { name: "disabled", type: "boolean", description: "Disables range interaction." },
+      {
+        name: "onInput",
+        type: "(event: Event) => void",
+        description: "Preview callback while the numeric value changes.",
+      },
+      {
+        name: "onChange",
+        type: "(event: Event) => void",
+        description: "Commit callback after the numeric value changes.",
+      },
+      { name: "id", type: "string", description: "Identifier applied to the native range input." },
+      { name: "classes", type: "string", description: "Additional classes merged into the root." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const node = {
+  component: "RangePicker",
+  props: {
+    value: 35,
+    min: 0,
+    max: 100,
+    step: 1,
+    label: "Opacity",
+  },
+  wrapper: "w-full",
+} satisfies DemoNode;
+
+export function Demo() {
+  const state = reactive({ value: 35 });
+  const sync = (event: Event) => {
+    state.value = Number((event.target as HTMLInputElement).value);
+  };
+
+  return (
+    <div class="w-full">
+      <RangePicker
+        value={state.value}
+        min={0}
+        max={100}
+        step={1}
+        label="Opacity"
+        onInput={sync}
+        onChange={sync}
+      />
+    </div>
+  );
+}
+
+export const canvas = {
+  controls: [
+    { name: "value", type: "number", default: 35, min: 0, max: 100, step: 1 },
+    { name: "min", type: "number", default: 0 },
+    { name: "max", type: "number", default: 100 },
+    { name: "step", type: "number", default: 1, min: 0.01, step: 0.01 },
+    { name: "label", type: "text", default: "Opacity" },
+    { name: "disabled", type: "boolean", default: false },
+    {
+      name: "classes",
+      type: "text",
+      default: "",
+      placeholder: "e.g. max-w-72",
+    },
+  ],
+  node: (values) => ({
+    component: "RangePicker",
+    props: {
+      value: Number(values.value),
+      min: Number(values.min),
+      max: Number(values.max),
+      step: Number(values.step),
+      label: String(values.label),
+      disabled: Boolean(values.disabled),
+      classes: String(values.classes),
+    },
+    wrapper: "w-full",
+  }),
+} satisfies ComponentCanvas;

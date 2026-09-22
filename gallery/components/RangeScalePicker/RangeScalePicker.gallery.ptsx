@@ -1,0 +1,163 @@
+import { reactive } from "../../../src/publr-runtime";
+import {
+  RangeScalePicker,
+  RangeScalePickerOption,
+  RangeScalePickerOptions,
+  type RangeScaleOption,
+} from "../../../src/components/RangeScalePicker/RangeScalePicker.ptsx";
+import type { ComponentCanvas, ComponentDemoMeta, DemoNode } from "../../gallery-types";
+
+export const meta = {
+  name: "range-scale-picker",
+  label: "Range scale picker",
+  source: "src/components/RangeScalePicker/RangeScalePicker.ptsx",
+  kind: "primitive",
+  group: "Forms",
+  description: "Selects one named value from a short ordered scale.",
+  tags: ["range", "scale", "tokens", "input"],
+  usage: `<RangeScalePicker
+  value={state.value}
+  label="Spacing"
+  onInput={previewSpacing}
+  onChange={commitSpacing}
+>
+  <RangeScalePickerOptions>
+    <RangeScalePickerOption value="xs">XS</RangeScalePickerOption>
+    <RangeScalePickerOption value="sm">SM</RangeScalePickerOption>
+  </RangeScalePickerOptions>
+</RangeScalePicker>`,
+  preview: "inspector",
+  previewLabel: "Interactive spacing scale",
+  docs: {
+    purpose: [
+      "RangeScalePicker maps composed ordered options onto the native range interaction.",
+      "It owns indices, segmented geometry, and the selected label shown over the thumb.",
+    ],
+    useWhen: ["Selecting one value from a short ordered design-token scale."],
+    avoidWhen: [
+      "Selecting a free numeric value; use RangePicker.",
+      "Selecting unordered or long option sets better represented by a select.",
+    ],
+    rules: [
+      {
+        title: "Option children own the vocabulary",
+        description:
+          "Compose ordered RangeScalePickerOption children; callers never calculate numeric stops or thumb geometry.",
+      },
+      {
+        title: "Values leave the component",
+        description:
+          "Input and change callbacks receive the selected option value, never its internal index.",
+      },
+    ],
+    accessibility: [
+      "Use a visible FieldLabel through id whenever possible. Supply label only when the range has no other accessible name; aria-valuetext exposes the selected option label.",
+      "Keyboard, pointer, focus, and disabled behavior come from the native range input.",
+    ],
+    composition: ["BoxControl uses RangeScalePicker for ordered design-token values."],
+    agentNotes: ["Do not expose index, min, max, step, displayValue, or geometry props."],
+    props: [
+      {
+        name: "children",
+        type: "RangeScalePickerOptions",
+        description: "Ordered collection containing at least two RangeScalePickerOption children.",
+        required: true,
+      },
+      {
+        name: "value",
+        type: "string",
+        description: "Controlled selected option value.",
+        required: true,
+      },
+      {
+        name: "label",
+        type: "string",
+        description: "Accessible range name used only when no visible label is associated.",
+      },
+      { name: "disabled", type: "boolean", description: "Disables range interaction." },
+      {
+        name: "onInput",
+        type: "(value: string) => void",
+        description: "Preview callback with the selected option value.",
+      },
+      {
+        name: "onChange",
+        type: "(value: string) => void",
+        description: "Commit callback with the selected option value.",
+      },
+      { name: "id", type: "string", description: "Identifier applied to the native range input." },
+      { name: "classes", type: "string", description: "Additional classes merged into the root." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+const OPTIONS = [
+  { label: "None", value: "" },
+  { label: "2XS", value: "0.25rem" },
+  { label: "XS", value: "0.5rem" },
+  { label: "S", value: "0.75rem" },
+  { label: "M", value: "1rem" },
+  { label: "L", value: "1.5rem" },
+  { label: "XL", value: "2rem" },
+] as const satisfies readonly [RangeScaleOption, RangeScaleOption, ...RangeScaleOption[]];
+
+export const node = {
+  component: "RangeScalePicker",
+  props: {
+    children: OPTIONS,
+    value: "0.5rem",
+    label: "Spacing",
+  },
+  wrapper: "w-full",
+} satisfies DemoNode;
+
+export function Demo() {
+  const state = reactive({ value: "0.5rem" });
+  const sync = (value: string) => {
+    state.value = value;
+  };
+
+  return (
+    <div class="w-full">
+      <RangeScalePicker value={state.value} label="Spacing" onInput={sync} onChange={sync}>
+        {RangeScalePickerOptions({ children: OPTIONS })}
+      </RangeScalePicker>
+    </div>
+  );
+}
+
+export const canvas = {
+  controls: [
+    {
+      name: "options",
+      label: "Options",
+      type: "options",
+      default: OPTIONS,
+    },
+    { name: "value", type: "text", default: "0.5rem" },
+    { name: "label", type: "text", default: "Spacing" },
+    { name: "disabled", type: "boolean", default: false },
+    {
+      name: "classes",
+      type: "text",
+      default: "",
+      placeholder: "e.g. max-w-72",
+    },
+  ],
+  node: (values) => {
+    const options = (
+      Array.isArray(values.options) && values.options.length >= 2 ? values.options : OPTIONS
+    ) as readonly RangeScaleOption[];
+    return {
+      component: "RangeScalePicker",
+      props: {
+        children: options,
+        value: String(values.value),
+        label: String(values.label),
+        disabled: Boolean(values.disabled),
+        classes: String(values.classes),
+      },
+      wrapper: "w-full",
+    };
+  },
+} satisfies ComponentCanvas;

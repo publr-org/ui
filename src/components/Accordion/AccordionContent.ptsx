@@ -1,0 +1,24 @@
+import { Publr } from "publr-jsx";
+import { state } from "./Accordion.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type AccordionContentProps = {
+  id?: string;
+  classes?: string;
+  children?: JSX.Element;
+};
+
+export function AccordionContent({ id, classes = "", children }: AccordionContentProps) {
+  return (
+    <div
+      id={id}
+      class={["hidden pb-4", classes]}
+      data-part="content"
+      hidden={!state.values.includes(Publr.dataset("value"))}
+    >
+      <Text variant="body-md" tone="muted">
+        {children}
+      </Text>
+    </div>
+  );
+}

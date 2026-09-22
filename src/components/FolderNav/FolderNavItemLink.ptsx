@@ -1,0 +1,43 @@
+// The row's navigation link — the single source of the item's current
+// state via aria-current="page". A disabled entry (for example a
+// depth-capped folder) omits href and renders a static span with the same
+// anatomy, so it is truly inert rather than merely unclickable.
+import { Dynamic } from "publr-jsx";
+
+export type FolderNavItemLinkProps = {
+  children?: JSX.Element;
+  classes?: string;
+  current?: boolean;
+  disabled?: boolean;
+  href?: string;
+  id?: string;
+};
+
+export function FolderNavItemLink({
+  children,
+  classes = "",
+  current = false,
+  disabled = false,
+  href,
+  id,
+}: FolderNavItemLinkProps) {
+  return (
+    <Dynamic
+      as={href === undefined ? "span" : "a"}
+      id={id}
+      href={href}
+      aria-current={current ? "page" : undefined}
+      class={[
+        "flex min-w-0 flex-1 items-center gap-2 no-underline hover:no-underline",
+        disabled
+          ? "text-muted-foreground opacity-50"
+          : current
+            ? "font-medium text-foreground"
+            : "text-muted-foreground hover:text-foreground",
+        classes,
+      ]}
+    >
+      {children}
+    </Dynamic>
+  );
+}

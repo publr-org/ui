@@ -1,0 +1,17 @@
+export type PanelTabProps = {
+  id: string;
+  panel: string;
+  selected: boolean;
+  label: string;
+  onClick?: (event: MouseEvent) => void;
+};
+
+export function PanelTab({ id, panel, selected, label, onClick }: PanelTabProps) {
+  return (
+    <button type="button" role="tab" id={id} aria-controls={panel}
+      aria-selected={selected} tabIndex={selected ? 0 : -1} onClick={onClick}
+      class="inline-flex h-9 items-center border-b-2 border-transparent px-3 text-body-sm font-medium text-muted-foreground transition-colors hover:text-foreground aria-selected:border-primary aria-selected:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+      {label}
+    </button>
+  );
+}

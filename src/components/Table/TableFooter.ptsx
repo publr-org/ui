@@ -1,0 +1,16 @@
+// Summary section. Owns its top separator and muted fill; the medium weight
+// marks totals without a per-cell override.
+
+export type TableFooterProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function TableFooter({ children, classes = "", id }: TableFooterProps) {
+  return (
+    <tfoot id={id} class={["border-t border-border bg-muted/30 font-medium", classes]}>
+      {children}
+    </tfoot>
+  );
+}

@@ -1,0 +1,27 @@
+// Server-navigation tab bar: a nav of real links where the active tab is the
+// current view (status filters, sub-sections). Deliberately separate from any
+// panel-tabs component — there are no tabpanels, no client tab state, and no
+// ARIA tablist here; these are links, and forcing them through a panel-tabs
+// primitive would misstate the semantics.
+
+export type TabNavProps = {
+  id?: string;
+  classes?: string;
+  label?: string;
+  children: JSX.Element;
+};
+
+export function TabNav({ id, classes = "", label = "Tabs", children }: TabNavProps) {
+  return (
+    <nav
+      id={id}
+      class={["inline-flex items-center gap-0.5 rounded-lg bg-muted p-0.5", classes]}
+      aria-label={label}
+    >
+      {children}
+    </nav>
+  );
+}
+
+export { TabNavLink } from "./TabNavLink.ptsx";
+export type { TabNavLinkProps } from "./TabNavLink.ptsx";

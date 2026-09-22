@@ -1,0 +1,95 @@
+// One linked record inside a reference field: a rail on the left for the caller's
+// controls (move, remove), a header strip naming the record's type and status, and the
+// open row with the title. The CMS reference field (v1) is the baseline. `children` are
+// the rail's controls; the caller owns the hidden input that carries the value.
+import { Icon } from "../Icon/Icon.ptsx";
+import { Link } from "../Link/Link.ptsx";
+import { Status } from "../Status/Status.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type ReferenceCardProps = {
+  /** What the record is: its type's name. */
+  type_label: string;
+  title: string;
+  /** The record's status label, and the tone that colours its dot. */
+  status: string;
+  /** neutral, success, warning, error, accent or review; anything else draws neutral. */
+  tone?: string;
+  /** Where the open row leads. */
+  href: string;
+  onOpen?: (event: Event) => void;
+  /** The rail's controls. */
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function ReferenceCard({
+  type_label,
+  title,
+  status,
+  tone = "neutral",
+  href,
+  onOpen,
+  children,
+  classes = "",
+  id,
+}: ReferenceCardProps) {
+  return (
+    <article
+      id={id}
+      class={[
+        "group/reference flex overflow-hidden rounded-lg border border-border bg-card shadow-xs transition-[border-color,box-shadow] duration-150 hover:border-input",
+        classes,
+      ]}
+      data-part="reference-card"
+    >
+      <div
+        class="flex w-10 shrink-0 flex-col items-center justify-center gap-0.5 border-r border-border bg-muted/20 py-2"
+        data-part="rail"
+      >
+        {children}
+      </div>
+      <div class="min-w-0 flex-1">
+        <div
+          class="flex h-10 items-center gap-2 border-b border-border bg-muted/20 px-3"
+          data-part="header"
+        >
+          <span class="inline-flex size-6 shrink-0 items-center justify-center rounded bg-muted text-muted-foreground">
+            <Icon name="package" size="xs" />
+          </span>
+          <Text as="span" variant="body-xs" tone="muted" classes="truncate">
+            {type_label}
+          </Text>
+          <span class="ml-auto shrink-0">
+            {tone === "success" && <Status tone="success">{status}</Status>}
+            {tone === "warning" && <Status tone="warning">{status}</Status>}
+            {tone === "error" && <Status tone="error">{status}</Status>}
+            {tone === "accent" && <Status tone="accent">{status}</Status>}
+            {tone === "review" && <Status tone="review">{status}</Status>}
+            {tone !== "success" &&
+              tone !== "warning" &&
+              tone !== "error" &&
+              tone !== "accent" &&
+              tone !== "review" && <Status tone="neutral">{status}</Status>}
+          </span>
+        </div>
+        <Link
+          onClick={onOpen}
+          href={href}
+          tone="default"
+          classes="flex w-full items-center gap-3 px-4 py-4 hover:bg-muted/30"
+        >
+          <Text as="span" variant="heading-xs" classes="min-w-0 flex-1 truncate">
+            {title}
+          </Text>
+          <Icon
+            name="chevron-right"
+            size="sm"
+            classes="shrink-0 text-muted-foreground transition-transform group-hover/reference:translate-x-0.5"
+          />
+        </Link>
+      </div>
+    </article>
+  );
+}

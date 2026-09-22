@@ -1,0 +1,746 @@
+import {
+  BUTTON_HIERARCHIES,
+  BUTTON_INTENTS,
+  BUTTON_SIZES,
+  Button,
+} from "../../../src/components/Button/Button.ptsx";
+import type {
+  ButtonHierarchy,
+  ButtonIntent,
+  ButtonSize,
+} from "../../../src/components/Button/Button.ptsx";
+import { Dialog } from "../../../src/components/Dialog/Dialog.ptsx";
+import { DialogClose } from "../../../src/components/Dialog/DialogClose.ptsx";
+import { DialogContent } from "../../../src/components/Dialog/DialogContent.ptsx";
+import { DialogDescription } from "../../../src/components/Dialog/DialogDescription.ptsx";
+import { DialogTitle } from "../../../src/components/Dialog/DialogTitle.ptsx";
+import { DialogTrigger } from "../../../src/components/Dialog/DialogTrigger.ptsx";
+import { Field } from "../../../src/components/Field/Field.ptsx";
+import { FieldLabel } from "../../../src/components/Field/FieldLabel.ptsx";
+import { Input } from "../../../src/components/Input/Input.ptsx";
+import { TEXT_TONES, TEXT_VARIANTS, Text } from "../../../src/components/Text/Text.ptsx";
+import type { TextTone, TextVariant } from "../../../src/components/Text/Text.ptsx";
+import type {
+  ComponentCanvas,
+  ComponentCanvasChildInstance,
+  ComponentCanvasControl,
+  ComponentCanvasGroupControl,
+  ComponentDemoMeta,
+  ComponentDemoVariant,
+  DemoNode,
+} from "../../gallery-types";
+
+const usage = `<Dialog>
+  <DialogTrigger asChild>
+    <Button hierarchy="secondary">Delete folder</Button>
+  </DialogTrigger>
+  <DialogContent>
+    <DialogTitle>Delete folder</DialogTitle>
+    <DialogDescription>
+      Items inside move to the parent folder. This cannot be undone.
+    </DialogDescription>
+    <div class="mt-5 flex justify-end gap-2">
+      <DialogClose asChild>
+        <Button hierarchy="secondary">Cancel</Button>
+      </DialogClose>
+      <Button type="submit" intent="destructive">Delete</Button>
+    </div>
+  </DialogContent>
+</Dialog>`;
+
+export const meta = {
+  name: "dialog",
+  label: "Dialog",
+  source: "src/components/Dialog/Dialog.ptsx",
+  portableName: "Dialog",
+  kind: "primitive",
+  group: "Essentials",
+  description:
+    "A portable compound modal dialog with owned focus trap, dismissal, and ARIA wiring.",
+  tags: ["modal", "overlay", "confirm", "form", "portal"],
+  usage,
+  preview: "overlay",
+  previewLabel: "Compound modal dialog",
+  docs: {
+    purpose: [
+      "Dialog is the composition root for a trigger and its modal content.",
+      "The component owns the backdrop, focus trap, keyboard dismissal, focus restoration, and title/description ARIA relationships; callers compose the panel body.",
+    ],
+    useWhen: [
+      "A short task or confirmation must interrupt the page and complete (or cancel) before work continues.",
+    ],
+    avoidWhen: [
+      "The content is a list of immediate actions; use DropdownMenu.",
+      "The content is long-lived side content rather than an interruption; use Drawer.",
+    ],
+    rules: [
+      {
+        title: "Compose the panel body",
+        description:
+          "Forms, fields, and action rows are ordinary children of DialogContent — the dialog adds no body or footer configuration props.",
+      },
+      {
+        title: "Cancel closes, submit submits",
+        description:
+          "Wrap cancel actions in DialogClose; leave submit buttons native so the surrounding form posts normally.",
+      },
+      {
+        title: "Programmatic opening clicks the trigger",
+        description:
+          "Page stores open a dialog by calling .click() on its (possibly visually hidden) trigger — there is no controlled open prop.",
+      },
+    ],
+    accessibility: [
+      "Trigger owns aria-haspopup=dialog and reactive aria-expanded.",
+      "The panel is role=dialog aria-modal=true and is automatically labelled by DialogTitle and described by DialogDescription when present.",
+      "Focus moves to the first focusable in the panel on open, Tab and Shift+Tab cycle inside, and Escape, backdrop click, or DialogClose return focus to the trigger.",
+    ],
+    composition: [
+      "DialogTitle and DialogDescription are the semantic heading parts; put them first in the panel.",
+      "Compose action rows with native layout utilities — there is deliberately no DialogFooter part.",
+    ],
+    agentNotes: [
+      "SSR renders the dialog closed; the backdrop carries a static hidden class plus the live open gate — never add another display utility (flex/grid) to the backdrop, it would defeat the gate on specificity ties.",
+      "Do not wrap submit buttons in DialogClose — a closed dialog cannot submit its form.",
+      "Do not manually portal DialogContent; the part portals itself.",
+      "There is no body scroll lock, matching the previous design system's dialog.",
+    ],
+    props: [
+      {
+        name: "Dialog.id",
+        type: "string",
+        description: "Optional identifier applied to the dialog root.",
+      },
+      {
+        name: "Dialog.classes",
+        type: "string",
+        description: "Exceptional layout classes applied to the dialog root.",
+      },
+      {
+        name: "Dialog.children",
+        type: "unknown",
+        required: true,
+        description: "The Trigger and Content composition.",
+      },
+      {
+        name: "DialogTrigger.id",
+        type: "string",
+        description: "Optional identifier applied to the concrete trigger.",
+      },
+      {
+        name: "DialogTrigger.classes",
+        type: "string",
+        description: "Exceptional classes merged onto the concrete trigger.",
+      },
+      {
+        name: "DialogTrigger.asChild",
+        type: "boolean",
+        description:
+          "Adopts exactly one Element child as the trigger instead of rendering a new button.",
+        default: "false",
+      },
+      {
+        name: "DialogTrigger.children",
+        type: "unknown",
+        required: true,
+        description: "Trigger contents, or exactly one Element when asChild is true.",
+      },
+      {
+        name: "DialogContent.id",
+        type: "string",
+        description: "Optional identifier applied to the dialog panel.",
+      },
+      {
+        name: "DialogContent.classes",
+        type: "string",
+        description: "Exceptional sizing or layout classes applied to the dialog panel.",
+      },
+      {
+        name: "DialogContent.children",
+        type: "unknown",
+        description: "Title, description, body, and action-row composition.",
+      },
+      {
+        name: "DialogTitle.id",
+        type: "string",
+        description:
+          "Optional identifier; generated automatically for the aria-labelledby wiring when absent.",
+      },
+      {
+        name: "DialogTitle.classes",
+        type: "string",
+        description: "Exceptional classes applied to the heading.",
+      },
+      {
+        name: "DialogTitle.children",
+        type: "unknown",
+        required: true,
+        description: "The visible dialog name.",
+      },
+      {
+        name: "DialogDescription.id",
+        type: "string",
+        description:
+          "Optional identifier; generated automatically for the aria-describedby wiring when absent.",
+      },
+      {
+        name: "DialogDescription.classes",
+        type: "string",
+        description: "Exceptional classes applied to the supporting copy.",
+      },
+      {
+        name: "DialogDescription.children",
+        type: "unknown",
+        required: true,
+        description: "Supporting copy under the title.",
+      },
+      {
+        name: "DialogClose.id",
+        type: "string",
+        description: "Optional identifier applied to the close control.",
+      },
+      {
+        name: "DialogClose.classes",
+        type: "string",
+        description: "Exceptional classes merged onto the close control.",
+      },
+      {
+        name: "DialogClose.asChild",
+        type: "boolean",
+        description:
+          "Adopts exactly one Element child as the close control instead of rendering a new button.",
+        default: "false",
+      },
+      {
+        name: "DialogClose.children",
+        type: "unknown",
+        required: true,
+        description: "Close-control contents, or exactly one Element when asChild is true.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+const textNode = (
+  children: string,
+  props: Record<string, string | number | boolean> = {},
+): DemoNode => ({
+  component: "Text",
+  props: { variant: "body-md", children, ...props },
+});
+
+const confirmNode = (): DemoNode => ({
+  component: "Dialog",
+  wrapper: "flex min-h-0 w-full items-start justify-center",
+  props: {},
+  children: [
+    {
+      component: "DialogTrigger",
+      props: { asChild: true },
+      children: [
+        {
+          component: "Button",
+          props: { hierarchy: "secondary" },
+          children: [textNode("Delete folder")],
+        },
+      ],
+    },
+    {
+      component: "DialogContent",
+      props: {},
+      children: [
+        { component: "DialogTitle", props: { children: "Delete folder" } },
+        {
+          component: "DialogDescription",
+          props: {
+            children: "Items inside move to the parent folder. This cannot be undone.",
+          },
+        },
+        {
+          component: "DialogClose",
+          props: { asChild: true, classes: "mt-5 mr-2" },
+          children: [
+            {
+              component: "Button",
+              props: { hierarchy: "secondary" },
+              children: [textNode("Cancel")],
+            },
+          ],
+        },
+        {
+          component: "Button",
+          props: { intent: "destructive", classes: "mt-5" },
+          children: [textNode("Delete")],
+        },
+      ],
+    },
+  ],
+});
+
+const formNode = (): DemoNode => ({
+  component: "Dialog",
+  wrapper: "flex min-h-0 w-full items-start justify-center",
+  props: {},
+  children: [
+    {
+      component: "DialogTrigger",
+      props: { asChild: true },
+      children: [
+        {
+          component: "Button",
+          props: {},
+          children: [textNode("Rename folder")],
+        },
+      ],
+    },
+    {
+      component: "DialogContent",
+      props: {},
+      children: [
+        { component: "DialogTitle", props: { children: "Rename folder" } },
+        {
+          component: "DialogDescription",
+          props: { children: "The new name applies everywhere the folder appears." },
+        },
+        {
+          component: "Field",
+          props: { classes: "mt-4" },
+          children: [
+            {
+              component: "FieldLabel",
+              props: { htmlFor: "dialog-folder-name", children: "Folder name" },
+            },
+            {
+              component: "Input",
+              props: {
+                id: "dialog-folder-name",
+                name: "folder_name",
+                value: "Photography",
+              },
+            },
+          ],
+        },
+        {
+          component: "DialogClose",
+          props: { asChild: true, classes: "mt-5 mr-2" },
+          children: [
+            {
+              component: "Button",
+              props: { hierarchy: "secondary" },
+              children: [textNode("Cancel")],
+            },
+          ],
+        },
+        {
+          component: "Button",
+          props: { classes: "mt-5" },
+          children: [textNode("Rename")],
+        },
+      ],
+    },
+  ],
+});
+
+function DemoConfirm() {
+  return (
+    <div class="flex min-h-0 w-full items-start justify-center">
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button hierarchy="secondary">
+            <Text variant="body-md">Delete folder</Text>
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogTitle>Delete folder</DialogTitle>
+          <DialogDescription>
+            Items inside move to the parent folder. This cannot be undone.
+          </DialogDescription>
+          <DialogClose asChild classes="mt-5 mr-2">
+            <Button hierarchy="secondary">
+              <Text variant="body-md">Cancel</Text>
+            </Button>
+          </DialogClose>
+          <Button intent="destructive" classes="mt-5">
+            <Text variant="body-md">Delete</Text>
+          </Button>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function DemoForm() {
+  return (
+    <div class="flex min-h-0 w-full items-start justify-center">
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button>
+            <Text variant="body-md">Rename folder</Text>
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogTitle>Rename folder</DialogTitle>
+          <DialogDescription>The new name applies everywhere the folder appears.</DialogDescription>
+          <Field classes="mt-4">
+            <FieldLabel htmlFor="dialog-folder-name">Folder name</FieldLabel>
+            <Input id="dialog-folder-name" name="folder_name" value="Photography" />
+          </Field>
+          <DialogClose asChild classes="mt-5 mr-2">
+            <Button hierarchy="secondary">
+              <Text variant="body-md">Cancel</Text>
+            </Button>
+          </DialogClose>
+          <Button classes="mt-5">
+            <Text variant="body-md">Rename</Text>
+          </Button>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+export const variants = [
+  {
+    label: "Confirmation",
+    description:
+      "The canonical confirm dialog: title, description, and a composed cancel/confirm action row.",
+    usage,
+    Demo: () => <DemoConfirm />,
+    node: confirmNode(),
+  },
+  {
+    label: "Form dialog",
+    description:
+      "The panel body is caller-composed — a Field with its Input, cancel via DialogClose, and a native submit, exactly as the media dialogs post forms.",
+    usage: `<Dialog>
+  <DialogTrigger asChild>
+    <Button>Rename folder</Button>
+  </DialogTrigger>
+  <DialogContent>
+    <DialogTitle>Rename folder</DialogTitle>
+    <DialogDescription>The new name applies everywhere the folder appears.</DialogDescription>
+    <Field classes="mt-4">
+      <FieldLabel htmlFor="folder-name">Folder name</FieldLabel>
+      <Input id="folder-name" name="folder_name" value="Photography" />
+    </Field>
+    <div class="mt-5 flex justify-end gap-2">
+      <DialogClose asChild>
+        <Button hierarchy="secondary">Cancel</Button>
+      </DialogClose>
+      <Button type="submit">Rename</Button>
+    </div>
+  </DialogContent>
+</Dialog>`,
+    Demo: () => <DemoForm />,
+    node: formNode(),
+  },
+] satisfies ComponentDemoVariant[];
+
+// ── Canvas: the full compound API as a recursively editable children tree ───
+
+const scopedValue = (scope: string, name: string) => (scope ? `${scope}::${name}` : name);
+const stringValue = (values: Readonly<Record<string, unknown>>, name: string, scope = ""): string =>
+  String(values[scopedValue(scope, name)] ?? "");
+const booleanValue = (
+  values: Readonly<Record<string, unknown>>,
+  name: string,
+  scope = "",
+): boolean => Boolean(values[scopedValue(scope, name)]);
+const childValues = (
+  values: Readonly<Record<string, unknown>>,
+  name: string,
+  scope = "",
+): readonly ComponentCanvasChildInstance[] => {
+  const value = values[scopedValue(scope, name)];
+  return Array.isArray(value)
+    ? value.filter(
+        (item): item is ComponentCanvasChildInstance =>
+          Boolean(item) && typeof item === "object" && "id" in item && "type" in item,
+      )
+    : [];
+};
+
+const buttonGroup = (scope: string, labelDefault: string): ComponentCanvasGroupControl => ({
+  name: "button",
+  label: "Button",
+  type: "group",
+  labelControl: `${scope}.text`,
+  controls: [
+    { name: `${scope}.text`, label: "text", type: "text", default: labelDefault },
+    {
+      name: `${scope}.hierarchy`,
+      label: "hierarchy",
+      type: "select",
+      default: scope === "close" ? "secondary" : "primary",
+      options: BUTTON_HIERARCHIES,
+    },
+    {
+      name: `${scope}.intent`,
+      label: "intent",
+      type: "select",
+      default: "neutral",
+      options: BUTTON_INTENTS,
+    },
+    {
+      name: `${scope}.size`,
+      label: "size",
+      type: "select",
+      default: "md",
+      options: BUTTON_SIZES,
+    },
+    { name: `${scope}.disabled`, label: "disabled", type: "boolean", default: false },
+    { name: `${scope}.id`, label: "id", type: "text", default: "" },
+    { name: `${scope}.classes`, label: "classes", type: "text", default: "" },
+  ],
+});
+
+const textGroup: ComponentCanvasGroupControl = {
+  name: "bodyText",
+  label: "Text",
+  type: "group",
+  labelControl: "bodyText.children",
+  controls: [
+    {
+      name: "bodyText.children",
+      label: "text",
+      type: "text",
+      default: "Composed body copy.",
+    },
+    {
+      name: "bodyText.variant",
+      label: "variant",
+      type: "select",
+      default: "body-sm",
+      options: Object.keys(TEXT_VARIANTS),
+    },
+    {
+      name: "bodyText.tone",
+      label: "tone",
+      type: "select",
+      default: "muted",
+      options: Object.keys(TEXT_TONES),
+    },
+    { name: "bodyText.classes", label: "classes", type: "text", default: "mt-4" },
+  ],
+};
+
+const dialogCanvasControls: readonly ComponentCanvasControl[] = [
+  { name: "dialog.id", label: "id", type: "text", default: "" },
+  { name: "dialog.classes", label: "classes", type: "text", default: "" },
+  {
+    name: "dialog.children",
+    label: "children",
+    type: "children",
+    default: [
+      { type: "trigger", values: { "trigger.children": ["button"] } },
+      {
+        type: "content",
+        values: { "content.children": ["title", "description", "close"] },
+      },
+    ],
+    options: [
+      {
+        name: "trigger",
+        label: "DialogTrigger",
+        type: "group",
+        controls: [
+          { name: "trigger.asChild", label: "asChild", type: "boolean", default: true },
+          { name: "trigger.id", label: "id", type: "text", default: "" },
+          { name: "trigger.classes", label: "classes", type: "text", default: "" },
+          {
+            name: "trigger.children",
+            label: "children",
+            type: "children",
+            default: ["button"],
+            options: [buttonGroup("trigger", "Open dialog")],
+          },
+        ],
+      },
+      {
+        name: "content",
+        label: "DialogContent",
+        type: "group",
+        controls: [
+          { name: "content.id", label: "id", type: "text", default: "" },
+          { name: "content.classes", label: "classes", type: "text", default: "" },
+          {
+            name: "content.children",
+            label: "children",
+            type: "children",
+            allowMultiple: true,
+            default: ["title", "description", "close"],
+            options: [
+              {
+                name: "title",
+                label: "DialogTitle",
+                type: "group",
+                labelControl: "title.children",
+                controls: [
+                  { name: "title.children", label: "text", type: "text", default: "Dialog title" },
+                  { name: "title.id", label: "id", type: "text", default: "" },
+                  { name: "title.classes", label: "classes", type: "text", default: "" },
+                ],
+              },
+              {
+                name: "description",
+                label: "DialogDescription",
+                type: "group",
+                labelControl: "description.children",
+                controls: [
+                  {
+                    name: "description.children",
+                    label: "text",
+                    type: "text",
+                    default: "Supporting copy for the dialog body.",
+                  },
+                  { name: "description.id", label: "id", type: "text", default: "" },
+                  { name: "description.classes", label: "classes", type: "text", default: "" },
+                ],
+              },
+              textGroup,
+              {
+                name: "close",
+                label: "DialogClose",
+                type: "group",
+                controls: [
+                  { name: "close.asChild", label: "asChild", type: "boolean", default: true },
+                  { name: "close.id", label: "id", type: "text", default: "" },
+                  { name: "close.classes", label: "classes", type: "text", default: "mt-5" },
+                  {
+                    name: "close.children",
+                    label: "children",
+                    type: "children",
+                    default: ["button"],
+                    options: [buttonGroup("close", "Cancel")],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+];
+
+const buttonNode = (
+  values: Readonly<Record<string, unknown>>,
+  instance: ComponentCanvasChildInstance,
+  scope: string,
+): DemoNode => ({
+  component: "Button",
+  props: {
+    hierarchy: stringValue(values, `${scope}.hierarchy`, instance.id) as ButtonHierarchy,
+    intent: stringValue(values, `${scope}.intent`, instance.id) as ButtonIntent,
+    size: stringValue(values, `${scope}.size`, instance.id) as ButtonSize,
+    disabled: booleanValue(values, `${scope}.disabled`, instance.id),
+    id: stringValue(values, `${scope}.id`, instance.id),
+    classes: stringValue(values, `${scope}.classes`, instance.id),
+  },
+  children: [textNode(stringValue(values, `${scope}.text`, instance.id))],
+});
+
+export const canvas = {
+  controls: dialogCanvasControls,
+  node: (values) => {
+    const makeTrigger = (instance: ComponentCanvasChildInstance): DemoNode => {
+      const button = childValues(values, "trigger.children", instance.id).find(
+        (child) => child.type === "button",
+      );
+      return {
+        component: "DialogTrigger",
+        props: {
+          asChild: Boolean(button) && booleanValue(values, "trigger.asChild", instance.id),
+          id: stringValue(values, "trigger.id", instance.id),
+          classes: stringValue(values, "trigger.classes", instance.id),
+        },
+        children: button
+          ? [buttonNode(values, button, "trigger")]
+          : [textNode(stringValue(values, "trigger.text", instance.id) || "Open dialog")],
+      };
+    };
+
+    const makeContent = (instance: ComponentCanvasChildInstance): DemoNode => ({
+      component: "DialogContent",
+      props: {
+        id: stringValue(values, "content.id", instance.id),
+        classes: stringValue(values, "content.classes", instance.id),
+      },
+      children: childValues(values, "content.children", instance.id).flatMap(
+        (child): DemoNode[] => {
+          if (child.type === "title") {
+            return [
+              {
+                component: "DialogTitle",
+                props: {
+                  children: stringValue(values, "title.children", child.id),
+                  id: stringValue(values, "title.id", child.id),
+                  classes: stringValue(values, "title.classes", child.id),
+                },
+              },
+            ];
+          }
+          if (child.type === "description") {
+            return [
+              {
+                component: "DialogDescription",
+                props: {
+                  children: stringValue(values, "description.children", child.id),
+                  id: stringValue(values, "description.id", child.id),
+                  classes: stringValue(values, "description.classes", child.id),
+                },
+              },
+            ];
+          }
+          if (child.type === "bodyText") {
+            return [
+              {
+                component: "Text",
+                props: {
+                  as: "p",
+                  variant: stringValue(values, "bodyText.variant", child.id) as TextVariant,
+                  tone: stringValue(values, "bodyText.tone", child.id) as TextTone,
+                  classes: stringValue(values, "bodyText.classes", child.id),
+                  children: stringValue(values, "bodyText.children", child.id),
+                },
+              },
+            ];
+          }
+          if (child.type === "close") {
+            const button = childValues(values, "close.children", child.id).find(
+              (grandchild) => grandchild.type === "button",
+            );
+            return [
+              {
+                component: "DialogClose",
+                props: {
+                  asChild: Boolean(button) && booleanValue(values, "close.asChild", child.id),
+                  id: stringValue(values, "close.id", child.id),
+                  classes: stringValue(values, "close.classes", child.id),
+                },
+                children: button ? [buttonNode(values, button, "close")] : [textNode("Cancel")],
+              },
+            ];
+          }
+          return [];
+        },
+      ),
+    });
+
+    return {
+      component: "Dialog",
+      wrapper: "flex w-full items-start justify-center",
+      props: {
+        id: stringValue(values, "dialog.id"),
+        classes: stringValue(values, "dialog.classes"),
+      },
+      children: childValues(values, "dialog.children").flatMap((child): DemoNode[] =>
+        child.type === "trigger"
+          ? [makeTrigger(child)]
+          : child.type === "content"
+            ? [makeContent(child)]
+            : [],
+      ),
+    };
+  },
+} satisfies ComponentCanvas;

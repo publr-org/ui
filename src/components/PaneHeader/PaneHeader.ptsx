@@ -1,0 +1,31 @@
+// Dense h-12 content-pane header: a two-line title/description block on the
+// left and trailing controls right-aligned. Distinct from SectionTitle,
+// whose approved contract is a single uppercase eyebrow with at most a small
+// action — PaneHeader names the pane's current data set ("All assets",
+// "25 assets") and hosts pane-level controls.
+
+export type PaneHeaderProps = {
+  children?: JSX.Element;
+  classes?: string;
+  description?: string;
+  id?: string;
+  title: string;
+};
+
+export function PaneHeader({ children, classes = "", description, id, title }: PaneHeaderProps) {
+  return (
+    <header
+      id={id}
+      class={["flex h-12 shrink-0 items-center gap-3 border-b border-border px-5", classes]}
+    >
+      <div class="min-w-0">
+        {/* Deliberately dense bare-text treatment: pane titles sit at 12px
+            semibold with a 10px muted description, below Text's body-sm
+            scale, so the header stays one compact row. */}
+        <h2 class="m-0 truncate text-xs font-semibold text-foreground">{title}</h2>
+        {description && <p class="m-0 truncate text-3xs text-muted-foreground">{description}</p>}
+      </div>
+      {children && <div class="ml-auto flex shrink-0 items-center gap-2">{children}</div>}
+    </header>
+  );
+}

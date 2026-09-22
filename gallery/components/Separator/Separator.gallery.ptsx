@@ -1,0 +1,224 @@
+import {
+  SEPARATOR_ORIENTATIONS,
+  SEPARATOR_SPACINGS,
+  Separator,
+} from "../../../src/components/Separator/Separator.ptsx";
+import type {
+  SeparatorOrientation,
+  SeparatorSpacing,
+} from "../../../src/components/Separator/Separator.ptsx";
+import { Text } from "../../../src/components/Text/Text.ptsx";
+import type {
+  ComponentCanvas,
+  ComponentDemoMeta,
+  ComponentDemoVariant,
+  DemoNode,
+} from "../../gallery-types";
+
+export const meta = {
+  name: "separator",
+  label: "Separator",
+  source: "src/components/Separator/Separator.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description: "Marks a meaningful horizontal or vertical division between interface groups.",
+  tags: ["separator", "divider", "semantic", "layout"],
+  usage: `<Separator spacing="lg" />
+
+<div class="flex h-16 items-stretch">
+  <span>Left</span>
+  <Separator orientation="vertical" spacing="md" />
+  <span>Right</span>
+</div>`,
+  preview: "canvas",
+  previewLabel: "Semantic orientation and spacing",
+  docs: {
+    purpose: [
+      "Separator marks a meaningful division between related interface groups with one semantic border treatment.",
+      "Its orientation and spacing are explicit, named choices while color follows the theme's border token.",
+    ],
+    useWhen: [
+      "Two neighboring interface groups need an explicit semantic boundary.",
+      "A horizontal or vertical divider needs consistent design-system spacing.",
+    ],
+    avoidWhen: [
+      "A border is only a decorative edge of a card, panel, table row, or other container; style that owner directly.",
+      "The separator is a focusable resize handle; use an interactive splitter with keyboard and value semantics.",
+      "The rule belongs to authored page content; render a native hr through the content system.",
+    ],
+    rules: [
+      {
+        title: "Orientation describes the divider",
+        description:
+          "Choose horizontal or vertical from the visual and semantic axis. Vertical separators require a stretching layout parent.",
+      },
+      {
+        title: "Spacing is contextual rhythm",
+        description:
+          "Choose none, sm, md, lg, or xl. Separator converts the same named value to block or inline margins based on orientation.",
+      },
+      {
+        title: "The border token owns color",
+        description:
+          "Separator has one semantic divider color that resolves in light and dark themes. Do not create routine color variants through class.",
+      },
+    ],
+    accessibility: [
+      "Separator exposes the separator role and its explicit aria-orientation.",
+      "It is static and unfocusable. Interactive resizing requires another component with keyboard and value semantics.",
+    ],
+    composition: [
+      "Place horizontal separators between vertically arranged groups.",
+      "Place vertical separators inside a flex or grid row that gives them a height to stretch across.",
+    ],
+    agentNotes: [
+      "Use orientation, not the legacy direction prop.",
+      "Do not pass children or use Separator as an interactive splitter.",
+      "Keep routine divider color and thickness on the component-owned border treatment.",
+    ],
+    props: [
+      {
+        name: "orientation",
+        type: "SeparatorOrientation",
+        description: "Visual and semantic divider axis.",
+        default: "horizontal",
+      },
+      {
+        name: "spacing",
+        type: "SeparatorSpacing",
+        description: "Direction-aware outer spacing from none through xl.",
+        default: "none",
+      },
+      {
+        name: "classes",
+        type: "string",
+        description: "Layout or exceptional composition classes.",
+      },
+      {
+        name: "id",
+        type: "string",
+        description: "Optional identifier applied to the separator root.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const canvas = {
+  controls: [
+    {
+      name: "orientation",
+      type: "select",
+      default: "horizontal",
+      options: SEPARATOR_ORIENTATIONS,
+    },
+    {
+      name: "spacing",
+      type: "select",
+      default: "none",
+      options: SEPARATOR_SPACINGS,
+    },
+    {
+      name: "classes",
+      type: "text",
+      default: "",
+      placeholder: "e.g. shrink-0",
+    },
+  ],
+  node: (values) => {
+    const orientation = String(values.orientation) as SeparatorOrientation;
+    const children: DemoNode[] = [
+      {
+        component: "Text",
+        props: {
+          variant: "body-md",
+          children: orientation === "vertical" ? "Left group" : "First group",
+        },
+      },
+      {
+        component: "Separator",
+        props: {
+          orientation,
+          spacing: String(values.spacing) as SeparatorSpacing,
+          classes: String(values.classes),
+        },
+      },
+      {
+        component: "Text",
+        props: {
+          variant: "body-md",
+          children: orientation === "vertical" ? "Right group" : "Second group",
+        },
+      },
+    ];
+    return {
+      fragment: true,
+      wrapper:
+        orientation === "vertical" ? "flex h-24 items-stretch justify-center" : "grid w-full",
+      children,
+    };
+  },
+} satisfies ComponentCanvas;
+
+function HorizontalDemo() {
+  return (
+    <div class="w-full">
+      <Text variant="body-md">Account details</Text>
+      <Separator spacing="lg" />
+      <Text variant="body-md">Publishing options</Text>
+    </div>
+  );
+}
+
+function VerticalDemo() {
+  return (
+    <div class="flex h-24 items-stretch justify-center">
+      <Text variant="body-md">Preview</Text>
+      <Separator orientation="vertical" spacing="lg" />
+      <Text variant="body-md">Properties</Text>
+    </div>
+  );
+}
+
+export const variants = [
+  {
+    label: "Horizontal separator",
+    description: "Separates vertically arranged interface groups.",
+    usage: `<Separator spacing="lg" />`,
+    notes: [
+      "Horizontal is the default orientation.",
+      "The lg spacing applies equal block-axis margin above and below the rule.",
+    ],
+    Demo: HorizontalDemo,
+    node: {
+      fragment: true,
+      wrapper: "grid w-full",
+      children: [
+        { component: "Text", props: { variant: "body-md", children: "Account details" } },
+        { component: "Separator", props: { spacing: "lg" } },
+        { component: "Text", props: { variant: "body-md", children: "Publishing options" } },
+      ],
+    },
+  },
+  {
+    label: "Vertical separator",
+    description: "Separates groups arranged side by side.",
+    usage: `<Separator orientation="vertical" spacing="lg" />`,
+    notes: [
+      "The parent supplies a height and allows the separator to stretch.",
+      "The lg spacing applies equal inline-axis margin on both sides.",
+    ],
+    Demo: VerticalDemo,
+    node: {
+      fragment: true,
+      wrapper: "flex h-24 items-stretch justify-center",
+      children: [
+        { component: "Text", props: { variant: "body-md", children: "Preview" } },
+        {
+          component: "Separator",
+          props: { orientation: "vertical", spacing: "lg" },
+        },
+        { component: "Text", props: { variant: "body-md", children: "Properties" } },
+      ],
+    },
+  },
+] satisfies ComponentDemoVariant[];

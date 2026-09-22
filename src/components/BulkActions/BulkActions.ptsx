@@ -1,0 +1,37 @@
+// Bulk-selection action bar for selection-capable lists (ported from the old
+// design system, rewired declaratively). Composes inside DataTable: the bar
+// shows itself via the data-table store's anySelected, the count reads
+// selectedCount, and BulkActionsClear invokes clearSelection — the old
+// "consumer wires the JS" contract is superseded by the store bindings.
+import { state } from "../DataTable/DataTable.ptsx";
+
+export type BulkActionsProps = {
+  id?: string;
+  classes?: string;
+  children?: JSX.Element;
+};
+
+export function BulkActions({ id, classes = "", children }: BulkActionsProps) {
+  return (
+    <div
+      id={id}
+      class={[
+        "hidden h-10 items-center gap-3 border-b border-border bg-primary/10 px-5 text-xs text-primary",
+        classes,
+      ]}
+      data-part="bulk-actions"
+      hidden={!state.anySelected}
+    >
+      <strong data-part="count">{state.selectedCount}</strong>
+      <span>selected</span>
+      {children}
+    </div>
+  );
+}
+
+export { BulkActionsItem } from "./BulkActionsItem.ptsx";
+export { BulkActionsSeparator } from "./BulkActionsSeparator.ptsx";
+export { BulkActionsClear } from "./BulkActionsClear.ptsx";
+export type { BulkActionsItemProps } from "./BulkActionsItem.ptsx";
+export type { BulkActionsSeparatorProps } from "./BulkActionsSeparator.ptsx";
+export type { BulkActionsClearProps } from "./BulkActionsClear.ptsx";

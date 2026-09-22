@@ -1,0 +1,17 @@
+import { BoxValueControlRangeScalePickerOption } from "../BoxValueControl/BoxValueControlRangeScalePickerOption.ptsx";
+
+export type BoxControlRangeScalePickerOptionProps = {
+  children: string;
+  value: string;
+};
+
+export function BoxControlRangeScalePickerOption({
+  children,
+  value,
+}: BoxControlRangeScalePickerOptionProps) {
+  return (
+    <BoxValueControlRangeScalePickerOption value={value}>
+      {children}
+    </BoxValueControlRangeScalePickerOption>
+  );
+}

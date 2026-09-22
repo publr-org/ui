@@ -1,0 +1,8 @@
+export type SelectSeparatorProps = {
+  id?: string;
+  classes?: string;
+};
+
+export function SelectSeparator({ id, classes = "" }: SelectSeparatorProps) {
+  return <div id={id} role="separator" class={["my-1 h-px bg-border", classes]}></div>;
+}

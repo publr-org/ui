@@ -1,0 +1,26 @@
+// Trailing clear-selection button, wired to the data-table store's
+// clearSelection transition.
+import { clearSelection } from "../DataTable/DataTable.ptsx";
+
+export type BulkActionsClearProps = {
+  id?: string;
+  classes?: string;
+  children?: JSX.Element;
+};
+
+export function BulkActionsClear({ id, classes = "", children }: BulkActionsClearProps) {
+  return (
+    <button
+      type="button"
+      id={id}
+      data-part="clear"
+      class={[
+        "group relative ml-auto inline-flex h-8 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-transparent px-2.5 text-xs font-semibold text-primary transition duration-150 ease-out hover:text-primary/80 hover:underline active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+        classes,
+      ]}
+      onClick={clearSelection}
+    >
+      {children ?? <span>Clear</span>}
+    </button>
+  );
+}

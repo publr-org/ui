@@ -1,0 +1,92 @@
+// The introduction: what the design system is, its principles, the workflow,
+// the coding-agent contract, and the component map.
+import { Bullet, NumberedList } from "./shared/Cards.ptsx";
+import { SectionHeading } from "./shared/Hero.ptsx";
+import { Topbar } from "./shared/Topbar.ptsx";
+import { guide } from "../content/guide";
+import { KIND_HELP, KIND_LABELS, copyText, entries, selectRoute } from "../state/gallery";
+import type { ComponentKind } from "../../gallery-types";
+
+function ComponentMap({ kind }: { kind: ComponentKind }) {
+  const items = entries.filter((entry) => entry.kind === kind);
+  return (
+    <div class="rounded-xl border border-border bg-background p-5">
+      <h3 class="text-[14px] font-semibold">{KIND_LABELS[kind]}</h3>
+      <p class="mt-1 text-[11px] text-muted-foreground">{KIND_HELP[kind]}</p>
+      <div class="mt-4 flex flex-wrap gap-2">
+        {items.map((entry) => (
+          <button
+            type="button"
+            class="cursor-pointer rounded-md bg-muted px-2.5 py-1.5 text-[11px] font-medium text-foreground hover:bg-ui-accent"
+            onClick={() => selectRoute({ kind: "component", name: entry.name, page: "overview" })}
+          >
+            {entry.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function Introduction() {
+  return (
+    <div>
+      <Topbar parts={["Design system", "Introduction"]} />
+      <article class="mx-auto max-w-[1180px] px-8 py-12">
+        <header class="max-w-4xl">
+          <p class="mb-3 text-[11px] font-semibold tracking-[0.1em] text-muted-foreground uppercase">Introduction</p>
+          <h1 class="text-[36px] leading-[1.1] font-semibold tracking-[-0.035em]">{guide.title}</h1>
+          <p class="mt-4 max-w-3xl text-[17px] leading-7 text-muted-foreground">{guide.description}</p>
+        </header>
+        <section class="mt-10 max-w-4xl space-y-5 text-[15px] leading-7 text-foreground">
+          {guide.paragraphs.map((paragraph) => (
+            <p>{paragraph}</p>
+          ))}
+        </section>
+        <section class="mt-12">
+          <SectionHeading title="Core principles" description="The decisions every component and caller should preserve." />
+          <div class="mt-5 grid grid-cols-2 gap-4 max-gallery-lg:grid-cols-1">
+            {guide.principles.map((principle, index) => (
+              <article class="rounded-xl border border-border bg-background p-5">
+                <span class="mb-4 grid size-7 place-items-center rounded-full bg-ui-accent text-[11px] font-semibold text-accent-foreground">{index + 1}</span>
+                <h3 class="text-[15px] font-semibold">{principle.title}</h3>
+                <p class="mt-2 text-[13px] leading-5 text-muted-foreground">{principle.description}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+        <section class="mt-12 grid grid-cols-[minmax(0,1fr)_360px] gap-6 max-gallery-lg:grid-cols-1">
+          <div>
+            <SectionHeading title="Using the design system" description="A repeatable workflow for adding or changing Publr UI." />
+            <NumberedList items={guide.workflow} />
+          </div>
+          <aside class="rounded-xl border border-foreground/15 bg-foreground p-5 text-background">
+            <div class="flex items-center justify-between gap-4">
+              <h2 class="text-[15px] font-semibold">Coding-agent contract</h2>
+              <button
+                type="button"
+                class="cursor-pointer rounded-md border border-background/20 px-2.5 py-1.5 text-[10px] font-medium hover:bg-background/10"
+                onClick={(event: MouseEvent) => copyText(JSON.stringify(guide, null, 2), event.currentTarget as HTMLButtonElement)}
+              >
+                Copy reference
+              </button>
+            </div>
+            <p class="mt-2 text-[12px] leading-5 text-background/65">These rules are structured in source and should be treated as implementation constraints.</p>
+            <ul class="mt-4 space-y-3 text-[12px] leading-5">
+              {guide.agentRules.map((rule) => (
+                <Bullet text={rule} />
+              ))}
+            </ul>
+          </aside>
+        </section>
+        <section class="mt-12">
+          <SectionHeading title="Component map" description="Start with foundations, then move to named product patterns." />
+          <div class="mt-5 grid grid-cols-2 gap-4 max-gallery-sm:grid-cols-1">
+            <ComponentMap kind="primitive" />
+            <ComponentMap kind="composite" />
+          </div>
+        </section>
+      </article>
+    </div>
+  );
+}

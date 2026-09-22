@@ -1,0 +1,22 @@
+// Syntax-coloured code, on the dark panel the API page and the previews share.
+import { highlight } from "../../state/gallery";
+
+export function Code({ source }: { source: string }) {
+  // Computed once: a list source that builds fresh items on every read never settles.
+  const runs = highlight(source);
+  return (
+    <code>
+      {runs.map((run) => (
+        <span class={run[1]}>{run[0]}</span>
+      ))}
+    </code>
+  );
+}
+
+export function CodePanel({ source, marker }: { source: string; marker?: string }) {
+  return (
+    <pre class="m-0 w-full overflow-auto whitespace-pre text-left font-mono text-[11px] leading-5" data-api-source-html={marker === "html" ? "" : undefined}>
+      <Code source={source} />
+    </pre>
+  );
+}

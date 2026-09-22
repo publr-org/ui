@@ -1,0 +1,382 @@
+// Compound multi-select combobox root. Selected values render as removable
+// chips inside the field, a text input filters the option list, and the
+// portaled listbox toggles values without closing. The family store is
+// declared here at module level; sibling parts import `state`, the refs, and
+// the actions, and the compiler lowers every reference onto the ancestry wire
+// transport. Values are whitespace-separated tokens — a value must not
+// contain whitespace.
+import { Publr } from "publr-jsx";
+
+export const state = Publr.reactive({
+  open: false,
+  values: "",
+  configured: "",
+  controlled: false,
+  disabled: false,
+  query: "",
+  placeholder: "",
+  focusIndex: -1,
+  restoreFocusRevision: 0,
+  pendingValues: "",
+  changeRevision: 0,
+  controlledRestoreRevision: 0,
+});
+
+export const root = Publr.ref();
+export const field = Publr.ref();
+export const input = Publr.ref();
+export const content = Publr.ref();
+
+let restoredFocusRevision = 0;
+let deliveredRevision = 0;
+let controlledRestoreDelivered = 0;
+
+const parse = (values: string): string[] => values.split(/\s+/).filter(Boolean);
+
+const isDisabled = (element: HTMLElement) =>
+  element.getAttribute("aria-disabled") === "true" || element.dataset.publrState === "disabled";
+
+const options = () =>
+  content.current
+    ? [...(content.current as HTMLElement).querySelectorAll<HTMLElement>('[data-part="option"]')]
+    : [];
+
+/** Options that survive the query filter and are not disabled — the keyboard
+ * navigation set. */
+const activeOptions = () => options().filter((option) => !option.hidden && !isDisabled(option));
+
+/** Stable ids for the panel and its options — callable from any effect, so
+ * aria-activedescendant never depends on effect ordering. */
+const ensureIds = (panel: HTMLElement): void => {
+  if (!panel.id) {
+    let sequence = 0;
+    let candidate = "";
+    do {
+      candidate = `publr-multi-select-${++sequence}`;
+    } while (panel.ownerDocument.getElementById(candidate));
+    panel.id = candidate;
+  }
+  let optionSequence = 0;
+  for (const option of panel.querySelectorAll<HTMLElement>('[data-part="option"]')) {
+    if (!option.id) option.id = `${panel.id}-option-${++optionSequence}`;
+  }
+};
+
+const matches = (option: HTMLElement, query: string) =>
+  !query || (option.dataset.label ?? "").toLowerCase().includes(query);
+
+const close = (restoreFocus = false) => {
+  state.open = false;
+  state.focusIndex = -1;
+  if (restoreFocus) state.restoreFocusRevision++;
+};
+
+const toggleValue = (value: string) => {
+  if (!value || state.disabled) return;
+  const current = parse(state.values);
+  const next = current.includes(value)
+    ? current.filter((item) => item !== value)
+    : [...current, value];
+  if (!state.controlled) state.values = next.join(" ");
+  state.query = "";
+  const control = input.current as HTMLInputElement | null;
+  if (control) control.value = "";
+  state.pendingValues = next.join(" ");
+  state.changeRevision++;
+};
+
+export const openField = (event: Event) => {
+  if (state.disabled) return;
+  // Chip remove buttons live inside the field but must not toggle the list.
+  if ((event.target as Element | null)?.closest('[data-part="chip-remove"]')) return;
+  state.open = true;
+  (input.current as HTMLInputElement | null)?.focus();
+};
+
+export const commit = (event: Event) => {
+  const option = event.currentTarget as HTMLElement | null;
+  if (event.defaultPrevented || !option || isDisabled(option)) return;
+  toggleValue(option.dataset.value ?? "");
+};
+
+/** The listbox steals no focus — the input keeps it through option clicks. */
+export const keepFocus = (event: Event) => {
+  event.preventDefault();
+};
+
+export const removeChip = (event: Event) => {
+  const chip = (event.currentTarget as HTMLElement | null)?.closest<HTMLElement>(
+    '[data-part="chip"]',
+  );
+  toggleValue(chip?.dataset.value ?? "");
+};
+
+export const search = (event: Event) => {
+  state.query = (event.target as HTMLInputElement).value;
+  state.open = true;
+  state.focusIndex = -1;
+};
+
+export const inputBlur = () => {
+  close();
+};
+
+export const inputKeydown = (event: Event) => {
+  if (!(event instanceof KeyboardEvent) || state.disabled) return;
+  const control = event.target as HTMLInputElement;
+  if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+    event.preventDefault();
+    if (!state.open) {
+      state.open = true;
+      state.focusIndex = event.key === "ArrowDown" ? 0 : activeOptions().length - 1;
+      return;
+    }
+    const count = activeOptions().length;
+    if (!count) return;
+    const step = event.key === "ArrowDown" ? 1 : -1;
+    state.focusIndex = (state.focusIndex + step + count) % count;
+  } else if (event.key === "Enter") {
+    event.preventDefault();
+    const focused = activeOptions()[state.focusIndex];
+    if (state.open && focused) focused.click();
+    else state.open = true;
+  } else if (event.key === "Escape") {
+    if (!state.open) return;
+    event.preventDefault();
+    event.stopPropagation();
+    close(true);
+  } else if (event.key === "Backspace" && !control.value) {
+    const current = parse(state.values);
+    if (current.length) toggleValue(current[current.length - 1]);
+  } else if (event.key === "Tab") {
+    close();
+  }
+};
+
+export const dismiss = (event: Event) => {
+  const reason = (event as CustomEvent<{ reason?: string }>).detail?.reason;
+  close(reason === "escape");
+};
+
+// Selection, filtering, and keyboard focus are projected onto the option
+// rows: aria-selected mirrors the value set, `hidden` mirrors the query, and
+// data-active + aria-activedescendant mirror the focus index.
+Publr.effect(() => {
+  const selected = parse(state.values);
+  const query = state.query.trim().toLowerCase();
+  for (const option of options()) {
+    const chosen = selected.includes(option.dataset.value ?? "");
+    option.setAttribute("aria-selected", String(chosen));
+    if (option.dataset.publrState !== "disabled")
+      option.dataset.publrState = chosen ? "selected" : "unselected";
+    option.hidden = !matches(option, query);
+  }
+  const panel = content.current as HTMLElement | null;
+});
+
+Publr.effect(() => {
+  const index = state.focusIndex;
+  void state.query;
+  void state.open;
+  const panel = content.current as HTMLElement | null;
+  if (panel) ensureIds(panel);
+  const active = activeOptions();
+  let descendant = "";
+  active.forEach((option, optionIndex) => {
+    if (optionIndex === index) {
+      option.dataset.active = "true";
+      option.scrollIntoView({ block: "nearest" });
+      descendant = option.id;
+    } else {
+      delete option.dataset.active;
+    }
+  });
+  for (const option of options()) if (option.hidden) delete option.dataset.active;
+  const control = input.current as HTMLInputElement | null;
+  if (!control) return;
+  if (descendant) control.setAttribute("aria-activedescendant", descendant);
+  else control.removeAttribute("aria-activedescendant");
+});
+
+// Chips are imperative DOM (like Select's sizing ghosts): one removable chip
+// per selected value, labelled from the matching option row, inserted before
+// the text input.
+Publr.effect(() => {
+  const selected = parse(state.values);
+  const holder = field.current as HTMLElement | null;
+  const control = input.current as HTMLInputElement | null;
+  if (!holder || !control) return;
+  const labels = new Map(
+    options().map((option) => [option.dataset.value ?? "", option.dataset.label ?? ""]),
+  );
+  for (const chip of holder.querySelectorAll('[data-part="chip"]')) chip.remove();
+  for (const value of selected) {
+    const chip = holder.ownerDocument.createElement("span");
+    chip.dataset.part = "chip";
+    chip.dataset.value = value;
+    chip.className =
+      "inline-flex h-6 max-w-full min-w-0 items-center gap-1 rounded-sm bg-ui-accent px-1.5 text-foreground";
+    const label = holder.ownerDocument.createElement("span");
+    label.className = "min-w-0 truncate text-sm leading-none";
+    label.textContent = labels.get(value) || value;
+    const remove = holder.ownerDocument.createElement("button");
+    remove.type = "button";
+    remove.dataset.part = "chip-remove";
+    remove.setAttribute("aria-label", `Remove ${labels.get(value) || value}`);
+    remove.className =
+      "flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-xs text-muted-foreground hover:bg-foreground/10 hover:text-foreground";
+    remove.textContent = "×";
+    remove.addEventListener("click", removeChip);
+    remove.addEventListener("mousedown", keepFocus);
+    chip.append(label, remove);
+    holder.insertBefore(chip, control);
+  }
+  control.placeholder = selected.length ? "" : state.placeholder;
+});
+
+// The submitted form controls: one hidden input per selected value.
+Publr.effect(() => {
+  const selected = parse(state.values);
+  const anchor = root.current as HTMLElement | null;
+  const holder = anchor?.querySelector<HTMLElement>('[data-part="form-values"]');
+  if (!holder) return;
+  const name = holder.dataset.name ?? "";
+  const form = holder.dataset.form ?? "";
+  holder.textContent = "";
+  if (!name) return;
+  for (const value of selected) {
+    const hidden = holder.ownerDocument.createElement("input");
+    hidden.type = "hidden";
+    hidden.name = name;
+    hidden.value = value;
+    if (form) hidden.setAttribute("form", form);
+    holder.append(hidden);
+  }
+});
+
+Publr.effect(() => {
+  const control = input.current as HTMLElement | null;
+  const panel = content.current as HTMLElement | null;
+  if (!control || !panel) return;
+  ensureIds(panel);
+  control.setAttribute("aria-controls", panel.id);
+});
+
+Publr.effect(() => {
+  const revision = state.restoreFocusRevision;
+  if (!revision || revision === restoredFocusRevision) return;
+  restoredFocusRevision = revision;
+  (input.current as HTMLElement | null)?.focus();
+});
+
+Publr.effect(() => {
+  const revision = state.changeRevision;
+  if (!revision || revision === deliveredRevision) return;
+  deliveredRevision = revision;
+  (root.current as HTMLElement | null)?.dispatchEvent(
+    new CustomEvent("multiselectchange", {
+      detail: parse(state.pendingValues),
+      bubbles: true,
+    }),
+  );
+  if (state.controlled) state.controlledRestoreRevision++;
+});
+
+Publr.effect(() => {
+  const revision = state.controlledRestoreRevision;
+  if (!revision || revision === controlledRestoreDelivered) return;
+  controlledRestoreDelivered = revision;
+  state.values = (root.current as HTMLElement | null)?.dataset.publrValues ?? state.configured;
+});
+
+export type MultiSelectProps = {
+  id?: string;
+  classes?: string;
+  name?: string;
+  /** Controlled selection: whitespace-separated values. */
+  values?: string;
+  /** Initial selection when left uncontrolled: whitespace-separated values. */
+  defaultValues?: string;
+  placeholder?: string;
+  label?: string;
+  disabled?: boolean;
+  /** The id of the form the hidden values post with, when the control sits outside it. */
+  form?: string;
+  children: JSX.Element;
+  onChange?: (values: string[]) => void;
+};
+
+export function MultiSelect({
+  id,
+  classes = "",
+  name = "",
+  values,
+  defaultValues = "",
+  placeholder = "",
+  label,
+  disabled = false,
+  form = "",
+  children,
+  onChange,
+}: MultiSelectProps) {
+  state.values = values ?? defaultValues;
+  state.configured = values ?? defaultValues;
+  state.controlled = values !== undefined;
+  state.disabled = disabled;
+  state.placeholder = placeholder;
+
+  const emitChange = (event: Event) => {
+    onChange?.((event as CustomEvent<string[]>).detail);
+  };
+
+  return (
+    <div
+      class={["relative block", classes]}
+      data-part="multi-select"
+      data-publr-controlled={values === undefined ? "false" : "true"}
+      data-publr-values={values}
+      data-publr-disabled={disabled ? "true" : "false"}
+      aria-disabled={disabled ? "true" : undefined}
+      onMultiSelectChange={emitChange}
+      ref={root}
+    >
+      <span class="hidden" data-part="form-values" data-name={name} data-form={form} aria-hidden="true"></span>
+      <div
+        data-part="field"
+        anchor
+        ref={field}
+        onClick={openField}
+        class={[
+          "flex min-h-9 w-full cursor-text flex-wrap items-center gap-1 rounded-md border border-input bg-background px-1.5 py-1 shadow-xs transition duration-150 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 hover:border-muted-foreground/50",
+          disabled ? "pointer-events-none opacity-50" : "",
+        ]}
+      >
+        <input
+          id={id}
+          data-part="input"
+          ref={input}
+          type="text"
+          role="combobox"
+          autocomplete="off"
+          spellcheck={false}
+          aria-haspopup="listbox"
+          aria-autocomplete="list"
+          aria-label={label}
+          aria-expanded={state.open}
+          disabled={state.disabled}
+          placeholder={placeholder}
+          class="h-6 min-w-16 flex-1 border-0 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+          onInput={search}
+          onKeyDown={inputKeydown}
+          onBlur={inputBlur}
+        />
+      </div>
+      {children}
+    </div>
+  );
+}
+
+export { MultiSelectContent } from "./MultiSelectContent.ptsx";
+export { MultiSelectItem } from "./MultiSelectItem.ptsx";
+export type { MultiSelectContentProps } from "./MultiSelectContent.ptsx";
+export type { MultiSelectItemProps } from "./MultiSelectItem.ptsx";

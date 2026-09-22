@@ -1,0 +1,310 @@
+import { reactive } from "../../../src/publr-runtime";
+import {
+  MultiSelect,
+  MultiSelectContent,
+  MultiSelectItem,
+} from "../../../src/components/MultiSelect/MultiSelect.ptsx";
+import type { ComponentDemoMeta, ComponentDemoVariant, DemoNode } from "../../gallery-types";
+
+export const meta = {
+  name: "multi-select",
+  label: "MultiSelect",
+  source: "src/components/MultiSelect/MultiSelect.ptsx",
+  kind: "primitive",
+  group: "Forms",
+  description:
+    "A multi-select combobox: selected values render as removable chips inside the field, typing filters the portaled option list, and choosing toggles without closing.",
+  tags: ["form", "combobox", "listbox", "chips", "keyboard"],
+  usage: `<MultiSelect name="frameworks" defaultValues="next sveltekit" placeholder="Add a framework">
+  <MultiSelectContent>
+    <MultiSelectItem value="next">Next.js</MultiSelectItem>
+    <MultiSelectItem value="sveltekit">SvelteKit</MultiSelectItem>
+    <MultiSelectItem value="astro">Astro</MultiSelectItem>
+  </MultiSelectContent>
+</MultiSelect>`,
+  preview: "inspector",
+  previewLabel: "Chip combobox with a filterable listbox",
+  docs: {
+    purpose: [
+      "MultiSelect chooses any number of values from a known list through one compact field: chips show what is chosen, and the same field filters and extends the choice.",
+      "It can be controlled: the parent owns the value list and MultiSelect reports every toggle through onChange.",
+    ],
+    useWhen: [
+      "A field selects several values from a closed set — tags, enabled variants, feature lists.",
+      "The chosen values should stay visible and individually removable without opening the list.",
+    ],
+    avoidWhen: [
+      "Exactly one value is chosen — use Select.",
+      "The set is tiny and always visible — a row of toggle chips or Checkboxes reads faster.",
+      "Values are free text rather than a closed set; this is not a tag input.",
+    ],
+    rules: [
+      {
+        title: "Parts are composed, not configured",
+        description:
+          "Compose MultiSelectContent and MultiSelectItem as children rather than passing an options array. The chip field itself is intrinsic anatomy.",
+      },
+      {
+        title: "Values are whitespace-separated tokens",
+        description:
+          "values and defaultValues are single strings of whitespace-separated values, so a value must not contain whitespace. onChange reports a string[].",
+      },
+      {
+        title: "Selection can be controlled",
+        description: "Pass values and handle onChange. defaultValues seeds an uncontrolled field.",
+      },
+      {
+        title: "Choosing never closes the list",
+        description:
+          "Toggling an option keeps the listbox open for further picks; Escape, Tab, or leaving the field closes it.",
+      },
+      {
+        title: "Typing filters, Backspace removes",
+        description:
+          "The field's text input filters options by their labels; Backspace in an empty input removes the most recent chip.",
+      },
+    ],
+    accessibility: [
+      'The text input is role="combobox" with aria-haspopup="listbox", reactive aria-expanded, aria-autocomplete="list", and aria-activedescendant tracking the highlighted option.',
+      'The panel is role="listbox" with aria-multiselectable="true"; option rows are role="option" with reactive aria-selected.',
+      "Arrow keys move the highlight, Enter toggles it, Escape closes and keeps focus in the field, Tab closes and leaves.",
+      "Each chip carries a labelled remove button; pass label when no visible label names the field.",
+    ],
+    composition: [
+      "Option rows compose Text and Icon rather than repeating typography or drawing their own check mark.",
+      "Chips are rendered by the component from the selected values and the option labels; they are not composed.",
+    ],
+    agentNotes: [
+      "Never pass an options array; compose MultiSelectItem children.",
+      "Keep every value free of whitespace; encode composite values before composing items.",
+      "Keep name set when the values must participate in a form submission — one hidden input per value is submitted.",
+    ],
+    props: [
+      {
+        name: "values",
+        type: "string",
+        description: "Controlled selection: whitespace-separated values.",
+      },
+      {
+        name: "defaultValues",
+        type: "string",
+        description: "Initial selection when the field is left uncontrolled.",
+        default: '""',
+      },
+      {
+        name: "name",
+        type: "string",
+        description: "Form field name; one hidden input per selected value is submitted.",
+      },
+      {
+        name: "placeholder",
+        type: "string",
+        description: "Input placeholder shown while nothing is selected.",
+        default: '""',
+      },
+      {
+        name: "label",
+        type: "string",
+        description: "Accessible name for the field when no visible label points at it.",
+      },
+      {
+        name: "onChange",
+        type: "(values: string[]) => void",
+        description: "Selection notification carrying the complete value list.",
+      },
+      {
+        name: "disabled",
+        type: "boolean",
+        description: "Disables the field and its listbox.",
+        default: "false",
+      },
+      { name: "id", type: "string", description: "Identifier applied to the text input." },
+      { name: "classes", type: "string", description: "Classes merged into the root." },
+      {
+        name: "children",
+        type: "[MultiSelectContent]",
+        description: "The listbox content.",
+        required: true,
+      },
+      {
+        name: "MultiSelectContent.align",
+        type: '"left" | "right"',
+        description: "Preferred matching field edge before collision handling.",
+        default: '"left"',
+      },
+      {
+        name: "MultiSelectContent.classes",
+        type: "string",
+        description: "Listbox panel escape for width and max height.",
+      },
+      {
+        name: "MultiSelectContent.children",
+        type: "MultiSelectItem | readonly child[]",
+        description: "Ordered option rows.",
+        required: true,
+      },
+      {
+        name: "MultiSelectItem.value",
+        type: "string",
+        description: "Value toggled when the row is chosen. Must not contain whitespace.",
+        required: true,
+      },
+      {
+        name: "MultiSelectItem.children",
+        type: "string",
+        description: "Visible option label; also the chip label and the filter target.",
+        required: true,
+      },
+      {
+        name: "MultiSelectItem.disabled",
+        type: "boolean",
+        description: "Marks the row inert and aria-disabled.",
+        default: "false",
+      },
+      {
+        name: "MultiSelectItem.classes",
+        type: "string",
+        description: "Exceptional classes applied to the option row.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+const FRAMEWORKS: [string, string][] = [
+  ["next", "Next.js"],
+  ["sveltekit", "SvelteKit"],
+  ["nuxt", "Nuxt.js"],
+  ["remix", "Remix"],
+  ["astro", "Astro"],
+];
+
+function BasicDemo() {
+  return (
+    <MultiSelect name="frameworks" defaultValues="next sveltekit" placeholder="Add a framework">
+      <MultiSelectContent>
+        {FRAMEWORKS.map((pair) => (
+          <MultiSelectItem value={pair[0]}>{pair[1]}</MultiSelectItem>
+        ))}
+      </MultiSelectContent>
+    </MultiSelect>
+  );
+}
+
+function ControlledDemo() {
+  const local = reactive({ picked: "astro" });
+  return (
+    <MultiSelect
+      values={local.picked}
+      placeholder="Add a framework"
+      onChange={(next: string[]) => (local.picked = next.join(" "))}
+    >
+      <MultiSelectContent>
+        {FRAMEWORKS.map((pair) => (
+          <MultiSelectItem value={pair[0]}>{pair[1]}</MultiSelectItem>
+        ))}
+      </MultiSelectContent>
+    </MultiSelect>
+  );
+}
+
+function DisabledOptionDemo() {
+  return (
+    <MultiSelect defaultValues="next" placeholder="Add a framework">
+      <MultiSelectContent>
+        <MultiSelectItem value="next">Next.js</MultiSelectItem>
+        <MultiSelectItem value="sveltekit" disabled={true}>
+          SvelteKit
+        </MultiSelectItem>
+        <MultiSelectItem value="astro">Astro</MultiSelectItem>
+      </MultiSelectContent>
+    </MultiSelect>
+  );
+}
+
+function DisabledDemo() {
+  return (
+    <MultiSelect defaultValues="next astro" disabled={true} placeholder="Add a framework">
+      <MultiSelectContent>
+        {FRAMEWORKS.map((pair) => (
+          <MultiSelectItem value={pair[0]}>{pair[1]}</MultiSelectItem>
+        ))}
+      </MultiSelectContent>
+    </MultiSelect>
+  );
+}
+
+const itemNode = (value: string, children: string, disabled = false): DemoNode => ({
+  component: "MultiSelectItem",
+  props: { value, children, disabled },
+});
+
+const contentNode = (children: DemoNode[]): DemoNode => ({
+  component: "MultiSelectContent",
+  props: {},
+  children,
+});
+
+const multiSelectNode = (
+  props: Record<string, string | boolean>,
+  children: DemoNode[],
+): DemoNode => ({
+  component: "MultiSelect",
+  props,
+  children: [contentNode(children)],
+});
+
+const frameworkNodes = FRAMEWORKS.map((pair) => itemNode(pair[0], pair[1]));
+
+export const variants = [
+  {
+    label: "Basic",
+    description:
+      "Chips for the current selection, a filtering input, and a portaled listbox that toggles values without closing.",
+    usage: meta.usage,
+    node: multiSelectNode(
+      { name: "frameworks", defaultValues: "next sveltekit", placeholder: "Add a framework" },
+      frameworkNodes,
+    ),
+    Demo: BasicDemo,
+  },
+  {
+    label: "Controlled",
+    description: "The parent owns the value list and applies every toggle reported by onChange.",
+    usage: `<MultiSelect values={state.picked} onChange={(next) => (state.picked = next.join(" "))} placeholder="Add a framework">
+  <MultiSelectContent>
+    <MultiSelectItem value="next">Next.js</MultiSelectItem>
+    <MultiSelectItem value="astro">Astro</MultiSelectItem>
+  </MultiSelectContent>
+</MultiSelect>`,
+    node: multiSelectNode({ values: "astro", placeholder: "Add a framework" }, frameworkNodes),
+    Demo: ControlledDemo,
+  },
+  {
+    label: "Disabled option",
+    description: "A disabled row stays visible but cannot be toggled.",
+    usage: `<MultiSelect defaultValues="next" placeholder="Add a framework">
+  <MultiSelectContent>
+    <MultiSelectItem value="next">Next.js</MultiSelectItem>
+    <MultiSelectItem value="sveltekit" disabled={true}>SvelteKit</MultiSelectItem>
+  </MultiSelectContent>
+</MultiSelect>`,
+    node: multiSelectNode({ defaultValues: "next", placeholder: "Add a framework" }, [
+      itemNode("next", "Next.js"),
+      itemNode("sveltekit", "SvelteKit", true),
+      itemNode("astro", "Astro"),
+    ]),
+    Demo: DisabledOptionDemo,
+  },
+  {
+    label: "Disabled",
+    description: "A disabled MultiSelect keeps its chips visible but accepts no interaction.",
+    usage: `<MultiSelect defaultValues="next astro" disabled={true} placeholder="Add a framework">
+  …
+</MultiSelect>`,
+    node: multiSelectNode(
+      { defaultValues: "next astro", disabled: true, placeholder: "Add a framework" },
+      frameworkNodes,
+    ),
+    Demo: DisabledDemo,
+  },
+] satisfies ComponentDemoVariant[];

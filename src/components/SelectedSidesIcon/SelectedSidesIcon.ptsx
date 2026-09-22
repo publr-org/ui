@@ -1,0 +1,74 @@
+import { Icon, type IconProps } from "../Icon/Icon.ptsx";
+
+const SELECTED_SIDES_ICON_SIZES = {
+  xs: "size-3",
+  sm: "size-4",
+  md: "size-5",
+  lg: "size-6",
+  xl: "size-8",
+} as const;
+
+export type SelectedSidesIconProps = Omit<IconProps, "name"> & {
+  top?: boolean;
+  right?: boolean;
+  bottom?: boolean;
+  left?: boolean;
+};
+
+export function SelectedSidesIcon({
+  bottom = false,
+  classes = "",
+  id,
+  left = false,
+  right = false,
+  size = "md",
+  top = false,
+}: SelectedSidesIconProps) {
+  return (
+    <span
+      id={id}
+      class={[
+        SELECTED_SIDES_ICON_SIZES[size],
+        "relative inline-block shrink-0 [--publr-icon-guide:var(--border)]",
+        classes,
+      ]}
+      aria-hidden="true"
+      data-part="selected-sides-icon"
+      data-top={top ? "true" : "false"}
+      data-right={right ? "true" : "false"}
+      data-bottom={bottom ? "true" : "false"}
+      data-left={left ? "true" : "false"}
+    >
+      <Icon
+        name="spacing-sides-none"
+        size={size}
+        classes="absolute inset-0 [mix-blend-mode:var(--publr-icon-selection-blend,darken)]"
+        hidden={top || right || bottom || left}
+      />
+      <Icon
+        name="spacing-sides-top"
+        size={size}
+        classes="absolute inset-0 [mix-blend-mode:var(--publr-icon-selection-blend,darken)]"
+        hidden={!top}
+      />
+      <Icon
+        name="spacing-sides-right"
+        size={size}
+        classes="absolute inset-0 [mix-blend-mode:var(--publr-icon-selection-blend,darken)]"
+        hidden={!right}
+      />
+      <Icon
+        name="spacing-sides-bottom"
+        size={size}
+        classes="absolute inset-0 [mix-blend-mode:var(--publr-icon-selection-blend,darken)]"
+        hidden={!bottom}
+      />
+      <Icon
+        name="spacing-sides-left"
+        size={size}
+        classes="absolute inset-0 [mix-blend-mode:var(--publr-icon-selection-blend,darken)]"
+        hidden={!left}
+      />
+    </span>
+  );
+}

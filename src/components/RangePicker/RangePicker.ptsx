@@ -1,0 +1,45 @@
+import { RangePickerBase } from "./RangePickerBase.ptsx";
+
+export type RangePickerProps = {
+  id?: string;
+  classes?: string;
+  value: number;
+  max: number;
+  label?: string;
+  min?: number;
+  step?: number;
+  disabled?: boolean;
+  onInput?: (event: Event) => void;
+  onChange?: (event: Event) => void;
+};
+
+export function RangePicker({
+  id,
+  classes = "",
+  value,
+  max,
+  label,
+  min = 0,
+  step = 1,
+  disabled = false,
+  onInput,
+  onChange,
+}: RangePickerProps) {
+  return (
+    <RangePickerBase
+      id={id}
+      classes={classes}
+      value={value}
+      valueText={`${value}`}
+      min={min}
+      max={max}
+      step={step}
+      label={label}
+      disabled={disabled}
+      segmented={false}
+      component="range-picker"
+      onInput={onInput}
+      onChange={onChange}
+    />
+  );
+}

@@ -1,0 +1,22 @@
+// The pill's first segment: the name of what is filtered (`Content type`, `Status`), set
+// plain on the band so the value beside it reads as the answer.
+import { Text } from "../Text/Text.ptsx";
+
+export type FilterPillLabelProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function FilterPillLabel({ children, classes = "", id }: FilterPillLabelProps) {
+  return (
+    <Text
+      id={id}
+      as="span"
+      variant="body-sm"
+      classes={`inline-flex items-center whitespace-nowrap pr-4 font-medium text-foreground ${classes}`}
+    >
+      {children}
+    </Text>
+  );
+}

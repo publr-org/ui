@@ -1,0 +1,311 @@
+import { Avatar, AVATAR_SIZES } from "../../../src/components/Avatar/Avatar.ptsx";
+import type { AvatarSize } from "../../../src/components/Avatar/Avatar.ptsx";
+import { AvatarBadge } from "../../../src/components/Avatar/AvatarBadge.ptsx";
+import { AvatarImage } from "../../../src/components/Avatar/AvatarImage.ptsx";
+import type {
+  ComponentCanvas,
+  ComponentCanvasChildInstance,
+  ComponentDemoMeta,
+  ComponentDemoVariant,
+  DemoNode,
+} from "../../gallery-types";
+
+// Self-contained placeholder portrait so demos need no network or asset pipeline.
+const DEMO_PORTRAIT =
+  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='%23d4d4d8'/><circle cx='32' cy='24' r='12' fill='%2352525b'/><path d='M8 66c0-14 11-21 24-21s24 7 24 21' fill='%2352525b'/></svg>";
+
+export const meta = {
+  name: "avatar",
+  label: "Avatar",
+  source: "src/components/Avatar/Avatar.ptsx",
+  kind: "composite",
+  group: "Essentials",
+  description:
+    "Round user identity that derives initials from the person's name, under an optional image and presence badge.",
+  tags: ["avatar", "user", "identity", "initials", "image", "badge"],
+  usage: `<Avatar name="Olivia Martin" />
+
+<Avatar name="Olivia Martin">
+  <AvatarImage src="/img/olivia.jpg" />
+  <AvatarBadge />
+</Avatar>`,
+  preview: "canvas",
+  previewLabel: "Derived initials, covering image, and presence badge",
+  docs: {
+    purpose: [
+      "Avatar identifies a person in rows, timelines, and account controls with one round, sized container.",
+      "The required name is the identity: Avatar derives the initials fallback from it, so every avatar renders something meaningful with zero extra authoring.",
+      "AvatarImage covers the initials through CSS layering alone — no load-detection JavaScript — and AvatarBadge pins a decorative presence dot.",
+    ],
+    useWhen: [
+      "A row or header attributes content to a person.",
+      "The person may or may not have a portrait; the derived initials must appear otherwise.",
+    ],
+    avoidWhen: [
+      "Several avatars must stack with overlap and an overflow count; compose AvatarGroup.",
+      "The artwork is not a person; use Icon or a plain image.",
+      "The indicator carries a workflow state with a label; that is Status, not AvatarBadge.",
+    ],
+    rules: [
+      {
+        title: "Name is the source of truth",
+        description:
+          "Pass the person's full name. Avatar renders the first letters of the first two words, uppercased; there is no separate initials or fallback part to keep in sync.",
+      },
+      {
+        title: "Email opts into Gravatar",
+        description:
+          "Pass email to layer the address's Gravatar over the initials. The blank default keeps initials for addresses without one; an authored AvatarImage still wins over both.",
+      },
+      {
+        title: "Image covers, never replaces",
+        description:
+          "AvatarImage absolutely covers the derived initials when a portrait exists. Author it only when there is a real src.",
+      },
+      {
+        title: "Sizes are named and closed",
+        description:
+          "sm (24px), md (32px), and lg (40px) — the container scales its initials typography. There is no free pixel size.",
+      },
+    ],
+    accessibility: [
+      "The initials and badge are decorative and hidden from the accessibility tree; the name renders as the container title.",
+      "Avatars beside a visible name keep the image alt empty (the default) so the name is not announced twice.",
+      "When no adjacent text names the person, pass a meaningful alt to AvatarImage.",
+      "Nothing here is interactive; wrap Avatar in a Button or link when it triggers an action.",
+    ],
+    composition: [
+      "Author AvatarImage when a portrait exists and AvatarBadge last when presence matters.",
+      "Compose Avatar next to Text for attribution rows; the name is visible text, not an ARIA label.",
+      "Stack same-size Avatars inside AvatarGroup for multi-author attribution.",
+    ],
+    agentNotes: [
+      "Pass the full name; never precompute initials or author a fallback part.",
+      "Do not add load-state behavior; the image layering is deliberately CSS-only.",
+      "AvatarBadge has no tone enum; restyle through classes when a non-success dot is genuinely needed.",
+    ],
+    props: [
+      {
+        name: "Avatar.name",
+        type: "string",
+        description: "Required person's name. Drives the derived initials and the container title.",
+      },
+      {
+        name: "Avatar.email",
+        type: "string",
+        description:
+          "Optional email. Renders a Gravatar layer over the initials (d=blank, so addresses without a Gravatar keep the initials visible).",
+      },
+      {
+        name: "Avatar.size",
+        type: "AvatarSize",
+        description: "Named diameter: sm (24px), md (32px), or lg (40px).",
+        default: "md",
+      },
+      {
+        name: "Avatar.children",
+        type: "node",
+        description: "Optional AvatarImage and AvatarBadge.",
+      },
+      {
+        name: "Avatar.classes",
+        type: "string",
+        description: "Layout or exceptional composition classes.",
+      },
+      {
+        name: "Avatar.id",
+        type: "string",
+        description: "Optional identifier applied to the avatar root.",
+      },
+      {
+        name: "AvatarImage.src",
+        type: "string",
+        description: "Required portrait URL; covers the derived initials via CSS layering.",
+      },
+      {
+        name: "AvatarImage.alt",
+        type: "string",
+        description:
+          "Native image alt. Empty (decorative) by default; set it only when no adjacent text names the person.",
+        default: "",
+      },
+      {
+        name: "AvatarImage.classes",
+        type: "string",
+        description: "Exceptional composition classes on the image.",
+      },
+      {
+        name: "AvatarImage.id",
+        type: "string",
+        description: "Optional identifier applied to the image.",
+      },
+      {
+        name: "AvatarBadge.classes",
+        type: "string",
+        description: "Restyling for a non-success dot and exceptional composition.",
+      },
+      {
+        name: "AvatarBadge.id",
+        type: "string",
+        description: "Optional identifier applied to the badge dot.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+const AVATAR_SIZE_NAMES = Object.keys(AVATAR_SIZES) as AvatarSize[];
+const SIZE_ROW_WRAPPER = "flex items-center gap-4";
+
+export const variants = [
+  {
+    label: "Derived initials",
+    description: "The name is all an avatar needs; initials derive from it.",
+    usage: `<Avatar name="Olivia Martin" />`,
+    notes: ["“Olivia Martin” renders OM on the one neutral muted surface."],
+    Demo: () => <Avatar name="Olivia Martin" />,
+    node: { component: "Avatar", props: { name: "Olivia Martin" } },
+  },
+  {
+    label: "Image over initials",
+    description: "A portrait absolutely covers the derived initials.",
+    usage: `<Avatar name="Olivia Martin">
+  <AvatarImage src="/img/olivia.jpg" />
+</Avatar>`,
+    notes: [
+      "CSS layering shows the image when it exists and the initials otherwise.",
+      "alt stays empty when a visible name sits beside the avatar.",
+    ],
+    Demo: () => (
+      <Avatar name="Olivia Martin">
+        <AvatarImage src={DEMO_PORTRAIT} />
+      </Avatar>
+    ),
+    node: {
+      component: "Avatar",
+      props: { name: "Olivia Martin" },
+      children: [{ component: "AvatarImage", props: { src: DEMO_PORTRAIT } }],
+    },
+  },
+  {
+    label: "Presence badge",
+    description: "AvatarBadge pins a decorative dot to the avatar corner.",
+    usage: `<Avatar name="Olivia Martin">
+  <AvatarBadge />
+</Avatar>`,
+    notes: [
+      "The badge is aria-hidden and last in the part order.",
+      "The success surface is the shipped treatment; restyle through classes when needed.",
+    ],
+    Demo: () => (
+      <Avatar name="Olivia Martin">
+        <AvatarBadge />
+      </Avatar>
+    ),
+    node: {
+      component: "Avatar",
+      props: { name: "Olivia Martin" },
+      children: [{ component: "AvatarBadge", props: {} }],
+    },
+  },
+  {
+    label: "Named sizes",
+    description: "sm, md, and lg scale the container and its initials together.",
+    usage: AVATAR_SIZE_NAMES.map((size) => `<Avatar size="${size}" name="Olivia Martin" />`).join(
+      "\n",
+    ),
+    notes: ["24, 32, and 40 pixels; the initials typography follows the named size."],
+    Demo: () => (
+      <div class={SIZE_ROW_WRAPPER}>
+        {AVATAR_SIZE_NAMES.map((size) => (
+          <Avatar size={size} name="Olivia Martin" />
+        ))}
+      </div>
+    ),
+    node: {
+      fragment: true,
+      wrapper: SIZE_ROW_WRAPPER,
+      children: AVATAR_SIZE_NAMES.map((size): DemoNode => ({
+        component: "Avatar",
+        props: { size, name: "Olivia Martin" },
+      })),
+    },
+  },
+] satisfies ComponentDemoVariant[];
+
+const scopedValue = (scope: string, name: string) => (scope ? `${scope}::${name}` : name);
+const stringValue = (values: Readonly<Record<string, unknown>>, name: string, scope = ""): string =>
+  String(values[scopedValue(scope, name)] ?? "");
+const childValues = (
+  values: Readonly<Record<string, unknown>>,
+  name: string,
+): readonly ComponentCanvasChildInstance[] => {
+  const value = values[name];
+  return Array.isArray(value)
+    ? value.filter(
+        (item): item is ComponentCanvasChildInstance =>
+          Boolean(item) && typeof item === "object" && "id" in item && "type" in item,
+      )
+    : [];
+};
+
+export const canvas = {
+  controls: [
+    { name: "name", type: "text", default: "Olivia Martin" },
+    { name: "email", type: "text", default: "" },
+    {
+      name: "size",
+      type: "select",
+      default: "md",
+      options: AVATAR_SIZE_NAMES,
+    },
+    { name: "classes", type: "text", default: "" },
+    {
+      name: "children",
+      type: "children",
+      default: [],
+      options: [
+        {
+          name: "image",
+          label: "AvatarImage",
+          type: "group",
+          controls: [
+            { name: "image.src", label: "src", type: "text", default: DEMO_PORTRAIT },
+            { name: "image.alt", label: "alt", type: "text", default: "" },
+            { name: "image.classes", label: "classes", type: "text", default: "" },
+          ],
+        },
+        {
+          name: "badge",
+          label: "AvatarBadge",
+          type: "group",
+          controls: [{ name: "badge.classes", label: "classes", type: "text", default: "" }],
+        },
+      ],
+    },
+  ],
+  node: (values) => ({
+    component: "Avatar",
+    props: {
+      name: String(values.name),
+      ...(values.email ? { email: String(values.email) } : {}),
+      size: String(values.size) as AvatarSize,
+      classes: String(values.classes),
+    },
+    children: childValues(values, "children").map((child): DemoNode => {
+      if (child.type === "image") {
+        return {
+          component: "AvatarImage",
+          props: {
+            src: stringValue(values, "image.src", child.id),
+            alt: stringValue(values, "image.alt", child.id),
+            classes: stringValue(values, "image.classes", child.id),
+          },
+        };
+      }
+      return {
+        component: "AvatarBadge",
+        props: { classes: stringValue(values, "badge.classes", child.id) },
+      };
+    }),
+  }),
+} satisfies ComponentCanvas;

@@ -1,0 +1,16 @@
+// Icon area above the title: one muted circular chip treatment. Children
+// compose Icon (or a small illustration); the chip owns the surface.
+
+export type EmptyMediaProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function EmptyMedia({ children, classes = "", id }: EmptyMediaProps) {
+  return (
+    <div id={id} class={["mb-4 rounded-full bg-muted p-3", classes]}>
+      {children}
+    </div>
+  );
+}

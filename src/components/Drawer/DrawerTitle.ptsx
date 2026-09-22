@@ -1,0 +1,20 @@
+// Drawer heading — the family effect wires its id onto the panel's
+// aria-labelledby (replacing any DrawerContent `label` fallback).
+
+export type DrawerTitleProps = {
+  id?: string;
+  classes?: string;
+  children: JSX.Element;
+};
+
+export function DrawerTitle({ id, classes = "", children }: DrawerTitleProps) {
+  return (
+    <h2
+      id={id}
+      class={["min-w-0 flex-1 truncate text-sm font-semibold text-foreground", classes]}
+      data-part="title"
+    >
+      {children}
+    </h2>
+  );
+}

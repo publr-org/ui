@@ -1,0 +1,140 @@
+import { ICON_SIZES, Icon } from "../../../src/components/Icon/Icon.ptsx";
+import type { IconSize } from "../../../src/components/Icon/Icon.ptsx";
+import { ICON_NAMES } from "../../../src/icons";
+import type { ComponentCanvas, ComponentDemoMeta, ComponentDemoVariant } from "../../gallery-types";
+
+export const meta = {
+  name: "icon",
+  label: "Icon",
+  source: "src/components/Icon/Icon.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description: "Renders shared Publr artwork by name through the @publr/icons sprite.",
+  tags: ["icon", "artwork", "sprite"],
+  usage: `<Icon name="settings" size="md" />`,
+  preview: "canvas",
+  previewLabel: "First five shared icons at every named size",
+  docs: {
+    purpose: [
+      "Icon is the component-level route to shared Publr artwork. It reads named symbols from the pinned @publr/icons sprite through the design-system icon adapter.",
+    ],
+    useWhen: [
+      "Adding recognizable artwork to a Button, menu item, status, or inspector control.",
+      "The icon already exists in the shared library.",
+    ],
+    avoidWhen: [
+      "The artwork is decorative product content rather than interface chrome.",
+      "A new inline SVG duplicates an existing shared icon.",
+    ],
+    rules: [
+      {
+        title: "Use library names",
+        description:
+          "Reference the shared icon by name. Do not copy path data or maintain a second sprite.",
+      },
+      {
+        title: "Use the named scale",
+        description:
+          "Choose xs, sm, md, lg, or xl through the size prop. The composing component owns contextual color and positioning through class.",
+      },
+      {
+        title: "Icons do not label controls",
+        description:
+          "An icon-only Button still requires a meaningful Button label and usually a title tooltip.",
+      },
+    ],
+    accessibility: [
+      "Icons used inside labeled controls are decorative and hidden from the accessibility tree.",
+      "Communicate state with text or control semantics as well as artwork.",
+    ],
+    composition: [
+      "Compose Icon as a child of Button rather than creating a separate IconButton component.",
+      "Pair Icon with Text for visible menu-item and action labels.",
+    ],
+    agentNotes: [
+      "Search the icon adapter before requesting or drawing new artwork.",
+      "Do not import @publr/icons directly at component call sites.",
+    ],
+    props: [
+      {
+        name: "name",
+        type: "IconName",
+        description: "Required shared icon identifier and the only artwork source.",
+      },
+      {
+        name: "size",
+        type: "IconSize",
+        description: "Named icon scale from xs through xl. Defaults to md.",
+        default: "md",
+      },
+      {
+        name: "classes",
+        type: "string",
+        description: "Contextual color and positioning utilities.",
+      },
+      {
+        name: "id",
+        type: "string",
+        description: "Optional identifier applied to the SVG root.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+const ICON_SIZE_NAMES = Object.keys(ICON_SIZES) as IconSize[];
+const ICON_PREVIEW_WRAPPER = "flex items-center justify-center gap-4 text-foreground";
+const PREVIEW_ICON_NAMES = ICON_NAMES.slice(0, 5);
+
+export const variants: ComponentDemoVariant[] = PREVIEW_ICON_NAMES.map((name) => ({
+  label: name,
+  description: `${name} at every named Icon size, from xs through xl.`,
+  usage: `<div class="flex items-center gap-4">
+${ICON_SIZE_NAMES.map((size) => `  <Icon name="${name}" size="${size}" />`).join("\n")}
+</div>`,
+  Demo: () => (
+    <div class={ICON_PREVIEW_WRAPPER}>
+      {ICON_SIZE_NAMES.map((size) => (
+        <Icon name={name} size={size} />
+      ))}
+    </div>
+  ),
+  node: {
+    fragment: true,
+    wrapper: ICON_PREVIEW_WRAPPER,
+    children: ICON_SIZE_NAMES.map((size) => ({
+      component: "Icon",
+      props: { name, size },
+    })),
+  },
+}));
+
+export const canvas = {
+  controls: [
+    {
+      name: "name",
+      type: "select",
+      default: "settings",
+      options: ICON_NAMES,
+    },
+    {
+      name: "size",
+      type: "select",
+      default: "md",
+      options: Object.keys(ICON_SIZES),
+    },
+    {
+      name: "classes",
+      type: "text",
+      default: "",
+      placeholder: "e.g. text-blue-600",
+    },
+  ],
+  node: (values) => ({
+    component: "Icon",
+    props: {
+      name: String(values.name) as (typeof ICON_NAMES)[number],
+      size: String(values.size) as IconSize,
+      classes: String(values.classes),
+    },
+  }),
+} satisfies ComponentCanvas;

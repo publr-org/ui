@@ -1,0 +1,42 @@
+// The closed sliding panel stays inert; opening owns focus through the focus extension.
+import { backdrop, drawerBackdropDismiss, drawerKeydown, panel, state } from "./Drawer.ptsx";
+
+export type DrawerContentProps = {
+  id?: string;
+  classes?: string;
+  label?: string;
+  children?: JSX.Element;
+};
+
+export function DrawerContent({ id, classes = "", label = "", children }: DrawerContentProps) {
+  return (
+    <div class="contents" data-part="content" portal>
+      <div
+        class="hidden fixed inset-0 z-50 bg-black/50"
+        data-part="backdrop"
+        ref={backdrop}
+        onClick={drawerBackdropDismiss}
+        hidden={!state.open}
+      ></div>
+      <div
+        id={id}
+        class={[
+          "fixed inset-y-0 right-0 z-50 flex h-full w-full max-w-md translate-x-full flex-col overflow-y-auto border-l border-border bg-card text-foreground outline-none transition-transform duration-200 ease-out",
+          state.open ? "translate-x-0 shadow-2xl" : "translate-x-full",
+          classes,
+        ]}
+        role="dialog"
+        aria-modal="true"
+        aria-hidden={!state.open}
+        inert={!state.open}
+        aria-label={label === "" ? undefined : label}
+        tabindex="-1"
+        data-part="panel"
+        ref={panel}
+        onKeyDown={drawerKeydown}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}

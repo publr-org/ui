@@ -1,0 +1,23 @@
+// One table row. Rows own the separator and hover treatment; the last row of
+// any section drops its border so section edges come from Table's context
+// (thead/tfoot separators, surrounding panel borders).
+
+export type TableRowProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function TableRow({ children, classes = "", id }: TableRowProps) {
+  return (
+    <tr
+      id={id}
+      class={[
+        "border-b border-border transition-colors last:border-b-0 hover:bg-muted/40",
+        classes,
+      ]}
+    >
+      {children}
+    </tr>
+  );
+}

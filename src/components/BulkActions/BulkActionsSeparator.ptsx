@@ -1,0 +1,8 @@
+export type BulkActionsSeparatorProps = {
+  id?: string;
+  classes?: string;
+};
+
+export function BulkActionsSeparator({ id, classes = "" }: BulkActionsSeparatorProps) {
+  return <span id={id} class={["h-3.5 w-px bg-border", classes]} data-part="separator"></span>;
+}

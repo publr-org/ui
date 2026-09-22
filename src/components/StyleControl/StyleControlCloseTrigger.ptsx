@@ -1,0 +1,51 @@
+import { Slot } from "publr-jsx";
+
+export type StyleControlCloseTriggerProps = {
+  id?: string;
+  classes?: string;
+  asChild?: boolean;
+  label?: string;
+  children: JSX.Element;
+  onClick?: (event: MouseEvent) => void;
+};
+
+export function StyleControlCloseTrigger({
+  id,
+  classes = "",
+  asChild = false,
+  label = "Close",
+  children,
+  onClick,
+}: StyleControlCloseTriggerProps) {
+  return (
+    <>
+      {asChild ? (
+        <Slot
+          id={id}
+          class={["shrink-0", classes]}
+          role="button"
+          tabindex={0}
+          aria-label={label}
+          data-part="style-control-close-trigger"
+          onClick={onClick}
+        >
+          {children}
+        </Slot>
+      ) : (
+        <button
+          id={id}
+          class={[
+            "inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded text-muted-foreground transition duration-150 hover:bg-ui-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+            classes,
+          ]}
+          type="button"
+          aria-label={label}
+          data-part="style-control-close-trigger"
+          onClick={onClick}
+        >
+          {children}
+        </button>
+      )}
+    </>
+  );
+}

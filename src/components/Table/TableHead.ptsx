@@ -1,0 +1,29 @@
+// Column-header cell: the dense h-11 row whose label is muted body-sm Text.
+// The first and last cells carry the sheet gutter, so a table runs edge to
+// edge in its pane. Alignment is a closed prop; column width is layout and
+// comes through classes (`w-8`, `w-[100px]`).
+import { Text } from "../Text/Text.ptsx";
+
+export type TableHeadProps = {
+  align?: "left" | "right";
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function TableHead({ align = "left", children, classes = "", id }: TableHeadProps) {
+  return (
+    <th
+      id={id}
+      class={[
+        "h-11 whitespace-nowrap px-4 align-middle first:pl-8 last:pr-8",
+        align === "right" ? "text-right" : "text-left",
+        classes,
+      ]}
+    >
+      <Text as="span" variant="body-sm" tone="muted">
+        {children}
+      </Text>
+    </th>
+  );
+}

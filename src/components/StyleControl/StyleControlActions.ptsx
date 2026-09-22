@@ -1,0 +1,17 @@
+export type StyleControlActionsProps = {
+  id?: string;
+  classes?: string;
+  children: JSX.Element;
+};
+
+export function StyleControlActions({ id, classes = "", children }: StyleControlActionsProps) {
+  return (
+    <div
+      id={id}
+      class={["col-start-2 row-start-1 flex shrink-0 items-center gap-1", classes]}
+      data-part="style-control-actions"
+    >
+      {children}
+    </div>
+  );
+}

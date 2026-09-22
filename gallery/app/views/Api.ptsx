@@ -1,0 +1,143 @@
+// The API page: the props table, and the source in two forms, the PTSX the
+// recipe shows and the HTML the DOM target rendered for it.
+import { CodePanel } from "./shared/Code.ptsx";
+import { Frame } from "./shared/Frame.ptsx";
+import { Hero, SectionHeading } from "./shared/Hero.ptsx";
+import { Topbar } from "./shared/Topbar.ptsx";
+import { defaultVariantIndex } from "../frames/previews";
+import { KIND_LABELS, copyText, state, update, type DemoEntry, type SourceMode } from "../state/gallery";
+import type { ComponentPropDoc } from "../../gallery-types";
+
+const SOURCE_MODES: { id: SourceMode; label: string }[] = [
+  { id: "ptsx", label: "PTSX" },
+  { id: "html", label: "Rendered HTML" },
+];
+
+function PropsTable({ props }: { props: ComponentPropDoc[] }) {
+  return (
+    <div class="overflow-hidden rounded-xl border border-border bg-background">
+      <table class="w-full border-collapse text-left text-[11px]">
+        <thead class="bg-muted/60 text-muted-foreground">
+          <tr>
+            <th class="px-4 py-3 font-medium">Prop</th>
+            <th class="px-4 py-3 font-medium">Type</th>
+            <th class="px-4 py-3 font-medium">Required</th>
+            <th class="px-4 py-3 font-medium">Default</th>
+            <th class="px-4 py-3 font-medium">Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          {props.map((prop) => (
+            <tr class="border-t border-border align-top">
+              <td class="px-4 py-3 font-mono font-medium">{prop.name}</td>
+              <td class="px-4 py-3 font-mono text-[10px] text-ring">{prop.type}</td>
+              <td class="px-4 py-3">{prop.required ? "Yes" : "No"}</td>
+              <td class="px-4 py-3 font-mono text-[10px] text-muted-foreground">{prop.default ?? "—"}</td>
+              <td class="max-w-md px-4 py-3 leading-5 text-muted-foreground">{prop.description}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** Props grouped by the part they belong to, when a recipe documents parts as `Part.prop`. */
+function propGroups(entry: DemoEntry): { component: string; props: ComponentPropDoc[] }[] {
+  const groups = new Map<string, ComponentPropDoc[]>();
+  for (const prop of entry.docs.props) {
+    const separator = prop.name.indexOf(".");
+    const component = separator === -1 ? entry.label : prop.name.slice(0, separator);
+    const name = separator === -1 ? prop.name : prop.name.slice(separator + 1);
+    const group = groups.get(component) ?? [];
+    group.push({ ...prop, name });
+    groups.set(component, group);
+  }
+  return [...groups].map((pair) => ({ component: pair[0], props: pair[1] }));
+}
+
+function SourceFile({ filename, label, source, html }: { filename: string; label: string; source: string; html?: boolean }) {
+  return (
+    <section>
+      <div class="flex h-11 items-center justify-between border-b border-t border-[#30363d] bg-[#161b22] px-4 font-mono text-[10px]">
+        <span class="text-[#8b949e]">{filename}</span>
+        <span class="flex items-center gap-3">
+          <span class="text-[#8b949e]">{label}</span>
+          <button
+            type="button"
+            class="cursor-pointer rounded-md border border-[#30363d] px-2 py-1 font-sans text-[10px] font-medium text-[#e6edf3] hover:bg-[#21262d]"
+            onClick={(event: MouseEvent) => {
+              const button = event.currentTarget as HTMLButtonElement;
+              copyText(button.closest("section")!.querySelector("pre")!.textContent ?? "", button);
+            }}
+          >
+            Copy code
+          </button>
+        </span>
+      </div>
+      <div class="max-h-[520px] overflow-auto p-5">
+        <CodePanel source={source} marker={html ? "html" : undefined} />
+      </div>
+    </section>
+  );
+}
+
+export function Api({ entry }: { entry: DemoEntry }) {
+  const groups = propGroups(entry);
+  const rendered = state.renderedHtml.get(entry.name);
+  return (
+    <div>
+      <Topbar parts={[KIND_LABELS[entry.kind], entry.label, "API"]} />
+      <article class="mx-auto max-w-[1260px] px-8 py-10">
+        <Hero entry={entry} page="API" title={entry.label + " API"} />
+        <section class="mt-10">
+          <SectionHeading title="Props" description="Public inputs and the decisions each input is allowed to control." />
+          <div class={"mt-5 " + (groups.length > 1 ? "space-y-7" : "")}>
+            {groups.map((group) => (
+              <section>
+                {groups.length > 1 && <h3 class="mb-2.5 text-[13px] font-semibold">{group.component}</h3>}
+                <PropsTable props={group.props} />
+              </section>
+            ))}
+          </div>
+        </section>
+        <section class="mt-12">
+          <div class="min-w-0 overflow-hidden rounded-xl border border-border bg-background">
+            <div class="flex min-h-11 items-center justify-between gap-4 border-b border-border px-4 py-2">
+              <h2 class="shrink-0 text-[12px] font-semibold">Source</h2>
+              <div class="flex min-w-0 items-center gap-1.5">
+                {SOURCE_MODES.map((mode) => (
+                  <button
+                    type="button"
+                    aria-pressed={String(state.apiSourceMode === mode.id)}
+                    class={
+                      "cursor-pointer rounded-md px-2 py-1 text-[10px] font-medium " +
+                      (state.apiSourceMode === mode.id ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted")
+                    }
+                    onClick={() => {
+                      if (state.apiSourceMode === mode.id) return;
+                      state.apiSourceMode = mode.id;
+                      update();
+                    }}
+                  >
+                    {mode.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div class="bg-[#0d1117] text-[#e6edf3]">
+              {state.apiSourceMode === "ptsx" ? (
+                <SourceFile filename={entry.name + ".ptsx"} label="PTSX" source={entry.usage.trim()} />
+              ) : (
+                <SourceFile filename="index.html" label="What the DOM target renders" source={rendered ?? "<!-- Rendering… -->"} html={true} />
+              )}
+            </div>
+          </div>
+          <div hidden aria-hidden="true">
+            <Frame entry={entry} variant={defaultVariantIndex(entry)} mode="source" title={entry.label + " generated HTML source"} classes="block" />
+          </div>
+        </section>
+      </article>
+    </div>
+  );
+}

@@ -1,0 +1,863 @@
+import {
+  BUTTON_HIERARCHIES,
+  BUTTON_INTENTS,
+  BUTTON_SIZES,
+  Button,
+} from "../../../src/components/Button/Button.ptsx";
+import type {
+  ButtonHierarchy,
+  ButtonIntent,
+  ButtonSize,
+} from "../../../src/components/Button/Button.ptsx";
+import { DropdownMenu } from "../../../src/components/Dropdown/Dropdown.ptsx";
+import { DropdownMenuContent } from "../../../src/components/Dropdown/DropdownMenuContent.ptsx";
+import { DropdownMenuItem } from "../../../src/components/Dropdown/DropdownMenuItem.ptsx";
+import { DropdownMenuSeparator } from "../../../src/components/Dropdown/DropdownMenuSeparator.ptsx";
+import { DropdownMenuShortcut } from "../../../src/components/Dropdown/DropdownMenuShortcut.ptsx";
+import { DropdownMenuTrigger } from "../../../src/components/Dropdown/DropdownMenuTrigger.ptsx";
+import { ICON_SIZES, Icon } from "../../../src/components/Icon/Icon.ptsx";
+import type { IconSize } from "../../../src/components/Icon/Icon.ptsx";
+import {
+  TEXT_ELEMENTS,
+  TEXT_TONES,
+  TEXT_VARIANTS,
+  Text,
+} from "../../../src/components/Text/Text.ptsx";
+import type { TextElement, TextTone, TextVariant } from "../../../src/components/Text/Text.ptsx";
+import { ICON_NAMES } from "../../../src/icons";
+import type {
+  ComponentCanvas,
+  ComponentCanvasChildInstance,
+  ComponentDemoMeta,
+  ComponentDemoVariant,
+  DemoNode,
+} from "../../gallery-types";
+
+const usage = `<DropdownMenu>
+  <DropdownMenuTrigger asChild>
+    <Button>
+      <Text variant="body-md">Actions</Text>
+      <Icon name="chevron-down" />
+    </Button>
+  </DropdownMenuTrigger>
+  <DropdownMenuContent align="right">
+    <DropdownMenuItem>
+      <Icon name="duplicate" />
+      Duplicate
+      <DropdownMenuShortcut>⌘D</DropdownMenuShortcut>
+    </DropdownMenuItem>
+    <DropdownMenuSeparator />
+    <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>`;
+
+export const meta = {
+  name: "dropdown",
+  label: "Dropdown",
+  source: "src/components/Dropdown/Dropdown.ptsx",
+  portableName: "DropdownMenu",
+  kind: "primitive",
+  group: "Essentials",
+  description: "A portable compound action menu with owned focus, positioning, and dismissal.",
+  tags: ["menu", "button", "overlay", "keyboard", "portal"],
+  usage,
+  preview: "overlay",
+  previewLabel: "Compound action menu",
+  docs: {
+    purpose: [
+      "DropdownMenu is the composition root for a trigger and its action-menu content.",
+      "The component owns focus, keyboard navigation, portal placement, collision handling, and dismissal; callers provide the trigger and menu items.",
+    ],
+    useWhen: ["A control reveals a short list of immediate actions or navigation choices."],
+    avoidWhen: [
+      "The popup contains inputs, arbitrary forms, or a workflow; use Popover or Dialog.",
+      "The user is choosing one submitted value; use Select.",
+    ],
+    rules: [
+      {
+        title: "Use the compound parts",
+        description:
+          "Compose Trigger, Content, Item, Shortcut, and Separator instead of rebuilding menu roles from utility classes.",
+      },
+      {
+        title: "Keep asChild explicit",
+        description:
+          "Set asChild when an existing Button should remain the concrete trigger without a nested button.",
+      },
+      {
+        title: "Alignment is horizontal",
+        description:
+          "Content align=left joins left edges and align=right joins right edges before collision handling.",
+      },
+    ],
+    accessibility: [
+      "Trigger owns aria-haspopup=menu, aria-controls, and reactive aria-expanded.",
+      "Arrow keys, Home, End, typeahead, Enter, Space, Escape, and Tab follow the action-menu keyboard model.",
+      "Disabled items are skipped and Escape returns focus to the trigger.",
+    ],
+    composition: [
+      "DropdownMenuShortcut is a separate presentational part composed inside DropdownMenuItem.",
+      "Use href for menu navigation; button items keep native type and disabled semantics.",
+    ],
+    agentNotes: [
+      "DropdownMenuCheckboxItem (role=menuitemcheckbox, leading check) is the multi-select item: activating it does NOT dismiss the menu, so several choices toggle in one open; href checkbox items still navigate.",
+      "Do not pass forms or inputs to DropdownMenuContent.",
+      "Do not manually portal or position Content.",
+      "The default Button hierarchy remains primary; choose another hierarchy explicitly when the product hierarchy requires it.",
+    ],
+    props: [
+      {
+        name: "DropdownMenu.id",
+        type: "string",
+        description: "Optional identifier applied to the menu root.",
+      },
+      {
+        name: "DropdownMenu.classes",
+        type: "string",
+        description: "Exceptional layout classes applied to the menu root.",
+      },
+      {
+        name: "DropdownMenu.children",
+        type: "unknown",
+        required: true,
+        description: "The Trigger and Content composition.",
+      },
+      {
+        name: "DropdownMenuTrigger.id",
+        type: "string",
+        description: "Optional identifier applied to the concrete trigger.",
+      },
+      {
+        name: "DropdownMenuTrigger.classes",
+        type: "string",
+        description: "Exceptional classes merged onto the concrete trigger.",
+      },
+      {
+        name: "DropdownMenuTrigger.asChild",
+        type: "boolean",
+        description:
+          "Adopts exactly one Element child as the trigger instead of rendering a new button.",
+        default: "false",
+      },
+      {
+        name: "DropdownMenuTrigger.children",
+        type: "unknown",
+        required: true,
+        description: "Trigger contents, or exactly one Element when asChild is true.",
+      },
+      {
+        name: "DropdownMenuContent.id",
+        type: "string",
+        description: "Optional identifier applied to the menu panel.",
+      },
+      {
+        name: "DropdownMenuContent.classes",
+        type: "string",
+        description: "Exceptional sizing or layout classes applied to the menu panel.",
+      },
+      {
+        name: "DropdownMenuContent.align",
+        type: '"left" | "right"',
+        description: "Preferred trigger edge before viewport collision handling.",
+        default: '"left"',
+      },
+      {
+        name: "DropdownMenuContent.children",
+        type: "unknown",
+        description: "Items, shortcuts, and separators rendered in the menu.",
+      },
+      {
+        name: "DropdownMenuItem.id",
+        type: "string",
+        description: "Optional identifier applied to the item button or link.",
+      },
+      {
+        name: "DropdownMenuItem.classes",
+        type: "string",
+        description: "Exceptional classes applied to the item button or link.",
+      },
+      {
+        name: "DropdownMenuItem.variant",
+        type: '"default" | "destructive"',
+        description: "Semantic action treatment.",
+        default: '"default"',
+      },
+      {
+        name: "DropdownMenuItem.href",
+        type: "string",
+        description: "When present, renders an anchor item; disabled and type then cannot be used.",
+      },
+      {
+        name: "DropdownMenuItem.disabled",
+        type: "boolean",
+        description:
+          "Disables a button item and removes it from keyboard traversal. Button items only.",
+        default: "false",
+      },
+      {
+        name: "DropdownMenuItem.type",
+        type: '"button" | "submit" | "reset"',
+        description: "Native type for a button item. Button items only.",
+        default: '"button"',
+      },
+      {
+        name: "DropdownMenuItem.children",
+        type: "unknown",
+        description: "Visible item content, including composed Icon and Shortcut children.",
+      },
+      {
+        name: "DropdownMenuItem.onClick",
+        type: "(event: MouseEvent) => void",
+        description: "Parent-owned action invoked when an enabled button item is activated.",
+      },
+      {
+        name: "DropdownMenuShortcut.id",
+        type: "string",
+        description: "Optional identifier applied to the shortcut hint.",
+      },
+      {
+        name: "DropdownMenuShortcut.classes",
+        type: "string",
+        description: "Exceptional classes applied to the shortcut hint.",
+      },
+      {
+        name: "DropdownMenuShortcut.children",
+        type: "unknown",
+        description: "Visible keyboard shortcut text.",
+      },
+      {
+        name: "DropdownMenuCheckboxItem.checked",
+        type: "boolean",
+        description: "Whether the choice is on; shows the leading check.",
+        default: "false",
+      },
+      {
+        name: "DropdownMenuCheckboxItem.href",
+        type: "string",
+        description:
+          "Renders the item as a navigating link (server-side filter toggle); excludes disabled.",
+      },
+      {
+        name: "DropdownMenuCheckboxItem.disabled",
+        type: "boolean",
+        description: "Native disabled state (button form only).",
+        default: "false",
+      },
+      {
+        name: "DropdownMenuCheckboxItem.children",
+        type: "node",
+        description: "The choice's visible name.",
+      },
+      {
+        name: "DropdownMenuCheckboxItem.classes",
+        type: "string",
+        description: "Exceptional composition classes.",
+      },
+      {
+        name: "DropdownMenuCheckboxItem.id",
+        type: "string",
+        description: "Optional identifier.",
+      },
+      {
+        name: "DropdownMenuSeparator.id",
+        type: "string",
+        description: "Optional identifier applied to the separator.",
+      },
+      {
+        name: "DropdownMenuSeparator.classes",
+        type: "string",
+        description: "Exceptional classes applied to the separator.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+const textNode = (
+  children: string,
+  props: Record<string, string | number | boolean> = {},
+): DemoNode => ({
+  component: "Text",
+  props: { variant: "body-md", children, ...props },
+});
+
+const canonicalNode = (iconOnly = false): DemoNode => ({
+  component: "DropdownMenu",
+  wrapper: "flex min-h-0 w-full items-start justify-end",
+  props: {},
+  children: [
+    {
+      component: "DropdownMenuTrigger",
+      props: { asChild: true },
+      children: [
+        {
+          component: "Button",
+          props: iconOnly ? { label: "Options" } : {},
+          children: iconOnly
+            ? [{ component: "Icon", props: { name: "more", size: "sm" } }]
+            : [
+                textNode("Actions"),
+                { component: "Icon", props: { name: "chevron-down", size: "sm" } },
+              ],
+        },
+      ],
+    },
+    {
+      component: "DropdownMenuContent",
+      props: { align: "right", classes: "w-52" },
+      children: [
+        {
+          component: "DropdownMenuItem",
+          props: {},
+          children: [
+            { component: "Icon", props: { name: "duplicate", size: "sm" } },
+            textNode("Duplicate"),
+            { component: "DropdownMenuShortcut", props: { children: "⌘D" } },
+          ],
+        },
+        { component: "DropdownMenuSeparator", props: {} },
+        {
+          component: "DropdownMenuItem",
+          props: { variant: "destructive" },
+          children: [textNode("Delete")],
+        },
+      ],
+    },
+  ],
+});
+
+function DemoMenu({ iconOnly = false }: { iconOnly?: boolean }) {
+  return (
+    <div class="flex min-h-0 w-full items-start justify-end" data-dropdown-preview-layout>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button label={iconOnly ? "Options" : undefined}>
+            {iconOnly ? (
+              <Icon name="more" size="sm" />
+            ) : (
+              <>
+                <Text variant="body-md">Actions</Text>
+                <Icon name="chevron-down" size="sm" />
+              </>
+            )}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="right" classes="w-52">
+          <DropdownMenuItem>
+            <Icon name="duplicate" size="sm" />
+            Duplicate
+            <DropdownMenuShortcut>⌘D</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+}
+
+export const variants = [
+  {
+    label: "Text trigger",
+    description: "The supplied API with a complete Button adopted as the real trigger.",
+    usage,
+    Demo: () => <DemoMenu />,
+    node: canonicalNode(),
+  },
+  {
+    label: "Icon-only trigger",
+    description: "asChild preserves the accessible icon-only Button as the actual trigger.",
+    usage: `<DropdownMenu>
+  <DropdownMenuTrigger asChild>
+    <Button label="Options"><Icon name="more" /></Button>
+  </DropdownMenuTrigger>
+  <DropdownMenuContent align="right">…</DropdownMenuContent>
+</DropdownMenu>`,
+    Demo: () => <DemoMenu iconOnly />,
+    node: canonicalNode(true),
+  },
+] satisfies ComponentDemoVariant[];
+
+const scopedValue = (scope: string, name: string) => (scope ? `${scope}::${name}` : name);
+const stringValue = (values: Readonly<Record<string, unknown>>, name: string, scope = ""): string =>
+  String(values[scopedValue(scope, name)] ?? "");
+const booleanValue = (
+  values: Readonly<Record<string, unknown>>,
+  name: string,
+  scope = "",
+): boolean => Boolean(values[scopedValue(scope, name)]);
+const childValues = (
+  values: Readonly<Record<string, unknown>>,
+  name: string,
+  scope = "",
+): readonly ComponentCanvasChildInstance[] => {
+  const value = values[scopedValue(scope, name)];
+  return Array.isArray(value)
+    ? value.filter(
+        (item): item is ComponentCanvasChildInstance =>
+          Boolean(item) && typeof item === "object" && "id" in item && "type" in item,
+      )
+    : [];
+};
+
+export const canvas = {
+  controls: [
+    { name: "menu.id", label: "id", type: "text", default: "" },
+    { name: "menu.classes", label: "classes", type: "text", default: "" },
+    {
+      name: "menu.children",
+      label: "children",
+      type: "children",
+      default: ["trigger", "content"],
+      options: [
+        {
+          name: "trigger",
+          label: "DropdownMenuTrigger",
+          type: "group",
+          controls: [
+            { name: "trigger.id", label: "id", type: "text", default: "" },
+            { name: "trigger.classes", label: "classes", type: "text", default: "" },
+            { name: "trigger.asChild", label: "asChild", type: "boolean", default: true },
+            {
+              name: "trigger.children",
+              label: "children",
+              type: "children",
+              default: ["button"],
+              options: [
+                {
+                  name: "button",
+                  label: "Button",
+                  type: "group",
+                  controls: [
+                    { name: "button.label", label: "label", type: "text", default: "Actions" },
+                    {
+                      name: "button.hierarchy",
+                      label: "hierarchy",
+                      type: "select",
+                      default: "primary",
+                      options: BUTTON_HIERARCHIES,
+                    },
+                    {
+                      name: "button.intent",
+                      label: "intent",
+                      type: "select",
+                      default: "default",
+                      options: BUTTON_INTENTS,
+                    },
+                    {
+                      name: "button.size",
+                      label: "size",
+                      type: "select",
+                      default: "md",
+                      options: BUTTON_SIZES,
+                    },
+                    { name: "button.title", label: "title", type: "text", default: "" },
+                    { name: "button.disabled", label: "disabled", type: "boolean", default: false },
+                    { name: "button.loading", label: "loading", type: "boolean", default: false },
+                    { name: "button.id", label: "id", type: "text", default: "" },
+                    { name: "button.classes", label: "classes", type: "text", default: "" },
+                    {
+                      name: "button.children",
+                      label: "children",
+                      type: "children",
+                      default: ["triggerText", "triggerIcon"],
+                      options: [
+                        {
+                          name: "triggerText",
+                          label: "Text",
+                          type: "group",
+                          controls: [
+                            {
+                              name: "triggerText.children",
+                              label: "children",
+                              type: "text",
+                              default: "Actions",
+                            },
+                            {
+                              name: "triggerText.as",
+                              label: "as",
+                              type: "select",
+                              default: "span",
+                              options: TEXT_ELEMENTS,
+                            },
+                            {
+                              name: "triggerText.variant",
+                              label: "variant",
+                              type: "select",
+                              default: "body-md",
+                              options: Object.keys(TEXT_VARIANTS),
+                            },
+                            {
+                              name: "triggerText.tone",
+                              label: "tone",
+                              type: "select",
+                              default: "default",
+                              options: Object.keys(TEXT_TONES),
+                            },
+                            { name: "triggerText.id", label: "id", type: "text", default: "" },
+                            {
+                              name: "triggerText.classes",
+                              label: "classes",
+                              type: "text",
+                              default: "",
+                            },
+                            {
+                              name: "triggerText.style",
+                              label: "style",
+                              type: "text",
+                              default: "",
+                            },
+                          ],
+                        },
+                        {
+                          name: "triggerIcon",
+                          label: "Icon",
+                          type: "group",
+                          controls: [
+                            {
+                              name: "triggerIcon.name",
+                              label: "name",
+                              type: "select",
+                              default: "chevron-down",
+                              options: ICON_NAMES,
+                            },
+                            {
+                              name: "triggerIcon.size",
+                              label: "size",
+                              type: "select",
+                              default: "md",
+                              options: Object.keys(ICON_SIZES),
+                            },
+                            { name: "triggerIcon.id", label: "id", type: "text", default: "" },
+                            {
+                              name: "triggerIcon.classes",
+                              label: "classes",
+                              type: "text",
+                              default: "",
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          name: "content",
+          label: "DropdownMenuContent",
+          type: "group",
+          controls: [
+            { name: "content.id", label: "id", type: "text", default: "" },
+            { name: "content.classes", label: "classes", type: "text", default: "" },
+            {
+              name: "content.align",
+              label: "align",
+              type: "select",
+              default: "right",
+              options: ["left", "right"],
+            },
+            {
+              name: "content.children",
+              label: "children",
+              type: "children",
+              allowMultiple: true,
+              default: [
+                "item",
+                "separator",
+                {
+                  type: "item",
+                  values: {
+                    "item.variant": "destructive",
+                    "item.children": ["itemText"],
+                    "itemText.children": "Delete",
+                  },
+                },
+              ],
+              options: [
+                {
+                  name: "item",
+                  label: "DropdownMenuItem",
+                  type: "group",
+                  controls: [
+                    { name: "item.id", label: "id", type: "text", default: "" },
+                    { name: "item.classes", label: "classes", type: "text", default: "" },
+                    {
+                      name: "item.variant",
+                      label: "variant",
+                      type: "select",
+                      default: "default",
+                      options: ["default", "destructive"],
+                    },
+                    { name: "item.href", label: "href", type: "text", default: "" },
+                    { name: "item.disabled", label: "disabled", type: "boolean", default: false },
+                    {
+                      name: "item.type",
+                      label: "type",
+                      type: "select",
+                      default: "button",
+                      options: ["button", "submit", "reset"],
+                    },
+                    {
+                      name: "item.children",
+                      label: "children",
+                      type: "children",
+                      default: ["itemIcon", "itemText", "shortcut"],
+                      options: [
+                        {
+                          name: "itemIcon",
+                          label: "Icon",
+                          type: "group",
+                          controls: [
+                            {
+                              name: "itemIcon.name",
+                              label: "name",
+                              type: "select",
+                              default: "duplicate",
+                              options: ICON_NAMES,
+                            },
+                            {
+                              name: "itemIcon.size",
+                              label: "size",
+                              type: "select",
+                              default: "md",
+                              options: Object.keys(ICON_SIZES),
+                            },
+                            { name: "itemIcon.id", label: "id", type: "text", default: "" },
+                            {
+                              name: "itemIcon.classes",
+                              label: "classes",
+                              type: "text",
+                              default: "",
+                            },
+                          ],
+                        },
+                        {
+                          name: "itemText",
+                          label: "Text",
+                          type: "group",
+                          controls: [
+                            {
+                              name: "itemText.children",
+                              label: "children",
+                              type: "text",
+                              default: "Duplicate",
+                            },
+                            {
+                              name: "itemText.variant",
+                              label: "variant",
+                              type: "select",
+                              default: "body-md",
+                              options: Object.keys(TEXT_VARIANTS),
+                            },
+                            {
+                              name: "itemText.tone",
+                              label: "tone",
+                              type: "select",
+                              default: "default",
+                              options: Object.keys(TEXT_TONES),
+                            },
+                          ],
+                        },
+                        {
+                          name: "shortcut",
+                          label: "DropdownMenuShortcut",
+                          type: "group",
+                          controls: [
+                            {
+                              name: "shortcut.children",
+                              label: "children",
+                              type: "text",
+                              default: "⌘D",
+                            },
+                            { name: "shortcut.id", label: "id", type: "text", default: "" },
+                            {
+                              name: "shortcut.classes",
+                              label: "classes",
+                              type: "text",
+                              default: "",
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  name: "separator",
+                  label: "DropdownMenuSeparator",
+                  type: "group",
+                  controls: [
+                    { name: "separator.id", label: "id", type: "text", default: "" },
+                    { name: "separator.classes", label: "classes", type: "text", default: "" },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+  node: (values) => {
+    const text = (scope: string, name: string) => stringValue(values, name, scope);
+    const on = (scope: string, name: string) => booleanValue(values, name, scope);
+    const children = (scope: string, name: string) => childValues(values, name, scope);
+
+    const makeText = (instance: ComponentCanvasChildInstance, prefix: string): DemoNode =>
+      textNode(text(instance.id, `${prefix}.children`), {
+        variant: text(instance.id, `${prefix}.variant`) as TextVariant,
+        tone: text(instance.id, `${prefix}.tone`) as TextTone,
+      });
+
+    const makeItem = (instance: ComponentCanvasChildInstance): DemoNode => {
+      const itemChildren = children(instance.id, "item.children").flatMap((child): DemoNode[] => {
+        if (child.type === "itemIcon") {
+          return [
+            {
+              component: "Icon",
+              props: {
+                name: text(child.id, "itemIcon.name"),
+                size: text(child.id, "itemIcon.size") as IconSize,
+                id: text(child.id, "itemIcon.id"),
+                classes: text(child.id, "itemIcon.classes"),
+              },
+            },
+          ];
+        }
+        if (child.type === "itemText") return [makeText(child, "itemText")];
+        if (child.type === "shortcut") {
+          return [
+            {
+              component: "DropdownMenuShortcut",
+              props: {
+                children: text(child.id, "shortcut.children"),
+                id: text(child.id, "shortcut.id"),
+                classes: text(child.id, "shortcut.classes"),
+              },
+            },
+          ];
+        }
+        return [];
+      });
+      const href = text(instance.id, "item.href");
+      return {
+        component: "DropdownMenuItem",
+        props: {
+          variant: text(instance.id, "item.variant"),
+          id: text(instance.id, "item.id"),
+          classes: text(instance.id, "item.classes"),
+          ...(href
+            ? { href }
+            : {
+                disabled: on(instance.id, "item.disabled"),
+                type: text(instance.id, "item.type"),
+              }),
+        },
+        children: itemChildren,
+      };
+    };
+
+    const makeContent = (instance: ComponentCanvasChildInstance): DemoNode => ({
+      component: "DropdownMenuContent",
+      props: {
+        align: text(instance.id, "content.align"),
+        id: text(instance.id, "content.id"),
+        classes: text(instance.id, "content.classes"),
+      },
+      children: children(instance.id, "content.children").flatMap((child): DemoNode[] => {
+        if (child.type === "item") return [makeItem(child)];
+        if (child.type === "separator") {
+          return [
+            {
+              component: "DropdownMenuSeparator",
+              props: {
+                id: text(child.id, "separator.id"),
+                classes: text(child.id, "separator.classes"),
+              },
+            },
+          ];
+        }
+        return [];
+      }),
+    });
+
+    const makeTrigger = (instance: ComponentCanvasChildInstance): DemoNode => {
+      const button = children(instance.id, "trigger.children").find(
+        (child) => child.type === "button",
+      );
+      const triggerChildren = button
+        ? children(button.id, "button.children").flatMap((child): DemoNode[] => {
+            if (child.type === "triggerText") {
+              return [
+                textNode(text(child.id, "triggerText.children"), {
+                  as: text(child.id, "triggerText.as") as TextElement,
+                  variant: text(child.id, "triggerText.variant") as TextVariant,
+                  tone: text(child.id, "triggerText.tone") as TextTone,
+                  id: text(child.id, "triggerText.id"),
+                  classes: text(child.id, "triggerText.classes"),
+                  style: text(child.id, "triggerText.style"),
+                }),
+              ];
+            }
+            if (child.type === "triggerIcon") {
+              return [
+                {
+                  component: "Icon",
+                  props: {
+                    name: text(child.id, "triggerIcon.name"),
+                    size: text(child.id, "triggerIcon.size") as IconSize,
+                    id: text(child.id, "triggerIcon.id"),
+                    classes: text(child.id, "triggerIcon.classes"),
+                  },
+                },
+              ];
+            }
+            return [];
+          })
+        : [];
+      const props = {
+        asChild: Boolean(button) && on(instance.id, "trigger.asChild"),
+        id: text(instance.id, "trigger.id"),
+        classes: text(instance.id, "trigger.classes"),
+      };
+      return button && props.asChild
+        ? {
+            component: "DropdownMenuTrigger",
+            props,
+            children: [
+              {
+                component: "Button",
+                props: {
+                  label: text(button.id, "button.label"),
+                  hierarchy: text(button.id, "button.hierarchy") as ButtonHierarchy,
+                  intent: text(button.id, "button.intent") as ButtonIntent,
+                  size: text(button.id, "button.size") as ButtonSize,
+                  title: text(button.id, "button.title"),
+                  disabled: on(button.id, "button.disabled"),
+                  loading: on(button.id, "button.loading"),
+                  id: text(button.id, "button.id"),
+                  classes: text(button.id, "button.classes"),
+                },
+                children: triggerChildren,
+              },
+            ],
+          }
+        : { component: "DropdownMenuTrigger", props, children: triggerChildren };
+    };
+
+    return {
+      component: "DropdownMenu",
+      wrapper: "flex w-full items-start justify-end",
+      props: { id: text("", "menu.id"), classes: text("", "menu.classes") },
+      children: children("", "menu.children").flatMap((child): DemoNode[] =>
+        child.type === "trigger"
+          ? [makeTrigger(child)]
+          : child.type === "content"
+            ? [makeContent(child)]
+            : [],
+      ),
+    };
+  },
+} satisfies ComponentCanvas;

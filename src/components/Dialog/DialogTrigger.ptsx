@@ -1,0 +1,42 @@
+import { Slot } from "publr-jsx";
+import { openDialog, state, trigger } from "./Dialog.ptsx";
+
+export type DialogTriggerProps = {
+  id?: string;
+  classes?: string;
+  asChild?: boolean;
+  children: JSX.Element;
+};
+
+export function DialogTrigger({ id, classes = "", asChild = false, children }: DialogTriggerProps) {
+  return (
+    <>
+      {asChild ? (
+        <Slot
+          id={id}
+          class={classes}
+          data-part="trigger"
+          ref={trigger}
+          onClick={openDialog}
+          aria-haspopup="dialog"
+          aria-expanded={state.open}
+        >
+          {children}
+        </Slot>
+      ) : (
+        <button
+          id={id}
+          class={classes}
+          type="button"
+          data-part="trigger"
+          ref={trigger}
+          onClick={openDialog}
+          aria-haspopup="dialog"
+          aria-expanded={state.open}
+        >
+          {children}
+        </button>
+      )}
+    </>
+  );
+}

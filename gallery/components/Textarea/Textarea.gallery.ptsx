@@ -1,0 +1,128 @@
+import { Textarea } from "../../../src/components/Textarea/Textarea.ptsx";
+import type { ComponentCanvas, ComponentDemoMeta, DemoNode } from "../../gallery-types";
+
+export const meta = {
+  name: "textarea",
+  label: "Textarea",
+  source: "src/components/Textarea/Textarea.ptsx",
+  kind: "primitive",
+  group: "Forms",
+  description: "A styled native multiline form control.",
+  tags: ["textarea", "form", "field"],
+  usage: `<Textarea id="bio" name="bio" rows={5} />`,
+  preview: "canvas",
+  previewLabel: "Resizable multiline input",
+  docs: {
+    purpose: ["Textarea provides the shared native multiline form treatment."],
+    useWhen: ["Collecting multiline plain text inside Field."],
+    avoidWhen: ["Collecting one line; use Input.", "Building a rich-text editor."],
+    rules: [
+      {
+        title: "Keep native behavior",
+        description:
+          "Textarea is parent-controlled and vertically resizable; it is not autosizing.",
+      },
+    ],
+    accessibility: ["Associate it with FieldLabel and use invalid for semantic validation state."],
+    composition: ["Use Field for labels, descriptions, and errors."],
+    agentNotes: ["Do not add rich-text, autosize, or Publr transport behavior."],
+    props: [
+      { name: "id", type: "string", description: "Optional identifier applied to the textarea." },
+      { name: "name", type: "string", description: "Native form field name." },
+      { name: "value", type: "string", description: "Controlled text content." },
+      { name: "placeholder", type: "string", description: "Native placeholder text." },
+      { name: "disabled", type: "boolean", description: "Native disabled state." },
+      { name: "required", type: "boolean", description: "Native required state." },
+      { name: "readOnly", type: "boolean", description: "Native readonly state." },
+      { name: "autocomplete", type: "string", description: "Native autocomplete hint." },
+      {
+        name: "minLength",
+        type: "number",
+        description: "Native minimum length constraint.",
+      },
+      {
+        name: "maxLength",
+        type: "number",
+        description: "Native maximum length constraint.",
+      },
+      { name: "rows", type: "number", description: "Native visible row count.", default: "5" },
+      { name: "invalid", type: "boolean", description: "Semantic validation state." },
+      {
+        name: "classes",
+        type: "string",
+        description: "Additional classes merged into the native textarea.",
+      },
+      {
+        name: "onInput",
+        type: "(event: Event) => void",
+        description: "Parent-owned native input callback.",
+      },
+      {
+        name: "onChange",
+        type: "(event: Event) => void",
+        description: "Parent-owned native change callback.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const node = {
+  component: "Textarea",
+  props: { name: "bio", placeholder: "Tell us about yourself" },
+  wrapper: "w-full max-w-sm",
+} satisfies DemoNode;
+
+export function Demo() {
+  return (
+    <div class="w-full max-w-sm">
+      <Textarea name="bio" placeholder="Tell us about yourself" />
+    </div>
+  );
+}
+
+export const canvas = {
+  controls: [
+    { name: "id", type: "text", default: "message" },
+    { name: "name", type: "text", default: "message" },
+    { name: "value", type: "text", default: "" },
+    { name: "placeholder", type: "text", default: "Write something" },
+    { name: "disabled", type: "boolean", default: false },
+    { name: "invalid", type: "boolean", default: false },
+    { name: "required", type: "boolean", default: false },
+    { name: "readOnly", type: "boolean", default: false },
+    { name: "autocomplete", type: "text", default: "" },
+    { name: "minLength", type: "text", default: "" },
+    { name: "maxLength", type: "text", default: "" },
+    { name: "rows", type: "number", default: 5, min: 1, max: 20, step: 1 },
+    { name: "classes", type: "text", default: "", placeholder: "e.g. max-w-lg" },
+  ],
+  node: (values) => {
+    const optionalString = (name: string) => {
+      const value = String(values[name]);
+      return value ? { [name]: value } : {};
+    };
+    const optionalNumber = (name: string) => {
+      const value = String(values[name]);
+      return value ? { [name]: Number(value) } : {};
+    };
+    return {
+      component: "Textarea",
+      props: {
+        ...optionalString("id"),
+        ...optionalString("name"),
+        value: String(values.value),
+        ...optionalString("placeholder"),
+        disabled: Boolean(values.disabled),
+        invalid: Boolean(values.invalid),
+        required: Boolean(values.required),
+        readOnly: Boolean(values.readOnly),
+        ...optionalString("autocomplete"),
+        ...optionalNumber("minLength"),
+        ...optionalNumber("maxLength"),
+        rows: Number(values.rows),
+        classes: String(values.classes),
+      },
+      wrapper: "w-full max-w-sm",
+    };
+  },
+} satisfies ComponentCanvas;

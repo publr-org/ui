@@ -1,0 +1,94 @@
+import { state } from "./UnitControl.ptsx";
+import { Input } from "../Input/Input.ptsx";
+
+export const UNIT_CONTROL_INPUT_MODES = ["none", "numeric", "decimal"] as const;
+
+export type UnitControlInputMode = (typeof UNIT_CONTROL_INPUT_MODES)[number];
+
+export type UnitControlInputProps = {
+  value: number;
+  id?: string;
+  name?: string;
+  label?: string;
+  placeholder?: string;
+  required?: boolean;
+  autocomplete?: string;
+  min?: string;
+  max?: string;
+  step?: string;
+  inputMode?: UnitControlInputMode;
+  classes?: string;
+};
+
+export function UnitControlInput({
+  value,
+  id,
+  name,
+  label,
+  placeholder,
+  required = false,
+  autocomplete,
+  min,
+  max,
+  step,
+  inputMode,
+  classes = "",
+}: UnitControlInputProps) {
+  return (
+    <span
+      class={["relative grid h-full min-w-0", classes]}
+      data-part="unit-control-number"
+      data-publr-value={`${value}`}
+    >
+      <span
+        aria-hidden="true"
+        class="invisible col-start-1 row-start-1 min-w-[1ch] whitespace-pre px-2 [font-size:0.875rem] [line-height:1.25rem] [font-weight:400] after:content-[attr(data-value)]"
+        data-part="unit-control-width-probe"
+        data-value={min ?? ""}
+      ></span>
+      <span
+        aria-hidden="true"
+        class="invisible col-start-1 row-start-1 min-w-[1ch] whitespace-pre px-2 [font-size:0.875rem] [line-height:1.25rem] [font-weight:400] after:content-[attr(data-value)]"
+        data-part="unit-control-width-probe"
+        data-value={max ?? ""}
+      ></span>
+      <span
+        aria-hidden="true"
+        class="invisible col-start-1 row-start-1 min-w-[1ch] whitespace-pre px-2 [font-size:0.875rem] [line-height:1.25rem] [font-weight:400] after:content-[attr(data-value)]"
+        data-part="unit-control-width-probe"
+        data-probe="value"
+        data-value={`${value}`}
+      ></span>
+      <span
+        aria-hidden="true"
+        class="invisible col-start-1 row-start-1 min-w-[1ch] whitespace-pre px-2 [font-size:0.875rem] [line-height:1.25rem] [font-weight:400] after:content-[attr(data-value)]"
+        data-part="unit-control-width-probe"
+        data-value={placeholder ?? ""}
+      ></span>
+      <span
+        aria-hidden="true"
+        class="invisible col-start-1 row-start-1 min-w-[1ch] whitespace-pre px-2 [font-size:0.875rem] [line-height:1.25rem] [font-weight:400] after:content-[attr(data-value)]"
+        data-part="unit-control-width-probe"
+        data-value="0"
+      ></span>
+      <Input
+        id={id}
+        name={name}
+        value={`${value}`}
+        aria-label={label}
+        type="number"
+        placeholder={placeholder}
+        required={required}
+        autocomplete={autocomplete}
+        min={min}
+        max={max}
+        step={step}
+        inputMode={inputMode}
+        classes="absolute inset-0 h-full min-w-0 w-full rounded-none border-0 bg-transparent shadow-none hover:border-transparent focus-visible:border-transparent focus-visible:ring-0 disabled:opacity-100 [--input-padding-x:0.5rem] [--input-padding-y:0rem] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        disabled={state.disabled}
+        readOnly={state.readOnly}
+        aria-invalid={state.invalid}
+      />
+    </span>
+  );
+}

@@ -1,0 +1,436 @@
+import { Button } from "../Button/Button.ptsx";
+import { Icon } from "../Icon/Icon.ptsx";
+import { Input } from "../Input/Input.ptsx";
+import { RangePicker } from "../RangePicker/RangePicker.ptsx";
+import { Text } from "../Text/Text.ptsx";
+import { Publr } from "publr-jsx";
+
+export const BOX_CONTROL_UNITS = ["px", "%", "em", "rem", "vw", "vh"] as const;
+export const BOX_CONTROL_CUSTOM_KINDS = ["number", "raw"] as const;
+export const BOX_CONTROL_SELECTION_KINDS = ["sides", "corners"] as const;
+export const BOX_CONTROL_SELECTIONS = [
+  "Top",
+  "Right",
+  "Bottom",
+  "Left",
+  "Top, Right",
+  "Top, Bottom",
+  "Top, Left",
+  "Right, Bottom",
+  "Left, Right",
+  "Bottom, Left",
+  "Top, Right, Bottom",
+  "Top, Right, Left",
+  "Top, Bottom, Left",
+  "Right, Bottom, Left",
+  "All sides",
+  "Top Left",
+  "Top Right",
+  "Bottom Right",
+  "Bottom Left",
+  "Top Left, Top Right",
+  "Top Left, Bottom Right",
+  "Top Left, Bottom Left",
+  "Top Right, Bottom Right",
+  "Top Right, Bottom Left",
+  "Bottom Right, Bottom Left",
+  "Top Left, Top Right, Bottom Right",
+  "Top Left, Top Right, Bottom Left",
+  "Top Left, Bottom Right, Bottom Left",
+  "Top Right, Bottom Right, Bottom Left",
+  "All corners",
+] as const;
+
+export type BoxControlUnit = (typeof BOX_CONTROL_UNITS)[number];
+export type BoxControlCustomKind = (typeof BOX_CONTROL_CUSTOM_KINDS)[number];
+export type BoxControlSelectionKind = (typeof BOX_CONTROL_SELECTION_KINDS)[number];
+export type BoxControlSelection = (typeof BOX_CONTROL_SELECTIONS)[number];
+
+export type BoxControlProps = {
+  id?: string;
+  title: string;
+  label: string;
+  value: number;
+  max: number;
+  displayValue: string;
+  selectionKind?: BoxControlSelectionKind;
+  defaultSelection: BoxControlSelection;
+  disabled?: boolean;
+  customKind?: BoxControlCustomKind;
+  customValue?: string;
+  customNumber?: string;
+  customUnit?: BoxControlUnit;
+  customMin?: number;
+  customMax?: number;
+  customStep?: number;
+  customRangeValue?: number;
+  children?: JSX.Element;
+  classes?: string;
+  onSelectionChange?: (event: Event) => void;
+  onClose?: (event: Event) => void;
+  onTokenInput?: (event: Event) => void;
+  onTokenChange?: (event: Event) => void;
+  onCustomChange?: (event: Event) => void;
+  onCustomRangeInput?: (event: Event) => void;
+  onCustomRangeChange?: (event: Event) => void;
+};
+
+export function BoxControl({
+  id,
+  title,
+  label,
+  value,
+  max,
+  displayValue,
+  selectionKind = "sides",
+  defaultSelection,
+  disabled = false,
+  customKind = "number",
+  customValue = "",
+  customNumber = "0",
+  customUnit = "px",
+  customMin = 0,
+  customMax = 100,
+  customStep = 1,
+  customRangeValue = 0,
+  children,
+  classes = "",
+  onSelectionChange,
+  onClose,
+  onTokenInput,
+  onTokenChange,
+  onCustomChange,
+  onCustomRangeInput,
+  onCustomRangeChange,
+}: BoxControlProps) {
+  const state = Publr.reactive({
+    customOpen: false,
+    kind: selectionKind,
+    selection: defaultSelection,
+    get topSelected() {
+      return state.selection === "All sides" || state.selection.includes("Top");
+    },
+    get rightSelected() {
+      return state.selection === "All sides" || state.selection.includes("Right");
+    },
+    get bottomSelected() {
+      return state.selection === "All sides" || state.selection.includes("Bottom");
+    },
+    get leftSelected() {
+      return state.selection === "All sides" || state.selection.includes("Left");
+    },
+    get topLeftSelected() {
+      return state.selection === "All corners" || state.selection.includes("Top Left");
+    },
+    get topRightSelected() {
+      return state.selection === "All corners" || state.selection.includes("Top Right");
+    },
+    get bottomRightSelected() {
+      return state.selection === "All corners" || state.selection.includes("Bottom Right");
+    },
+    get bottomLeftSelected() {
+      return state.selection === "All corners" || state.selection.includes("Bottom Left");
+    },
+    get pairVertical() {
+      return state.selection.includes("Top") || state.selection.includes("Bottom");
+    },
+    get pairDisabled() {
+      return (
+        state.selection !== "Top" &&
+        state.selection !== "Bottom" &&
+        state.selection !== "Left" &&
+        state.selection !== "Right" &&
+        state.selection !== "Top, Bottom" &&
+        state.selection !== "Left, Right"
+      );
+    },
+    get pairPressed() {
+      return state.selection === "Top, Bottom" || state.selection === "Left, Right";
+    },
+    get allPressed() {
+      return state.selection === "All sides" || state.selection === "All corners";
+    },
+  });
+
+  const notifySelection = (event: Event) => {
+    const root = (event.currentTarget as Element).closest('[data-part="box-control"]');
+    root?.dispatchEvent(
+      new CustomEvent("selectionchange", {
+        detail: state.selection,
+      }),
+    );
+  };
+  const selectPair = (event: Event) => {
+    if (state.selection === "Top" || state.selection === "Bottom") state.selection = "Top, Bottom";
+    else if (state.selection === "Left" || state.selection === "Right")
+      state.selection = "Left, Right";
+    else if (state.selection === "Top, Bottom") state.selection = "Top";
+    else if (state.selection === "Left, Right") state.selection = "Left";
+    notifySelection(event);
+  };
+  const selectAll = (event: Event) => {
+    state.selection = state.allPressed
+      ? state.kind === "corners"
+        ? "Top Left"
+        : "Top"
+      : state.kind === "corners"
+        ? "All corners"
+        : "All sides";
+    notifySelection(event);
+  };
+  const toggleCustom = () => {
+    state.customOpen = !state.customOpen;
+  };
+
+  return (
+    <div
+      id={id}
+      class={[classes, "w-full"]}
+      data-part="box-control"
+      onSelectionChange={onSelectionChange}
+    >
+      <fieldset
+        class="m-0 min-w-0 border-0 p-0 disabled:pointer-events-none disabled:opacity-45"
+        disabled={disabled}
+      >
+        <header class="mb-3 flex min-h-8 items-start gap-3">
+          <span class="min-w-0">
+            <Text as="strong" variant="body-sm" classes="block">
+              {title}
+            </Text>
+            <Text variant="body-sm" tone="muted" classes="block">
+              {state.selection}
+            </Text>
+          </span>
+          <span class="ml-auto flex shrink-0 items-center gap-1" data-part="box-control-actions">
+            {selectionKind !== "corners" && (
+              <button
+                type="button"
+                class="grid size-8 cursor-pointer place-items-center rounded-md border border-transparent bg-transparent text-muted-foreground hover:bg-ui-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-40 aria-pressed:border-ring aria-pressed:bg-[color-mix(in_oklch,var(--ring)_12%,var(--popover))] aria-pressed:text-ring"
+                aria-label="Sync opposite sides"
+                title="Sync opposite sides"
+                aria-pressed={state.pairPressed}
+                disabled={state.pairDisabled}
+                onClick={selectPair}
+                data-part="box-control-pair-toggle"
+              >
+                <span class="relative block size-4" aria-hidden="true">
+                  <span class="absolute inset-0" hidden={!state.pairVertical}>
+                    <Icon name="spacing-sync-top-bottom" size="sm" />
+                  </span>
+                  <span class="absolute inset-0" hidden={state.pairVertical}>
+                    <Icon name="spacing-sync-left-right" size="sm" />
+                  </span>
+                </span>
+              </button>
+            )}
+            <button
+              type="button"
+              class="grid size-8 cursor-pointer place-items-center rounded-md border border-transparent bg-transparent text-muted-foreground hover:bg-ui-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring aria-pressed:border-ring aria-pressed:bg-[color-mix(in_oklch,var(--ring)_12%,var(--popover))] aria-pressed:text-ring"
+              aria-label={selectionKind === "corners" ? "Select all corners" : "Select all sides"}
+              title={selectionKind === "corners" ? "Select all corners" : "Select all sides"}
+              aria-pressed={state.allPressed}
+              onClick={selectAll}
+              data-part="box-control-all-toggle"
+            >
+              <span class="relative block size-4" aria-hidden="true">
+                {selectionKind === "corners" ? (
+                  <>
+                    <Icon name="border-radius-top-left" size="sm" classes="absolute inset-0" />
+                    <Icon name="border-radius-top-right" size="sm" classes="absolute inset-0" />
+                    <Icon name="border-radius-bottom-right" size="sm" classes="absolute inset-0" />
+                    <Icon name="border-radius-bottom-left" size="sm" classes="absolute inset-0" />
+                  </>
+                ) : (
+                  <>
+                    <Icon name="spacing-sides-top" size="sm" classes="absolute inset-0" />
+                    <Icon name="spacing-sides-right" size="sm" classes="absolute inset-0" />
+                    <Icon name="spacing-sides-bottom" size="sm" classes="absolute inset-0" />
+                    <Icon name="spacing-sides-left" size="sm" classes="absolute inset-0" />
+                  </>
+                )}
+              </span>
+            </button>
+            <Button
+              hierarchy="tertiary"
+              size="xs"
+              label="Close"
+              title="Close"
+              onClick={onClose}
+              data-part="box-control-close"
+            >
+              <Icon name="close" size="sm" />
+            </Button>
+          </span>
+        </header>
+        <div
+          class="group/box-control grid min-h-9 grid-cols-[32px_minmax(0,1fr)_40px_24px] items-center gap-1.5"
+          data-part="box-control-token"
+          hidden={state.customOpen}
+        >
+          <span
+            class="relative isolate mx-auto grid size-8 place-items-center"
+            aria-hidden="true"
+            data-part="box-control-selection"
+          >
+            {selectionKind === "corners" ? (
+              <>
+                <span class="absolute inset-0" hidden={!state.topLeftSelected}>
+                  <Icon name="border-radius-top-left" size="xl" />
+                </span>
+                <span class="absolute inset-0" hidden={!state.topRightSelected}>
+                  <Icon name="border-radius-top-right" size="xl" />
+                </span>
+                <span class="absolute inset-0" hidden={!state.bottomRightSelected}>
+                  <Icon name="border-radius-bottom-right" size="xl" />
+                </span>
+                <span class="absolute inset-0" hidden={!state.bottomLeftSelected}>
+                  <Icon name="border-radius-bottom-left" size="xl" />
+                </span>
+              </>
+            ) : (
+              <>
+                <span class="absolute inset-0" hidden={!state.topSelected}>
+                  <Icon name="spacing-sides-top" size="xl" />
+                </span>
+                <span class="absolute inset-0" hidden={!state.rightSelected}>
+                  <Icon name="spacing-sides-right" size="xl" />
+                </span>
+                <span class="absolute inset-0" hidden={!state.bottomSelected}>
+                  <Icon name="spacing-sides-bottom" size="xl" />
+                </span>
+                <span class="absolute inset-0" hidden={!state.leftSelected}>
+                  <Icon name="spacing-sides-left" size="xl" />
+                </span>
+              </>
+            )}
+          </span>
+          <RangePicker
+            value={value}
+            max={max}
+            label={label}
+            onInput={onTokenInput}
+            onChange={onTokenChange}
+          />
+          <label>
+            <span class="sr-only">Selected {label}</span>
+            <Text
+              variant="body-sm"
+              style={{ lineHeight: "normal" }}
+              classes="box-border grid h-7 w-10 place-items-center overflow-hidden rounded-[5px] border border-input bg-background px-1 text-center font-semibold"
+              as="output"
+            >
+              {displayValue}
+            </Text>
+          </label>
+          <Button
+            hierarchy="tertiary"
+            size="xs"
+            classes="aria-pressed:bg-[color-mix(in_oklch,var(--ring)_12%,var(--popover))] aria-pressed:text-ring"
+            label="Set custom value"
+            title="Set custom value"
+            onClick={toggleCustom}
+            data-part="box-control-custom-toggle"
+          >
+            <Icon name="settings" size="sm" />
+          </Button>
+        </div>
+        <div
+          class="grid min-h-9 grid-cols-[78px_minmax(0,1fr)_24px] items-center gap-1.5"
+          data-part="box-control-custom"
+          hidden={!state.customOpen}
+        >
+          <label
+            class={`h-7 w-[78px] overflow-hidden rounded border border-input bg-background ${customKind === "number" ? "flex" : "hidden"}`}
+          >
+            <span class="sr-only">{label}</span>
+            <Input
+              type="number"
+              value={customNumber}
+              inputMode="decimal"
+              classes="h-7 w-[42px] min-w-0 appearance-none rounded-none border-0 bg-transparent py-0 pr-0.5 pl-1.5 shadow-none outline-none focus-visible:ring-0 [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+              onChange={onCustomChange}
+            />
+            <Text variant="body-sm" tone="accent" classes="h-full w-9 min-w-0">
+              <select
+                class="size-full cursor-pointer border-0 bg-transparent outline-none"
+                aria-label="CSS unit"
+                value={customUnit}
+                onChange={onCustomChange}
+              >
+                <option value="px">px</option>
+                <option value="%">%</option>
+                <option value="em">em</option>
+                <option value="rem">rem</option>
+                <option value="vw">vw</option>
+                <option value="vh">vh</option>
+              </select>
+            </Text>
+          </label>
+          <div
+            class={`relative h-8 min-w-0 ${customKind === "number" ? "" : "hidden"}`}
+            style={`--custom-value:${customRangeValue};--custom-min:${customMin};--custom-max:${customMax}`}
+          >
+            <div
+              class="absolute top-3.5 right-2 left-2 h-[5px] overflow-hidden rounded-sm bg-input"
+              aria-hidden="true"
+            >
+              <i
+                class="block h-full bg-ring"
+                style={{
+                  width:
+                    "calc((var(--custom-value) - var(--custom-min)) / (var(--custom-max) - var(--custom-min)) * 100%)",
+                }}
+              ></i>
+            </div>
+            <span
+              class="pointer-events-none absolute top-2 z-[1] size-4 -translate-x-1/2 rounded-full border-2 border-popover bg-ring shadow-[0_0_0_1px_var(--ring)]"
+              style={{
+                left: "calc(8px + (100% - 16px) * (var(--custom-value) - var(--custom-min)) / (var(--custom-max) - var(--custom-min)))",
+              }}
+              aria-hidden="true"
+              data-part="box-control-custom-thumb"
+            ></span>
+            <input
+              type="range"
+              min={customMin}
+              max={customMax}
+              step={customStep}
+              value={customRangeValue}
+              aria-label={label}
+              class="relative z-[2] h-8 w-full cursor-pointer appearance-none bg-transparent p-0 outline-none [&::-moz-range-thumb]:size-4 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:opacity-0 [&::-moz-range-track]:h-[5px] [&::-moz-range-track]:bg-transparent [&::-webkit-slider-runnable-track]:h-[5px] [&::-webkit-slider-runnable-track]:bg-transparent [&::-webkit-slider-thumb]:mt-[-6px] [&::-webkit-slider-thumb]:size-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:opacity-0"
+              data-part="box-control-custom-range"
+              onInput={onCustomRangeInput}
+              onChange={onCustomRangeChange}
+            />
+          </div>
+          <label class={`col-span-2 ${customKind === "number" ? "hidden" : ""}`}>
+            <span class="sr-only">{label}</span>
+            <Input
+              type="text"
+              value={customValue}
+              placeholder="CSS value"
+              classes="h-7 w-full px-[7px]"
+              onChange={onCustomChange}
+            />
+          </label>
+          <Button
+            hierarchy="tertiary"
+            size="xs"
+            classes="aria-pressed:bg-[color-mix(in_oklch,var(--ring)_12%,var(--popover))] aria-pressed:text-ring"
+            label="Use design token"
+            title="Use design token"
+            aria-pressed="true"
+            onClick={toggleCustom}
+            data-part="box-control-custom-toggle"
+          >
+            <Icon name="settings" size="sm" />
+          </Button>
+        </div>
+        <div class="mt-3 border-t border-border pt-3 empty:hidden" data-part="box-control-extras">
+          {children}
+        </div>
+      </fieldset>
+    </div>
+  );
+}

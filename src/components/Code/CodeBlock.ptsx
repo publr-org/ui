@@ -1,0 +1,19 @@
+// Preformatted block: a JSON document, a stored value, shown as it is. Wraps
+// long lines instead of scrolling, so a value stays readable in a narrow pane.
+
+export type CodeBlockProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function CodeBlock({ children, classes = "", id }: CodeBlockProps) {
+  return (
+    <pre
+      id={id}
+      class={["m-0 whitespace-pre-wrap font-mono text-body-sm text-foreground", classes]}
+    >
+      {children}
+    </pre>
+  );
+}

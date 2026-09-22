@@ -1,0 +1,170 @@
+import { BulkActions } from "../../../src/components/BulkActions/BulkActions.ptsx";
+import { BulkActionsClear } from "../../../src/components/BulkActions/BulkActionsClear.ptsx";
+import { BulkActionsItem } from "../../../src/components/BulkActions/BulkActionsItem.ptsx";
+import { BulkActionsSeparator } from "../../../src/components/BulkActions/BulkActionsSeparator.ptsx";
+import type { ComponentDemoMeta, ComponentDemoVariant, DemoNode } from "../../gallery-types";
+
+const usage = `<DataTable>
+  <BulkActions>
+    <BulkActionsItem><Icon name="edit" size="xs" />Edit</BulkActionsItem>
+    <BulkActionsItem><Icon name="duplicate" size="xs" />Duplicate</BulkActionsItem>
+    <BulkActionsSeparator />
+    <BulkActionsItem variant="destructive"><Icon name="trash" size="xs" />Delete</BulkActionsItem>
+    <BulkActionsClear />
+  </BulkActions>
+  <Table>…rows with DataTableRowSelect…</Table>
+</DataTable>`;
+
+export const meta = {
+  name: "bulk-actions",
+  label: "BulkActions",
+  source: "src/components/BulkActions/BulkActions.ptsx",
+  kind: "composite",
+  group: "Essentials",
+  description:
+    "Selection action bar for DataTable lists: live count, action items, and a clear button, shown while rows are selected.",
+  tags: ["bulk", "selection", "actions", "table", "toolbar"],
+  usage,
+  preview: "toolbar",
+  previewLabel: "Count, actions, separator, and clear",
+  docs: {
+    purpose: [
+      "BulkActions renders the bar that appears above a selection-capable list while rows are selected: a live selected count, the available actions, and a trailing clear control.",
+      "Visibility, count, and clearing are wired declaratively to the enclosing data-table store — the bar has no count or visible props.",
+    ],
+    useWhen: [
+      "A DataTable list offers operations over the selected rows.",
+      "The selection lives in the data-table store on an enclosing DataTable root.",
+    ],
+    avoidWhen: [
+      "Toolbars unrelated to row selection — compose Buttons in page markup.",
+      "Lists without a data-table store; the bar would never show itself.",
+    ],
+    rules: [
+      {
+        title: "The store is the single source of truth",
+        description:
+          "The bar shows via $anySelected and counts via $selectedCount; do not mirror selection state into props.",
+      },
+      {
+        title: "Items compose Icon + text",
+        description:
+          "There are no icon-name or label props; children carry the artwork and the action name.",
+      },
+      {
+        title: "Destructive is a variant, not a different part",
+        description: 'variant="destructive" owns the destructive color treatment.',
+      },
+    ],
+    accessibility: [
+      "Items are native buttons (or links via href) with visible text names.",
+      "The count and 'selected' are plain visible text announced with the bar's appearance.",
+      "All interactive parts carry the shared focus-visible outline.",
+    ],
+    composition: [
+      "Place BulkActions inside DataTable, directly above the Table it acts on.",
+      "Wire real operations by giving items onClick/page-store actions or hrefs; keep placeholder actions disabled.",
+      "BulkActionsClear is last and owns the ml-auto trailing position.",
+    ],
+    agentNotes: [
+      "No count/visible props by design — the old system's imperative consumer wiring is superseded by the data-table store bindings.",
+      "BulkActionsClear invokes the store's clearSelection; do not rewire it.",
+      "Item disabled is button-only; it cannot combine with href (union type).",
+    ],
+    props: [
+      {
+        name: "BulkActions.children",
+        type: "node",
+        description: "Items, separators, and the clear control.",
+      },
+      {
+        name: "BulkActions.classes",
+        type: "string",
+        description: "Layout classes on the bar.",
+      },
+      { name: "BulkActions.id", type: "string", description: "Optional identifier." },
+      {
+        name: "BulkActionsItem.variant",
+        type: '"default" | "destructive"',
+        description: "Semantic color treatment.",
+        default: '"default"',
+      },
+      {
+        name: "BulkActionsItem.href",
+        type: "string",
+        description: "Renders the item as a link; excludes disabled.",
+      },
+      {
+        name: "BulkActionsItem.disabled",
+        type: "boolean",
+        description: "Native disabled state (button form only).",
+        default: "false",
+      },
+      {
+        name: "BulkActionsItem.children",
+        type: "node",
+        description: "Composed Icon and action text.",
+      },
+      {
+        name: "BulkActionsItem.classes",
+        type: "string",
+        description: "Exceptional composition classes.",
+      },
+      { name: "BulkActionsItem.id", type: "string", description: "Optional identifier." },
+      {
+        name: "BulkActionsSeparator.classes",
+        type: "string",
+        description: "Exceptional composition classes.",
+      },
+      { name: "BulkActionsSeparator.id", type: "string", description: "Optional identifier." },
+      {
+        name: "BulkActionsClear.children",
+        type: "node",
+        description: 'Visible label; defaults to "Clear".',
+      },
+      {
+        name: "BulkActionsClear.classes",
+        type: "string",
+        description: "Exceptional composition classes.",
+      },
+      { name: "BulkActionsClear.id", type: "string", description: "Optional identifier." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+// The bar hides itself without a selection, so the standalone demo unhides it
+// with classes — the wrapper the store would otherwise drive.
+const CANONICAL_NODE: DemoNode = {
+  component: "BulkActions",
+  props: { classes: "flex!" },
+  wrapper: "w-full",
+  children: [
+    { component: "BulkActionsItem", props: { children: "Edit" } },
+    { component: "BulkActionsItem", props: { children: "Duplicate" } },
+    { component: "BulkActionsSeparator", props: {} },
+    { component: "BulkActionsItem", props: { variant: "destructive", children: "Delete" } },
+    { component: "BulkActionsClear", props: {} },
+  ],
+};
+
+export const variants = [
+  {
+    label: "Actions with separator and clear",
+    description:
+      "Edit and duplicate, a separator, the destructive delete, and the trailing clear control.",
+    usage,
+    notes: [
+      'The demo unhides the bar with classes="flex!"; inside DataTable the store\'s $anySelected drives visibility.',
+    ],
+    Demo: () => (
+      <BulkActions classes="flex!">
+        <BulkActionsItem>Edit</BulkActionsItem>
+        <BulkActionsItem>Duplicate</BulkActionsItem>
+        <BulkActionsSeparator />
+        <BulkActionsItem variant="destructive">Delete</BulkActionsItem>
+        <BulkActionsClear />
+      </BulkActions>
+    ),
+    node: CANONICAL_NODE,
+  },
+] satisfies ComponentDemoVariant[];

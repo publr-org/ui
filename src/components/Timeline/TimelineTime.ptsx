@@ -1,0 +1,17 @@
+// Relative timestamp at the end of the header row. Composes muted body-sm
+// Text; shrink-0 keeps it whole while the description truncates.
+import { Text } from "../Text/Text.ptsx";
+
+export type TimelineTimeProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function TimelineTime({ children, classes = "", id }: TimelineTimeProps) {
+  return (
+    <Text id={id} as="span" variant="body-sm" tone="muted" classes={`shrink-0 ${classes}`}>
+      {children}
+    </Text>
+  );
+}

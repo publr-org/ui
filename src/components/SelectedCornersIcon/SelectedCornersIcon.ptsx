@@ -1,0 +1,74 @@
+import { Icon, type IconProps } from "../Icon/Icon.ptsx";
+
+const SELECTED_CORNERS_ICON_SIZES = {
+  xs: "size-3",
+  sm: "size-4",
+  md: "size-5",
+  lg: "size-6",
+  xl: "size-8",
+} as const;
+
+export type SelectedCornersIconProps = Omit<IconProps, "name"> & {
+  topLeft?: boolean;
+  topRight?: boolean;
+  bottomRight?: boolean;
+  bottomLeft?: boolean;
+};
+
+export function SelectedCornersIcon({
+  bottomLeft = false,
+  bottomRight = false,
+  classes = "",
+  id,
+  size = "md",
+  topLeft = false,
+  topRight = false,
+}: SelectedCornersIconProps) {
+  return (
+    <span
+      id={id}
+      class={[
+        SELECTED_CORNERS_ICON_SIZES[size],
+        "relative inline-block shrink-0 [--publr-icon-guide:var(--border)]",
+        classes,
+      ]}
+      aria-hidden="true"
+      data-part="selected-corners-icon"
+      data-top-left={topLeft ? "true" : "false"}
+      data-top-right={topRight ? "true" : "false"}
+      data-bottom-right={bottomRight ? "true" : "false"}
+      data-bottom-left={bottomLeft ? "true" : "false"}
+    >
+      <Icon
+        name="border-radius-none"
+        size={size}
+        classes="absolute inset-0 [mix-blend-mode:var(--publr-icon-selection-blend,darken)]"
+        hidden={topLeft || topRight || bottomRight || bottomLeft}
+      />
+      <Icon
+        name="border-radius-top-left"
+        size={size}
+        classes="absolute inset-0 [mix-blend-mode:var(--publr-icon-selection-blend,darken)]"
+        hidden={!topLeft}
+      />
+      <Icon
+        name="border-radius-top-right"
+        size={size}
+        classes="absolute inset-0 [mix-blend-mode:var(--publr-icon-selection-blend,darken)]"
+        hidden={!topRight}
+      />
+      <Icon
+        name="border-radius-bottom-right"
+        size={size}
+        classes="absolute inset-0 [mix-blend-mode:var(--publr-icon-selection-blend,darken)]"
+        hidden={!bottomRight}
+      />
+      <Icon
+        name="border-radius-bottom-left"
+        size={size}
+        classes="absolute inset-0 [mix-blend-mode:var(--publr-icon-selection-blend,darken)]"
+        hidden={!bottomLeft}
+      />
+    </span>
+  );
+}

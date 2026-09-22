@@ -1,0 +1,29 @@
+// The pill's answer: a quiet strip the band's full height that holds the value and the
+// way out, so the label stays plain on the band and the answer reads as one thing. When an
+// operator precedes it (`attached`), the strip starts under the operator's right half and
+// the value begins where the operator ends. Compose FilterPillValue and FilterPillRemove.
+
+export type FilterPillBodyProps = {
+  /** An operator pill straddles the strip's left edge. */
+  attached?: boolean;
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function FilterPillBody({
+  attached = false,
+  children,
+  classes = "",
+  id,
+}: FilterPillBodyProps) {
+  return (
+    <span
+      id={id}
+      class={["inline-flex h-full items-center bg-muted pr-1", attached ? "pl-7" : "pl-3", classes]}
+      data-part="filter-pill-body"
+    >
+      {children}
+    </span>
+  );
+}

@@ -1,0 +1,59 @@
+// Semantic heading primitive. `level` owns the document outline while `size`
+// independently selects one of Text's closed heading treatments.
+import { Dynamic } from "publr-jsx";
+import type { TextProps } from "../Text/Text.ptsx";
+
+export const HEADING_SIZES = ["2xl", "xl", "lg", "md", "sm", "xs"] as const;
+export const HEADING_LEVELS = [1, 2, 3, 4, 5, 6] as const;
+
+// These target-local maps mirror Text's heading variants and tones. Keeping
+// them literal lets PJSX lower Heading into self-contained ZSX/Zig; focused
+// tests lock every value to Text so the typography contract cannot drift.
+export const HEADING_VARIANTS = {
+  "2xl": "text-3xl leading-9 font-semibold tracking-tight",
+  xl: "text-[28px] leading-8 font-semibold tracking-heading-xl",
+  lg: "text-xl leading-7 font-semibold tracking-heading-lg",
+  md: "text-lg leading-6 font-semibold",
+  sm: "text-heading-sm font-semibold",
+  xs: "text-sm leading-5 font-semibold",
+} as const;
+
+export const HEADING_TONES = {
+  default: "",
+  muted: "text-muted-foreground",
+  accent: "text-primary",
+  success: "text-success",
+  warning: "text-warning",
+  error: "text-destructive",
+} as const;
+
+export type HeadingSize = (typeof HEADING_SIZES)[number];
+export type HeadingLevel = (typeof HEADING_LEVELS)[number];
+export type HeadingProps = Omit<TextProps, "variant" | "as"> & {
+  size: HeadingSize;
+  level: HeadingLevel;
+};
+
+export function Heading({
+  children,
+  classes = "",
+  id,
+  level,
+  size,
+  style,
+  tone = "default",
+}: HeadingProps) {
+  return (
+    <Dynamic
+      as={`h${level}`}
+      id={id}
+      class={["m-0", HEADING_VARIANTS[size], HEADING_TONES[tone], classes]}
+      data-heading-level={level}
+      data-text-variant={`heading-${size}`}
+      data-text-tone={tone}
+      style={style}
+    >
+      {children}
+    </Dynamic>
+  );
+}

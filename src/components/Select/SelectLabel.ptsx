@@ -1,0 +1,20 @@
+import { Text } from "../Text/Text.ptsx";
+
+export type SelectLabelProps = {
+  id?: string;
+  children: string;
+  classes?: string;
+};
+
+export function SelectLabel({ id, children, classes = "" }: SelectLabelProps) {
+  return (
+    <Text
+      id={id}
+      variant="body-sm"
+      tone="muted"
+      classes={`block px-2 py-1.5 font-semibold ${classes}`}
+    >
+      {children}
+    </Text>
+  );
+}

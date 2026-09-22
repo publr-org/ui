@@ -1,0 +1,75 @@
+// Inline navigation link. A real anchor per the WAI-ARIA APG link pattern —
+// native semantics carry focus, activation, and announcement; the component
+// adds only the closed typography and tone treatments.
+
+// Mirrors Text's variant map literally: PJSX lowers self-contained ZSX/Zig
+// only from statically enumerable file-local maps. Focused tests lock this
+// mirror to Text so the typography contract cannot drift.
+export const LINK_VARIANTS = {
+  "heading-2xl": "text-3xl leading-9 font-semibold tracking-tight",
+  "heading-xl": "text-[28px] leading-8 font-semibold tracking-heading-xl",
+  "heading-lg": "text-xl leading-7 font-semibold tracking-heading-lg",
+  "heading-md": "text-lg leading-6 font-semibold",
+  "heading-sm": "text-heading-sm font-semibold",
+  "heading-xs": "text-sm leading-5 font-semibold",
+  "body-xl": "text-lg leading-7 font-medium",
+  "body-lg": "text-base leading-6 font-medium",
+  "body-md": "text-sm leading-5 font-medium",
+  "body-sm": "text-body-sm font-medium",
+  "body-xs": "text-2xs leading-4 font-medium",
+  "mono-sm": "font-mono text-body-sm",
+  "mono-xs": "font-mono text-2xs leading-4",
+} as const;
+
+export const LINK_TONES = {
+  accent:
+    "text-foreground underline decoration-border underline-offset-4 hover:decoration-foreground",
+  default: "text-foreground hover:underline hover:underline-offset-4",
+  quiet: "text-muted-foreground transition-colors hover:text-foreground",
+} as const;
+
+export type LinkVariant = keyof typeof LINK_VARIANTS;
+export type LinkTone = keyof typeof LINK_TONES;
+
+export type LinkProps = {
+  children: JSX.Element;
+  classes?: string;
+  href: string;
+  id?: string;
+  /** The accessible name of a link whose only child is an icon. */
+  label?: string;
+  /** Opens in a new tab, with no opener handed to the destination. */
+  external?: boolean;
+  tone?: LinkTone;
+  variant?: LinkVariant;
+};
+
+export function Link({
+  children,
+  classes = "",
+  href,
+  id,
+  label,
+  external = false,
+  tone = "accent",
+  variant = "body-sm",
+}: LinkProps) {
+  return (
+    <a
+      id={id}
+      href={href}
+      aria-label={label}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noopener noreferrer" : undefined}
+      class={[
+        "transition-colors focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+        LINK_VARIANTS[variant],
+        LINK_TONES[tone],
+        classes,
+      ]}
+      data-link-tone={tone}
+    >
+      {children}
+    </a>
+  );
+}

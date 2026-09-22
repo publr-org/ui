@@ -1,0 +1,15 @@
+// Visual separator between trail entries, hidden from assistive technology
+// per the APG breadcrumb pattern.
+
+export type BreadcrumbSeparatorProps = {
+  classes?: string;
+  id?: string;
+};
+
+export function BreadcrumbSeparator({ classes = "", id }: BreadcrumbSeparatorProps) {
+  return (
+    <li id={id} aria-hidden="true" class={["text-input", classes]}>
+      /
+    </li>
+  );
+}

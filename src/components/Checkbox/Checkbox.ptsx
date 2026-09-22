@@ -1,0 +1,64 @@
+// Native checkbox control with the shared form treatment. Deliberately dumb:
+// Field or a native <label> owns labeling, parents own state, and there is no
+// wrapper element or state mirroring — CSS pseudo-classes express checked and
+// indeterminate visuals on the native input itself.
+//
+// `checked` renders the native checked attribute (uncontrolled initial state).
+// `indeterminate` is a DOM property with no attribute serialization, so its
+// static value means nothing to SSR — the prop exists so the `:indeterminate`
+// reactive binding has a declared transport across BOTH targets (the ZSX
+// lowering only forwards bindings for TypeScript-declared props); owners drive it
+// from store state (see migrations/12-checkbox.md).
+
+import { Dynamic } from "publr-jsx";
+
+export type CheckboxProps = {
+  id?: string;
+  name?: string;
+  value?: string;
+  checked?: boolean;
+  indeterminate?: boolean;
+  disabled?: boolean;
+  invalid?: boolean;
+  required?: boolean;
+  /** The id of the form it posts with, when it sits outside that form. */
+  form?: string;
+  classes?: string;
+  onChange?: (event: Event) => void;
+};
+
+export function Checkbox({
+  id,
+  name,
+  value,
+  checked = false,
+  indeterminate = false,
+  disabled = false,
+  invalid = false,
+  required = false,
+  form,
+  classes = "",
+  onChange,
+}: CheckboxProps) {
+  return (
+    <Dynamic
+      as="input"
+      type="checkbox"
+      id={id}
+      name={name}
+      value={value}
+      form={form}
+      checked={checked}
+      indeterminate={indeterminate}
+      disabled={disabled}
+      required={required}
+      aria-invalid={invalid}
+      class={[
+        "size-4 shrink-0 cursor-pointer rounded-[5px] border bg-card text-primary accent-primary shadow-xs transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/15 disabled:cursor-not-allowed disabled:opacity-50",
+        invalid ? "border-destructive" : "border-input",
+        classes,
+      ]}
+      onChange={onChange}
+    />
+  );
+}

@@ -1,0 +1,20 @@
+// Sidebar folder navigation — a named nav landmark over a plain list.
+// Deliberately NOT a WAI-ARIA tree: items are ordinary links the server
+// filters by, so native link semantics (tab order, aria-current) are the
+// whole keyboard contract. Nesting is visual indentation via the item's
+// closed level scale.
+
+export type FolderNavProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+  label: string;
+};
+
+export function FolderNav({ children, classes = "", id, label }: FolderNavProps) {
+  return (
+    <nav id={id} aria-label={label} class={classes}>
+      <ul class="m-0 list-none space-y-0.5 p-0">{children}</ul>
+    </nav>
+  );
+}

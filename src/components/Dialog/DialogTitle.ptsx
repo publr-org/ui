@@ -1,0 +1,16 @@
+// Dialog heading — the family effect wires its id onto the panel's
+// aria-labelledby, so every dialog with a title is named automatically.
+
+export type DialogTitleProps = {
+  id?: string;
+  classes?: string;
+  children: JSX.Element;
+};
+
+export function DialogTitle({ id, classes = "", children }: DialogTitleProps) {
+  return (
+    <h2 id={id} class={["text-sm font-semibold text-foreground", classes]} data-part="title">
+      {children}
+    </h2>
+  );
+}

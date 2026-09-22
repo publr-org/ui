@@ -1,0 +1,29 @@
+// The pill's way out: a quiet close link at the end of the strip, to the list without
+// this filter.
+import { Icon } from "../Icon/Icon.ptsx";
+
+export type FilterPillRemoveProps = {
+  classes?: string;
+  href: string;
+  id?: string;
+  /** The accessible name: "Remove the status filter". */
+  label: string;
+};
+
+export function FilterPillRemove({ classes = "", href, id, label }: FilterPillRemoveProps) {
+  return (
+    <a
+      id={id}
+      href={href}
+      aria-label={label}
+      title={label}
+      class={[
+        "inline-flex h-full items-center px-3 text-muted-foreground no-underline transition-colors hover:text-foreground hover:no-underline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
+        classes,
+      ]}
+      data-part="filter-pill-remove"
+    >
+      <Icon name="x-close" size="xs" />
+    </a>
+  );
+}

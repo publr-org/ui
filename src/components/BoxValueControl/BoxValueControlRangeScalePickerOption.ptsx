@@ -1,0 +1,13 @@
+export type BoxValueControlRangeScalePickerOptionProps = {
+  children: string;
+  value: string;
+};
+
+export function BoxValueControlRangeScalePickerOption({
+  children,
+  value,
+}: BoxValueControlRangeScalePickerOptionProps) {
+  return (
+    <input type="hidden" data-part="box-value-control-option" data-label={children} value={value} />
+  );
+}

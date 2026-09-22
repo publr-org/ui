@@ -1,0 +1,38 @@
+// One folder row: an li indented by its closed nesting level wrapping the
+// row surface. The row's active background derives from a composed
+// FolderNavItemLink carrying aria-current — the item holds no duplicate
+// active prop. Compose FolderNavItemLink, then FolderNavItemCount and/or
+// FolderNavItemActions.
+
+export const FOLDER_NAV_LEVELS = ["0", "1", "2", "3", "4", "5"] as const;
+
+export type FolderNavLevel = (typeof FOLDER_NAV_LEVELS)[number];
+
+export type FolderNavItemProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+  level?: FolderNavLevel;
+};
+
+const LEVEL_INDENT: Record<FolderNavLevel, string> = {
+  "0": "",
+  "1": "pl-3",
+  "2": "pl-6",
+  "3": "pl-9",
+  "4": "pl-12",
+  "5": "pl-15",
+};
+
+export function FolderNavItem({ children, classes = "", id, level = "0" }: FolderNavItemProps) {
+  return (
+    <li id={id} class={[LEVEL_INDENT[level], classes]}>
+      <div
+        data-part="folder-nav-row"
+        class="group/folder-row flex h-8 w-full items-center gap-2 rounded-md pl-2 pr-2 text-xs transition-colors hover:bg-sidebar-accent has-[a[aria-current]]:bg-sidebar-accent"
+      >
+        {children}
+      </div>
+    </li>
+  );
+}

@@ -1,0 +1,48 @@
+import { Publr } from "publr-jsx";
+import { state, commit } from "./Select.ptsx";
+import { Icon } from "../Icon/Icon.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type SelectItemProps = {
+  id?: string;
+  children: string;
+  value: string;
+  disabled?: boolean;
+  classes?: string;
+};
+
+export function SelectItem({
+  id,
+  children,
+  value,
+  disabled = false,
+  classes = "",
+}: SelectItemProps) {
+  return (
+    <div
+      id={id}
+      role="option"
+      data-part="option"
+      data-value={value}
+      data-label={children}
+      data-publr-state={disabled ? "disabled" : "unselected"}
+      aria-selected={state.value === Publr.dataset("value")}
+      aria-disabled={disabled}
+      tabindex={-1}
+      onClick={commit}
+      class={[
+        "group flex cursor-pointer items-center justify-between gap-2 rounded-md px-2 py-1.5 outline-none",
+        state.value === Publr.dataset("value") ? "bg-ui-accent text-foreground" : "",
+        disabled
+          ? "pointer-events-none cursor-default text-muted-foreground opacity-50"
+          : "hover:bg-ui-accent hover:text-foreground",
+        classes,
+      ]}
+    >
+      <Text variant="body-md">{children}</Text>
+      <span data-part="indicator" class="shrink-0 opacity-0 group-aria-selected:opacity-100">
+        <Icon name="check" size="sm" />
+      </span>
+    </div>
+  );
+}

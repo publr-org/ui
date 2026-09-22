@@ -1,0 +1,35 @@
+// The shell: the sidebar and the routed page. The whole tree is rebuilt on
+// every state update, with scroll positions carried over, which keeps the
+// views plain functions of the state.
+import { Sidebar } from "./Sidebar.ptsx";
+import { Introduction } from "./Introduction.ptsx";
+import { Components } from "./Components.ptsx";
+import { Overview } from "./Overview.ptsx";
+import { Guidelines } from "./Guidelines.ptsx";
+import { PreviewPage } from "./Preview.ptsx";
+import { Api } from "./Api.ptsx";
+import { Canvas } from "./Canvas.ptsx";
+import { currentEntry, state } from "../state/gallery";
+
+function Page() {
+  const entry = currentEntry();
+  if (state.route.kind === "components") return <Components />;
+  if (state.route.kind !== "component" || !entry) return <Introduction />;
+  const page = state.route.page;
+  if (page === "guidelines") return <Guidelines entry={entry} />;
+  if (page === "preview") return <PreviewPage entry={entry} />;
+  if (page === "canvas") return <Canvas entry={entry} />;
+  if (page === "api") return <Api entry={entry} />;
+  return <Overview entry={entry} />;
+}
+
+export function App() {
+  return (
+    <div class="grid h-dvh min-h-[640px] grid-cols-[280px_minmax(0,1fr)] overflow-hidden bg-muted/35">
+      <Sidebar />
+      <main class="min-w-0 overflow-y-auto" data-gallery-main>
+        <Page />
+      </main>
+    </div>
+  );
+}

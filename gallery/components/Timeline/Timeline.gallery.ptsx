@@ -1,0 +1,516 @@
+import { Avatar } from "../../../src/components/Avatar/Avatar.ptsx";
+import { Link } from "../../../src/components/Link/Link.ptsx";
+import { Text } from "../../../src/components/Text/Text.ptsx";
+import { Timeline } from "../../../src/components/Timeline/Timeline.ptsx";
+import { TimelineContent } from "../../../src/components/Timeline/TimelineContent.ptsx";
+import { TimelineHeader } from "../../../src/components/Timeline/TimelineHeader.ptsx";
+import { TimelineItem } from "../../../src/components/Timeline/TimelineItem.ptsx";
+import { TimelineTime } from "../../../src/components/Timeline/TimelineTime.ptsx";
+import type {
+  ComponentCanvas,
+  ComponentCanvasChildDefault,
+  ComponentCanvasChildInstance,
+  ComponentCanvasGroupControl,
+  ComponentDemoMeta,
+  ComponentDemoVariant,
+  DemoNode,
+} from "../../gallery-types";
+
+export const meta = {
+  name: "timeline",
+  label: "Timeline",
+  source: "src/components/Timeline/Timeline.ptsx",
+  kind: "composite",
+  group: "Essentials",
+  description:
+    "Chronological event feed composed from item, content, header, and time parts with a component-owned connector rail.",
+  tags: ["timeline", "activity", "feed", "history", "events"],
+  usage: `<Timeline>
+  <TimelineItem>
+    <Avatar size="md" name="Olivia Martin" />
+    <TimelineContent>
+      <TimelineHeader>
+        <Text as="p" variant="body-sm" tone="muted" classes="min-w-0 flex-1">
+          <strong class="font-semibold text-foreground">Olivia</strong> created
+        </Text>
+        <TimelineTime>13 hours ago</TimelineTime>
+      </TimelineHeader>
+      <Link href="/admin/content/1" tone="default" variant="body-md" classes="mt-1 block">
+        Untitled
+      </Link>
+    </TimelineContent>
+  </TimelineItem>
+</Timeline>`,
+  preview: "canvas",
+  previewLabel: "Actor, action, time, and object entries joined by the rail",
+  docs: {
+    purpose: [
+      "Timeline shows who did what, when — an ordered feed of events with a gutter marker per entry and a rail connecting consecutive entries.",
+      "The parts mirror the anatomy: Timeline is the list, TimelineItem one entry, TimelineContent the text column, TimelineHeader the description-plus-time row, TimelineTime the relative timestamp.",
+      "The rail is component-owned CSS: every item draws it and the last item hides it, so callers never mark the final entry.",
+    ],
+    useWhen: [
+      "Recent activity, audit history, or any event stream ordered by time.",
+      "Each entry names an actor and an action, optionally linking to the object it touched.",
+    ],
+    avoidWhen: [
+      "Rows share a column structure readers compare — that is a Table.",
+      "There are no events to show; render Empty instead of an empty feed.",
+      "The content is messages in a conversation; that is a different composition.",
+    ],
+    rules: [
+      {
+        title: "Items own the rail",
+        description:
+          "TimelineItem draws the connector to the next entry and hides it on the last item via group-last. Never thread an is-last flag through data.",
+      },
+      {
+        title: "The gutter marker is composed",
+        description:
+          "Compose an Avatar (size md) as the item's first child. The rail offsets are tuned to that marker.",
+      },
+      {
+        title: "Header text truncates, time never wraps",
+        description:
+          "The description composes Text with min-w-0 flex-1; TimelineTime is shrink-0 so the timestamp stays whole.",
+      },
+      {
+        title: "Objects are Links",
+        description:
+          "The touched object under the header composes Link (tone default, body-md), not a click handler.",
+      },
+    ],
+    accessibility: [
+      "Timeline renders a real <ol> and items are <li>, so assistive technology announces entry count and position.",
+      "The connector rail is decorative and aria-hidden.",
+      "Entry meaning lives in visible text and real links; no ARIA additions are needed.",
+    ],
+    composition: [
+      "Author TimelineItems directly inside Timeline in chronological order.",
+      "Inside an item: the marker first, then TimelineContent with TimelineHeader (Text + TimelineTime) and the object Link.",
+      "Page placement (px-5 py-5 in the admin rail) is caller classes on Timeline.",
+    ],
+    agentNotes: [
+      "There is no is-last, variant, or orientation prop anywhere in this family; the parts are the API.",
+      "Do not wrap items in extra elements between Timeline and TimelineItem — the rail's group-last relies on items being siblings.",
+      "Keep descriptions one line: actor in a strong tag, verb after it.",
+    ],
+    props: [
+      { name: "Timeline.children", type: "node", description: "The TimelineItems in order." },
+      {
+        name: "Timeline.classes",
+        type: "string",
+        description: "Layout classes for page placement.",
+      },
+      {
+        name: "Timeline.id",
+        type: "string",
+        description: "Optional identifier applied to the list.",
+      },
+      {
+        name: "TimelineItem.children",
+        type: "node",
+        description: "The gutter marker, then TimelineContent.",
+      },
+      {
+        name: "TimelineItem.classes",
+        type: "string",
+        description: "Exceptional composition classes on the entry.",
+      },
+      {
+        name: "TimelineItem.id",
+        type: "string",
+        description: "Optional identifier applied to the entry.",
+      },
+      {
+        name: "TimelineContent.children",
+        type: "node",
+        description: "TimelineHeader and the composed body.",
+      },
+      {
+        name: "TimelineContent.classes",
+        type: "string",
+        description: "Exceptional composition classes on the text column.",
+      },
+      {
+        name: "TimelineContent.id",
+        type: "string",
+        description: "Optional identifier applied to the column.",
+      },
+      {
+        name: "TimelineHeader.children",
+        type: "node",
+        description: "Description Text and TimelineTime.",
+      },
+      {
+        name: "TimelineHeader.classes",
+        type: "string",
+        description: "Exceptional composition classes on the header row.",
+      },
+      {
+        name: "TimelineHeader.id",
+        type: "string",
+        description: "Optional identifier applied to the row.",
+      },
+      { name: "TimelineTime.children", type: "node", description: "The relative timestamp text." },
+      {
+        name: "TimelineTime.classes",
+        type: "string",
+        description: "Exceptional composition classes on the timestamp.",
+      },
+      {
+        name: "TimelineTime.id",
+        type: "string",
+        description: "Optional identifier applied to the timestamp.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+type Activity = readonly [actor: string, verb: string, object: string, time: string];
+
+const ACTIVITIES: readonly Activity[] = [
+  ["hi", "created", "Untitled", "13 hours ago"],
+  ["hi", "updated", "ABCD [kv:dupa] [kv:test]", "1 week ago"],
+  ["hi", "published", "Test", "2 weeks ago"],
+];
+
+const itemNode = ([actor, verb, object, time]: Activity): DemoNode => ({
+  component: "TimelineItem",
+  props: {},
+  children: [
+    { component: "Avatar", props: { size: "md", name: actor } },
+    {
+      component: "TimelineContent",
+      props: {},
+      children: [
+        {
+          component: "TimelineHeader",
+          props: {},
+          children: [
+            {
+              component: "Text",
+              props: {
+                as: "p",
+                variant: "body-sm",
+                tone: "muted",
+                classes: "min-w-0 flex-1",
+                children: `${actor} ${verb}`,
+              },
+            },
+            { component: "TimelineTime", props: { children: time } },
+          ],
+        },
+        {
+          component: "Link",
+          props: {
+            href: "#",
+            tone: "default",
+            variant: "body-md",
+            classes: "mt-1 block",
+            children: object,
+          },
+        },
+      ],
+    },
+  ],
+});
+
+const CANONICAL_NODE: DemoNode = {
+  component: "Timeline",
+  props: {},
+  wrapper: "w-full max-w-md",
+  children: ACTIVITIES.map(itemNode),
+};
+
+const DemoEntry = ({
+  actor,
+  verb,
+  object,
+  time,
+}: {
+  actor: string;
+  verb: string;
+  object: string;
+  time: string;
+}) => (
+  <TimelineItem>
+    <Avatar size="md" name={actor} />
+    <TimelineContent>
+      <TimelineHeader>
+        <Text as="p" variant="body-sm" tone="muted" classes="min-w-0 flex-1">
+          <strong class="font-semibold text-foreground">{actor}</strong> {verb}
+        </Text>
+        <TimelineTime>{time}</TimelineTime>
+      </TimelineHeader>
+      <Link href="#" tone="default" variant="body-md" classes="mt-1 block">
+        {object}
+      </Link>
+    </TimelineContent>
+  </TimelineItem>
+);
+
+export const variants = [
+  {
+    label: "Activity feed",
+    description: "The canonical actor-action-object feed with the connector rail.",
+    usage: meta.usage,
+    notes: ["Every item draws the rail; the last item hides it via group-last — no is-last data."],
+    Demo: () => (
+      <Timeline classes="w-full max-w-md">
+        {ACTIVITIES.map((activity) => (
+          <DemoEntry actor={activity[0]} verb={activity[1]} object={activity[2]} time={activity[3]} />
+        ))}
+      </Timeline>
+    ),
+    node: CANONICAL_NODE,
+  },
+  {
+    label: "Single entry",
+    description: "A one-item feed renders no rail at all.",
+    usage: `<Timeline>
+  <TimelineItem>
+    <Avatar size="md" name="hi" />
+    <TimelineContent>
+      <TimelineHeader>
+        <Text as="p" variant="body-sm" tone="muted" classes="min-w-0 flex-1">
+          <strong class="font-semibold text-foreground">hi</strong> created
+        </Text>
+        <TimelineTime>13 hours ago</TimelineTime>
+      </TimelineHeader>
+      <Link href="#" tone="default" variant="body-md" classes="mt-1 block">
+        Untitled
+      </Link>
+    </TimelineContent>
+  </TimelineItem>
+</Timeline>`,
+    notes: ["group-last hides the rail when the item is the only child."],
+    Demo: () => (
+      <Timeline classes="w-full max-w-md">
+        <DemoEntry actor="hi" verb="created" object="Untitled" time="13 hours ago" />
+      </Timeline>
+    ),
+    node: {
+      component: "Timeline",
+      props: {},
+      wrapper: "w-full max-w-md",
+      children: [itemNode(ACTIVITIES[0]!)],
+    },
+  },
+] satisfies ComponentDemoVariant[];
+
+const scopedValue = (scope: string, name: string) => (scope ? `${scope}::${name}` : name);
+const stringValue = (values: Readonly<Record<string, unknown>>, name: string, scope = ""): string =>
+  String(values[scopedValue(scope, name)] ?? "");
+const childValues = (
+  values: Readonly<Record<string, unknown>>,
+  name: string,
+  scope = "",
+): readonly ComponentCanvasChildInstance[] => {
+  const value = values[scopedValue(scope, name)];
+  return Array.isArray(value)
+    ? value.filter(
+        (item): item is ComponentCanvasChildInstance =>
+          Boolean(item) && typeof item === "object" && "id" in item && "type" in item,
+      )
+    : [];
+};
+
+// The canvas mirrors the API recursively: Timeline accepts items; an item
+// accepts its Avatar marker and TimelineContent; content accepts the
+// TimelineHeader and the object Link; the header accepts the description
+// Text and TimelineTime.
+const textOption = {
+  name: "text",
+  label: "Text",
+  labelControl: "text.children",
+  type: "group",
+  controls: [
+    { name: "text.children", label: "children", type: "text", default: "hi created" },
+    { name: "text.classes", label: "classes", type: "text", default: "min-w-0 flex-1" },
+  ],
+} satisfies ComponentCanvasGroupControl;
+
+const timeOption = {
+  name: "time",
+  label: "TimelineTime",
+  labelControl: "time.children",
+  type: "group",
+  controls: [
+    { name: "time.children", label: "children", type: "text", default: "just now" },
+    { name: "time.classes", label: "classes", type: "text", default: "" },
+  ],
+} satisfies ComponentCanvasGroupControl;
+
+const headerOption = {
+  name: "header",
+  label: "TimelineHeader",
+  type: "group",
+  controls: [
+    { name: "header.classes", label: "classes", type: "text", default: "" },
+    {
+      name: "header.children",
+      label: "children",
+      type: "children",
+      default: ["text", "time"],
+      options: [textOption, timeOption],
+    },
+  ],
+} satisfies ComponentCanvasGroupControl;
+
+const linkOption = {
+  name: "link",
+  label: "Link",
+  labelControl: "link.children",
+  type: "group",
+  controls: [
+    { name: "link.children", label: "children", type: "text", default: "Untitled" },
+    { name: "link.href", label: "href", type: "text", default: "#" },
+  ],
+} satisfies ComponentCanvasGroupControl;
+
+const contentOption = {
+  name: "content",
+  label: "TimelineContent",
+  type: "group",
+  controls: [
+    { name: "content.classes", label: "classes", type: "text", default: "" },
+    {
+      name: "content.children",
+      label: "children",
+      type: "children",
+      default: ["header", "link"],
+      options: [headerOption, linkOption],
+    },
+  ],
+} satisfies ComponentCanvasGroupControl;
+
+const avatarOption = {
+  name: "avatar",
+  label: "Avatar",
+  labelControl: "avatar.name",
+  type: "group",
+  controls: [{ name: "avatar.name", label: "name", type: "text", default: "hi" }],
+} satisfies ComponentCanvasGroupControl;
+
+const itemOption = {
+  name: "item",
+  label: "TimelineItem",
+  type: "group",
+  controls: [
+    { name: "item.classes", label: "classes", type: "text", default: "" },
+    {
+      name: "item.children",
+      label: "children",
+      type: "children",
+      default: ["avatar", "content"],
+      options: [avatarOption, contentOption],
+    },
+  ],
+} satisfies ComponentCanvasGroupControl;
+
+const itemDefault = ([actor, verb, object, time]: Activity): ComponentCanvasChildDefault => ({
+  type: "item",
+  values: {
+    "item.children": [
+      { type: "avatar", values: { "avatar.name": actor } },
+      {
+        type: "content",
+        values: {
+          "content.children": [
+            {
+              type: "header",
+              values: {
+                "header.children": [
+                  { type: "text", values: { "text.children": `${actor} ${verb}` } },
+                  { type: "time", values: { "time.children": time } },
+                ],
+              },
+            },
+            { type: "link", values: { "link.children": object } },
+          ],
+        },
+      },
+    ],
+  },
+});
+
+export const canvas = {
+  controls: [
+    { name: "timeline.classes", label: "classes", type: "text", default: "" },
+    {
+      name: "timeline.children",
+      label: "children",
+      type: "children",
+      allowMultiple: true,
+      default: ACTIVITIES.map(itemDefault),
+      options: [itemOption],
+    },
+  ],
+  node: (values) => {
+    const text = (scope: string, name: string) => stringValue(values, name, scope);
+    const children = (scope: string, name: string) => childValues(values, name, scope);
+
+    const headerNode = (header: ComponentCanvasChildInstance): DemoNode => ({
+      component: "TimelineHeader",
+      props: { classes: text(header.id, "header.classes") },
+      children: children(header.id, "header.children").map((part): DemoNode =>
+        part.type === "time"
+          ? {
+              component: "TimelineTime",
+              props: {
+                children: text(part.id, "time.children"),
+                classes: text(part.id, "time.classes"),
+              },
+            }
+          : {
+              component: "Text",
+              props: {
+                as: "p",
+                variant: "body-sm",
+                tone: "muted",
+                classes: text(part.id, "text.classes"),
+                children: text(part.id, "text.children"),
+              },
+            },
+      ),
+    });
+
+    const contentNode = (content: ComponentCanvasChildInstance): DemoNode => ({
+      component: "TimelineContent",
+      props: { classes: text(content.id, "content.classes") },
+      children: children(content.id, "content.children").map((part): DemoNode =>
+        part.type === "header"
+          ? headerNode(part)
+          : {
+              component: "Link",
+              props: {
+                href: text(part.id, "link.href") || "#",
+                tone: "default",
+                variant: "body-md",
+                classes: "mt-1 block",
+                children: text(part.id, "link.children"),
+              },
+            },
+      ),
+    });
+
+    return {
+      component: "Timeline",
+      props: { classes: text("", "timeline.classes") },
+      wrapper: "w-full max-w-md",
+      children: children("", "timeline.children").map((item): DemoNode => ({
+        component: "TimelineItem",
+        props: { classes: text(item.id, "item.classes") },
+        children: children(item.id, "item.children").map((part): DemoNode =>
+          part.type === "avatar"
+            ? {
+                component: "Avatar",
+                props: { size: "md", name: text(part.id, "avatar.name") },
+              }
+            : contentNode(part),
+        ),
+      })),
+    };
+  },
+} satisfies ComponentCanvas;

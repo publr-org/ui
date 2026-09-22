@@ -1,0 +1,12 @@
+export type ChoiceButtonProps = {
+  name: string; value: string; label: string; checked: boolean;
+  multiple?: boolean;
+};
+export function ChoiceButton({ name, value, label, checked, multiple = false }: ChoiceButtonProps) {
+  return (
+    <label class="inline-flex cursor-pointer items-center justify-center rounded-lg border border-border bg-card px-3 py-2 text-body-sm font-medium text-foreground has-[:checked]:border-primary has-[:checked]:bg-ui-accent has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-ring">
+      <input class="sr-only" type={multiple ? "checkbox" : "radio"} name={name} value={value} checked={checked} />
+      {label}
+    </label>
+  );
+}

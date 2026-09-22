@@ -1,0 +1,138 @@
+import { Link } from "../../../src/components/Link/Link.ptsx";
+import { SectionTitle } from "../../../src/components/SectionTitle/SectionTitle.ptsx";
+import type {
+  ComponentCanvas,
+  ComponentDemoMeta,
+  ComponentDemoVariant,
+  DemoNode,
+} from "../../gallery-types";
+
+export const meta = {
+  name: "section-title",
+  label: "SectionTitle",
+  source: "src/components/SectionTitle/SectionTitle.ptsx",
+  kind: "composite",
+  group: "Essentials",
+  description:
+    "Dense h-12 section header row with an uppercase micro-type h2 title and an optional action slot.",
+  tags: ["section", "title", "header", "eyebrow", "row"],
+  usage: `<SectionTitle title="Review queue">
+  <Link href="/admin/content">View all 5</Link>
+</SectionTitle>`,
+  preview: "canvas",
+  previewLabel: "Section header row with a trailing action link",
+  docs: {
+    purpose: [
+      "SectionTitle heads a dense admin section: one bordered h-12 row with an uppercase micro-type title and room for a trailing action.",
+      "The root owns the title string and its treatment; children are the optional right-aligned actions.",
+    ],
+    useWhen: [
+      "A list, feed, or rail section needs its standard dense header row.",
+      "The header carries at most a small trailing action (a Link or compact Button).",
+    ],
+    avoidWhen: [
+      "The heading is page-level prose; compose Heading instead.",
+      "The row needs tabs, filters, or complex controls; compose those explicitly.",
+    ],
+    rules: [
+      {
+        title: "The root owns the title",
+        description:
+          "title is a string with one deliberate treatment: 12px semibold uppercase with wide tracking, rendered as an h2 one level under the page h1.",
+      },
+      {
+        title: "Children are actions",
+        description:
+          "Authored children render right-aligned in the row. Compose Link or a compact Button; the slot adds only placement.",
+      },
+    ],
+    accessibility: [
+      "The title renders a real h2 so section structure lands in the document outline.",
+      "Actions keep their own semantics; the row adds no ARIA.",
+    ],
+    composition: [
+      "Pair with Link for View-all actions.",
+      "Stack SectionTitle directly above its section content; the row owns the divider below itself.",
+    ],
+    agentNotes: [
+      "Pass the title as the title prop, not as children — children are the action slot.",
+      "Do not rebuild this row inline; the dense uppercase treatment is component-owned.",
+    ],
+    props: [
+      {
+        name: "title",
+        type: "string",
+        description: "Required section title, rendered as the row's h2.",
+      },
+      {
+        name: "children",
+        type: "node",
+        description: "Optional right-aligned actions (Link, compact Button).",
+      },
+      {
+        name: "classes",
+        type: "string",
+        description: "Layout or exceptional composition classes on the row.",
+      },
+      {
+        name: "id",
+        type: "string",
+        description: "Optional identifier applied to the row.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const variants = [
+  {
+    label: "Plain section header",
+    description: "The baseline dense row.",
+    usage: `<SectionTitle title="Recent activity" />`,
+    notes: ["The row owns its bottom border; content stacks directly beneath."],
+    Demo: () => <SectionTitle title="Recent activity" classes="w-full" />,
+    node: {
+      component: "SectionTitle",
+      props: { title: "Recent activity", classes: "w-full" },
+      wrapper: "w-full",
+    },
+  },
+  {
+    label: "With action",
+    description: "A trailing Link action right-aligned in the row.",
+    usage: `<SectionTitle title="Review queue">
+  <Link href="/admin/content">View all 5</Link>
+</SectionTitle>`,
+    notes: ["Actions compose as children; the slot only places them."],
+    Demo: () => (
+      <SectionTitle title="Review queue" classes="w-full">
+        <Link href="#queue">View all 5</Link>
+      </SectionTitle>
+    ),
+    node: {
+      component: "SectionTitle",
+      props: { title: "Review queue", classes: "w-full" },
+      wrapper: "w-full",
+      children: [{ component: "Link", props: { href: "#queue", children: "View all 5" } }],
+    },
+  },
+] satisfies ComponentDemoVariant[];
+
+export const canvas = {
+  controls: [
+    { name: "title", type: "text", default: "Review queue" },
+    { name: "action", type: "text", default: "View all 5" },
+    { name: "classes", type: "text", default: "" },
+  ],
+  node: (values) => {
+    const action = String(values.action);
+    const children: DemoNode[] = action
+      ? [{ component: "Link", props: { href: "#canvas", children: action } }]
+      : [];
+    return {
+      component: "SectionTitle",
+      props: { title: String(values.title), classes: String(values.classes) },
+      wrapper: "w-full",
+      children,
+    };
+  },
+} satisfies ComponentCanvas;

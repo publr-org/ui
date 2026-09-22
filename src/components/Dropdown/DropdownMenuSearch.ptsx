@@ -1,0 +1,25 @@
+// A search box at the top of a long menu: typing hides the items whose text does not
+// contain the query (case-insensitive) and keyboard navigation walks what is left.
+// The menu opens with the focus here when it is present.
+import { Input } from "../Input/Input.ptsx";
+import { search } from "./Dropdown.ptsx";
+
+export type DropdownMenuSearchProps = {
+  classes?: string;
+  id?: string;
+  label?: string;
+  placeholder?: string;
+};
+
+export function DropdownMenuSearch({
+  classes = "",
+  id,
+  label,
+  placeholder = "Search…",
+}: DropdownMenuSearchProps) {
+  return (
+    <div class={["p-1 pb-1.5", classes]} data-part="search">
+      <Input id={id} type="search" placeholder={placeholder} autocomplete="off" onInput={search} />
+    </div>
+  );
+}

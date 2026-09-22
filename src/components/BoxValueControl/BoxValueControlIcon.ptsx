@@ -1,0 +1,15 @@
+export type BoxValueControlIconProps = {
+  children: JSX.Element;
+};
+
+export function BoxValueControlIcon({ children }: BoxValueControlIconProps) {
+  return (
+    <span
+      class="col-start-1 row-span-2 row-start-1 grid size-8 place-items-center"
+      aria-hidden="true"
+      data-part="box-value-control-icon"
+    >
+      {children}
+    </span>
+  );
+}

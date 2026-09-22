@@ -1,0 +1,53 @@
+// The page's own title band: an optional way back to the parent page, the
+// title as the page's h1, an optional muted line under it, and the page's
+// actions right-aligned. One per page; distinct from PaneHeader, which names
+// a pane's data set in one dense row inside a page.
+import { Heading } from "../Heading/Heading.ptsx";
+import { Icon } from "../Icon/Icon.ptsx";
+import { Link } from "../Link/Link.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type PageHeaderProps = {
+  /** The parent page: rendered as a back link above the title. */
+  back_label?: string;
+  onBack?: (event: MouseEvent) => void;
+  back_href?: string;
+  children?: JSX.Element;
+  classes?: string;
+  description?: string;
+  id?: string;
+  title: string;
+};
+
+export function PageHeader({
+  back_label,
+  onBack,
+  back_href,
+  children,
+  classes = "",
+  description,
+  id,
+  title,
+}: PageHeaderProps) {
+  return (
+    <header id={id} class={["flex flex-wrap items-end justify-between gap-x-6 gap-y-4", classes]}>
+      <div class="min-w-0">
+        {back_label && (
+          <Link onClick={onBack} href={back_href ?? "#"} tone="quiet" classes="mb-3 inline-flex items-center gap-1">
+            <Icon name="arrow-left" size="xs" />
+            {back_label}
+          </Link>
+        )}
+        <Heading level={1} size="xl">
+          {title}
+        </Heading>
+        {description && (
+          <Text as="p" variant="body-md" tone="muted" classes="mt-1.5">
+            {description}
+          </Text>
+        )}
+      </div>
+      {children && <div class="flex shrink-0 flex-wrap items-center gap-2">{children}</div>}
+    </header>
+  );
+}

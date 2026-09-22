@@ -1,0 +1,221 @@
+// A canvas flyout: the properties of a group, or the picker for a children
+// control. It positions itself beside the panel that opened it, or beside the
+// property sidebar, and follows scroll and resize while open.
+import { GIcon } from "../shared/Icon.ptsx";
+import { Control } from "./Controls.ptsx";
+import { addChild, canvasValue, childInstances, valueName } from "../../state/canvas";
+import { currentEntry, groupLabel, state, update, type DemoEntry } from "../../state/gallery";
+import type { ComponentCanvasChildrenControl, ComponentCanvasFieldControl, ComponentCanvasGroupControl } from "../../../gallery-types";
+
+export type PanelItem = { control: ComponentCanvasGroupControl | ComponentCanvasChildrenControl; panel: string; scope: string; parent?: string };
+
+const triggerOf = (group: string) => document.querySelector<HTMLButtonElement>(`[data-canvas-control-group-open="${CSS.escape(group)}"]`);
+const panelOf = (group: string) => document.querySelector<HTMLElement>(`[data-canvas-control-panel="${CSS.escape(group)}"]`);
+
+/** Places one panel from its trigger and parent panel; measured, so it runs after layout. */
+export function position(panel: HTMLElement): void {
+  const group = panel.dataset.canvasControlPanel ?? "";
+  const trigger = triggerOf(group);
+  if (!trigger || panel.hidden) return;
+  const margin = 12;
+  const gap = 12;
+  const scroller = panel.querySelector<HTMLElement>("[data-canvas-control-panel-scroll]");
+  const parent = panel.dataset.canvasControlPanelParent;
+  if (parent) {
+    const parentPanel = panelOf(parent);
+    if (!parentPanel || parentPanel.hidden) return;
+    const parentRect = parentPanel.getBoundingClientRect();
+    const availableLeft = parentRect.left - margin - gap;
+    const availableRight = innerWidth - parentRect.right - margin - gap;
+    const opensLeft = availableLeft >= 280 || availableLeft >= availableRight;
+    const width = Math.min(420, Math.max(240, opensLeft ? availableLeft : availableRight));
+    const top = Math.max(margin, parentRect.top);
+    const availableHeight = Math.max(160, innerHeight - top - margin);
+    panel.style.width = `${width}px`;
+    panel.style.maxHeight = `${availableHeight}px`;
+    panel.style.left = `${opensLeft ? parentRect.left - gap - width : parentRect.right + gap}px`;
+    panel.style.top = `${top}px`;
+    if (scroller) scroller.style.maxHeight = `${Math.max(104, availableHeight - 56)}px`;
+    return;
+  }
+  const triggerRect = trigger.getBoundingClientRect();
+  const canvasRect = document.querySelector("[data-canvas-page]")?.getBoundingClientRect();
+  const availableLeft = triggerRect.left - margin - gap;
+  const beside = availableLeft >= 280;
+  const width = beside ? Math.min(420, availableLeft) : Math.min(420, innerWidth - margin * 2);
+  const top = Math.max(margin, (canvasRect?.top ?? 0) + margin);
+  const availableHeight = Math.max(160, innerHeight - top - margin);
+  panel.style.width = `${width}px`;
+  panel.style.maxHeight = `${availableHeight}px`;
+  if (scroller) scroller.style.maxHeight = `${Math.max(104, availableHeight - 56)}px`;
+  const left = beside
+    ? triggerRect.left - gap - width
+    : Math.min(Math.max(margin, triggerRect.right - width), Math.max(margin, innerWidth - width - margin));
+  panel.style.left = `${left}px`;
+  panel.style.top = `${top}px`;
+}
+
+/** Every open panel, outermost first, so a child lands beside its parent. */
+export function positionPanels(): void {
+  for (const group of state.canvasPanels) {
+    const panel = panelOf(group);
+    if (panel) position(panel);
+  }
+}
+
+function sync(): void {
+  const open = state.canvasPanels;
+  document.querySelectorAll<HTMLElement>("[data-canvas-control-panel]").forEach((panel) => {
+    panel.hidden = !open.includes(panel.dataset.canvasControlPanel ?? "");
+  });
+  document.querySelectorAll<HTMLButtonElement>("[data-canvas-control-group-open]").forEach((button) => {
+    button.setAttribute("aria-expanded", String(open.includes(button.dataset.canvasControlGroupOpen ?? "")));
+  });
+}
+
+/**
+ * Opening and closing toggle the panels in place rather than re-rendering:
+ * a re-render would reload the canvas frame and drop the demo's state.
+ */
+export function showPanel(group: string): void {
+  const entry = currentEntry();
+  if (!entry) return;
+  const parent = triggerOf(group)?.dataset.canvasControlGroupParent;
+  const path = state.canvasPanelsEntry === entry.name ? state.canvasPanels : [];
+  if (parent) {
+    const parentIndex = path.indexOf(parent);
+    const base = parentIndex >= 0 ? path.slice(0, parentIndex + 1) : [parent];
+    if (path[parentIndex + 1] === group && path.length === parentIndex + 2) {
+      hidePanel(group);
+      return;
+    }
+    state.canvasPanels = [...base, group];
+  } else if (path[0] === group) {
+    hidePanel(group);
+    return;
+  } else {
+    state.canvasPanels = [group];
+  }
+  state.canvasPanelsEntry = entry.name;
+  sync();
+  positionPanels();
+  document.querySelector<HTMLButtonElement>(`[data-canvas-control-panel-close="${CSS.escape(group)}"]`)?.focus();
+}
+
+export function hidePanel(group: string, restoreFocus = true): void {
+  const index = state.canvasPanels.indexOf(group);
+  state.canvasPanels = index > 0 ? state.canvasPanels.slice(0, index) : [];
+  sync();
+  const trigger = triggerOf(group);
+  if (trigger) {
+    trigger.setAttribute("aria-expanded", "false");
+    if (restoreFocus) trigger.focus();
+  }
+  if (state.canvasPanels.length) positionPanels();
+}
+
+export function closeAllPanels(): void {
+  const first = state.canvasPanels[0];
+  if (first) hidePanel(first, false);
+}
+
+/** Escape closes the innermost panel; a click outside closes them all. */
+export function installPanelListeners(): void {
+  addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || !state.canvasPanels.length) return;
+    event.preventDefault();
+    const last = state.canvasPanels.at(-1);
+    if (last) hidePanel(last);
+  });
+  addEventListener("pointerdown", (event) => {
+    if (!state.canvasPanels.length) return;
+    const target = event.target as Node | null;
+    const inside = state.canvasPanels.some((group) => {
+      const panel = panelOf(group);
+      const trigger = triggerOf(group);
+      return Boolean(target && (panel?.contains(target) || trigger?.contains(target)));
+    });
+    if (!inside) closeAllPanels();
+  });
+}
+
+/** The panel positions itself on mount and again on window changes while it lives. */
+function placed(element: Element | null): void {
+  if (!element) return;
+  const panel = element as HTMLElement;
+  queueMicrotask(() => position(panel));
+  const reposition = () => position(panel);
+  addEventListener("resize", reposition);
+  addEventListener("scroll", reposition, true);
+}
+
+export function Panel({ entry, item }: { entry: DemoEntry; item: PanelItem }) {
+  const control = item.control;
+  const labelControl =
+    control.type === "group" && control.labelControl
+      ? control.controls.find((child): child is ComponentCanvasFieldControl => child.type !== "group" && child.type !== "children" && child.name === control.labelControl)
+      : undefined;
+  const controlled = labelControl ? canvasValue(entry, labelControl, item.scope) : undefined;
+  const label = groupLabel(typeof controlled === "string" ? controlled : control.type === "children" ? (control.label ?? "children") : (control.label ?? control.name));
+  const open = state.canvasPanelsEntry === entry.name && state.canvasPanels.includes(item.panel);
+  const selectedTypes = control.type === "children" ? childInstances(canvasValue(entry, control, item.scope)).map((instance) => instance.type) : [];
+  const available = control.type === "children" ? control.options.filter((option) => control.allowMultiple || !selectedTypes.includes(option.name)) : [];
+  const children = control.type === "group" ? control.controls : [];
+  return (
+    <section
+      data-canvas-control-panel={item.panel}
+      data-canvas-control-panel-parent={item.parent}
+      role="region"
+      aria-label={label + " props"}
+      hidden={!open}
+      class="fixed z-50 flex max-h-[calc(100dvh-24px)] flex-col overflow-hidden rounded-lg border border-border bg-background shadow-xl"
+      ref={placed}
+    >
+      <header class="flex h-14 shrink-0 items-center justify-between border-b border-border px-4">
+        <span class="min-w-0">
+          <strong class="block text-[12px] font-semibold">{control.type === "children" ? "Add child" : "Properties"}</strong>
+          <span class="block truncate text-[10px] text-muted-foreground">{label}</span>
+        </span>
+        <button
+          type="button"
+          data-canvas-control-panel-close={item.panel}
+          aria-label={"Close " + label + " properties"}
+          class="grid size-8 shrink-0 cursor-pointer place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+          onClick={() => hidePanel(item.panel)}
+        >
+          <GIcon name="chevron-right" />
+        </button>
+      </header>
+      <div data-canvas-control-panel-scroll class="min-h-0 flex-1 overflow-y-auto overscroll-contain" onScroll={() => positionPanels()}>
+        {control.type === "group" ? (
+          <div>
+            {children.map((child) => (
+              <Control entry={entry} control={child} wide={true} parent={item.panel} scope={item.scope} />
+            ))}
+          </div>
+        ) : available.length > 0 ? (
+          <div>
+            {available.map((option) => (
+              <button
+                type="button"
+                class="flex h-14 w-full cursor-pointer items-center gap-3 border-b border-border bg-background px-4 text-left text-muted-foreground hover:bg-muted/45 hover:text-foreground"
+                onClick={() => {
+                  addChild(entry, valueName(item.scope, control.name), option.name);
+                  update();
+                }}
+              >
+                <span class="shrink-0 text-foreground">
+                  <GIcon name="components" />
+                </span>
+                <span class="min-w-0 flex-1 truncate text-[10px] font-semibold tracking-[0.1em] uppercase">{groupLabel(option.label ?? option.name)}</span>
+                <span class="shrink-0 text-[10px] font-medium">Add</span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <p class="px-4 py-8 text-center text-[10px] leading-4 text-muted-foreground">All available children are added.</p>
+        )}
+      </div>
+    </section>
+  );
+}

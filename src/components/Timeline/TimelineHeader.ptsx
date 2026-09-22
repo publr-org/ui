@@ -1,0 +1,17 @@
+// The entry's first row: description text and TimelineTime on one baseline.
+// The description composes Text and takes min-w-0 flex-1 so the time never
+// wraps or collides.
+
+export type TimelineHeaderProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function TimelineHeader({ children, classes = "", id }: TimelineHeaderProps) {
+  return (
+    <div id={id} class={["flex items-baseline gap-3", classes]}>
+      {children}
+    </div>
+  );
+}

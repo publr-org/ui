@@ -1,0 +1,22 @@
+// Decorative presence dot pinned to the avatar's bottom-right corner. The
+// success surface is the one shipped treatment; a different tone is a classes
+// restyle at the owning call site.
+
+export type AvatarBadgeProps = {
+  classes?: string;
+  id?: string;
+};
+
+export function AvatarBadge({ classes = "", id }: AvatarBadgeProps) {
+  return (
+    <span
+      id={id}
+      aria-hidden="true"
+      class={[
+        "absolute bottom-0 right-0 size-3 rounded-full border-2 border-background bg-success",
+        classes,
+      ]}
+      data-part="badge"
+    ></span>
+  );
+}

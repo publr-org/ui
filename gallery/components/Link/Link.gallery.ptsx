@@ -1,0 +1,202 @@
+import { Link, LINK_TONES, LINK_VARIANTS } from "../../../src/components/Link/Link.ptsx";
+import type { LinkTone, LinkVariant } from "../../../src/components/Link/Link.ptsx";
+import { Text } from "../../../src/components/Text/Text.ptsx";
+import type { ComponentCanvas, ComponentDemoMeta, ComponentDemoVariant } from "../../gallery-types";
+
+export const meta = {
+  name: "link",
+  label: "Link",
+  source: "src/components/Link/Link.ptsx",
+  kind: "primitive",
+  group: "Navigation",
+  description:
+    "Inline navigation anchor with closed accent and default tones on Text's typography scale.",
+  tags: ["link", "anchor", "navigation", "inline"],
+  usage: `<Link href="/admin/content">View all 5</Link>
+
+<Link href="/admin/content" tone="default" variant="body-md">
+  How we ship a single binary
+</Link>`,
+  preview: "canvas",
+  previewLabel: "Accent and default tones inline with body text",
+  docs: {
+    purpose: [
+      "Link is the inline navigation primitive: a real anchor that adds only the system's closed link typography and tone treatments.",
+      "It follows the WAI-ARIA APG link pattern — native anchor semantics carry focus, activation, and announcement, with no ARIA additions.",
+    ],
+    useWhen: [
+      "Prose, metadata, or a section header needs an inline navigation link.",
+      "The destination is ordinary navigation rather than an action.",
+    ],
+    avoidWhen: [
+      "The control performs an action; that is Button.",
+      "The link needs button chrome; that is Button with href.",
+      "The trail context is a breadcrumb; BreadcrumbLink owns that denser treatment.",
+    ],
+    rules: [
+      {
+        title: "Tones are closed",
+        description:
+          "accent is the primary-colored link that underlines on hover; default sits in the foreground and shifts to primary on hover. There is no visited or arbitrary-color variant.",
+      },
+      {
+        title: "Typography mirrors Text",
+        description:
+          "variant selects Text's closed scale at medium weight, defaulting to body-sm. Do not size links with utilities.",
+      },
+      {
+        title: "Real anchors only",
+        description: "href is required. A link without a destination is not a Link.",
+      },
+    ],
+    accessibility: [
+      "Renders one native anchor; the visible children are the accessible name.",
+      "Keyboard and screen-reader behavior are native anchor semantics per the APG link pattern.",
+      "Color is never the only affordance: accent links underline on hover and both tones keep a visible focus ring.",
+    ],
+    composition: [
+      "Compose Link inline inside Text blocks and section headers.",
+      "Pair with SectionTitle actions for dense header rows.",
+    ],
+    agentNotes: [
+      "Choose tone by prominence (accent for calls to navigate, default for titles that are links), never by matching a color.",
+      "Do not wrap Link in Text to size it; pass variant instead.",
+    ],
+    props: [
+      {
+        name: "href",
+        type: "string",
+        description: "Required destination; renders a real anchor.",
+      },
+      {
+        name: "children",
+        type: "node",
+        description: "Required visible label — the accessible name.",
+      },
+      {
+        name: "tone",
+        type: "LinkTone",
+        description:
+          "Closed treatment: accent (primary, hover underline) or default (foreground, hover primary).",
+        default: "accent",
+      },
+      {
+        name: "variant",
+        type: "LinkVariant",
+        description: "Text's closed typography scale at medium weight.",
+        default: "body-sm",
+      },
+      {
+        name: "external",
+        type: "boolean",
+        description:
+          "Opens the destination in a new tab (target _blank with rel noopener noreferrer). For addresses outside the app, such as the site a record is published to.",
+        default: "false",
+      },
+      {
+        name: "classes",
+        type: "string",
+        description: "Layout or exceptional composition classes.",
+      },
+      {
+        name: "id",
+        type: "string",
+        description: "Optional identifier applied to the anchor.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const variants = [
+  {
+    label: "Accent link",
+    description: "The default treatment for calls to navigate.",
+    usage: `<Link href="/admin/content">View all 5</Link>`,
+    notes: ["Primary color with underline on hover; body-sm medium by default."],
+    Demo: () => <Link href="#accent">View all 5</Link>,
+    node: { component: "Link", props: { href: "#accent", children: "View all 5" } },
+  },
+  {
+    label: "Default tone",
+    description: "Foreground links — titles and objects that navigate.",
+    usage: `<Link href="/admin/content" tone="default" variant="body-md">
+  How we ship a single binary
+</Link>`,
+    notes: ["Shifts to primary on hover instead of underlining."],
+    Demo: () => (
+      <Link href="#default" tone="default" variant="body-md">
+        How we ship a single binary
+      </Link>
+    ),
+    node: {
+      component: "Link",
+      props: {
+        href: "#default",
+        tone: "default",
+        variant: "body-md",
+        children: "How we ship a single binary",
+      },
+    },
+  },
+  {
+    label: "Beside body text",
+    description: "Links share the baseline of the surrounding Text run.",
+    usage: `<Text variant="body-md">New drafts appear in the</Text>
+<Link href="/admin/content" variant="body-md">review queue</Link>`,
+    notes: ["Match the surrounding Text variant so the baseline stays aligned."],
+    Demo: () => (
+      <div class="flex items-baseline gap-1">
+        <Text variant="body-md">New drafts appear in the</Text>
+        <Link href="#inline" variant="body-md">
+          review queue
+        </Link>
+      </div>
+    ),
+    node: {
+      fragment: true,
+      wrapper: "flex items-baseline gap-1",
+      children: [
+        { component: "Text", props: { variant: "body-md", children: "New drafts appear in the" } },
+        {
+          component: "Link",
+          props: { href: "#inline", variant: "body-md", children: "review queue" },
+        },
+      ],
+    },
+  },
+  {
+    label: "New tab",
+    description: "A destination outside the app opens beside it.",
+    usage: `<Link href="https://example.com/posts/hello" external>/posts/hello</Link>`,
+    notes: ["The anchor carries target _blank and rel noopener noreferrer; the look is unchanged."],
+    Demo: () => (
+      <Link href="#external" external>
+        /posts/hello
+      </Link>
+    ),
+    node: {
+      component: "Link",
+      props: { href: "#external", external: true, children: "/posts/hello" },
+    },
+  },
+] satisfies ComponentDemoVariant[];
+
+export const canvas = {
+  controls: [
+    { name: "children", type: "text", default: "View all 5" },
+    { name: "href", type: "text", default: "#preview" },
+    { name: "tone", type: "select", default: "accent", options: Object.keys(LINK_TONES) },
+    { name: "variant", type: "select", default: "body-sm", options: Object.keys(LINK_VARIANTS) },
+    { name: "classes", type: "text", default: "" },
+  ],
+  node: (values) => ({
+    component: "Link",
+    props: {
+      children: String(values.children),
+      href: String(values.href),
+      tone: String(values.tone) as LinkTone,
+      variant: String(values.variant) as LinkVariant,
+      classes: String(values.classes),
+    },
+  }),
+} satisfies ComponentCanvas;

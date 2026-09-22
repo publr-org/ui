@@ -1,0 +1,405 @@
+// The property controls of the canvas: one row per field, a trigger per
+// group, and the children picker with its tree of added parts.
+import { GIcon } from "../shared/Icon.ptsx";
+import { renderCanvas } from "../../frames/previews";
+import { addChild, canvasValue, childInstances, currentValues, fieldDefinition, removeChild, reshapesControls, valueName } from "../../state/canvas";
+import { showPanel } from "./Panel.ptsx";
+import { groupLabel, state, titleCase, update, type DemoEntry } from "../../state/gallery";
+import type {
+  ComponentCanvasChildrenControl,
+  ComponentCanvasControl,
+  ComponentCanvasFieldControl,
+  ComponentCanvasGroupControl,
+  ComponentCanvasValue,
+} from "../../../gallery-types";
+
+// The field controls with structured editors, named because the type parser
+// has no `Extract`.
+type BoxValueControl = {
+  name: string;
+  label?: string;
+  namedDefault: string;
+  arbitraryDefault: readonly [number, string];
+  unitOptions: readonly string[];
+};
+type StringsControl = {
+  type: "strings" | "optional-strings";
+  name: string;
+  label?: string;
+  default: readonly string[] | null;
+  enabledDefault?: readonly string[];
+};
+type OptionsControl = { name: string; label?: string; default: readonly { label: string; value: string }[] };
+
+const FIELD = "h-8 w-full rounded-md border border-input bg-background px-2 text-[10px] text-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/15";
+const FIELD_LG = "h-9 w-full rounded-md border border-input bg-background px-2.5 text-[11px] text-foreground outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/15";
+const SMALL_BUTTON = "h-8 cursor-pointer rounded-md border border-dashed border-input bg-background px-2 text-[10px] font-medium text-muted-foreground hover:bg-muted hover:text-foreground";
+const REMOVE = "grid size-8 cursor-pointer place-items-center rounded-md border border-input bg-background text-sm text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40";
+
+
+/** A value changed: either the control tree reshapes, or only the demo re-renders. */
+/** A value changed: either the control tree reshapes, or only the demo re-renders. */
+function changed(entry: DemoEntry, name: string): void {
+  const definition = fieldDefinition(entry, name);
+  if (definition && reshapesControls(entry.canvas?.controls ?? [], definition.name)) update();
+  else renderCanvas(entry);
+}
+
+function setValue(entry: DemoEntry, name: string, value: ComponentCanvasValue): void {
+  currentValues(entry)[name] = value;
+}
+
+// ── Controls ───────────────────────────────────────────────────────────────
+
+function Label({ text, description }: { text: string; description?: string }) {
+  return (
+    <span class="min-w-0 pt-2">
+      <code class="rounded bg-muted px-1.5 py-1 font-mono text-[10px] text-foreground">{text}</code>
+      {description && <p class="mt-1 text-[9px] leading-3 text-muted-foreground">{description}</p>}
+    </span>
+  );
+}
+
+function Row({ wide, label, description, field }: { wide: boolean; label: string; description?: string; field: JSX.Element }) {
+  return (
+    <div class={"grid gap-3 border-b border-border px-4 py-3 " + (wide ? "grid-cols-[160px_minmax(0,1fr)]" : "grid-cols-[112px_minmax(0,1fr)]")}>
+      <Label text={label} description={description} />
+      <span class="min-w-0">{field}</span>
+    </div>
+  );
+}
+
+function BoxValueField({ entry, control, name, value }: { entry: DemoEntry; control: BoxValueControl; name: string; value: ComponentCanvasValue }) {
+  const arbitrary = Array.isArray(value) && typeof value[0] === "number" ? { number: Number(value[0]), unit: String(value[1]) } : null;
+  const label = control.label ?? control.name;
+  return (
+    <div class="grid gap-2">
+      <select
+        aria-label={label + " mode"}
+        class={FIELD}
+        onChange={(event: Event) => {
+          const mode = (event.target as HTMLSelectElement).value;
+          setValue(entry, name, mode === "arbitrary" ? control.arbitraryDefault : control.namedDefault);
+          update();
+        }}
+      >
+        <option value="named" selected={arbitrary === null}>Named value</option>
+        <option value="arbitrary" selected={arbitrary !== null}>Arbitrary value</option>
+      </select>
+      {arbitrary ? (
+        <div class="grid grid-cols-[minmax(0,1fr)_72px] gap-1.5">
+          <input
+            type="number"
+            value={String(arbitrary.number)}
+            aria-label={label + " number"}
+            class={FIELD + " min-w-0"}
+            onInput={(event: Event) => {
+              setValue(entry, name, [Number((event.target as HTMLInputElement).value), arbitrary.unit]);
+              renderCanvas(entry);
+            }}
+          />
+          <select
+            aria-label={label + " unit"}
+            class={FIELD + " min-w-0"}
+            onChange={(event: Event) => {
+              setValue(entry, name, [arbitrary.number, (event.target as HTMLSelectElement).value]);
+              renderCanvas(entry);
+            }}
+          >
+            {control.unitOptions.map((unit) => (
+              <option value={unit} selected={unit === arbitrary.unit}>{unit}</option>
+            ))}
+          </select>
+        </div>
+      ) : (
+        <input
+          type="text"
+          value={typeof value === "string" ? value : control.namedDefault}
+          aria-label={label + " named value"}
+          class={FIELD}
+          onInput={(event: Event) => {
+            setValue(entry, name, (event.target as HTMLInputElement).value);
+            renderCanvas(entry);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function StringsField({ entry, control, name, value }: { entry: DemoEntry; control: StringsControl; name: string; value: ComponentCanvasValue }) {
+  const omitted = control.type === "optional-strings" && value === null;
+  const strings: string[] =
+    Array.isArray(value) && (value as unknown[]).every((item) => typeof item === "string")
+      ? [...(value as string[])]
+      : control.type === "strings"
+        ? [...(control.default ?? [])]
+        : [];
+  const label = control.label ?? control.name;
+  return (
+    <div class="grid gap-1.5">
+      {control.type === "optional-strings" && (
+        <button
+          type="button"
+          class={"h-8 cursor-pointer rounded-md border px-2 text-[10px] font-medium hover:bg-muted " + (omitted ? "border-dashed border-input text-muted-foreground" : "border-border bg-muted text-foreground")}
+          onClick={() => {
+            setValue(entry, name, omitted ? [...(control.enabledDefault ?? [])] : null);
+            update();
+          }}
+        >
+          {omitted ? "+ Set prop" : "Omit prop"}
+        </button>
+      )}
+      {strings.map((item, index) => (
+        <div class="grid grid-cols-[minmax(0,1fr)_32px] gap-1.5">
+          <input
+            type="text"
+            value={item}
+            aria-label={label + " " + (index + 1)}
+            class={FIELD + " min-w-0"}
+            onInput={(event: Event) => {
+              const next = [...strings];
+              next[index] = (event.target as HTMLInputElement).value;
+              setValue(entry, name, next);
+              renderCanvas(entry);
+            }}
+          />
+          <button
+            type="button"
+            disabled={control.type === "strings" && strings.length <= 1}
+            aria-label={"Remove " + label + " " + (index + 1)}
+            class={REMOVE}
+            onClick={() => {
+              setValue(entry, name, strings.filter((_item, itemIndex) => itemIndex !== index));
+              update();
+            }}
+          >
+            ×
+          </button>
+        </div>
+      ))}
+      {!omitted && (
+        <button
+          type="button"
+          class={SMALL_BUTTON}
+          onClick={() => {
+            setValue(entry, name, [...strings, "unit"]);
+            update();
+          }}
+        >
+          + Add value
+        </button>
+      )}
+    </div>
+  );
+}
+
+function OptionsField({ entry, control, name, value }: { entry: DemoEntry; control: OptionsControl; name: string; value: ComponentCanvasValue }) {
+  const options = (Array.isArray(value) ? value : control.default) as { label: string; value: string }[];
+  const edit = (index: number, field: "label" | "value", text: string) => {
+    const next = options.map((option) => ({ ...option }));
+    next[index]![field] = text;
+    setValue(entry, name, next);
+    renderCanvas(entry);
+  };
+  return (
+    <div class="grid gap-2">
+      {options.map((option, index) => (
+        <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_32px] gap-1.5">
+          <input type="text" value={option.label} placeholder="Label" aria-label={"Option " + (index + 1) + " label"} class={FIELD + " min-w-0"} onInput={(event: Event) => edit(index, "label", (event.target as HTMLInputElement).value)} />
+          <input type="text" value={option.value} placeholder="Value" aria-label={"Option " + (index + 1) + " value"} class={FIELD + " min-w-0"} onInput={(event: Event) => edit(index, "value", (event.target as HTMLInputElement).value)} />
+          <button
+            type="button"
+            disabled={options.length <= 2}
+            aria-label={"Remove option " + (index + 1)}
+            class={REMOVE}
+            onClick={() => {
+              setValue(entry, name, options.filter((_option, optionIndex) => optionIndex !== index));
+              update();
+            }}
+          >
+            ×
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        class={SMALL_BUTTON}
+        onClick={() => {
+          const number = options.length + 1;
+          setValue(entry, name, [...options, { label: "Option " + number, value: "option-" + number }]);
+          update();
+        }}
+      >
+        + Add option
+      </button>
+    </div>
+  );
+}
+
+function BooleanField({ entry, name, value, label }: { entry: DemoEntry; name: string; value: ComponentCanvasValue; label: string }) {
+  return (
+    <div class="flex overflow-hidden rounded-md border border-input" role="group" aria-label={label}>
+      {[false, true].map((option) => (
+        <button
+          type="button"
+          aria-pressed={String(value === option)}
+          class={"h-8 min-w-14 flex-1 cursor-pointer px-2 text-[10px] font-medium " + (value === option ? "bg-foreground text-background" : "bg-background text-muted-foreground hover:bg-muted")}
+          onClick={() => {
+            setValue(entry, name, option);
+            update();
+          }}
+        >
+          {titleCase(String(option))}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function FieldControl({ entry, control, wide, scope }: { entry: DemoEntry; control: ComponentCanvasFieldControl; wide: boolean; scope: string }) {
+  const name = valueName(scope, control.name);
+  const value = canvasValue(entry, control, scope);
+  const label = control.label ?? control.name;
+  let field: JSX.Element;
+  if (control.type === "box-value") field = <BoxValueField entry={entry} control={control as BoxValueControl} name={name} value={value} />;
+  else if (control.type === "strings" || control.type === "optional-strings") field = <StringsField entry={entry} control={control as StringsControl} name={name} value={value} />;
+  else if (control.type === "options") field = <OptionsField entry={entry} control={control as OptionsControl} name={name} value={value} />;
+  else if (control.type === "boolean") field = <BooleanField entry={entry} name={name} value={value} label={label} />;
+  else if (control.type === "select") {
+    // Normalised once: a block-bodied callback is not lowered as a keyed list.
+    const items = control.options.map((option) => (typeof option === "string" ? { label: option, value: option } : option));
+    field = (
+      <select
+        aria-label={label}
+        class={FIELD_LG}
+        onChange={(event: Event) => {
+          setValue(entry, name, (event.target as HTMLSelectElement).value);
+          changed(entry, name);
+        }}
+      >
+        {items.map((item) => (
+          <option value={item.value} selected={item.value === value}>{item.label}</option>
+        ))}
+      </select>
+    );
+  }
+  else if (control.type === "number")
+    field = (
+      <input
+        type="number"
+        value={String(value ?? "")}
+        min={control.min}
+        max={control.max}
+        step={control.step}
+        aria-label={label}
+        class={FIELD_LG}
+        onInput={(event: Event) => {
+          setValue(entry, name, Number((event.target as HTMLInputElement).value));
+          changed(entry, name);
+        }}
+      />
+    );
+  else
+    field = (
+      <input
+        type="text"
+        value={typeof value === "string" ? value : ""}
+        placeholder={control.placeholder}
+        aria-label={label}
+        class={FIELD_LG}
+        onInput={(event: Event) => {
+          setValue(entry, name, (event.target as HTMLInputElement).value);
+          changed(entry, name);
+        }}
+      />
+    );
+  return <Row wide={wide} label={label} description={control.description} field={field} />;
+}
+
+function GroupTrigger({ entry, control, parent, scope }: { entry: DemoEntry; control: ComponentCanvasGroupControl; parent?: string; scope: string }) {
+  const panelKey = scope || control.name;
+  const labelControl = control.labelControl
+    ? control.controls.find((child): child is ComponentCanvasFieldControl => child.type !== "group" && child.type !== "children" && child.name === control.labelControl)
+    : undefined;
+  const controlled = labelControl ? canvasValue(entry, labelControl, scope) : undefined;
+  const label = groupLabel(typeof controlled === "string" ? controlled : (control.label ?? control.name));
+  return (
+    <button
+      type="button"
+      data-canvas-control-group-open={panelKey}
+      data-canvas-control-group-parent={parent}
+      aria-expanded={String(state.canvasPanelsEntry === entry.name && state.canvasPanels.includes(panelKey))}
+      class="flex h-14 w-full cursor-pointer items-center gap-3 border border-border bg-background px-4 text-left text-muted-foreground hover:bg-muted/45 hover:text-foreground"
+      onClick={() => showPanel(panelKey)}
+    >
+      <span class="shrink-0 text-foreground">
+        <GIcon name="components" />
+      </span>
+      <span class="min-w-0 flex-1 truncate text-[10px] font-semibold tracking-[0.1em] uppercase">{label}</span>
+      <span class="shrink-0">
+        <GIcon name="chevron-right" />
+      </span>
+    </button>
+  );
+}
+
+function ChildrenControl({ entry, control, wide, parent, scope }: { entry: DemoEntry; control: ComponentCanvasChildrenControl; wide: boolean; parent?: string; scope: string }) {
+  const name = valueName(scope, control.name);
+  const selected = childInstances(canvasValue(entry, control, scope));
+  const pairs = selected.flatMap((instance) => {
+    const option = control.options.find((candidate) => candidate.name === instance.type);
+    return option ? [{ instance, option }] : [];
+  });
+  return (
+    <div>
+      <div class={"grid gap-3 border-b border-border px-4 py-3 " + (wide ? "grid-cols-[160px_minmax(0,1fr)]" : "grid-cols-[112px_minmax(0,1fr)]")}>
+        <Label text={control.label ?? control.name} description={control.description} />
+        <button
+          type="button"
+          data-canvas-control-group-open={name}
+          data-canvas-control-group-parent={parent}
+          aria-expanded={String(state.canvasPanelsEntry === entry.name && state.canvasPanels.includes(name))}
+          class="flex h-9 w-full cursor-pointer items-center justify-between rounded-md border border-dashed border-input bg-background px-2.5 text-[10px] font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+          onClick={() => showPanel(name)}
+        >
+          <span>+ Add child</span>
+          <span>{selected.length}</span>
+        </button>
+      </div>
+      {pairs.length > 0 && (
+        <div class="relative ml-5">
+          <span aria-hidden="true" class="pointer-events-none absolute top-0 bottom-7 left-0 border-l border-border"></span>
+          {pairs.map((pair) => (
+            <div class="relative pl-5">
+              <span aria-hidden="true" class="pointer-events-none absolute top-7 left-0 w-5 border-t border-border"></span>
+              <GroupTrigger entry={entry} control={pair.option} parent={parent} scope={pair.instance.id} />
+              <button
+                type="button"
+                aria-label={"Remove " + groupLabel(pair.option.label ?? pair.option.name)}
+                class="absolute top-3.5 right-10 z-10 grid size-7 cursor-pointer place-items-center rounded-md text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+                onClick={() => {
+                  removeChild(entry, name, pair.instance.id);
+                  update();
+                }}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function Control({ entry, control, wide, parent, scope }: { entry: DemoEntry; control: ComponentCanvasControl; wide: boolean; parent?: string; scope: string }) {
+  if (control.visibleWhen) {
+    const dependency = fieldDefinition(entry, control.visibleWhen.control);
+    if (!dependency || canvasValue(entry, dependency, scope) !== control.visibleWhen.equals) return <span hidden></span>;
+  }
+  if (control.type === "group") return <GroupTrigger entry={entry} control={control} parent={parent} scope={scope} />;
+  if (control.type === "children") return <ChildrenControl entry={entry} control={control} wide={wide} parent={parent} scope={scope} />;
+  return <FieldControl entry={entry} control={control} wide={wide} scope={scope} />;
+}
+

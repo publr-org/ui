@@ -1,0 +1,27 @@
+// Breadcrumb trail root per the WAI-ARIA APG breadcrumb pattern: a labeled
+// navigation landmark wrapping an ordered list of links to the current page.
+
+export type BreadcrumbProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function Breadcrumb({ children, classes = "", id }: BreadcrumbProps) {
+  return (
+    <nav id={id} aria-label="Breadcrumb" class={["min-w-0", classes]}>
+      {children}
+    </nav>
+  );
+}
+
+export { BreadcrumbList } from "./BreadcrumbList.ptsx";
+export { BreadcrumbItem } from "./BreadcrumbItem.ptsx";
+export { BreadcrumbLink } from "./BreadcrumbLink.ptsx";
+export { BreadcrumbPage } from "./BreadcrumbPage.ptsx";
+export { BreadcrumbSeparator } from "./BreadcrumbSeparator.ptsx";
+export type { BreadcrumbListProps } from "./BreadcrumbList.ptsx";
+export type { BreadcrumbItemProps } from "./BreadcrumbItem.ptsx";
+export type { BreadcrumbLinkProps } from "./BreadcrumbLink.ptsx";
+export type { BreadcrumbPageProps } from "./BreadcrumbPage.ptsx";
+export type { BreadcrumbSeparatorProps } from "./BreadcrumbSeparator.ptsx";

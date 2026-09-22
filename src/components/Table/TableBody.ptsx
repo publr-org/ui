@@ -1,0 +1,15 @@
+// Data-row section; row chrome (separators, hover) belongs to TableRow.
+
+export type TableBodyProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function TableBody({ children, classes = "", id }: TableBodyProps) {
+  return (
+    <tbody id={id} class={classes}>
+      {children}
+    </tbody>
+  );
+}

@@ -1,0 +1,766 @@
+import { reactive } from "../../../src/publr-runtime";
+import { Field } from "../../../src/components/Field/Field.ptsx";
+import { FieldLabel } from "../../../src/components/Field/FieldLabel.ptsx";
+import { FieldDescription } from "../../../src/components/Field/FieldDescription.ptsx";
+import { FieldError } from "../../../src/components/Field/FieldError.ptsx";
+import { Input, INPUT_MODES } from "../../../src/components/Input/Input.ptsx";
+import { Textarea } from "../../../src/components/Textarea/Textarea.ptsx";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../../src/components/Select/Select.ptsx";
+import { RangePicker } from "../../../src/components/RangePicker/RangePicker.ptsx";
+import { Text } from "../../../src/components/Text/Text.ptsx";
+import type {
+  ComponentCanvas,
+  ComponentCanvasChildInstance,
+  ComponentDemoMeta,
+  ComponentDemoVariant,
+  DemoNode,
+} from "../../gallery-types";
+
+export const meta = {
+  name: "field",
+  label: "Field",
+  source: "src/components/Field/Field.ptsx",
+  kind: "primitive",
+  group: "Forms",
+  description: "Composes a label, any form control, and its help or error text.",
+  tags: ["field", "form", "label", "description", "error"],
+  usage: `<Field>
+  <FieldLabel htmlFor="email">Email</FieldLabel>
+  <Input id="email" name="email" type="email" placeholder="you@example.com" />
+  <FieldDescription>We'll never share your email.</FieldDescription>
+</Field>`,
+  preview: "canvas",
+  previewLabel: "Form field composition",
+  docs: {
+    purpose: [
+      "Field supplies the vertical rhythm and the label, description, and error relationship every form row needs.",
+      "Controls stay dumb and unwrapped; Field composes around them without knowing their shape.",
+    ],
+    useWhen: [
+      "Giving any form control a visible label, help text, or validation message.",
+      "Building a form row from Input, Textarea, Select, RangePicker, or RangeScalePicker.",
+    ],
+    avoidWhen: [
+      "Labelling an inspector style row; use StyleControl, which owns its own header.",
+      "Grouping unrelated sections of a page; compose Heading with ordinary layout utilities.",
+    ],
+    rules: [
+      {
+        title: "Associate the label explicitly",
+        description:
+          "Pass FieldLabel htmlFor and the matching control id. Field adds no automatic wiring.",
+      },
+      {
+        title: "Controls own their own invalid state",
+        description:
+          "FieldError renders the message; the control still needs its own invalid prop for the border and aria-invalid.",
+      },
+      {
+        title: "Compose Text to change typography",
+        description:
+          "The parts carry bare-text defaults. Wrap children in Text for any other size or tone instead of reaching for classes.",
+      },
+    ],
+    accessibility: [
+      "FieldLabel renders a native label; htmlFor and the control id create the association.",
+      'FieldError carries role="alert" so validation messages are announced when they appear.',
+      "Field itself is a plain layout element and adds no ARIA of its own.",
+    ],
+    composition: [
+      "Field accepts any control as a child, including Input, Textarea, Select, RangePicker, and RangeScalePicker.",
+      "Wrap FieldLabel, FieldDescription, or FieldError children in Text to override the default typography.",
+    ],
+    agentNotes: [
+      "There is no standalone Label component; form labels belong to FieldLabel.",
+      "Do not add label, description, or error props to controls. Compose them through Field.",
+      "FieldSet, FieldLegend, FieldGroup, FieldContent, and FieldSeparator were intentionally not migrated.",
+    ],
+    props: [
+      {
+        name: "Field.children",
+        type: "node",
+        description: "Label, control, description, and error content.",
+      },
+      {
+        name: "Field.id",
+        type: "string",
+        description: "Optional identifier applied to the field root.",
+      },
+      {
+        name: "Field.classes",
+        type: "string",
+        description: "Additional classes merged into the field root.",
+      },
+      {
+        name: "FieldLabel.htmlFor",
+        type: "string",
+        description: "Native for attribute associating the label with a control id.",
+      },
+      {
+        name: "FieldLabel.children",
+        type: "node",
+        description: "Label content; defaults to xs semibold foreground text.",
+      },
+      {
+        name: "FieldLabel.id",
+        type: "string",
+        description: "Optional identifier applied to the native label.",
+      },
+      {
+        name: "FieldLabel.classes",
+        type: "string",
+        description: "Additional classes merged into the native label.",
+      },
+      {
+        name: "FieldDescription.children",
+        type: "node",
+        description: "Help text; defaults to xs muted text.",
+      },
+      {
+        name: "FieldDescription.id",
+        type: "string",
+        description: "Optional identifier applied to the description paragraph.",
+      },
+      {
+        name: "FieldDescription.classes",
+        type: "string",
+        description: "Additional classes merged into the description paragraph.",
+      },
+      {
+        name: "FieldError.children",
+        type: "node",
+        description: "Validation message; defaults to xs destructive text.",
+      },
+      {
+        name: "FieldError.id",
+        type: "string",
+        description: "Optional identifier applied to the error paragraph.",
+      },
+      {
+        name: "FieldError.classes",
+        type: "string",
+        description: "Additional classes merged into the error paragraph.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+function InputDemo() {
+  return (
+    <div class="w-full max-w-sm">
+      <Field>
+        <FieldLabel htmlFor="field-email">Email</FieldLabel>
+        <Input id="field-email" name="email" type="email" placeholder="you@example.com" />
+        <FieldDescription>We'll never share your email.</FieldDescription>
+      </Field>
+    </div>
+  );
+}
+
+function TextareaDemo() {
+  return (
+    <div class="w-full max-w-sm">
+      <Field>
+        <FieldLabel htmlFor="field-bio">Biography</FieldLabel>
+        <Textarea id="field-bio" name="bio" placeholder="Tell us about yourself" />
+        <FieldDescription>Plain text, no formatting.</FieldDescription>
+      </Field>
+    </div>
+  );
+}
+
+function SelectDemo() {
+  const state = reactive({ fruit: "apple" });
+
+  return (
+    <div class="w-full max-w-sm">
+      <Field>
+        <FieldLabel htmlFor="field-fruit">Fruit</FieldLabel>
+        <Select
+          id="field-fruit"
+          name="fruit"
+          value={state.fruit}
+          onChange={(value: string) => {
+            state.fruit = value;
+          }}
+        >
+          <SelectTrigger>
+            <SelectValue>Select a fruit</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="apple">Apple</SelectItem>
+            <SelectItem value="banana">Banana</SelectItem>
+            <SelectItem value="cherry">Cherry</SelectItem>
+          </SelectContent>
+        </Select>
+      </Field>
+    </div>
+  );
+}
+
+function RangeDemo() {
+  const state = reactive({ value: 35 });
+  const sync = (event: Event) => {
+    state.value = Number((event.target as HTMLInputElement).value);
+  };
+
+  return (
+    <div class="w-full max-w-sm">
+      <Field>
+        <FieldLabel htmlFor="field-opacity">Opacity</FieldLabel>
+        <RangePicker
+          id="field-opacity"
+          value={state.value}
+          min={0}
+          max={100}
+          step={1}
+          onInput={sync}
+          onChange={sync}
+        />
+        <FieldDescription>Applies to the selected block only.</FieldDescription>
+      </Field>
+    </div>
+  );
+}
+
+function ErrorDemo() {
+  return (
+    <div class="w-full max-w-sm">
+      <Field>
+        <FieldLabel htmlFor="field-invalid">Email</FieldLabel>
+        <Input id="field-invalid" name="email" type="email" value="not-an-email" invalid={true} />
+        <FieldError>Please enter a valid email address.</FieldError>
+      </Field>
+    </div>
+  );
+}
+
+function TypographyDemo() {
+  return (
+    <div class="w-full max-w-sm">
+      <Field>
+        <FieldLabel htmlFor="field-title">
+          <Text variant="body-md">Title</Text>
+        </FieldLabel>
+        <Input id="field-title" name="title" placeholder="Post title" />
+        <FieldDescription>
+          <Text variant="body-sm" tone="muted">
+            Shown in search results and social previews.
+          </Text>
+        </FieldDescription>
+      </Field>
+    </div>
+  );
+}
+
+const fieldNode = (children: DemoNode[]): DemoNode => ({
+  component: "Field",
+  props: {},
+  children,
+  wrapper: "w-full max-w-sm",
+});
+
+const inputNode = fieldNode([
+  {
+    component: "FieldLabel",
+    props: { htmlFor: "field-email", children: "Email" },
+  },
+  {
+    component: "Input",
+    props: {
+      id: "field-email",
+      name: "email",
+      type: "email",
+      placeholder: "you@example.com",
+    },
+  },
+  {
+    component: "FieldDescription",
+    props: { children: "We'll never share your email." },
+  },
+]);
+
+const textareaNode = fieldNode([
+  {
+    component: "FieldLabel",
+    props: { htmlFor: "field-bio", children: "Biography" },
+  },
+  {
+    component: "Textarea",
+    props: {
+      id: "field-bio",
+      name: "bio",
+      placeholder: "Tell us about yourself",
+    },
+  },
+  {
+    component: "FieldDescription",
+    props: { children: "Plain text, no formatting." },
+  },
+]);
+
+const rangeNode = fieldNode([
+  {
+    component: "FieldLabel",
+    props: { htmlFor: "field-opacity", children: "Opacity" },
+  },
+  {
+    component: "RangePicker",
+    props: {
+      id: "field-opacity",
+      value: 35,
+      min: 0,
+      max: 100,
+      step: 1,
+    },
+  },
+  {
+    component: "FieldDescription",
+    props: { children: "Applies to the selected block only." },
+  },
+]);
+
+const errorNode = fieldNode([
+  {
+    component: "FieldLabel",
+    props: { htmlFor: "field-invalid", children: "Email" },
+  },
+  {
+    component: "Input",
+    props: {
+      id: "field-invalid",
+      name: "email",
+      type: "email",
+      value: "not-an-email",
+      invalid: true,
+    },
+  },
+  {
+    component: "FieldError",
+    props: { children: "Please enter a valid email address." },
+  },
+]);
+
+const typographyNode = fieldNode([
+  {
+    component: "FieldLabel",
+    props: { htmlFor: "field-title" },
+    children: [{ component: "Text", props: { variant: "body-md", children: "Title" } }],
+  },
+  {
+    component: "Input",
+    props: { id: "field-title", name: "title", placeholder: "Post title" },
+  },
+  {
+    component: "FieldDescription",
+    props: {},
+    children: [
+      {
+        component: "Text",
+        props: {
+          variant: "body-sm",
+          tone: "muted",
+          children: "Shown in search results and social previews.",
+        },
+      },
+    ],
+  },
+]);
+
+export const variants: ComponentDemoVariant[] = [
+  {
+    label: "With Input",
+    description: "The canonical form row: label, control, and help text.",
+    usage: `<Field>
+  <FieldLabel htmlFor="email">Email</FieldLabel>
+  <Input id="email" name="email" type="email" placeholder="you@example.com" />
+  <FieldDescription>We'll never share your email.</FieldDescription>
+</Field>`,
+    Demo: InputDemo,
+    node: inputNode,
+  },
+  {
+    label: "With Textarea",
+    description: "Any control composes the same way; Field never wraps or adapts it.",
+    usage: `<Field>
+  <FieldLabel htmlFor="bio">Biography</FieldLabel>
+  <Textarea id="bio" name="bio" placeholder="Tell us about yourself" />
+  <FieldDescription>Plain text, no formatting.</FieldDescription>
+</Field>`,
+    Demo: TextareaDemo,
+    node: textareaNode,
+  },
+  {
+    label: "With Select",
+    description: "Composite controls compose unchanged.",
+    usage: `<Field>
+  <FieldLabel htmlFor="fruit">Fruit</FieldLabel>
+  <Select id="fruit" name="fruit" value={state.fruit} onChange={pick}>
+    <SelectTrigger>
+      <SelectValue>Select a fruit</SelectValue>
+    </SelectTrigger>
+    <SelectContent>
+      <SelectItem value="apple">Apple</SelectItem>
+    </SelectContent>
+  </Select>
+</Field>`,
+    Demo: SelectDemo,
+  },
+  {
+    label: "With RangePicker",
+    description: "FieldLabel names the native range through its id without redundant aria-label.",
+    usage: `<Field>
+  <FieldLabel htmlFor="opacity">Opacity</FieldLabel>
+  <RangePicker id="opacity" value={state.value} min={0} max={100} step={1} onInput={sync} onChange={sync} />
+  <FieldDescription>Applies to the selected block only.</FieldDescription>
+</Field>`,
+    Demo: RangeDemo,
+    node: rangeNode,
+  },
+  {
+    label: "Invalid",
+    description: "FieldError announces the message; the control still owns its own invalid state.",
+    notes: [
+      'FieldError renders role="alert" so the message is announced when it appears.',
+      "Pass invalid to the control as well; Field does not propagate validation state.",
+    ],
+    usage: `<Field>
+  <FieldLabel htmlFor="email">Email</FieldLabel>
+  <Input id="email" name="email" type="email" invalid={true} />
+  <FieldError>Please enter a valid email address.</FieldError>
+</Field>`,
+    Demo: ErrorDemo,
+    node: errorNode,
+  },
+  {
+    label: "Custom typography",
+    description: "Compose Text inside a part to override its bare-text default.",
+    notes: ["There is no size prop; the nearer Text element wins."],
+    usage: `<FieldLabel htmlFor="title">
+  <Text variant="body-md">Title</Text>
+</FieldLabel>`,
+    Demo: TypographyDemo,
+    node: typographyNode,
+  },
+];
+
+const scopedValue = (scope: string, name: string) => (scope ? `${scope}::${name}` : name);
+const stringValue = (values: Readonly<Record<string, unknown>>, name: string, scope = ""): string =>
+  String(values[scopedValue(scope, name)] ?? "");
+const numberValue = (values: Readonly<Record<string, unknown>>, name: string, scope = ""): number =>
+  Number(values[scopedValue(scope, name)] ?? 0);
+const booleanValue = (
+  values: Readonly<Record<string, unknown>>,
+  name: string,
+  scope = "",
+): boolean => Boolean(values[scopedValue(scope, name)]);
+const childValues = (
+  values: Readonly<Record<string, unknown>>,
+  name: string,
+  scope = "",
+): readonly ComponentCanvasChildInstance[] => {
+  const value = values[scopedValue(scope, name)];
+  return Array.isArray(value)
+    ? value.filter(
+        (item): item is ComponentCanvasChildInstance =>
+          Boolean(item) && typeof item === "object" && "id" in item && "type" in item,
+      )
+    : [];
+};
+
+export const canvas = {
+  controls: [
+    { name: "field.id", label: "id", type: "text", default: "" },
+    { name: "field.classes", label: "classes", type: "text", default: "" },
+    {
+      name: "field.children",
+      label: "children",
+      type: "children",
+      allowMultiple: true,
+      default: ["label", "input", "description"],
+      options: [
+        {
+          name: "label",
+          label: "FieldLabel",
+          labelControl: "label.children",
+          type: "group",
+          controls: [
+            { name: "label.children", label: "children", type: "text", default: "Email" },
+            { name: "label.htmlFor", label: "htmlFor", type: "text", default: "email" },
+            { name: "label.id", label: "id", type: "text", default: "" },
+            { name: "label.classes", label: "classes", type: "text", default: "" },
+          ],
+        },
+        {
+          name: "input",
+          label: "Input",
+          type: "group",
+          controls: [
+            {
+              name: "input.type",
+              label: "type",
+              type: "select",
+              default: "email",
+              options: [
+                "text",
+                "email",
+                "password",
+                "search",
+                "tel",
+                "url",
+                "number",
+                "file",
+                "date",
+                "datetime-local",
+              ],
+            },
+            { name: "input.id", label: "id", type: "text", default: "email" },
+            { name: "input.name", label: "name", type: "text", default: "email" },
+            { name: "input.value", label: "value", type: "text", default: "" },
+            {
+              name: "input.placeholder",
+              label: "placeholder",
+              type: "text",
+              default: "you@example.com",
+            },
+            { name: "input.disabled", label: "disabled", type: "boolean", default: false },
+            { name: "input.invalid", label: "invalid", type: "boolean", default: false },
+            { name: "input.required", label: "required", type: "boolean", default: false },
+            { name: "input.readOnly", label: "readOnly", type: "boolean", default: false },
+            { name: "input.autocomplete", label: "autocomplete", type: "text", default: "" },
+            { name: "input.min", label: "min", type: "text", default: "" },
+            { name: "input.max", label: "max", type: "text", default: "" },
+            { name: "input.step", label: "step", type: "text", default: "" },
+            { name: "input.minLength", label: "minLength", type: "text", default: "" },
+            { name: "input.maxLength", label: "maxLength", type: "text", default: "" },
+            {
+              name: "input.inputMode",
+              label: "inputMode",
+              type: "select",
+              default: "text",
+              options: INPUT_MODES,
+            },
+            { name: "input.classes", label: "classes", type: "text", default: "" },
+          ],
+        },
+        {
+          name: "textarea",
+          label: "Textarea",
+          type: "group",
+          controls: [
+            { name: "textarea.id", label: "id", type: "text", default: "message" },
+            { name: "textarea.name", label: "name", type: "text", default: "message" },
+            { name: "textarea.value", label: "value", type: "text", default: "" },
+            {
+              name: "textarea.placeholder",
+              label: "placeholder",
+              type: "text",
+              default: "Write a message",
+            },
+            { name: "textarea.disabled", label: "disabled", type: "boolean", default: false },
+            { name: "textarea.invalid", label: "invalid", type: "boolean", default: false },
+            { name: "textarea.required", label: "required", type: "boolean", default: false },
+            { name: "textarea.readOnly", label: "readOnly", type: "boolean", default: false },
+            {
+              name: "textarea.autocomplete",
+              label: "autocomplete",
+              type: "text",
+              default: "",
+            },
+            { name: "textarea.minLength", label: "minLength", type: "text", default: "" },
+            { name: "textarea.maxLength", label: "maxLength", type: "text", default: "" },
+            { name: "textarea.rows", label: "rows", type: "number", default: 5, min: 1 },
+            { name: "textarea.classes", label: "classes", type: "text", default: "" },
+          ],
+        },
+        {
+          name: "rangePicker",
+          label: "RangePicker",
+          type: "group",
+          controls: [
+            { name: "rangePicker.id", label: "id", type: "text", default: "opacity" },
+            { name: "rangePicker.classes", label: "classes", type: "text", default: "" },
+            { name: "rangePicker.value", label: "value", type: "number", default: 35 },
+            { name: "rangePicker.min", label: "min", type: "number", default: 0 },
+            { name: "rangePicker.max", label: "max", type: "number", default: 100 },
+            { name: "rangePicker.step", label: "step", type: "number", default: 1 },
+            { name: "rangePicker.label", label: "label", type: "text", default: "Opacity" },
+            {
+              name: "rangePicker.disabled",
+              label: "disabled",
+              type: "boolean",
+              default: false,
+            },
+          ],
+        },
+        {
+          name: "description",
+          label: "FieldDescription",
+          labelControl: "description.children",
+          type: "group",
+          controls: [
+            {
+              name: "description.children",
+              label: "children",
+              type: "text",
+              default: "We'll never share your email.",
+            },
+            { name: "description.id", label: "id", type: "text", default: "" },
+            { name: "description.classes", label: "classes", type: "text", default: "" },
+          ],
+        },
+        {
+          name: "error",
+          label: "FieldError",
+          labelControl: "error.children",
+          type: "group",
+          controls: [
+            {
+              name: "error.children",
+              label: "children",
+              type: "text",
+              default: "Please enter a valid email address.",
+            },
+            { name: "error.id", label: "id", type: "text", default: "" },
+            { name: "error.classes", label: "classes", type: "text", default: "" },
+          ],
+        },
+      ],
+    },
+  ],
+
+  node: (values) => {
+    const text = (scope: string, name: string) => stringValue(values, name, scope);
+    const number = (scope: string, name: string) => numberValue(values, name, scope);
+    const on = (scope: string, name: string) => booleanValue(values, name, scope);
+    const optionalText = (scope: string, name: string) => {
+      const value = text(scope, name);
+      return value ? { [name.split(".").at(-1)!]: value } : {};
+    };
+    const optionalNumber = (scope: string, name: string) => {
+      const value = text(scope, name);
+      return value ? { [name.split(".").at(-1)!]: Number(value) } : {};
+    };
+    const nodes = childValues(values, "field.children").flatMap((child): DemoNode[] => {
+      if (child.type === "label") {
+        return [
+          {
+            component: "FieldLabel",
+            props: {
+              htmlFor: text(child.id, "label.htmlFor"),
+              id: text(child.id, "label.id"),
+              classes: text(child.id, "label.classes"),
+              children: text(child.id, "label.children"),
+            },
+          },
+        ];
+      }
+      if (child.type === "input") {
+        return [
+          {
+            component: "Input",
+            props: {
+              type: text(child.id, "input.type"),
+              ...optionalText(child.id, "input.id"),
+              ...optionalText(child.id, "input.name"),
+              ...optionalText(child.id, "input.value"),
+              ...optionalText(child.id, "input.placeholder"),
+              disabled: on(child.id, "input.disabled"),
+              invalid: on(child.id, "input.invalid"),
+              required: on(child.id, "input.required"),
+              readOnly: on(child.id, "input.readOnly"),
+              ...optionalText(child.id, "input.autocomplete"),
+              ...optionalText(child.id, "input.min"),
+              ...optionalText(child.id, "input.max"),
+              ...optionalText(child.id, "input.step"),
+              ...optionalNumber(child.id, "input.minLength"),
+              ...optionalNumber(child.id, "input.maxLength"),
+              ...optionalText(child.id, "input.inputMode"),
+              classes: text(child.id, "input.classes"),
+            },
+          },
+        ];
+      }
+      if (child.type === "textarea") {
+        return [
+          {
+            component: "Textarea",
+            props: {
+              ...optionalText(child.id, "textarea.id"),
+              ...optionalText(child.id, "textarea.name"),
+              ...optionalText(child.id, "textarea.value"),
+              ...optionalText(child.id, "textarea.placeholder"),
+              disabled: on(child.id, "textarea.disabled"),
+              invalid: on(child.id, "textarea.invalid"),
+              required: on(child.id, "textarea.required"),
+              readOnly: on(child.id, "textarea.readOnly"),
+              ...optionalText(child.id, "textarea.autocomplete"),
+              ...optionalNumber(child.id, "textarea.minLength"),
+              ...optionalNumber(child.id, "textarea.maxLength"),
+              rows: number(child.id, "textarea.rows"),
+              classes: text(child.id, "textarea.classes"),
+            },
+          },
+        ];
+      }
+      if (child.type === "rangePicker") {
+        return [
+          {
+            component: "RangePicker",
+            props: {
+              id: text(child.id, "rangePicker.id"),
+              classes: text(child.id, "rangePicker.classes"),
+              value: number(child.id, "rangePicker.value"),
+              min: number(child.id, "rangePicker.min"),
+              max: number(child.id, "rangePicker.max"),
+              step: number(child.id, "rangePicker.step"),
+              label: text(child.id, "rangePicker.label"),
+              disabled: on(child.id, "rangePicker.disabled"),
+            },
+          },
+        ];
+      }
+      if (child.type === "description") {
+        return [
+          {
+            component: "FieldDescription",
+            props: {
+              id: text(child.id, "description.id"),
+              classes: text(child.id, "description.classes"),
+              children: text(child.id, "description.children"),
+            },
+          },
+        ];
+      }
+      if (child.type === "error") {
+        return [
+          {
+            component: "FieldError",
+            props: {
+              id: text(child.id, "error.id"),
+              classes: text(child.id, "error.classes"),
+              children: text(child.id, "error.children"),
+            },
+          },
+        ];
+      }
+      return [];
+    });
+
+    return {
+      component: "Field",
+      props: {
+        id: stringValue(values, "field.id"),
+        classes: stringValue(values, "field.classes"),
+      },
+      children: nodes,
+      wrapper: "w-full max-w-sm",
+    };
+  },
+} satisfies ComponentCanvas;

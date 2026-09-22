@@ -1,0 +1,68 @@
+import { Dynamic } from "publr-jsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type DropdownMenuItemVariant = "default" | "destructive";
+export type DropdownMenuItemType = "button" | "submit" | "reset";
+
+type DropdownMenuItemSharedProps = {
+  id?: string;
+  classes?: string;
+  variant?: DropdownMenuItemVariant;
+  children?: JSX.Element;
+  onClick?: (event: MouseEvent) => void;
+};
+
+export type DropdownMenuItemProps = DropdownMenuItemSharedProps &
+  (
+    | { href: string; disabled?: never; type?: never }
+    | { href?: never; disabled?: boolean; type?: DropdownMenuItemType }
+  );
+
+const VARIANT_CLASSES: Record<DropdownMenuItemVariant, string> = {
+  default: "text-foreground hover:bg-ui-accent",
+  destructive: "text-destructive hover:bg-destructive/10",
+};
+
+export function DropdownMenuItem({
+  id,
+  classes = "",
+  variant = "default",
+  href,
+  disabled,
+  type,
+  children,
+  onClick,
+}: DropdownMenuItemProps) {
+  const hasButtonProps = type !== undefined || disabled !== undefined;
+  if (href !== undefined && hasButtonProps) {
+    throw new TypeError(
+      "[publr-design-system] DropdownMenuItem type and disabled cannot be used with href",
+    );
+  }
+
+  return (
+    <Dynamic
+      as={href === undefined ? "button" : "a"}
+      id={id}
+      class={[
+        "flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-left outline-none transition-colors focus-visible:bg-ui-accent focus-visible:text-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
+        VARIANT_CLASSES[variant],
+        classes,
+      ]}
+      href={href}
+      type={href === undefined ? (type ?? "button") : undefined}
+      disabled={disabled}
+      role="menuitem"
+      aria-disabled={disabled ? "true" : undefined}
+      tabindex={-1}
+      data-part="item"
+      data-dropdown-menu-variant={variant}
+      data-publr-state={disabled ? "disabled" : "default"}
+      onClick={onClick}
+    >
+      <Text variant="body-md" classes="flex min-w-0 flex-1 items-center gap-2">
+        {children}
+      </Text>
+    </Dynamic>
+  );
+}

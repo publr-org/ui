@@ -1,0 +1,29 @@
+// Uppercase micro heading between context-nav groups: Text's eyebrow-xs, the
+// dense 10px eyebrow, in the muted tone.
+import { Text } from "../Text/Text.ptsx";
+
+export type SidebarNavEyebrowProps = {
+  children?: JSX.Element;
+  classes?: string;
+  first?: boolean;
+  id?: string;
+};
+
+export function SidebarNavEyebrow({
+  children,
+  classes = "",
+  first = false,
+  id,
+}: SidebarNavEyebrowProps) {
+  return (
+    <Text
+      id={id}
+      as="p"
+      variant="eyebrow-xs"
+      tone="muted"
+      classes={`px-2.5 pb-1.5 ${first ? "pt-2" : "pt-5"} ${classes}`}
+    >
+      {children}
+    </Text>
+  );
+}

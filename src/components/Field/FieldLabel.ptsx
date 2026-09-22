@@ -1,0 +1,45 @@
+// The field's native label. Its dense bare-text default lives on the semantic
+// root; a composed Text child can still establish a nearer treatment.
+
+export type FieldLabelProps = {
+  children?: JSX.Element;
+  classes?: string;
+  htmlFor?: string;
+  id?: string;
+  /** The muted tone is the label of a two-column form row, beside its control. */
+  tone?: "default" | "muted";
+  /** Marks the control as required with the trailing asterisk. */
+  required?: boolean;
+};
+
+export function FieldLabel({
+  children,
+  classes = "",
+  htmlFor,
+  id,
+  tone = "default",
+  required = false,
+}: FieldLabelProps) {
+  return (
+    <label
+      id={id}
+      for={htmlFor}
+      class={[
+        "text-sm leading-5",
+        tone === "muted" ? "font-normal text-muted-foreground" : "font-medium text-foreground",
+        classes,
+      ]}
+      data-part="field-label"
+      data-text-variant="body-sm"
+      data-text-tone={tone}
+    >
+      {children}
+      {required && (
+        <span class="text-destructive" aria-hidden="true">
+          {" "}
+          *
+        </span>
+      )}
+    </label>
+  );
+}

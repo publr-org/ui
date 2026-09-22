@@ -1,0 +1,42 @@
+// One page target. The current page passes no href and renders as a non-link
+// with aria-current="page" — navigating to the page you are on is not an
+// action. isActive owns the aria-current and active treatment.
+
+import { Dynamic } from "publr-jsx";
+
+export type PaginationLinkProps = {
+  id?: string;
+  classes?: string;
+  href?: string;
+  isActive?: boolean;
+  children: JSX.Element;
+  onClick?: (event: Event) => void;
+};
+
+export function PaginationLink({
+  id,
+  classes = "",
+  href,
+  isActive = false,
+  children,
+  onClick,
+}: PaginationLinkProps) {
+  return (
+    <Dynamic
+      as={href === undefined ? "span" : "a"}
+      id={id}
+      href={href}
+      aria-current={isActive ? "page" : undefined}
+      onClick={onClick}
+      class={[
+        "inline-flex h-8 min-w-8 items-center justify-center rounded-md px-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+        isActive
+          ? "bg-muted text-foreground"
+          : "cursor-pointer text-muted-foreground hover:bg-muted hover:text-foreground",
+        classes,
+      ]}
+    >
+      {children}
+    </Dynamic>
+  );
+}

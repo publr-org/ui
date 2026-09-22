@@ -1,0 +1,27 @@
+// Chronological event feed: an ordered list of TimelineItems, each with a
+// gutter marker (normally an Avatar), a header row, and composed content.
+// The root is a bare <ol> — list semantics announce feed length and
+// position; page placement (padding) is caller layout.
+
+export type TimelineProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function Timeline({ children, classes = "", id }: TimelineProps) {
+  return (
+    <ol id={id} class={["m-0 list-none p-0", classes]}>
+      {children}
+    </ol>
+  );
+}
+
+export { TimelineItem } from "./TimelineItem.ptsx";
+export { TimelineContent } from "./TimelineContent.ptsx";
+export { TimelineHeader } from "./TimelineHeader.ptsx";
+export { TimelineTime } from "./TimelineTime.ptsx";
+export type { TimelineItemProps } from "./TimelineItem.ptsx";
+export type { TimelineContentProps } from "./TimelineContent.ptsx";
+export type { TimelineHeaderProps } from "./TimelineHeader.ptsx";
+export type { TimelineTimeProps } from "./TimelineTime.ptsx";

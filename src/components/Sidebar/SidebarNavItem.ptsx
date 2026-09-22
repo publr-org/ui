@@ -1,0 +1,38 @@
+// Dense h-8 context-nav row: a real anchor (APG link pattern) with the
+// active link announced via aria-current="page". No menu or tree roles —
+// site navigation is a labeled landmark of links. Children compose an
+// optional leading Icon before the label. Rows live on the sidebar surface
+// (a dark one), so they colour themselves from the sidebar tokens only.
+
+export type SidebarNavItemProps = {
+  active?: boolean;
+  children?: JSX.Element;
+  classes?: string;
+  href: string;
+  id?: string;
+};
+
+export function SidebarNavItem({
+  active = false,
+  children,
+  classes = "",
+  href,
+  id,
+}: SidebarNavItemProps) {
+  return (
+    <a
+      id={id}
+      href={href}
+      aria-current={active ? "page" : undefined}
+      class={[
+        "flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sidebar-ring",
+        active
+          ? "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+          : "text-sidebar-muted hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
+        classes,
+      ]}
+    >
+      {children}
+    </a>
+  );
+}

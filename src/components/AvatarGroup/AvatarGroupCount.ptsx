@@ -1,0 +1,35 @@
+// "+N" overflow marker for AvatarGroup, sized by the same closed scale as
+// Avatar so mixed stacks stay aligned.
+import type { AvatarSize } from "../Avatar/Avatar.ptsx";
+
+// Mirrors AVATAR_SIZES literally: PJSX lowers self-contained ZSX/Zig only
+// from statically enumerable file-local maps. Focused tests lock the two maps
+// together so the scale cannot drift.
+export const AVATAR_GROUP_COUNT_SIZES = {
+  sm: "size-6 text-3xs",
+  md: "size-8 text-xs",
+  lg: "size-10 text-sm",
+} as const;
+
+export type AvatarGroupCountProps = {
+  classes?: string;
+  count: number;
+  id?: string;
+  size?: AvatarSize;
+};
+
+export function AvatarGroupCount({ classes = "", count, id, size = "md" }: AvatarGroupCountProps) {
+  return (
+    <span
+      id={id}
+      class={[
+        "relative inline-flex shrink-0 items-center justify-center rounded-full bg-muted font-medium text-muted-foreground",
+        AVATAR_GROUP_COUNT_SIZES[size],
+        classes,
+      ]}
+      data-part="avatar-group-count"
+    >
+      +{count}
+    </span>
+  );
+}

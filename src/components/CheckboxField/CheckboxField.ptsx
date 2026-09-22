@@ -1,0 +1,62 @@
+// A checkbox with its label and a line of what ticking it means, and, when it has
+// children, the controls that only matter while it is ticked: shown then, hidden
+// otherwise, by CSS alone (the checkbox is the `peer` of the body). Plain form
+// semantics: the checkbox posts as any checkbox does, the parent owns the state.
+import { Checkbox } from "../Checkbox/Checkbox.ptsx";
+import { FieldDescription } from "../Field/FieldDescription.ptsx";
+import { FieldLabel } from "../Field/FieldLabel.ptsx";
+
+export type CheckboxFieldProps = {
+  /** Required: the label points at the checkbox by it. */
+  id: string;
+  name: string;
+  value?: string;
+  checked?: boolean;
+  disabled?: boolean;
+  label: string;
+  description?: string;
+  /** The controls of the rule, shown while the box is ticked. */
+  children?: JSX.Element;
+  classes?: string;
+  onChange?: (event: Event) => void;
+};
+
+export function CheckboxField({
+  id,
+  name,
+  value = "1",
+  checked = false,
+  disabled = false,
+  label,
+  description,
+  children,
+  classes = "",
+  onChange,
+}: CheckboxFieldProps) {
+  return (
+    <div
+      class={["grid grid-cols-[auto_1fr] items-start gap-x-3 gap-y-1", classes]}
+      data-part="checkbox-field"
+    >
+      <Checkbox
+        id={id}
+        name={name}
+        value={value}
+        checked={checked}
+        disabled={disabled}
+        classes="peer mt-0.5"
+        onChange={onChange}
+      />
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      {description && <FieldDescription classes="col-start-2">{description}</FieldDescription>}
+      {children && (
+        <div
+          class="col-start-2 mt-3 hidden flex-col gap-4 peer-checked:flex"
+          data-part="checkbox-field-body"
+        >
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}

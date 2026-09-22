@@ -1,0 +1,15 @@
+import {
+  BoxValueControlRangePicker,
+  type BoxValueControlRangePickerProps,
+} from "../BoxValueControl/BoxValueControlRangePicker.ptsx";
+
+export type BoxControlRangePickerProps = BoxValueControlRangePickerProps;
+
+export function BoxControlRangePicker({
+  min = 0,
+  max = 300,
+  step = 1,
+  label,
+}: BoxControlRangePickerProps) {
+  return <BoxValueControlRangePicker min={min} max={max} step={step} label={label} />;
+}

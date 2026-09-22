@@ -1,0 +1,22 @@
+// Absolutely positioned image that covers the fallback beneath it. The
+// layering is pure CSS — no load detection, no behavior store — so the same
+// tree works server-rendered and hydrated.
+
+export type AvatarImageProps = {
+  alt?: string;
+  classes?: string;
+  id?: string;
+  src: string;
+};
+
+export function AvatarImage({ alt = "", classes = "", id, src }: AvatarImageProps) {
+  return (
+    <img
+      id={id}
+      src={src}
+      alt={alt}
+      class={["absolute inset-0 h-full w-full rounded-full object-cover", classes]}
+      data-part="image"
+    />
+  );
+}

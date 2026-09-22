@@ -1,0 +1,32 @@
+// Zero-data placeholder root. One centered native column; the part margins
+// (media mb-4, description mt-1, content mt-4) own the vertical rhythm so any
+// omitted part collapses cleanly.
+
+export type EmptyProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function Empty({ children, classes = "", id }: EmptyProps) {
+  return (
+    <div
+      id={id}
+      class={[
+        "flex flex-col items-center justify-center rounded-xl border border-dashed border-input px-4 py-12 text-center",
+        classes,
+      ]}
+    >
+      {children}
+    </div>
+  );
+}
+
+export { EmptyMedia } from "./EmptyMedia.ptsx";
+export { EmptyTitle } from "./EmptyTitle.ptsx";
+export { EmptyDescription } from "./EmptyDescription.ptsx";
+export { EmptyContent } from "./EmptyContent.ptsx";
+export type { EmptyMediaProps } from "./EmptyMedia.ptsx";
+export type { EmptyTitleProps } from "./EmptyTitle.ptsx";
+export type { EmptyDescriptionProps } from "./EmptyDescription.ptsx";
+export type { EmptyContentProps } from "./EmptyContent.ptsx";

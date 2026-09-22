@@ -1,0 +1,316 @@
+import { Publr } from "publr-jsx";
+import { Button } from "../Button/Button.ptsx";
+import { BoxValueControl, type BoxValue } from "../BoxValueControl/BoxValueControl.ptsx";
+import { Icon } from "../Icon/Icon.ptsx";
+import { StyleControl } from "../StyleControl/StyleControl.ptsx";
+import { StyleControlActions } from "../StyleControl/StyleControlActions.ptsx";
+import { StyleControlCloseTrigger } from "../StyleControl/StyleControlCloseTrigger.ptsx";
+import { StyleControlContent } from "../StyleControl/StyleControlContent.ptsx";
+
+export const BOX_CONTROL_SELECTIONS = [
+  "None",
+  "Top",
+  "Right",
+  "Bottom",
+  "Left",
+  "Top, Right",
+  "Top, Bottom",
+  "Top, Left",
+  "Right, Bottom",
+  "Left, Right",
+  "Bottom, Left",
+  "Top, Right, Bottom",
+  "Top, Right, Left",
+  "Top, Bottom, Left",
+  "Right, Bottom, Left",
+  "All sides",
+  "Top Left",
+  "Top Right",
+  "Bottom Right",
+  "Bottom Left",
+  "Top Left, Top Right",
+  "Top Left, Bottom Right",
+  "Top Left, Bottom Left",
+  "Top Right, Bottom Right",
+  "Top Right, Bottom Left",
+  "Bottom Right, Bottom Left",
+  "Top Left, Top Right, Bottom Right",
+  "Top Left, Top Right, Bottom Left",
+  "Top Left, Bottom Right, Bottom Left",
+  "Top Right, Bottom Right, Bottom Left",
+  "All corners",
+] as const;
+
+export type BoxControlSelection = (typeof BOX_CONTROL_SELECTIONS)[number];
+
+export const state = Publr.reactive({
+  disabled: false,
+  changed: false,
+  current: "None",
+  revision: 0,
+  get selection(): string {
+    void state.revision;
+    return state.changed ? state.current : configuredSelection();
+  },
+  get cornerMode(): boolean {
+    return cornersIcon() !== null;
+  },
+  get pairVertical(): boolean {
+    return (
+      state.selection === "Top" || state.selection === "Bottom" || state.selection === "Top, Bottom"
+    );
+  },
+  get pairPressed(): boolean {
+    return state.selection === "Top, Bottom" || state.selection === "Left, Right";
+  },
+  get allPressed(): boolean {
+    return state.selection === "All sides" || state.selection === "All corners";
+  },
+});
+
+export const root = Publr.ref();
+let deliveredRevision = 0;
+
+const describe = (values: readonly [boolean, string][], all: string) => {
+  let selection = "";
+  let selectedCount = 0;
+  for (const [active, label] of values) {
+    if (!active) continue;
+    selection += `${selection ? ", " : ""}${label}`;
+    selectedCount++;
+  }
+  if (selectedCount === 0) return "None";
+  if (selectedCount === values.length) return all;
+  return selection;
+};
+
+const owner = () => root.current as HTMLElement | null;
+const sidesIcon = () =>
+  owner()?.querySelector<HTMLElement>('[data-part="selected-sides-icon"]') ?? null;
+const cornersIcon = () =>
+  owner()?.querySelector<HTMLElement>('[data-part="selected-corners-icon"]') ?? null;
+const configuredSelection = () => {
+  const corners = cornersIcon();
+  if (corners) {
+    return describe(
+      [
+        [corners.dataset.topLeft === "true", "Top Left"],
+        [corners.dataset.topRight === "true", "Top Right"],
+        [corners.dataset.bottomRight === "true", "Bottom Right"],
+        [corners.dataset.bottomLeft === "true", "Bottom Left"],
+      ],
+      "All corners",
+    );
+  }
+  const sides = sidesIcon();
+  return describe(
+    [
+      [sides?.dataset.top === "true", "Top"],
+      [sides?.dataset.right === "true", "Right"],
+      [sides?.dataset.bottom === "true", "Bottom"],
+      [sides?.dataset.left === "true", "Left"],
+    ],
+    "All sides",
+  );
+};
+
+const select = (selection: string) => {
+  if (state.disabled) return;
+  state.changed = true;
+  state.current = selection;
+  state.revision++;
+};
+
+export const selectPair = () => {
+  select(state.pairVertical ? "Top, Bottom" : "Left, Right");
+};
+
+export const selectAllSides = () => {
+  select("All sides");
+};
+
+export const selectAllCorners = () => {
+  select("All corners");
+};
+
+Publr.effect(() => {
+  const selection = state.selection;
+  const host = owner();
+  if (!host) return;
+  const subtitle = host.querySelector<HTMLElement>('[data-part="style-control-subtitle"]');
+  if (subtitle) subtitle.textContent = selection;
+  const cornerMode = state.cornerMode;
+  const pair = host.querySelector<HTMLButtonElement>('[data-part="box-control-pair-toggle"]');
+  if (pair) {
+    pair.hidden = cornerMode;
+    pair.classList.toggle("hidden", cornerMode);
+    pair.setAttribute("aria-pressed", String(state.pairPressed));
+  }
+  for (const all of host.querySelectorAll<HTMLButtonElement>(
+    '[data-part="box-control-all-toggle"]',
+  )) {
+    const cornersAction = all.getAttribute("aria-label") === "Sync all corners";
+    const hidden = cornersAction !== cornerMode;
+    all.hidden = hidden;
+    all.classList.toggle("hidden", hidden);
+    all.setAttribute("aria-pressed", String(state.allPressed));
+  }
+
+  const visible = new Set(
+    selection === "All sides"
+      ? ["top", "right", "bottom", "left"]
+      : selection === "All corners"
+        ? ["top-left", "top-right", "bottom-right", "bottom-left"]
+        : selection
+            .toLowerCase()
+            .split(", ")
+            .filter((value) => value !== "none"),
+  );
+  for (const icon of host.querySelectorAll<SVGElement>(
+    '[data-part="selected-sides-icon"] svg, [data-part="selected-corners-icon"] svg',
+  )) {
+    const href = icon.querySelector("use")?.getAttribute("href") ?? "";
+    const key = href.replace(/^.*(?:sides|radius)-/, "");
+    const show = key === "none" ? visible.size === 0 : visible.has(key);
+    if (show) icon.removeAttribute("hidden");
+    else icon.setAttribute("hidden", "");
+    icon.classList.toggle("hidden", !show);
+  }
+});
+
+Publr.effect(() => {
+  const revision = state.revision;
+  if (!revision || revision === deliveredRevision) return;
+  deliveredRevision = revision;
+  owner()?.dispatchEvent(
+    new CustomEvent("boxcontrolselectionchange", {
+      detail: state.selection,
+      bubbles: true,
+    }),
+  );
+});
+
+export type BoxControlProps = {
+  children: JSX.Element;
+  classes?: string;
+  id?: string;
+  title: string;
+  label: string;
+  defaultValue: BoxValue;
+  disabled?: boolean;
+  onSelectionChange?: (event: CustomEvent<BoxControlSelection>) => void;
+  onClose?: (event: MouseEvent) => void;
+  onInput?: (value: BoxValue) => void;
+  onChange?: (value: BoxValue) => void;
+};
+
+export function BoxControlNext({
+  children,
+  classes = "",
+  id,
+  title,
+  label,
+  defaultValue,
+  disabled = false,
+  onSelectionChange,
+  onClose,
+  onInput,
+  onChange,
+}: BoxControlProps) {
+  state.disabled = disabled;
+
+  const emitSelectionChange = (event: Event) => {
+    onSelectionChange?.(event as CustomEvent<BoxControlSelection>);
+  };
+
+  return (
+    <div
+      id={id}
+      class={["w-full", classes]}
+      data-part="box-control"
+      onBoxControlSelectionChange={emitSelectionChange}
+      ref={root}
+    >
+      <StyleControl title={title} subtitle="None">
+        <StyleControlActions>
+          <Button
+            hierarchy="tertiary"
+            size="sm"
+            classes="w-8 px-0"
+            label="Sync opposite sides"
+            title="Sync opposite sides"
+            disabled={disabled}
+            pressed={false}
+            data-part="box-control-pair-toggle"
+            onClick={selectPair}
+            hidden={state.cornerMode}
+          >
+            <span class="relative block size-4" aria-hidden="true">
+              <span class="absolute inset-0" hidden={state.pairVertical}>
+                <Icon name="spacing-sync-left-right" size="sm" />
+              </span>
+              <span class="absolute inset-0 rotate-90" hidden={!state.pairVertical}>
+                <Icon name="spacing-sync-left-right" size="sm" />
+              </span>
+            </span>
+          </Button>
+          <Button
+            hierarchy="tertiary"
+            size="sm"
+            classes="w-8 px-0"
+            label="Sync all sides"
+            title="Sync all sides"
+            disabled={disabled}
+            pressed={false}
+            data-part="box-control-all-toggle"
+            onClick={selectAllSides}
+            hidden={state.cornerMode}
+          >
+            <Icon name="spacing-sides-none" size="md" />
+          </Button>
+          <Button
+            hierarchy="tertiary"
+            size="sm"
+            classes="w-8 px-0"
+            label="Sync all corners"
+            title="Sync all corners"
+            disabled={disabled}
+            pressed={false}
+            data-part="box-control-all-toggle"
+            onClick={selectAllCorners}
+            hidden={!state.cornerMode}
+          >
+            <Icon name="border-radius-none" size="md" />
+          </Button>
+          <StyleControlCloseTrigger asChild onClick={onClose}>
+            <Button hierarchy="tertiary" size="sm" label="Close" title="Close" disabled={disabled}>
+              <Icon name="close" size="sm" />
+            </Button>
+          </StyleControlCloseTrigger>
+        </StyleControlActions>
+        <StyleControlContent>
+          <BoxValueControl
+            label={label}
+            defaultValue={defaultValue}
+            disabled={disabled}
+            onInput={onInput}
+            onChange={onChange}
+          >
+            {children}
+          </BoxValueControl>
+        </StyleControlContent>
+      </StyleControl>
+    </div>
+  );
+}
+
+export const BoxControl = BoxControlNext;
+
+export { BoxControlIcon } from "./BoxControlIcon.ptsx";
+export { BoxControlRangeScalePicker } from "./BoxControlRangeScalePicker.ptsx";
+export { BoxControlRangeScalePickerOption } from "./BoxControlRangeScalePickerOption.ptsx";
+export { BoxControlRangePicker } from "./BoxControlRangePicker.ptsx";
+export type { BoxControlIconProps } from "./BoxControlIcon.ptsx";
+export type { BoxControlRangeScalePickerProps } from "./BoxControlRangeScalePicker.ptsx";
+export type { BoxControlRangeScalePickerOptionProps } from "./BoxControlRangeScalePickerOption.ptsx";
+export type { BoxControlRangePickerProps } from "./BoxControlRangePicker.ptsx";

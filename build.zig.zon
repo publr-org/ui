@@ -1,0 +1,21 @@
+.{
+    .name = .publr_ui,
+    .version = "0.1.0",
+    .fingerprint = 0xae2cd0bd93b0a1dd,
+    .minimum_zig_version = "0.16.0",
+    .dependencies = .{
+        // Build-time only: the compiler for the gate and the gallery, the jit
+        // for the gallery's in-browser CSS engine, the http server to serve it.
+        .pjsx = .{ .path = "../pjsx" },
+        .publr_jit = .{ .path = "../jit" },
+        .http_server = .{ .path = "../lib/http" },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "scripts",
+        "src",
+        "gallery",
+        "README.md",
+    },
+}

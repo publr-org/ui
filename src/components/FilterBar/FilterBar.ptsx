@@ -1,0 +1,97 @@
+// The filter band over a list: one full-width strip under the title band that holds the
+// filter pills, the search input and the control that adds a filter, on the muted surface
+// between two rules. Pills are links the server filters by, the search is an inset Input
+// inside the caller's form, the adder is a DropdownMenu that is the band's own child. The
+// caller gives the band the page's gutter (`px-8`); every segment stretches to its height.
+// The band's behaviour is small: in an empty search box Backspace follows the last pill's
+// remove link and `/` opens the adder; and a page that arrives at `#<pill id>` (the adder's
+// links do) opens that pill's value menu at once, so picking a filter leads straight to
+// picking its value.
+import { Publr } from "publr-jsx";
+
+export const state = Publr.reactive({ pressed: "" });
+
+let opened = false;
+
+Publr.effect(() => {
+  if (opened || typeof document === "undefined") return;
+  opened = true;
+  const hash = document.location.hash;
+  if (!hash.startsWith("#filter-")) return;
+  setTimeout(() => {
+    const pill = document.getElementById(hash.slice(1));
+    if (!pill) return;
+    // The value is the pill's last menu trigger: a trigger's own part name replaces the
+    // value segment's, so it is found by what it is, not by what it was.
+    const triggers = [...pill.querySelectorAll<HTMLElement>("[data-part='trigger']")].filter(
+      (trigger) => !trigger.closest("[data-part='filter-pill-operator']"),
+    );
+    const value = triggers[triggers.length - 1];
+    if (!value) return;
+    const address = document.location.pathname + document.location.search;
+    history.replaceState(null, "", address);
+    value.click();
+  }, 0);
+});
+
+const isEmptySearch = (target: EventTarget | null): target is HTMLInputElement =>
+  target instanceof HTMLInputElement && target.type === "search" && target.value === "";
+
+export const keydown = (event: Event) => {
+  if (!(event instanceof KeyboardEvent) || !isEmptySearch(event.target)) return;
+  const bar =
+    (event.currentTarget as HTMLElement | null) ?? event.target.closest("[data-part='filter-bar']");
+  if (!bar) return;
+  if (event.key === "Backspace") {
+    const removes = bar.querySelectorAll<HTMLAnchorElement>("[data-part='filter-pill-remove']");
+    const last = removes[removes.length - 1];
+    if (!last) return;
+    event.preventDefault();
+    state.pressed = "Backspace";
+    last.click();
+  } else if (event.key === "/") {
+    const triggers = [...bar.querySelectorAll<HTMLElement>("[data-part='trigger']")].filter(
+      (trigger) => !trigger.closest("[data-part='filter-pill']"),
+    );
+    const adder = triggers[triggers.length - 1];
+    if (!adder) return;
+    event.preventDefault();
+    state.pressed = "/";
+    adder.click();
+  }
+};
+
+export type FilterBarProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function FilterBar({ children, classes = "", id }: FilterBarProps) {
+  return (
+    <div
+      id={id}
+      class={[
+        "flex h-16 w-full items-stretch gap-4 overflow-x-auto border-y border-border bg-muted/40",
+        classes,
+      ]}
+      data-part="filter-bar"
+      onKeyDown={keydown}
+    >
+      {children}
+    </div>
+  );
+}
+
+export { FilterPill } from "./FilterPill.ptsx";
+export { FilterPillBody } from "./FilterPillBody.ptsx";
+export { FilterPillLabel } from "./FilterPillLabel.ptsx";
+export { FilterPillOperator } from "./FilterPillOperator.ptsx";
+export { FilterPillValue } from "./FilterPillValue.ptsx";
+export { FilterPillRemove } from "./FilterPillRemove.ptsx";
+export type { FilterPillProps } from "./FilterPill.ptsx";
+export type { FilterPillBodyProps } from "./FilterPillBody.ptsx";
+export type { FilterPillLabelProps } from "./FilterPillLabel.ptsx";
+export type { FilterPillOperatorProps } from "./FilterPillOperator.ptsx";
+export type { FilterPillValueProps } from "./FilterPillValue.ptsx";
+export type { FilterPillRemoveProps } from "./FilterPillRemove.ptsx";

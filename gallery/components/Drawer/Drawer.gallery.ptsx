@@ -1,0 +1,757 @@
+import {
+  BUTTON_HIERARCHIES,
+  BUTTON_INTENTS,
+  BUTTON_SIZES,
+  Button,
+} from "../../../src/components/Button/Button.ptsx";
+import type {
+  ButtonHierarchy,
+  ButtonIntent,
+  ButtonSize,
+} from "../../../src/components/Button/Button.ptsx";
+import { Drawer } from "../../../src/components/Drawer/Drawer.ptsx";
+import { DrawerClose } from "../../../src/components/Drawer/DrawerClose.ptsx";
+import { DrawerContent } from "../../../src/components/Drawer/DrawerContent.ptsx";
+import { DrawerHeader } from "../../../src/components/Drawer/DrawerHeader.ptsx";
+import { DrawerTitle } from "../../../src/components/Drawer/DrawerTitle.ptsx";
+import { DrawerTrigger } from "../../../src/components/Drawer/DrawerTrigger.ptsx";
+import { Empty } from "../../../src/components/Empty/Empty.ptsx";
+import { EmptyDescription } from "../../../src/components/Empty/EmptyDescription.ptsx";
+import { EmptyMedia } from "../../../src/components/Empty/EmptyMedia.ptsx";
+import { EmptyTitle } from "../../../src/components/Empty/EmptyTitle.ptsx";
+import { Icon } from "../../../src/components/Icon/Icon.ptsx";
+import { TEXT_TONES, TEXT_VARIANTS, Text } from "../../../src/components/Text/Text.ptsx";
+import type { TextTone, TextVariant } from "../../../src/components/Text/Text.ptsx";
+import type {
+  ComponentCanvas,
+  ComponentCanvasChildInstance,
+  ComponentCanvasControl,
+  ComponentCanvasGroupControl,
+  ComponentDemoMeta,
+  ComponentDemoVariant,
+  DemoNode,
+} from "../../gallery-types";
+
+const usage = `<Drawer>
+  <DrawerTrigger asChild>
+    <Button hierarchy="secondary">Asset details</Button>
+  </DrawerTrigger>
+  <DrawerContent>
+    <DrawerHeader>
+      <DrawerTitle>sunset.jpg</DrawerTitle>
+      <DrawerClose asChild>
+        <Button hierarchy="tertiary" label="Close details">
+          <Icon name="x-close" size="sm" />
+        </Button>
+      </DrawerClose>
+    </DrawerHeader>
+    <Text as="p" variant="body-sm" tone="muted" classes="p-4">
+      1.2 MB · 3840 × 2160 · public
+    </Text>
+  </DrawerContent>
+</Drawer>`;
+
+export const meta = {
+  name: "drawer",
+  label: "Drawer",
+  source: "src/components/Drawer/Drawer.ptsx",
+  portableName: "Drawer",
+  kind: "primitive",
+  group: "Essentials",
+  description:
+    "A portable compound side panel that slides in over an overlay, with the Dialog family's owned focus trap, dismissal, and ARIA wiring.",
+  tags: ["panel", "overlay", "side", "detail", "portal", "animation"],
+  usage,
+  preview: "overlay",
+  previewLabel: "Compound side drawer",
+  docs: {
+    purpose: [
+      "Drawer is the composition root for a trigger and a modal right-side panel.",
+      "The component owns the overlay, slide-in transition, focus trap, keyboard dismissal, focus restoration, and title ARIA wiring; callers compose the header, body, and footer.",
+    ],
+    useWhen: [
+      "Contextual detail or a secondary task should slide in beside the page without navigating away.",
+    ],
+    avoidWhen: [
+      "A short interruption that completes immediately; use Dialog.",
+      "A list of immediate actions; use DropdownMenu.",
+    ],
+    rules: [
+      {
+        title: "Compose the panel",
+        description:
+          "DrawerHeader with DrawerTitle and DrawerClose first, then a caller-composed scrolling body — the drawer adds no body or footer configuration props.",
+      },
+      {
+        title: "Name the panel",
+        description:
+          "Render a DrawerTitle, or set DrawerContent label when the header has no visible title.",
+      },
+      {
+        title: "Programmatic opening clicks the trigger",
+        description:
+          "Page stores open a drawer by calling .click() on its (possibly visually hidden) trigger — there is no controlled open prop.",
+      },
+    ],
+    accessibility: [
+      "Trigger owns aria-haspopup=dialog and reactive aria-expanded.",
+      "The panel is role=dialog aria-modal=true, labelled by DrawerTitle when present and by the label prop otherwise.",
+      "Focus moves into the panel on open, Tab and Shift+Tab cycle inside, and Escape, overlay click, or DrawerClose return focus to the trigger.",
+    ],
+    composition: [
+      "DrawerHeader is a pinned styling row; the body scrolls inside the panel's flex column.",
+      "Compose footers with native layout utilities at the end of the panel.",
+    ],
+    agentNotes: [
+      "The panel stays rendered off-screen (translate-x-full) and slides in with transition-transform duration-200 ease-out — the reference-drawer baseline from the CMS edit screen. A display gate on the panel would skip the animation; while closed the family marks the panel aria-hidden and parks its focusables at tabindex=-1.",
+      "The overlay carries the static hidden class plus the live open gate — never add another display utility to it; it would defeat the gate on specificity ties.",
+      "The panel is always full height and right-aligned; size it with classes (e.g. max-w-sm) on DrawerContent.",
+      "Do not manually portal DrawerContent; the part portals itself.",
+    ],
+    props: [
+      {
+        name: "Drawer.id",
+        type: "string",
+        description: "Optional identifier applied to the drawer root.",
+      },
+      {
+        name: "Drawer.classes",
+        type: "string",
+        description: "Exceptional layout classes applied to the drawer root.",
+      },
+      {
+        name: "Drawer.children",
+        type: "unknown",
+        required: true,
+        description: "The Trigger and Content composition.",
+      },
+      {
+        name: "DrawerTrigger.id",
+        type: "string",
+        description: "Optional identifier applied to the concrete trigger.",
+      },
+      {
+        name: "DrawerTrigger.classes",
+        type: "string",
+        description: "Exceptional classes merged onto the concrete trigger.",
+      },
+      {
+        name: "DrawerTrigger.asChild",
+        type: "boolean",
+        description:
+          "Adopts exactly one Element child as the trigger instead of rendering a new button.",
+        default: "false",
+      },
+      {
+        name: "DrawerTrigger.children",
+        type: "unknown",
+        required: true,
+        description: "Trigger contents, or exactly one Element when asChild is true.",
+      },
+      {
+        name: "DrawerContent.id",
+        type: "string",
+        description: "Optional identifier applied to the drawer panel.",
+      },
+      {
+        name: "DrawerContent.classes",
+        type: "string",
+        description: "Exceptional sizing classes applied to the drawer panel (e.g. max-w-sm).",
+      },
+      {
+        name: "DrawerContent.label",
+        type: "string",
+        description: "Accessible name used only while no DrawerTitle renders inside the panel.",
+      },
+      {
+        name: "DrawerContent.children",
+        type: "unknown",
+        description: "Header, body, and footer composition.",
+      },
+      {
+        name: "DrawerHeader.id",
+        type: "string",
+        description: "Optional identifier applied to the header row.",
+      },
+      {
+        name: "DrawerHeader.classes",
+        type: "string",
+        description: "Exceptional classes applied to the header row.",
+      },
+      {
+        name: "DrawerHeader.children",
+        type: "unknown",
+        description: "Composed DrawerTitle, leading content, and DrawerClose.",
+      },
+      {
+        name: "DrawerTitle.id",
+        type: "string",
+        description:
+          "Optional identifier; generated automatically for the aria-labelledby wiring when absent.",
+      },
+      {
+        name: "DrawerTitle.classes",
+        type: "string",
+        description: "Exceptional classes applied to the heading.",
+      },
+      {
+        name: "DrawerTitle.children",
+        type: "unknown",
+        required: true,
+        description: "The visible drawer name.",
+      },
+      {
+        name: "DrawerClose.id",
+        type: "string",
+        description: "Optional identifier applied to the close control.",
+      },
+      {
+        name: "DrawerClose.classes",
+        type: "string",
+        description: "Exceptional classes merged onto the close control.",
+      },
+      {
+        name: "DrawerClose.asChild",
+        type: "boolean",
+        description:
+          "Adopts exactly one Element child as the close control instead of rendering a new button.",
+        default: "false",
+      },
+      {
+        name: "DrawerClose.children",
+        type: "unknown",
+        required: true,
+        description: "Close-control contents, or exactly one Element when asChild is true.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+const textNode = (
+  children: string,
+  props: Record<string, string | number | boolean> = {},
+): DemoNode => ({
+  component: "Text",
+  props: { variant: "body-md", children, ...props },
+});
+
+const detailNode = (): DemoNode => ({
+  component: "Drawer",
+  wrapper: "flex min-h-0 w-full items-start justify-center",
+  props: {},
+  children: [
+    {
+      component: "DrawerTrigger",
+      props: { asChild: true },
+      children: [
+        {
+          component: "Button",
+          props: { hierarchy: "secondary" },
+          children: [textNode("Asset details")],
+        },
+      ],
+    },
+    {
+      component: "DrawerContent",
+      props: { classes: "max-w-sm" },
+      children: [
+        {
+          component: "DrawerHeader",
+          props: {},
+          children: [
+            { component: "DrawerTitle", props: { children: "sunset.jpg" } },
+            {
+              component: "DrawerClose",
+              props: { asChild: true },
+              children: [
+                {
+                  component: "Button",
+                  props: { hierarchy: "tertiary", label: "Close details" },
+                  children: [{ component: "Icon", props: { name: "x-close", size: "sm" } }],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          component: "Text",
+          props: {
+            as: "p",
+            variant: "body-sm",
+            tone: "muted",
+            classes: "p-4",
+            children: "1.2 MB · 3840 × 2160 · public",
+          },
+        },
+      ],
+    },
+  ],
+});
+
+const labelledNode = (): DemoNode => ({
+  component: "Drawer",
+  wrapper: "flex min-h-0 w-full items-start justify-center",
+  props: {},
+  children: [
+    {
+      component: "DrawerTrigger",
+      props: { asChild: true },
+      children: [
+        {
+          component: "Button",
+          props: {},
+          children: [textNode("Upload files")],
+        },
+      ],
+    },
+    {
+      component: "DrawerContent",
+      props: { classes: "max-w-sm", label: "Upload files" },
+      children: [
+        {
+          component: "Empty",
+          props: { classes: "m-4 rounded-lg border-2 border-dashed border-border" },
+          children: [
+            {
+              component: "EmptyMedia",
+              props: {},
+              children: [{ component: "Icon", props: { name: "upload", size: "lg" } }],
+            },
+            { component: "EmptyTitle", props: { children: "Drop files here" } },
+            {
+              component: "EmptyDescription",
+              props: { children: "Drag files into this panel or browse from disk." },
+            },
+          ],
+        },
+        {
+          component: "DrawerClose",
+          props: { asChild: true, classes: "m-4 mt-auto mr-2 self-end" },
+          children: [
+            {
+              component: "Button",
+              props: { hierarchy: "secondary" },
+              children: [textNode("Cancel")],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+});
+
+function DemoDetail() {
+  return (
+    <div class="flex min-h-0 w-full items-start justify-center">
+      <Drawer>
+        <DrawerTrigger asChild>
+          <Button hierarchy="secondary">
+            <Text variant="body-md">Asset details</Text>
+          </Button>
+        </DrawerTrigger>
+        <DrawerContent classes="max-w-sm">
+          <DrawerHeader>
+            <DrawerTitle>sunset.jpg</DrawerTitle>
+            <DrawerClose asChild>
+              <Button hierarchy="tertiary" label="Close details">
+                <Icon name="x-close" size="sm" />
+              </Button>
+            </DrawerClose>
+          </DrawerHeader>
+          <Text as="p" variant="body-sm" tone="muted" classes="p-4">
+            1.2 MB · 3840 × 2160 · public
+          </Text>
+        </DrawerContent>
+      </Drawer>
+    </div>
+  );
+}
+
+function DemoLabelled() {
+  return (
+    <div class="flex min-h-0 w-full items-start justify-center">
+      <Drawer>
+        <DrawerTrigger asChild>
+          <Button>
+            <Text variant="body-md">Upload files</Text>
+          </Button>
+        </DrawerTrigger>
+        <DrawerContent classes="max-w-sm" label="Upload files">
+          <Empty classes="m-4 rounded-lg border-2 border-dashed border-border">
+            <EmptyMedia>
+              <Icon name="upload" size="lg" />
+            </EmptyMedia>
+            <EmptyTitle>Drop files here</EmptyTitle>
+            <EmptyDescription>Drag files into this panel or browse from disk.</EmptyDescription>
+          </Empty>
+          <DrawerClose asChild classes="m-4 mt-auto mr-2 self-end">
+            <Button hierarchy="secondary">
+              <Text variant="body-md">Cancel</Text>
+            </Button>
+          </DrawerClose>
+        </DrawerContent>
+      </Drawer>
+    </div>
+  );
+}
+
+export const variants = [
+  {
+    label: "Detail panel",
+    description:
+      "The canonical drawer: header with title and close control, caller-composed detail body, sliding in from the right.",
+    usage,
+    Demo: () => <DemoDetail />,
+    node: detailNode(),
+  },
+  {
+    label: "Labelled task panel",
+    description:
+      "No visible title — the label prop names the panel; the body and footer are caller-composed children.",
+    usage: `<Drawer>
+  <DrawerTrigger asChild>
+    <Button>Upload files</Button>
+  </DrawerTrigger>
+  <DrawerContent label="Upload files">
+    <Empty classes="m-4 rounded-lg border-2 border-dashed border-border">
+      <EmptyMedia><Icon name="upload" size="lg" /></EmptyMedia>
+      <EmptyTitle>Drop files here</EmptyTitle>
+      <EmptyDescription>Drag files into this panel or browse from disk.</EmptyDescription>
+    </Empty>
+    <DrawerClose asChild classes="m-4 mt-auto self-end">
+      <Button hierarchy="secondary">Cancel</Button>
+    </DrawerClose>
+  </DrawerContent>
+</Drawer>`,
+    Demo: () => <DemoLabelled />,
+    node: labelledNode(),
+  },
+] satisfies ComponentDemoVariant[];
+
+// ── Canvas: the full compound API as a recursively editable children tree ───
+
+const scopedValue = (scope: string, name: string) => (scope ? `${scope}::${name}` : name);
+const stringValue = (values: Readonly<Record<string, unknown>>, name: string, scope = ""): string =>
+  String(values[scopedValue(scope, name)] ?? "");
+const booleanValue = (
+  values: Readonly<Record<string, unknown>>,
+  name: string,
+  scope = "",
+): boolean => Boolean(values[scopedValue(scope, name)]);
+const childValues = (
+  values: Readonly<Record<string, unknown>>,
+  name: string,
+  scope = "",
+): readonly ComponentCanvasChildInstance[] => {
+  const value = values[scopedValue(scope, name)];
+  return Array.isArray(value)
+    ? value.filter(
+        (item): item is ComponentCanvasChildInstance =>
+          Boolean(item) && typeof item === "object" && "id" in item && "type" in item,
+      )
+    : [];
+};
+
+const buttonGroup = (scope: string, labelDefault: string): ComponentCanvasGroupControl => ({
+  name: "button",
+  label: "Button",
+  type: "group",
+  labelControl: `${scope}.text`,
+  controls: [
+    { name: `${scope}.text`, label: "text", type: "text", default: labelDefault },
+    {
+      name: `${scope}.hierarchy`,
+      label: "hierarchy",
+      type: "select",
+      default: scope === "close" ? "tertiary" : "primary",
+      options: BUTTON_HIERARCHIES,
+    },
+    {
+      name: `${scope}.intent`,
+      label: "intent",
+      type: "select",
+      default: "neutral",
+      options: BUTTON_INTENTS,
+    },
+    {
+      name: `${scope}.size`,
+      label: "size",
+      type: "select",
+      default: scope === "close" ? "sm" : "md",
+      options: BUTTON_SIZES,
+    },
+    { name: `${scope}.disabled`, label: "disabled", type: "boolean", default: false },
+    { name: `${scope}.id`, label: "id", type: "text", default: "" },
+    { name: `${scope}.classes`, label: "classes", type: "text", default: "" },
+  ],
+});
+
+const bodyTextGroup: ComponentCanvasGroupControl = {
+  name: "bodyText",
+  label: "Text",
+  type: "group",
+  labelControl: "bodyText.children",
+  controls: [
+    {
+      name: "bodyText.children",
+      label: "text",
+      type: "text",
+      default: "1.2 MB · 3840 × 2160 · public",
+    },
+    {
+      name: "bodyText.variant",
+      label: "variant",
+      type: "select",
+      default: "body-sm",
+      options: Object.keys(TEXT_VARIANTS),
+    },
+    {
+      name: "bodyText.tone",
+      label: "tone",
+      type: "select",
+      default: "muted",
+      options: Object.keys(TEXT_TONES),
+    },
+    { name: "bodyText.classes", label: "classes", type: "text", default: "p-4" },
+  ],
+};
+
+const drawerCanvasControls: readonly ComponentCanvasControl[] = [
+  { name: "drawer.id", label: "id", type: "text", default: "" },
+  { name: "drawer.classes", label: "classes", type: "text", default: "" },
+  {
+    name: "drawer.children",
+    label: "children",
+    type: "children",
+    default: [
+      { type: "trigger", values: { "trigger.children": ["button"] } },
+      {
+        type: "content",
+        values: {
+          "content.children": [
+            { type: "header", values: { "header.children": ["title", "close"] } },
+            "bodyText",
+          ],
+        },
+      },
+    ],
+    options: [
+      {
+        name: "trigger",
+        label: "DrawerTrigger",
+        type: "group",
+        controls: [
+          { name: "trigger.asChild", label: "asChild", type: "boolean", default: true },
+          { name: "trigger.id", label: "id", type: "text", default: "" },
+          { name: "trigger.classes", label: "classes", type: "text", default: "" },
+          {
+            name: "trigger.children",
+            label: "children",
+            type: "children",
+            default: ["button"],
+            options: [buttonGroup("trigger", "Open drawer")],
+          },
+        ],
+      },
+      {
+        name: "content",
+        label: "DrawerContent",
+        type: "group",
+        controls: [
+          { name: "content.id", label: "id", type: "text", default: "" },
+          { name: "content.classes", label: "classes", type: "text", default: "max-w-sm" },
+          { name: "content.label", label: "label", type: "text", default: "" },
+          {
+            name: "content.children",
+            label: "children",
+            type: "children",
+            allowMultiple: true,
+            default: [
+              { type: "header", values: { "header.children": ["title", "close"] } },
+              "bodyText",
+            ],
+            options: [
+              {
+                name: "header",
+                label: "DrawerHeader",
+                type: "group",
+                controls: [
+                  { name: "header.id", label: "id", type: "text", default: "" },
+                  { name: "header.classes", label: "classes", type: "text", default: "" },
+                  {
+                    name: "header.children",
+                    label: "children",
+                    type: "children",
+                    default: ["title", "close"],
+                    options: [
+                      {
+                        name: "title",
+                        label: "DrawerTitle",
+                        type: "group",
+                        labelControl: "title.children",
+                        controls: [
+                          {
+                            name: "title.children",
+                            label: "text",
+                            type: "text",
+                            default: "Drawer title",
+                          },
+                          { name: "title.id", label: "id", type: "text", default: "" },
+                          { name: "title.classes", label: "classes", type: "text", default: "" },
+                        ],
+                      },
+                      {
+                        name: "close",
+                        label: "DrawerClose",
+                        type: "group",
+                        controls: [
+                          {
+                            name: "close.asChild",
+                            label: "asChild",
+                            type: "boolean",
+                            default: true,
+                          },
+                          { name: "close.id", label: "id", type: "text", default: "" },
+                          { name: "close.classes", label: "classes", type: "text", default: "" },
+                          {
+                            name: "close.children",
+                            label: "children",
+                            type: "children",
+                            default: ["button"],
+                            options: [buttonGroup("close", "Close")],
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+              bodyTextGroup,
+            ],
+          },
+        ],
+      },
+    ],
+  },
+];
+
+const buttonNode = (
+  values: Readonly<Record<string, unknown>>,
+  instance: ComponentCanvasChildInstance,
+  scope: string,
+): DemoNode => ({
+  component: "Button",
+  props: {
+    hierarchy: stringValue(values, `${scope}.hierarchy`, instance.id) as ButtonHierarchy,
+    intent: stringValue(values, `${scope}.intent`, instance.id) as ButtonIntent,
+    size: stringValue(values, `${scope}.size`, instance.id) as ButtonSize,
+    disabled: booleanValue(values, `${scope}.disabled`, instance.id),
+    id: stringValue(values, `${scope}.id`, instance.id),
+    classes: stringValue(values, `${scope}.classes`, instance.id),
+  },
+  children: [textNode(stringValue(values, `${scope}.text`, instance.id))],
+});
+
+export const canvas = {
+  controls: drawerCanvasControls,
+  node: (values) => {
+    const makeClose = (instance: ComponentCanvasChildInstance): DemoNode => {
+      const button = childValues(values, "close.children", instance.id).find(
+        (child) => child.type === "button",
+      );
+      return {
+        component: "DrawerClose",
+        props: {
+          asChild: Boolean(button) && booleanValue(values, "close.asChild", instance.id),
+          id: stringValue(values, "close.id", instance.id),
+          classes: stringValue(values, "close.classes", instance.id),
+        },
+        children: button ? [buttonNode(values, button, "close")] : [textNode("Close")],
+      };
+    };
+
+    const makeHeader = (instance: ComponentCanvasChildInstance): DemoNode => ({
+      component: "DrawerHeader",
+      props: {
+        id: stringValue(values, "header.id", instance.id),
+        classes: stringValue(values, "header.classes", instance.id),
+      },
+      children: childValues(values, "header.children", instance.id).flatMap((child): DemoNode[] => {
+        if (child.type === "title") {
+          return [
+            {
+              component: "DrawerTitle",
+              props: {
+                children: stringValue(values, "title.children", child.id),
+                id: stringValue(values, "title.id", child.id),
+                classes: stringValue(values, "title.classes", child.id),
+              },
+            },
+          ];
+        }
+        if (child.type === "close") return [makeClose(child)];
+        return [];
+      }),
+    });
+
+    const makeContent = (instance: ComponentCanvasChildInstance): DemoNode => ({
+      component: "DrawerContent",
+      props: {
+        id: stringValue(values, "content.id", instance.id),
+        classes: stringValue(values, "content.classes", instance.id),
+        label: stringValue(values, "content.label", instance.id),
+      },
+      children: childValues(values, "content.children", instance.id).flatMap(
+        (child): DemoNode[] => {
+          if (child.type === "header") return [makeHeader(child)];
+          if (child.type === "bodyText") {
+            return [
+              {
+                component: "Text",
+                props: {
+                  as: "p",
+                  variant: stringValue(values, "bodyText.variant", child.id) as TextVariant,
+                  tone: stringValue(values, "bodyText.tone", child.id) as TextTone,
+                  classes: stringValue(values, "bodyText.classes", child.id),
+                  children: stringValue(values, "bodyText.children", child.id),
+                },
+              },
+            ];
+          }
+          return [];
+        },
+      ),
+    });
+
+    const makeTrigger = (instance: ComponentCanvasChildInstance): DemoNode => {
+      const button = childValues(values, "trigger.children", instance.id).find(
+        (child) => child.type === "button",
+      );
+      return {
+        component: "DrawerTrigger",
+        props: {
+          asChild: Boolean(button) && booleanValue(values, "trigger.asChild", instance.id),
+          id: stringValue(values, "trigger.id", instance.id),
+          classes: stringValue(values, "trigger.classes", instance.id),
+        },
+        children: button ? [buttonNode(values, button, "trigger")] : [textNode("Open drawer")],
+      };
+    };
+
+    return {
+      component: "Drawer",
+      wrapper: "flex w-full items-start justify-center",
+      props: {
+        id: stringValue(values, "drawer.id"),
+        classes: stringValue(values, "drawer.classes"),
+      },
+      children: childValues(values, "drawer.children").flatMap((child): DemoNode[] =>
+        child.type === "trigger"
+          ? [makeTrigger(child)]
+          : child.type === "content"
+            ? [makeContent(child)]
+            : [],
+      ),
+    };
+  },
+} satisfies ComponentCanvas;

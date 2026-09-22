@@ -1,0 +1,51 @@
+import { Slot } from "publr-jsx";
+import { state, toggle, trigger, triggerKeydown } from "./Dropdown.ptsx";
+
+export type DropdownMenuTriggerProps = {
+  id?: string;
+  classes?: string;
+  asChild?: boolean;
+  children: JSX.Element;
+};
+
+export function DropdownMenuTrigger({
+  id,
+  classes = "",
+  asChild = false,
+  children,
+}: DropdownMenuTriggerProps) {
+  return (
+    <>
+      {asChild ? (
+        <Slot
+          id={id}
+          class={classes}
+          data-part="trigger"
+          anchor
+          ref={trigger}
+          onClick={toggle}
+          onKeyDown={triggerKeydown}
+          aria-haspopup="menu"
+          aria-expanded={state.open}
+        >
+          {children}
+        </Slot>
+      ) : (
+        <button
+          id={id}
+          class={classes}
+          type="button"
+          data-part="trigger"
+          anchor
+          ref={trigger}
+          onClick={toggle}
+          onKeyDown={triggerKeydown}
+          aria-haspopup="menu"
+          aria-expanded={state.open}
+        >
+          {children}
+        </button>
+      )}
+    </>
+  );
+}

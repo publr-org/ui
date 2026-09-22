@@ -1,0 +1,61 @@
+// User identity: a round, sized container that renders the person's initials
+// derived from `name`, beneath an optional Gravatar layer derived from
+// `email` (d=blank, so addresses without a Gravatar keep the initials),
+// beneath an optional authored AvatarImage and AvatarBadge. Stacking lives
+// in AvatarGroup.
+import { gravatarUrl, initials } from "publr-jsx";
+
+export const AVATAR_SIZES = {
+  sm: "size-6 text-3xs",
+  md: "size-8 text-xs",
+  lg: "size-10 text-sm",
+} as const;
+
+export type AvatarSize = keyof typeof AVATAR_SIZES;
+
+export type AvatarProps = {
+  children?: JSX.Element;
+  classes?: string;
+  email?: string;
+  id?: string;
+  name: string;
+  size?: AvatarSize;
+};
+
+export function Avatar({ children, classes = "", email, id, name, size = "md" }: AvatarProps) {
+  return (
+    <span
+      id={id}
+      class={[
+        "relative inline-flex shrink-0 items-center justify-center rounded-full",
+        AVATAR_SIZES[size],
+        classes,
+      ]}
+      data-avatar-size={size}
+      title={name}
+    >
+      <span
+        aria-hidden="true"
+        class="flex h-full w-full items-center justify-center rounded-full bg-muted font-semibold uppercase text-muted-foreground ring-1 ring-inset ring-border"
+        data-part="fallback"
+      >
+        {initials(name)}
+      </span>
+      {email && (
+        <img
+          src={gravatarUrl(email, 80)}
+          alt=""
+          aria-hidden="true"
+          class="absolute inset-0 h-full w-full rounded-full object-cover"
+          data-part="gravatar"
+        />
+      )}
+      {children}
+    </span>
+  );
+}
+
+export { AvatarImage } from "./AvatarImage.ptsx";
+export { AvatarBadge } from "./AvatarBadge.ptsx";
+export type { AvatarImageProps } from "./AvatarImage.ptsx";
+export type { AvatarBadgeProps } from "./AvatarBadge.ptsx";

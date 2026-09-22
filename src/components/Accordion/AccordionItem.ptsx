@@ -1,0 +1,36 @@
+import { Publr } from "publr-jsx";
+import { state, toggle } from "./Accordion.ptsx";
+
+export type AccordionItemProps = {
+  id?: string;
+  classes?: string;
+  value: string;
+  disabled?: boolean;
+  children: JSX.Element;
+};
+
+export function AccordionItem({
+  id,
+  classes = "",
+  value,
+  disabled = false,
+  children,
+}: AccordionItemProps) {
+  return (
+    <div
+      id={id}
+      class={[
+        "group/accordion-item border-b border-border last:border-b-0 data-disabled:opacity-50",
+        classes,
+      ]}
+      data-part="item"
+      data-value={value}
+      data-disabled={disabled ? "" : undefined}
+      aria-disabled={disabled ? "true" : undefined}
+      onClick={toggle}
+      data-open={state.values.includes(Publr.dataset("value"))}
+    >
+      {children}
+    </div>
+  );
+}

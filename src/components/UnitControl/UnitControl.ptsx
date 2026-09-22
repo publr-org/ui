@@ -1,0 +1,168 @@
+// Compound number+unit field. The family store is declared here at module
+// level; UnitControlInput imports `state` and binds through the ancestry
+// wire, and the composed Select's selectchange bubbles into unitChanged.
+import { Publr } from "publr-jsx";
+
+export const CSS_UNITS = ["px", "%", "em", "rem", "vw", "vh"] as const;
+
+export type CssUnit = (typeof CSS_UNITS)[number];
+export type UnitControlValue = readonly [number, CssUnit];
+
+export const state = Publr.reactive({
+  disabled: false,
+  readOnly: false,
+  invalid: false,
+  pendingNumber: 0,
+  pendingUnit: "px",
+  changeRevision: 0,
+  restoreAfterChange: false,
+  restoreRevision: 0,
+  get unavailable(): boolean {
+    return state.disabled || state.readOnly;
+  },
+});
+
+export const root = Publr.ref();
+let deliveredRevision = 0;
+let restoredRevision = 0;
+
+const numberInput = (event: Event) =>
+  event.target instanceof HTMLInputElement && event.target.type === "number" ? event.target : null;
+
+const unitValue = () =>
+  (root.current as HTMLElement | null)?.querySelector<HTMLInputElement>(
+    '[data-part="unit-control-unit"] [data-part="value"]',
+  )?.value ?? "px";
+
+export const numberChanged = (event: Event) => {
+  const input = numberInput(event);
+  if (!input || state.disabled || state.readOnly) return;
+  if (Number.isNaN(input.valueAsNumber)) return;
+  state.pendingNumber = input.valueAsNumber;
+  state.pendingUnit = unitValue();
+  state.restoreAfterChange = true;
+  state.changeRevision++;
+};
+
+export const restoreNumber = (event: Event) => {
+  const input = numberInput(event);
+  if (input && Number.isNaN(input.valueAsNumber)) state.restoreRevision++;
+};
+
+export const unitChanged = (event: Event) => {
+  if (!(event instanceof CustomEvent) || typeof event.detail !== "string") return;
+  if (state.disabled || state.readOnly) return;
+  const input = (root.current as HTMLElement | null)?.querySelector<HTMLInputElement>(
+    'input[type="number"]',
+  );
+  if (!input) return;
+  const configured = Number(
+    input.closest<HTMLElement>('[data-part="unit-control-number"]')?.dataset.publrValue ?? "0",
+  );
+  state.pendingNumber = Number.isNaN(input.valueAsNumber) ? configured : input.valueAsNumber;
+  state.pendingUnit = event.detail;
+  state.restoreAfterChange = false;
+  state.changeRevision++;
+};
+
+Publr.effect(() => {
+  const revision = state.changeRevision;
+  if (!revision || revision === deliveredRevision) return;
+  deliveredRevision = revision;
+  (root.current as HTMLElement | null)?.dispatchEvent(
+    new CustomEvent("unitcontrolchange", {
+      detail: [state.pendingNumber, state.pendingUnit],
+      bubbles: true,
+    }),
+  );
+  if (state.restoreAfterChange) state.restoreRevision++;
+});
+
+Publr.effect(() => {
+  const revision = state.restoreRevision;
+  if (!revision || revision === restoredRevision) return;
+  restoredRevision = revision;
+  const input = (root.current as HTMLElement | null)?.querySelector<HTMLInputElement>(
+    'input[type="number"]',
+  );
+  const configured = input?.closest<HTMLElement>('[data-part="unit-control-number"]')?.dataset
+    .publrValue;
+  if (input && configured !== undefined) input.value = configured;
+});
+
+Publr.effect(() => {
+  const unavailable = state.unavailable;
+  const owner = root.current as HTMLElement | null;
+  const select = owner?.querySelector<HTMLElement>('[data-part="select"]');
+  const trigger = select?.querySelector<HTMLButtonElement>('[data-part="trigger"]');
+  const value = select?.querySelector<HTMLInputElement>('input[data-part="value"]');
+  if (trigger) trigger.disabled = unavailable;
+  if (value) value.disabled = unavailable;
+  if (select) {
+    if (unavailable) select.setAttribute("aria-disabled", "true");
+    else select.removeAttribute("aria-disabled");
+  }
+});
+
+export type UnitControlProps = {
+  id?: string;
+  classes?: string;
+  children: JSX.Element;
+  autoWidth?: boolean;
+  disabled?: boolean;
+  invalid?: boolean;
+  readOnly?: boolean;
+  onChange?: (value: UnitControlValue) => void;
+};
+
+export function UnitControl({
+  id,
+  classes = "",
+  children,
+  autoWidth = false,
+  disabled = false,
+  invalid = false,
+  readOnly = false,
+  onChange,
+}: UnitControlProps) {
+  state.disabled = disabled;
+  state.readOnly = readOnly;
+  state.invalid = invalid;
+
+  const emitChange = (event: Event) => {
+    onChange?.((event as CustomEvent<UnitControlValue>).detail);
+  };
+
+  return (
+    <div
+      id={id}
+      class={[
+        "m-0 h-8 min-w-0 items-stretch rounded-md border bg-background p-0 shadow-xs transition duration-150 hover:border-muted-foreground/50 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20",
+        autoWidth
+          ? "inline-grid w-fit grid-cols-[max-content_max-content]"
+          : "grid w-full grid-cols-[minmax(0,1fr)_max-content]",
+        invalid ? "border-destructive" : "border-input",
+        disabled ? "cursor-not-allowed opacity-50" : "",
+        classes,
+      ]}
+      data-part="unit-control"
+      data-publr-disabled={disabled ? "true" : "false"}
+      data-publr-read-only={readOnly ? "true" : "false"}
+      aria-invalid={invalid}
+      aria-disabled={disabled}
+      onUnitControlChange={emitChange}
+      ref={root}
+      onInput={numberChanged}
+      onChange={numberChanged}
+      onFocusOut={restoreNumber}
+      onSelectChange={unitChanged}
+    >
+      {children}
+    </div>
+  );
+}
+
+export { UNIT_CONTROL_INPUT_MODES, UnitControlInput } from "./UnitControlInput.ptsx";
+export { UnitControlUnit } from "./UnitControlUnit.ptsx";
+export type { UnitControlInputMode, UnitControlInputProps } from "./UnitControlInput.ptsx";
+export type { UnitControlUnitProps } from "./UnitControlUnit.ptsx";

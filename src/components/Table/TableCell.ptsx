@@ -1,0 +1,35 @@
+// Data cell: the admin px-4/py-3.5 rhythm with middle alignment, the first
+// and last cells carrying the sheet gutter so a table runs edge to edge. The
+// cell is layout only: its content is always a primitive (Text, Link, Status,
+// Button). numeric keeps dates and counts on one line in tabular figures;
+// align serves numbers and trailing actions.
+
+export type TableCellProps = {
+  align?: "left" | "right";
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+  numeric?: boolean;
+};
+
+export function TableCell({
+  align = "left",
+  children,
+  classes = "",
+  id,
+  numeric = false,
+}: TableCellProps) {
+  return (
+    <td
+      id={id}
+      class={[
+        "px-4 py-3.5 align-middle first:pl-8 last:pr-8",
+        align === "right" ? "text-right" : "text-left",
+        numeric ? "whitespace-nowrap tabular-nums" : "",
+        classes,
+      ]}
+    >
+      {children}
+    </td>
+  );
+}

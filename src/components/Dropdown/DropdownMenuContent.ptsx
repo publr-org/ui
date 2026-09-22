@@ -1,0 +1,37 @@
+import { state, content, contentKeydown, activate, dismiss } from "./Dropdown.ptsx";
+
+export type DropdownMenuContentProps = {
+  id?: string;
+  classes?: string;
+  align?: "left" | "right";
+  children?: JSX.Element;
+};
+
+export function DropdownMenuContent({
+  id,
+  classes = "",
+  align = "left",
+  children,
+}: DropdownMenuContentProps) {
+  return (
+    <div
+      id={id}
+      class={[
+        "hidden fixed z-50 max-h-[var(--publr-available-height)] min-w-[var(--publr-anchor-width)] max-w-[calc(100vw-1rem)] overflow-auto rounded-lg border border-border bg-popover p-1 text-sm text-popover-foreground shadow-lg",
+        classes,
+      ]}
+      role="menu"
+      data-part="content"
+      data-publr-position-offset="2"
+      ref={content}
+      onKeyDown={contentKeydown}
+      onClick={activate}
+      onDismiss={dismiss}
+      portal
+      position={align}
+      hidden={!state.open}
+    >
+      {children}
+    </div>
+  );
+}

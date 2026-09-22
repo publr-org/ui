@@ -1,0 +1,307 @@
+// Compound single-select root. The family store is declared here at module
+// level; sibling parts import `state`, the refs, and the actions, and the
+// compiler lowers every reference onto the ancestry wire transport.
+import { Publr } from "publr-jsx";
+
+export const state = Publr.reactive({
+  open: false,
+  value: "",
+  configured: "",
+  controlled: false,
+  disabled: false,
+  autoWidth: false,
+  focusIndex: 0,
+  focusRevision: 0,
+  restoreFocusRevision: 0,
+  activationIndex: -1,
+  activationRevision: 0,
+  pendingValue: "",
+  changeRevision: 0,
+  controlledRestoreRevision: 0,
+  get label(): string {
+    const selected = (content.current as HTMLElement | null)?.querySelector<HTMLElement>(
+      `[data-part="option"][data-value="${CSS.escape(state.value)}"]`,
+    );
+    return selected?.dataset.label ?? "";
+  },
+});
+
+export const root = Publr.ref();
+export const trigger = Publr.ref();
+export const content = Publr.ref();
+
+let focusedRevision = 0;
+let restoredFocusRevision = 0;
+let activatedRevision = 0;
+let deliveredRevision = 0;
+let controlledRestoreDelivered = 0;
+
+const isDisabled = (element: HTMLElement) =>
+  ("disabled" in element && Boolean((element as HTMLButtonElement).disabled)) ||
+  element.getAttribute("aria-disabled") === "true";
+
+const options = () =>
+  content.current
+    ? [
+        ...(content.current as HTMLElement).querySelectorAll<HTMLElement>('[data-part="option"]'),
+      ].filter((option) => !isDisabled(option))
+    : [];
+
+const focusOption = (index: number) => {
+  const enabled = options();
+  if (!enabled.length) return;
+  const active = (index + enabled.length) % enabled.length;
+  enabled.forEach((option, optionIndex) => (option.tabIndex = optionIndex === active ? 0 : -1));
+  enabled[active]?.focus();
+};
+
+const openAt = (edge: "selected" | "first" | "last") => {
+  state.open = true;
+  const enabled = options();
+  const selected = enabled.findIndex((option) => option.dataset.value === state.value);
+  state.focusIndex =
+    edge === "last" ? enabled.length - 1 : edge === "first" ? 0 : Math.max(0, selected);
+  state.focusRevision++;
+};
+
+const close = (restoreFocus = false) => {
+  state.open = false;
+  if (restoreFocus) state.restoreFocusRevision++;
+};
+
+export const toggle = (event: Event) => {
+  if (event.defaultPrevented || state.disabled) return;
+  if (state.open) close();
+  else openAt("selected");
+};
+
+export const triggerKeydown = (event: Event) => {
+  if (!(event instanceof KeyboardEvent) || state.disabled) return;
+  if (event.key === "ArrowDown") {
+    event.preventDefault();
+    openAt("first");
+  } else if (event.key === "ArrowUp") {
+    event.preventDefault();
+    openAt("last");
+  } else if (event.key === "Escape") {
+    event.preventDefault();
+    close(true);
+  }
+};
+
+export const contentKeydown = (event: Event) => {
+  if (!(event instanceof KeyboardEvent)) return;
+  const enabled = options();
+  const current = enabled.indexOf(
+    (content.current as HTMLElement | null)?.ownerDocument.activeElement as HTMLElement,
+  );
+  if (event.key === "Escape") {
+    event.preventDefault();
+    close(true);
+  } else if (event.key === "Tab") {
+    close();
+  } else if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+    event.preventDefault();
+    state.focusIndex = current + (event.key === "ArrowDown" ? 1 : -1);
+    state.focusRevision++;
+  } else if (event.key === "Home" || event.key === "End") {
+    event.preventDefault();
+    state.focusIndex = event.key === "Home" ? 0 : enabled.length - 1;
+    state.focusRevision++;
+  } else if ((event.key === "Enter" || event.key === " ") && current >= 0) {
+    event.preventDefault();
+    state.activationIndex = current;
+    state.activationRevision++;
+  } else if (
+    event.key !== " " &&
+    event.key.length === 1 &&
+    !event.ctrlKey &&
+    !event.metaKey &&
+    !event.altKey
+  ) {
+    const query = event.key.toLowerCase();
+    const match = enabled.findIndex((option) =>
+      (option.dataset.label ?? option.textContent ?? "").toLowerCase().startsWith(query),
+    );
+    if (match >= 0) {
+      state.focusIndex = match;
+      state.focusRevision++;
+    }
+  }
+};
+
+export const commit = (event: Event) => {
+  const option = event.currentTarget as HTMLElement | null;
+  if (
+    event.defaultPrevented ||
+    state.disabled ||
+    !option ||
+    option.dataset.publrState === "disabled"
+  ) {
+    return;
+  }
+  const next = option.dataset.value ?? "";
+  if (!state.controlled) state.value = next;
+  close();
+  state.pendingValue = next;
+  state.changeRevision++;
+};
+
+export const dismiss = (event: Event) => {
+  const reason = (event as CustomEvent<{ reason?: string }>).detail?.reason;
+  close(reason === "escape");
+};
+
+Publr.effect(() => {
+  if (!state.open) options().forEach((option) => (option.tabIndex = -1));
+});
+
+Publr.effect(() => {
+  const control = trigger.current as HTMLElement | null;
+  const panel = content.current as HTMLElement | null;
+  if (!control || !panel) return;
+  if (!panel.id) {
+    let sequence = 0;
+    let candidate = "";
+    do {
+      candidate = `publr-select-${++sequence}`;
+    } while (panel.ownerDocument.getElementById(candidate));
+    panel.id = candidate;
+  }
+  control.setAttribute("aria-controls", panel.id);
+});
+
+Publr.effect(() => {
+  const control = trigger.current as HTMLElement | null;
+  const slot = control?.querySelector<HTMLElement>('[data-part="value-slot"]');
+  if (!slot || slot.querySelector('[data-part="sizing-option"]')) return;
+  const label = slot.querySelector<HTMLElement>('[data-part="label"]');
+  const labels = [
+    label?.dataset.placeholder ?? "",
+    ...[
+      ...((content.current as HTMLElement | null)?.querySelectorAll<HTMLElement>(
+        '[data-part="option"]',
+      ) ?? []),
+    ].map((option) => option.dataset.label ?? option.textContent ?? ""),
+  ];
+  for (const text of labels.filter(Boolean)) {
+    const ghost = slot.ownerDocument.createElement("span");
+    ghost.dataset.part = "sizing-option";
+    ghost.className = "invisible col-start-1 row-start-1 min-w-0 overflow-hidden whitespace-nowrap";
+    ghost.setAttribute("aria-hidden", "true");
+    ghost.textContent = text;
+    slot.append(ghost);
+  }
+});
+
+Publr.effect(() => {
+  const revision = state.focusRevision;
+  if (!revision || revision === focusedRevision) return;
+  focusedRevision = revision;
+  focusOption(state.focusIndex);
+});
+
+Publr.effect(() => {
+  const revision = state.restoreFocusRevision;
+  if (!revision || revision === restoredFocusRevision) return;
+  restoredFocusRevision = revision;
+  (trigger.current as HTMLElement | null)?.focus();
+});
+
+Publr.effect(() => {
+  const revision = state.activationRevision;
+  if (!revision || revision === activatedRevision) return;
+  activatedRevision = revision;
+  options()[state.activationIndex]?.click();
+});
+
+Publr.effect(() => {
+  const revision = state.changeRevision;
+  if (!revision || revision === deliveredRevision) return;
+  deliveredRevision = revision;
+  (root.current as HTMLElement | null)?.dispatchEvent(
+    new CustomEvent("selectchange", { detail: state.pendingValue, bubbles: true }),
+  );
+  if (state.controlled) state.controlledRestoreRevision++;
+});
+
+Publr.effect(() => {
+  const revision = state.controlledRestoreRevision;
+  if (!revision || revision === controlledRestoreDelivered) return;
+  controlledRestoreDelivered = revision;
+  state.value = (root.current as HTMLElement | null)?.dataset.publrValue ?? state.configured;
+});
+
+export type SelectProps = {
+  id?: string;
+  classes?: string;
+  name?: string;
+  value?: string;
+  defaultValue?: string;
+  autoWidth?: boolean;
+  disabled?: boolean;
+  children: JSX.Element;
+  onChange?: (value: string) => void;
+};
+
+export function Select({
+  id,
+  classes = "",
+  name = "",
+  value,
+  defaultValue = "",
+  autoWidth = false,
+  disabled = false,
+  children,
+  onChange,
+}: SelectProps) {
+  state.value = value ?? defaultValue;
+  state.configured = value ?? defaultValue;
+  state.controlled = value !== undefined;
+  state.disabled = disabled;
+  state.autoWidth = autoWidth;
+
+  const emitChange = (event: Event) => {
+    onChange?.((event as CustomEvent<string>).detail);
+  };
+
+  return (
+    <div
+      class={["relative inline-block", classes]}
+      data-part="select"
+      data-publr-controlled={value === undefined ? "false" : "true"}
+      data-publr-value={value}
+      data-publr-default-value={defaultValue}
+      data-publr-auto-width={autoWidth ? "true" : "false"}
+      data-publr-disabled={disabled ? "true" : "false"}
+      aria-disabled={disabled ? "true" : undefined}
+      onSelectChange={emitChange}
+      ref={root}
+    >
+      <input
+        type="hidden"
+        id={id}
+        name={name}
+        value={state.value}
+        disabled={disabled}
+        data-part="value"
+      />
+      {children}
+    </div>
+  );
+}
+
+export { SelectContent } from "./SelectContent.ptsx";
+export { SelectGroup } from "./SelectGroup.ptsx";
+export { SelectItem } from "./SelectItem.ptsx";
+export { SelectLabel } from "./SelectLabel.ptsx";
+export { SelectSeparator } from "./SelectSeparator.ptsx";
+export { SelectTrigger } from "./SelectTrigger.ptsx";
+export { SelectValue } from "./SelectValue.ptsx";
+export type { SelectContentProps } from "./SelectContent.ptsx";
+export type { SelectGroupProps } from "./SelectGroup.ptsx";
+export type { SelectItemProps } from "./SelectItem.ptsx";
+export type { SelectLabelProps } from "./SelectLabel.ptsx";
+export type { SelectSeparatorProps } from "./SelectSeparator.ptsx";
+export type { SelectTriggerProps } from "./SelectTrigger.ptsx";
+export type { SelectValueProps } from "./SelectValue.ptsx";

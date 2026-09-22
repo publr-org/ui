@@ -1,0 +1,16 @@
+// Action area below the text: a centered row so one or two Buttons need no
+// caller layout.
+
+export type EmptyContentProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function EmptyContent({ children, classes = "", id }: EmptyContentProps) {
+  return (
+    <div id={id} class={["mt-4 flex items-center justify-center gap-2", classes]}>
+      {children}
+    </div>
+  );
+}

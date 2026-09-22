@@ -1,0 +1,176 @@
+import { Status, STATUS_TONES } from "../../../src/components/Status/Status.ptsx";
+import type { StatusTone } from "../../../src/components/Status/Status.ptsx";
+import type {
+  ComponentCanvas,
+  ComponentDemoMeta,
+  ComponentDemoVariant,
+  DemoNode,
+} from "../../gallery-types";
+
+export const meta = {
+  name: "status",
+  label: "Status",
+  source: "src/components/Status/Status.ptsx",
+  kind: "composite",
+  group: "Essentials",
+  description:
+    "Dot-prefixed inline status text whose closed semantic tone colors the dot and label together.",
+  tags: ["status", "state", "indicator", "dot", "workflow"],
+  usage: `<Status tone="success">Published</Status>
+<Status tone="review">Needs review</Status>
+<Status tone="warning">Scheduled</Status>`,
+  preview: "canvas",
+  previewLabel: "Every semantic tone with a representative label",
+  docs: {
+    purpose: [
+      "Status marks the current state of an entry, release, or system with one compact dot-and-label treatment.",
+      "The closed semantic tone map owns both the dot and the label color through theme tokens, so every state reads identically in light and dark themes.",
+    ],
+    useWhen: [
+      "A row, sidebar, or summary needs a compact inline state indicator next to other text.",
+      "The state maps to one of the closed semantic tones: neutral, success, warning, error, accent, or review.",
+    ],
+    avoidWhen: [
+      "The indicator needs a filled pill or count surface; that is Badge.",
+      "The state is interactive or filters content; compose a control instead.",
+      "The color would encode a product vocabulary the tones do not express; extend the product mapping, not this component.",
+    ],
+    rules: [
+      {
+        title: "Tones are semantic, not workflow names",
+        description:
+          "Status ships neutral, success, warning, error, accent, and review. Product vocabularies such as Published or Draft belong to a product composite that maps its states onto these tones.",
+      },
+      {
+        title: "The visible label is the content",
+        description:
+          "Children name the status. Status never derives a label from the tone, so localized and custom copy need no override prop.",
+      },
+      {
+        title: "One dense text treatment",
+        description:
+          "Status deliberately renders at 12px medium — one step below Text body-sm — and owns that treatment. Do not re-size it per call site.",
+      },
+    ],
+    accessibility: [
+      "The dot is decorative and aria-hidden; the visible label is the accessible content.",
+      "Color is never the only signal: every tone pairs with an explicit text label.",
+    ],
+    composition: [
+      "Place Status inline beside titles, timestamps, and metadata in rows and sidebars.",
+      "Build product state mappings (for example entry workflow states) as thin composites that render Status with the mapped tone and localized label.",
+    ],
+    agentNotes: [
+      "Pass the label as children; there is no label prop and no derived default.",
+      "Pick the tone by meaning (success, warning, …), never by matching a color.",
+      "Do not wrap Status in extra typography; it owns its dense text treatment.",
+    ],
+    props: [
+      {
+        name: "tone",
+        type: "StatusTone",
+        description:
+          "Closed semantic tone: neutral, success, warning, error, accent, or review. Colors the dot and label together.",
+        default: "neutral",
+      },
+      {
+        name: "children",
+        type: "node",
+        description: "Required visible label naming the state.",
+      },
+      {
+        name: "classes",
+        type: "string",
+        description: "Layout or exceptional composition classes.",
+      },
+      {
+        name: "id",
+        type: "string",
+        description: "Optional identifier applied to the status root.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+const TONE_LABELS: Record<StatusTone, string> = {
+  neutral: "Draft",
+  success: "Published",
+  warning: "Scheduled",
+  error: "Unavailable",
+  accent: "Changed",
+  review: "Needs review",
+};
+
+const TONE_ROW_WRAPPER = "flex flex-wrap items-center gap-x-6 gap-y-3";
+
+export const variants = [
+  {
+    label: "Semantic tones",
+    description: "Every closed tone with a representative label.",
+    usage: STATUS_TONES.map((tone) => `<Status tone="${tone}">${TONE_LABELS[tone]}</Status>`).join(
+      "\n",
+    ),
+    notes: [
+      "The dot and label always share one tone.",
+      "Labels here are examples; children carry whatever copy the product needs.",
+    ],
+    Demo: () => (
+      <div class={TONE_ROW_WRAPPER}>
+        {STATUS_TONES.map((tone) => (
+          <Status tone={tone}>{TONE_LABELS[tone]}</Status>
+        ))}
+      </div>
+    ),
+    node: {
+      fragment: true,
+      wrapper: TONE_ROW_WRAPPER,
+      children: STATUS_TONES.map((tone): DemoNode => ({
+        component: "Status",
+        props: { tone, children: TONE_LABELS[tone] },
+      })),
+    },
+  },
+  {
+    label: "Inline metadata",
+    description: "Status sits inline beside other row metadata.",
+    usage: `<span class="flex items-center gap-1.5 text-xs text-muted-foreground">
+  <Status tone="success">Published</Status>
+  <span>· Article · English</span>
+</span>`,
+    notes: [
+      "Neighboring metadata keeps its own muted treatment; Status owns only its dot and label.",
+    ],
+    Demo: () => (
+      <span class="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <Status tone="success">Published</Status>
+        <span>· Article · English</span>
+      </span>
+    ),
+    node: {
+      component: "Status",
+      props: { tone: "success", children: "Published" },
+      wrapper: "flex items-center",
+    },
+  },
+] satisfies ComponentDemoVariant[];
+
+export const canvas = {
+  controls: [
+    {
+      name: "tone",
+      type: "select",
+      default: "success",
+      options: STATUS_TONES,
+    },
+    { name: "children", type: "text", default: "Published" },
+    { name: "classes", type: "text", default: "", placeholder: "e.g. shrink-0" },
+  ],
+  node: (values) => ({
+    component: "Status",
+    props: {
+      tone: String(values.tone) as StatusTone,
+      children: String(values.children),
+      classes: String(values.classes),
+    },
+  }),
+} satisfies ComponentCanvas;

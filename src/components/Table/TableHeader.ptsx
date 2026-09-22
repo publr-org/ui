@@ -1,0 +1,16 @@
+// Column-header section. The section owns the header/body separator so a
+// TableRow inside it can stay borderless as the last child of its parent.
+
+export type TableHeaderProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function TableHeader({ children, classes = "", id }: TableHeaderProps) {
+  return (
+    <thead id={id} class={["border-b border-border", classes]}>
+      {children}
+    </thead>
+  );
+}

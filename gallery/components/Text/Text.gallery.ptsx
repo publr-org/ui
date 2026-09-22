@@ -1,0 +1,231 @@
+import { TEXT_TONES, TEXT_VARIANTS, Text } from "../../../src/components/Text/Text.ptsx";
+import type { TextElement, TextTone, TextVariant } from "../../../src/components/Text/Text.ptsx";
+import type { ComponentCanvas, ComponentDemoMeta, ComponentDemoVariant } from "../../gallery-types";
+
+export const meta = {
+  name: "text",
+  label: "Text",
+  source: "src/components/Text/Text.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description: "Renders any text element through closed semantic typography and tone scales.",
+  tags: ["typography", "text", "semantic", "tone", "polymorphic"],
+  usage: `<Text as="h3" variant="heading-sm">
+  Inspector section
+</Text>
+
+<Text
+  variant="body-sm"
+  tone="muted"
+  style={{ maxWidth: () => state.width }}
+>
+  Field label
+</Text>`,
+  preview: "canvas",
+  previewLabel: "Semantic type and tone scales",
+  docs: {
+    purpose: [
+      "Text is the single typography primitive for Publr interface chrome. It maps semantic roles to an exhaustive, reviewed set of font size, line height, weight, and tracking utilities, then applies an optional semantic tone.",
+      "It selects one of a closed set of semantic roots through as, while typography and supported text colors still come from named variants and tones. The classes and style props remain escape hatches for layout, truncation, state, or reactive positioning—not alternate type or color scales.",
+    ],
+    useWhen: [
+      "Rendering visible text inside a generic primitive or a one-off composition.",
+      "Applying a documented heading or body treatment to an existing semantic element.",
+      "A dynamic store value needs to drive an inline style without creating another typography API.",
+    ],
+    avoidWhen: [
+      "A named composite already owns the text treatment; pass the composite's string prop instead.",
+      "You need an actual document heading and its outline level matters; use Heading.",
+      "You are tempted to add a text-size class through class. Add or select an informed Text variant instead.",
+    ],
+    rules: [
+      {
+        title: "Variant owns typography",
+        description:
+          "Font size, line height, weight, and tracking belong in TEXT_VARIANTS. Call sites may not create a parallel scale.",
+      },
+      {
+        title: "Tone owns color",
+        description:
+          "Choose default, muted, accent, success, warning, or error. Every tone resolves through semantic theme tokens in light and dark themes; default inherits its context.",
+      },
+      {
+        title: "As owns semantics",
+        description:
+          "The default element is span. Supply as only when another supported element is semantically correct, such as p, strong, label, output, or a heading.",
+      },
+      {
+        title: "Class is an escape hatch",
+        description:
+          "Use class for layout, overflow, state, and exceptional styling. It should not replace the chosen typography role or semantic tone.",
+      },
+      {
+        title: "Style may be reactive",
+        description:
+          "Style values may be functions that read store state. Nullish dynamic values remove the override and reveal the element's authored style.",
+      },
+    ],
+    accessibility: [
+      "Choose semantic elements based on document meaning, not appearance.",
+      "Text does not create an accessible name for an interactive parent automatically; Button and form primitives still need their label props.",
+    ],
+    composition: [
+      "Generic primitives such as Button compose visible labels from Text.",
+      "Named composites such as StyleControl accept strings and instantiate Text internally to enforce consistency.",
+    ],
+    agentNotes: [
+      "Never add text-* size utilities outside Text. A browser test enforces this for implementation and gallery sources.",
+      "Select variants by role, not by whichever pixel value happens to match a mockup.",
+      "Select text color through tone rather than a semantic color utility in class.",
+      "If no role is correct, document the missing use case before extending TEXT_VARIANTS.",
+    ],
+    props: [
+      {
+        name: "variant",
+        type: "TextVariant",
+        description: "Required semantic typography role from the closed variant map.",
+        required: true,
+      },
+      {
+        name: "tone",
+        type: "TextTone",
+        description: "Optional semantic text color from the closed tone map.",
+        default: "default",
+      },
+      {
+        name: "children",
+        type: "unknown",
+        description: "Visible content, including reactive Publr JSX children.",
+      },
+      {
+        name: "as",
+        type: "TextElement",
+        description: "Closed semantic root choice. Defaults to span.",
+        default: "span",
+      },
+      {
+        name: "classes",
+        type: "string",
+        description: "Publr utility escape hatch for non-typographic, non-color styling.",
+      },
+      {
+        name: "id",
+        type: "string",
+        description: "Optional identifier applied to the semantic root.",
+      },
+      {
+        name: "style",
+        type: "TextStyle",
+        description:
+          "Inline CSS string or property map; property values may be reactive functions.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+const descriptions: Record<TextVariant, string> = {
+  "heading-2xl": "Largest product-page or empty-state heading.",
+  "heading-xl": "Primary page heading.",
+  "heading-lg": "Major panel or dialog heading.",
+  "heading-md": "Section heading.",
+  "heading-sm": "Compact inspector and disclosure heading.",
+  "heading-xs": "Smallest heading treatment for dense interfaces.",
+  "body-xl": "Large supporting copy.",
+  "body-lg": "Prominent body copy.",
+  "body-md": "Default body copy.",
+  "body-sm": "Compact supporting copy.",
+  "body-xs": "Small supporting copy.",
+  "mono-sm": "Monospaced code and values.",
+  "mono-xs": "Compact monospaced values.",
+  "eyebrow-xs": "Compact uppercase label.",
+  eyebrow: "Uppercase micro-type label above a section or band.",
+};
+
+const sample = (variant: TextVariant): string =>
+  variant === "eyebrow"
+    ? "Needs attention"
+    : variant.startsWith("heading")
+      ? "Build with semantic typography"
+      : "Text remains consistent across every Publr surface.";
+
+export const canvas = {
+  controls: [
+    {
+      name: "variant",
+      type: "select",
+      default: "body-md",
+      options: Object.keys(TEXT_VARIANTS),
+    },
+    {
+      name: "tone",
+      type: "select",
+      default: "default",
+      options: Object.keys(TEXT_TONES),
+    },
+    {
+      name: "children",
+      label: "Content",
+      type: "text",
+      default: "Text remains consistent across every Publr surface.",
+    },
+    {
+      name: "as",
+      label: "Element",
+      type: "select",
+      default: "span",
+      options: ["span", "p", "strong", "label"],
+    },
+    {
+      name: "classes",
+      type: "text",
+      default: "",
+      placeholder: "e.g. truncate underline",
+    },
+  ],
+  node: (values) => ({
+    component: "Text",
+    props: {
+      as: String(values.as) as TextElement,
+      variant: String(values.variant) as TextVariant,
+      tone: String(values.tone) as TextTone,
+      classes: String(values.classes),
+      children: String(values.children),
+    },
+  }),
+} satisfies ComponentCanvas;
+
+const typographyVariants = (Object.keys(TEXT_VARIANTS) as TextVariant[]).map(
+  (variant): ComponentDemoVariant => ({
+    label: variant,
+    description: descriptions[variant],
+    usage: `<Text variant="${variant}">${sample(variant)}</Text>`,
+    Demo: () => <Text variant={variant}>{sample(variant)}</Text>,
+    node: { component: "Text", props: { variant, children: sample(variant) } },
+  }),
+);
+
+const toneDescriptions: Record<TextTone, string> = {
+  default: "Inherits the semantic color established by its context.",
+  muted: "De-emphasized supporting copy and metadata.",
+  accent: "Accent text that points to a primary concept or action.",
+  success: "Positive confirmation or successful state.",
+  warning: "Caution that needs attention without indicating failure.",
+  error: "Validation failure, destructive consequence, or blocking error.",
+};
+
+const toneVariants = (Object.keys(TEXT_TONES) as TextTone[]).map((tone): ComponentDemoVariant => ({
+  label: `tone: ${tone}`,
+  description: toneDescriptions[tone],
+  usage: `<Text variant="body-md" tone="${tone}">Semantic ${tone} text</Text>`,
+  Demo: () => (
+    <Text variant="body-md" tone={tone}>
+      Semantic {tone} text
+    </Text>
+  ),
+  node: {
+    component: "Text",
+    props: { variant: "body-md", tone, children: `Semantic ${tone} text` },
+  },
+}));
+
+export const variants = [...typographyVariants, ...toneVariants];

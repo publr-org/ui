@@ -1,0 +1,16 @@
+// The current page: not a link, announced as current via aria-current="page"
+// per the APG breadcrumb pattern.
+
+export type BreadcrumbPageProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function BreadcrumbPage({ children, classes = "", id }: BreadcrumbPageProps) {
+  return (
+    <span id={id} aria-current="page" class={["truncate font-medium text-foreground", classes]}>
+      {children}
+    </span>
+  );
+}

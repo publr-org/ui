@@ -1,0 +1,57 @@
+// Usage guidelines: when to use the component, its rules, accessibility and
+// composition notes, and the machine-readable rules for agents.
+import { Bullet, GuidanceCard, InformationCard } from "./shared/Cards.ptsx";
+import { Hero, SectionHeading } from "./shared/Hero.ptsx";
+import { Topbar } from "./shared/Topbar.ptsx";
+import { CopyAgentButton } from "./Overview.ptsx";
+import { KIND_LABELS, type DemoEntry } from "../state/gallery";
+
+export function Guidelines({ entry }: { entry: DemoEntry }) {
+  return (
+    <div>
+      <Topbar parts={[KIND_LABELS[entry.kind], entry.label, "Usage guidelines"]} />
+      <article class="mx-auto max-w-[1260px] px-8 py-10">
+        <Hero entry={entry} page="Usage guidelines" title={entry.label + " usage guidelines"} />
+        <section class="mt-10">
+          <SectionHeading title="Choosing this component" description="Start from the product meaning, not from visual resemblance." />
+          <div class="mt-5 grid grid-cols-2 gap-5 max-gallery-md:grid-cols-1">
+            <GuidanceCard title="Use it when" items={entry.docs.useWhen} marker="bg-emerald-500" />
+            <GuidanceCard title="Do not use it when" items={entry.docs.avoidWhen} marker="bg-amber-500" />
+          </div>
+        </section>
+        <section class="mt-12">
+          <SectionHeading title="Rules" description="These decisions are part of the component contract." />
+          <div class="mt-6 space-y-8">
+            {entry.docs.rules.map((rule, index) => (
+              <article class="grid grid-cols-[40px_minmax(0,1fr)] gap-4 border-b border-border pb-8 last:border-b-0">
+                <span class="grid size-8 place-items-center rounded-full bg-ui-accent text-[11px] font-semibold text-accent-foreground">{index + 1}</span>
+                <div>
+                  <h3 class="text-[18px] leading-6 font-semibold tracking-[-0.01em]">{rule.title}</h3>
+                  <p class="mt-2 max-w-3xl text-[14px] leading-6 text-muted-foreground">{rule.description}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+        <section class="mt-12 grid grid-cols-2 gap-5 max-gallery-md:grid-cols-1">
+          <InformationCard title="Accessibility" items={entry.docs.accessibility} />
+          <InformationCard title="Composition" items={entry.docs.composition} />
+        </section>
+        <section class="mt-12 rounded-xl border border-foreground/15 bg-foreground p-6 text-background">
+          <div class="flex items-start justify-between gap-5">
+            <div>
+              <p class="text-[10px] font-semibold tracking-[0.1em] text-background/55 uppercase">Machine-readable guidance</p>
+              <h2 class="mt-2 text-[18px] font-semibold">Coding-agent rules</h2>
+            </div>
+            <CopyAgentButton entry={entry} label="Copy JSON reference" classes="shrink-0 cursor-pointer rounded-md border border-background/20 px-3 py-1.5 text-[10px] font-medium hover:bg-background/10" />
+          </div>
+          <ul class="mt-5 grid grid-cols-2 gap-x-7 gap-y-4 text-[12px] leading-5 max-gallery-sm:grid-cols-1">
+            {entry.docs.agentNotes.map((note) => (
+              <Bullet text={note} />
+            ))}
+          </ul>
+        </section>
+      </article>
+    </div>
+  );
+}

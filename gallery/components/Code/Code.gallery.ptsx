@@ -1,0 +1,158 @@
+import { Code } from "../../../src/components/Code/Code.ptsx";
+import { CodeBlock } from "../../../src/components/Code/CodeBlock.ptsx";
+import { Text } from "../../../src/components/Text/Text.ptsx";
+import type { ComponentCanvas, ComponentDemoMeta, ComponentDemoVariant } from "../../gallery-types";
+
+export const meta = {
+  name: "code",
+  label: "Code",
+  source: "src/components/Code/Code.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description:
+    "Literal values in the mono face: an inline chip for handles and paths, a wrapped block for whole documents.",
+  tags: ["code", "mono", "literal", "pre", "json"],
+  usage: `<Text variant="body-sm">Add a field of kind <Code>slug</Code>.</Text>
+
+<CodeBlock>{"title": "Hello, world"}</CodeBlock>`,
+  preview: "canvas",
+  previewLabel: "Inline chip and wrapped block",
+  docs: {
+    purpose: [
+      "Code sets a literal inside running text apart on a muted chip, so a handle or a field path is never mistaken for a word.",
+      "CodeBlock shows a whole value as it is stored, wrapping long lines rather than scrolling.",
+    ],
+    useWhen: [
+      "A sentence names a handle, a slug, a field path, or a kind by its literal value.",
+      "A page shows a stored document or value verbatim.",
+    ],
+    avoidWhen: [
+      "The value is a column of its own in a table; TableCell mono owns that treatment.",
+      "The text is editable; that is Textarea mono.",
+      "Source code needs highlighting or scrolling; that is a code editor, not a block.",
+    ],
+    rules: [
+      {
+        title: "Inline chips stay short",
+        description:
+          "Code holds one token. A sentence with more than a few chips is a list, not a sentence.",
+      },
+      {
+        title: "Blocks wrap, never scroll",
+        description:
+          "CodeBlock keeps every line visible by wrapping. Nothing in the admin needs a horizontal scroll to read a value.",
+      },
+      {
+        title: "No tone variants",
+        description:
+          "Both parts read in the foreground colour. Meaning comes from the surrounding Text, not from colouring the literal.",
+      },
+    ],
+    accessibility: [
+      "Code renders a native code element; CodeBlock a native pre, so the literal is announced as code.",
+      "Neither part is interactive or focusable.",
+    ],
+    composition: [
+      "Place Code inside Text; it inherits the line and adds only the mono chip.",
+      "Place CodeBlock as a block of its own, in a description list or a card.",
+    ],
+    agentNotes: [
+      "Do not style a span mono by hand; use Code.",
+      "Do not use CodeBlock for a table column; use TableCell mono.",
+    ],
+    props: [
+      {
+        name: "children",
+        type: "node",
+        description: "The literal, as text.",
+      },
+      {
+        name: "classes",
+        type: "string",
+        description: "Layout or exceptional composition classes.",
+      },
+      {
+        name: "id",
+        type: "string",
+        description: "Optional identifier applied to the root.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const canvas = {
+  controls: [
+    {
+      name: "value",
+      type: "text",
+      default: "slug",
+      placeholder: "e.g. title_field",
+    },
+  ],
+  node: (values) => ({
+    fragment: true,
+    wrapper: "grid w-full gap-4",
+    children: [
+      {
+        component: "Text",
+        props: {
+          variant: "body-sm",
+          children: [
+            "Add a field of kind ",
+            { component: "Code", props: { children: String(values.value) } },
+            " and existing records get theirs.",
+          ],
+        },
+      },
+      {
+        component: "CodeBlock",
+        props: { children: `{"${String(values.value)}": "hello-world"}` },
+      },
+    ],
+  }),
+} satisfies ComponentCanvas;
+
+function InlineDemo() {
+  return (
+    <Text as="p" variant="body-sm">
+      This type has no slug field; add one of kind <Code>slug</Code> and existing records get
+      theirs.
+    </Text>
+  );
+}
+
+function BlockDemo() {
+  return <CodeBlock>{`{"title": "Hello, world", "views": 3}`}</CodeBlock>;
+}
+
+export const variants = [
+  {
+    label: "Inline code",
+    description: "A literal inside a sentence.",
+    usage: `<Text variant="body-sm">Add a field of kind <Code>slug</Code>.</Text>`,
+    notes: ["The chip inherits the line height of the surrounding Text."],
+    Demo: InlineDemo,
+    node: {
+      component: "Text",
+      props: {
+        variant: "body-sm",
+        children: [
+          "Add a field of kind ",
+          { component: "Code", props: { children: "slug" } },
+          " and existing records get theirs.",
+        ],
+      },
+    },
+  },
+  {
+    label: "Code block",
+    description: "A stored value shown as it is.",
+    usage: `<CodeBlock>{"title": "Hello, world"}</CodeBlock>`,
+    notes: ["Long lines wrap; the block never scrolls."],
+    Demo: BlockDemo,
+    node: {
+      component: "CodeBlock",
+      props: { children: `{"title": "Hello, world", "views": 3}` },
+    },
+  },
+] satisfies ComponentDemoVariant[];

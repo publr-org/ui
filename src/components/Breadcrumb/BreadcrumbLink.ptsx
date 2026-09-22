@@ -1,0 +1,24 @@
+// Ancestor link in the trail. A real anchor (APG link pattern) with the
+// breadcrumb-owned dense treatment — deliberately denser than prose Link.
+
+export type BreadcrumbLinkProps = {
+  children?: JSX.Element;
+  classes?: string;
+  href: string;
+  id?: string;
+};
+
+export function BreadcrumbLink({ children, classes = "", href, id }: BreadcrumbLinkProps) {
+  return (
+    <a
+      id={id}
+      href={href}
+      class={[
+        "truncate font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+        classes,
+      ]}
+    >
+      {children}
+    </a>
+  );
+}

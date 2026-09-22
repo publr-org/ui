@@ -1,0 +1,41 @@
+// Next-page control. Without an href (last page) it renders a
+// non-interactive disabled control rather than a dead link.
+
+import { Dynamic } from "publr-jsx";
+import { Icon } from "../Icon/Icon.ptsx";
+
+export type PaginationNextProps = {
+  id?: string;
+  classes?: string;
+  href?: string;
+  label?: string;
+  onClick?: (event: Event) => void;
+};
+
+export function PaginationNext({
+  id,
+  classes = "",
+  href,
+  label = "Go to next page",
+  onClick,
+}: PaginationNextProps) {
+  return (
+    <Dynamic
+      as={href === undefined ? "span" : "a"}
+      id={id}
+      href={href}
+      aria-label={label}
+      aria-disabled={href === undefined ? "true" : undefined}
+      onClick={onClick}
+      class={[
+        "inline-flex h-8 w-8 items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+        href === undefined
+          ? "cursor-not-allowed text-muted-foreground opacity-50"
+          : "cursor-pointer text-muted-foreground hover:bg-muted hover:text-foreground",
+        classes,
+      ]}
+    >
+      <Icon name="chevron-right" size="sm" />
+    </Dynamic>
+  );
+}

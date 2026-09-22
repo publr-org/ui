@@ -1,0 +1,29 @@
+// Tri-state page selector: checked when every row on the page is selected,
+// indeterminate when only some are. Both states are declarative property
+// bindings; activation is one pure pageSelectionChanged transition whose
+// scope is the whole rendered page, including rows the quick filter hides.
+import { state, pageSelectionChanged } from "./DataTable.ptsx";
+import { Checkbox } from "../Checkbox/Checkbox.ptsx";
+
+export type DataTableSelectAllProps = {
+  id?: string;
+  classes?: string;
+  label?: string;
+};
+
+export function DataTableSelectAll({
+  id,
+  classes = "",
+  label = "Select all rows",
+}: DataTableSelectAllProps) {
+  return (
+    <Checkbox
+      id={id}
+      classes={classes}
+      aria-label={label}
+      onChange={pageSelectionChanged}
+      checked={state.allSelected}
+      indeterminate={state.partiallySelected}
+    />
+  );
+}

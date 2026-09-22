@@ -1,0 +1,421 @@
+import { Button } from "../../../src/components/Button/Button.ptsx";
+import { Empty } from "../../../src/components/Empty/Empty.ptsx";
+import { EmptyContent } from "../../../src/components/Empty/EmptyContent.ptsx";
+import { EmptyDescription } from "../../../src/components/Empty/EmptyDescription.ptsx";
+import { EmptyMedia } from "../../../src/components/Empty/EmptyMedia.ptsx";
+import { EmptyTitle } from "../../../src/components/Empty/EmptyTitle.ptsx";
+import { Icon } from "../../../src/components/Icon/Icon.ptsx";
+import type {
+  ComponentCanvas,
+  ComponentCanvasChildInstance,
+  ComponentDemoMeta,
+  ComponentDemoVariant,
+  DemoNode,
+} from "../../gallery-types";
+
+export const meta = {
+  name: "empty",
+  label: "Empty",
+  source: "src/components/Empty/Empty.ptsx",
+  kind: "composite",
+  group: "Essentials",
+  description:
+    "Centered zero-data placeholder composed from media, title, description, and action parts.",
+  tags: ["empty", "placeholder", "zero-data", "blank-state"],
+  usage: `<Empty>
+  <EmptyMedia>
+    <Icon name="folder" size="lg" classes="text-muted-foreground" />
+  </EmptyMedia>
+  <EmptyTitle>No posts yet</EmptyTitle>
+  <EmptyDescription>Create your first post to get started.</EmptyDescription>
+  <EmptyContent>
+    <Button>Create post</Button>
+  </EmptyContent>
+</Empty>`,
+  preview: "canvas",
+  previewLabel: "Media, title, description, and action in the canonical order",
+  docs: {
+    purpose: [
+      "Empty explains a zero-data view: what would be here, why it is empty, and what to do next.",
+      "Its parts compose in one semantic order — media, title, description, content — and each part owns its offset so omitted parts collapse cleanly.",
+    ],
+    useWhen: [
+      "A list, table, search, or dashboard section has no rows to show.",
+      "The view should offer the next action (create, browse, clear filters) beside the explanation.",
+    ],
+    avoidWhen: [
+      "Data failed to load; show the error state, not an empty placeholder.",
+      "Content is loading; use the pending treatment instead of claiming emptiness.",
+      "The message is a transient notice inside populated content; that is Alert territory.",
+    ],
+    rules: [
+      {
+        title: "Parts compose in semantic order",
+        description:
+          "EmptyMedia, then EmptyTitle, then EmptyDescription, then EmptyContent. Any part may be omitted and the rhythm stays intact.",
+      },
+      {
+        title: "Typography comes from Heading and Text",
+        description:
+          "EmptyTitle composes Heading at the xs size; EmptyDescription composes muted body-sm Text. Call sites do not restyle them per screen.",
+      },
+      {
+        title: "One media treatment",
+        description:
+          "EmptyMedia is the muted circular chip. Compose an Icon (usually lg, muted) inside it; there is no bare variant.",
+      },
+    ],
+    accessibility: [
+      "EmptyTitle renders a real heading; set level to match the page outline (default h3).",
+      "Native semantics carry the rest — no ARIA additions, and actions are ordinary Buttons or links.",
+      "The media icon is decorative; the title and description carry the meaning as text.",
+    ],
+    composition: [
+      "Author parts directly inside Empty in the semantic order.",
+      "Put one primary action — or a primary and a secondary — inside EmptyContent; it lays out the row.",
+      "Compose Icon inside EmptyMedia with a muted tone class.",
+    ],
+    agentNotes: [
+      "There is no variant prop anywhere in this family; the parts are the API.",
+      "Do not wrap Empty in extra centering containers; the root already centers and pads.",
+      "Keep copy short: a few-word title, one-sentence description.",
+    ],
+    props: [
+      {
+        name: "Empty.children",
+        type: "node",
+        description: "The composed parts in semantic order.",
+      },
+      {
+        name: "Empty.classes",
+        type: "string",
+        description: "Layout or exceptional composition classes on the root.",
+      },
+      {
+        name: "Empty.id",
+        type: "string",
+        description: "Optional identifier applied to the root.",
+      },
+      {
+        name: "EmptyMedia.children",
+        type: "node",
+        description: "Icon or small illustration inside the muted chip.",
+      },
+      {
+        name: "EmptyMedia.classes",
+        type: "string",
+        description: "Exceptional composition classes on the chip.",
+      },
+      {
+        name: "EmptyMedia.id",
+        type: "string",
+        description: "Optional identifier applied to the chip.",
+      },
+      {
+        name: "EmptyTitle.level",
+        type: "HeadingLevel",
+        description: "Heading level for the page outline.",
+        default: "3",
+      },
+      {
+        name: "EmptyTitle.children",
+        type: "node",
+        description: "Short title naming what is empty.",
+      },
+      {
+        name: "EmptyTitle.classes",
+        type: "string",
+        description: "Exceptional composition classes on the heading.",
+      },
+      {
+        name: "EmptyTitle.id",
+        type: "string",
+        description: "Optional identifier applied to the heading.",
+      },
+      {
+        name: "EmptyDescription.children",
+        type: "node",
+        description: "One-sentence explanation or next step.",
+      },
+      {
+        name: "EmptyDescription.classes",
+        type: "string",
+        description: "Exceptional composition classes on the paragraph.",
+      },
+      {
+        name: "EmptyDescription.id",
+        type: "string",
+        description: "Optional identifier applied to the paragraph.",
+      },
+      {
+        name: "EmptyContent.children",
+        type: "node",
+        description: "Action Buttons or links.",
+      },
+      {
+        name: "EmptyContent.classes",
+        type: "string",
+        description: "Exceptional composition classes on the action row.",
+      },
+      {
+        name: "EmptyContent.id",
+        type: "string",
+        description: "Optional identifier applied to the action row.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+const CANONICAL_NODE: DemoNode = {
+  component: "Empty",
+  props: {},
+  wrapper: "w-full",
+  children: [
+    {
+      component: "EmptyMedia",
+      props: {},
+      children: [
+        {
+          component: "Icon",
+          props: { name: "folder", size: "lg", classes: "text-muted-foreground" },
+        },
+      ],
+    },
+    { component: "EmptyTitle", props: { children: "No posts yet" } },
+    {
+      component: "EmptyDescription",
+      props: { children: "Create your first post to get started." },
+    },
+    {
+      component: "EmptyContent",
+      props: {},
+      children: [{ component: "Button", props: { children: "Create post" } }],
+    },
+  ],
+};
+
+export const variants = [
+  {
+    label: "With action",
+    description: "The canonical zero-data placeholder with one next step.",
+    usage: `<Empty>
+  <EmptyMedia>
+    <Icon name="folder" size="lg" classes="text-muted-foreground" />
+  </EmptyMedia>
+  <EmptyTitle>No posts yet</EmptyTitle>
+  <EmptyDescription>Create your first post to get started.</EmptyDescription>
+  <EmptyContent>
+    <Button>Create post</Button>
+  </EmptyContent>
+</Empty>`,
+    notes: ["All four parts in semantic order; EmptyContent lays out the action row."],
+    Demo: () => (
+      <Empty classes="w-full">
+        <EmptyMedia>
+          <Icon name="folder" size="lg" classes="text-muted-foreground" />
+        </EmptyMedia>
+        <EmptyTitle>No posts yet</EmptyTitle>
+        <EmptyDescription>Create your first post to get started.</EmptyDescription>
+        <EmptyContent>
+          <Button>Create post</Button>
+        </EmptyContent>
+      </Empty>
+    ),
+    node: CANONICAL_NODE,
+  },
+  {
+    label: "Without action",
+    description: "Search and filter results that need no call to action.",
+    usage: `<Empty>
+  <EmptyMedia>
+    <Icon name="search" size="lg" classes="text-muted-foreground" />
+  </EmptyMedia>
+  <EmptyTitle>No results</EmptyTitle>
+  <EmptyDescription>Try adjusting your search terms.</EmptyDescription>
+</Empty>`,
+    notes: ["Omitted parts collapse; the rhythm needs no compensation."],
+    Demo: () => (
+      <Empty classes="w-full">
+        <EmptyMedia>
+          <Icon name="search" size="lg" classes="text-muted-foreground" />
+        </EmptyMedia>
+        <EmptyTitle>No results</EmptyTitle>
+        <EmptyDescription>Try adjusting your search terms.</EmptyDescription>
+      </Empty>
+    ),
+    node: {
+      component: "Empty",
+      props: {},
+      wrapper: "w-full",
+      children: [
+        {
+          component: "EmptyMedia",
+          props: {},
+          children: [
+            {
+              component: "Icon",
+              props: { name: "search", size: "lg", classes: "text-muted-foreground" },
+            },
+          ],
+        },
+        { component: "EmptyTitle", props: { children: "No results" } },
+        { component: "EmptyDescription", props: { children: "Try adjusting your search terms." } },
+      ],
+    },
+  },
+  {
+    label: "Text only",
+    description: "The minimal title-and-description form used by dense panels.",
+    usage: `<Empty>
+  <EmptyTitle>Nothing waiting on you</EmptyTitle>
+  <EmptyDescription>New drafts and unpublished edits will show up here.</EmptyDescription>
+</Empty>`,
+    notes: ["Media and content are simply omitted."],
+    Demo: () => (
+      <Empty classes="w-full">
+        <EmptyTitle>Nothing waiting on you</EmptyTitle>
+        <EmptyDescription>New drafts and unpublished edits will show up here.</EmptyDescription>
+      </Empty>
+    ),
+    node: {
+      component: "Empty",
+      props: {},
+      wrapper: "w-full",
+      children: [
+        { component: "EmptyTitle", props: { children: "Nothing waiting on you" } },
+        {
+          component: "EmptyDescription",
+          props: { children: "New drafts and unpublished edits will show up here." },
+        },
+      ],
+    },
+  },
+] satisfies ComponentDemoVariant[];
+
+const scopedValue = (scope: string, name: string) => (scope ? `${scope}::${name}` : name);
+const stringValue = (values: Readonly<Record<string, unknown>>, name: string, scope = ""): string =>
+  String(values[scopedValue(scope, name)] ?? "");
+const numberValue = (values: Readonly<Record<string, unknown>>, name: string, scope = ""): number =>
+  Number(values[scopedValue(scope, name)] ?? 0);
+const childValues = (
+  values: Readonly<Record<string, unknown>>,
+  name: string,
+): readonly ComponentCanvasChildInstance[] => {
+  const value = values[name];
+  return Array.isArray(value)
+    ? value.filter(
+        (item): item is ComponentCanvasChildInstance =>
+          Boolean(item) && typeof item === "object" && "id" in item && "type" in item,
+      )
+    : [];
+};
+
+export const canvas = {
+  controls: [
+    { name: "classes", type: "text", default: "" },
+    {
+      name: "children",
+      type: "children",
+      default: ["media", "title", "description", "content"],
+      options: [
+        {
+          name: "media",
+          label: "EmptyMedia",
+          type: "group",
+          controls: [
+            { name: "media.icon", label: "icon", type: "text", default: "folder" },
+            { name: "media.classes", label: "classes", type: "text", default: "" },
+          ],
+        },
+        {
+          name: "title",
+          label: "EmptyTitle",
+          labelControl: "title.children",
+          type: "group",
+          controls: [
+            { name: "title.children", label: "children", type: "text", default: "No posts yet" },
+            { name: "title.level", label: "level", type: "number", default: 3, min: 1, max: 6 },
+            { name: "title.classes", label: "classes", type: "text", default: "" },
+          ],
+        },
+        {
+          name: "description",
+          label: "EmptyDescription",
+          labelControl: "description.children",
+          type: "group",
+          controls: [
+            {
+              name: "description.children",
+              label: "children",
+              type: "text",
+              default: "Create your first post to get started.",
+            },
+            { name: "description.classes", label: "classes", type: "text", default: "" },
+          ],
+        },
+        {
+          name: "content",
+          label: "EmptyContent",
+          labelControl: "content.action",
+          type: "group",
+          controls: [
+            { name: "content.action", label: "action", type: "text", default: "Create post" },
+            { name: "content.classes", label: "classes", type: "text", default: "" },
+          ],
+        },
+      ],
+    },
+  ],
+  node: (values) => ({
+    component: "Empty",
+    props: { classes: String(values.classes) },
+    wrapper: "w-full",
+    children: childValues(values, "children").map((child): DemoNode => {
+      if (child.type === "media") {
+        return {
+          component: "EmptyMedia",
+          props: { classes: stringValue(values, "media.classes", child.id) },
+          children: [
+            {
+              component: "Icon",
+              props: {
+                name: stringValue(values, "media.icon", child.id) || "folder",
+                size: "lg",
+                classes: "text-muted-foreground",
+              },
+            },
+          ],
+        };
+      }
+      if (child.type === "title") {
+        return {
+          component: "EmptyTitle",
+          props: {
+            children: stringValue(values, "title.children", child.id),
+            level: numberValue(values, "title.level", child.id) || 3,
+            classes: stringValue(values, "title.classes", child.id),
+          },
+        };
+      }
+      if (child.type === "description") {
+        return {
+          component: "EmptyDescription",
+          props: {
+            children: stringValue(values, "description.children", child.id),
+            classes: stringValue(values, "description.classes", child.id),
+          },
+        };
+      }
+      return {
+        component: "EmptyContent",
+        props: { classes: stringValue(values, "content.classes", child.id) },
+        children: [
+          {
+            component: "Button",
+            props: { children: stringValue(values, "content.action", child.id) },
+          },
+        ],
+      };
+    }),
+  }),
+} satisfies ComponentCanvas;

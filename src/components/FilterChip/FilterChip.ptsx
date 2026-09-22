@@ -1,0 +1,48 @@
+// Taxonomy/filter pill ("editorial · 5"). The chip owns the pill treatment
+// and the middot count separator so every taxonomy surface renders counts
+// identically. Chips are server-navigation controls: `href` renders an
+// anchor, no href renders a static span. Callers omit href for disabled
+// chips so they are truly inert, not merely unclickable. Interactive
+// button-based picker chips are a separate, unapproved contract.
+import { Dynamic } from "publr-jsx";
+
+export type FilterChipProps = {
+  children?: JSX.Element;
+  classes?: string;
+  count?: string;
+  disabled?: boolean;
+  href?: string;
+  id?: string;
+  selected?: boolean;
+};
+
+export function FilterChip({
+  children,
+  classes = "",
+  count,
+  disabled = false,
+  href,
+  id,
+  selected = false,
+}: FilterChipProps) {
+  return (
+    <Dynamic
+      as={href === undefined ? "span" : "a"}
+      id={id}
+      href={href}
+      aria-current={selected ? "true" : undefined}
+      class={[
+        "inline-flex items-center gap-1 rounded-full px-2 py-1 text-3xs font-medium no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+        disabled
+          ? "pointer-events-none cursor-default bg-muted text-secondary-foreground opacity-45"
+          : selected
+            ? "bg-primary text-primary-foreground hover:no-underline"
+            : "bg-muted text-secondary-foreground hover:bg-ui-accent hover:no-underline",
+        classes,
+      ]}
+    >
+      {children}
+      {count && <span class="opacity-70">· {count}</span>}
+    </Dynamic>
+  );
+}

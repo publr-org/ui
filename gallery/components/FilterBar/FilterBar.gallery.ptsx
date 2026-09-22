@@ -1,0 +1,327 @@
+import { Button } from "../../../src/components/Button/Button.ptsx";
+import { DropdownMenu } from "../../../src/components/Dropdown/Dropdown.ptsx";
+import { DropdownMenuCheckboxItem } from "../../../src/components/Dropdown/DropdownMenuCheckboxItem.ptsx";
+import { DropdownMenuContent } from "../../../src/components/Dropdown/DropdownMenuContent.ptsx";
+import { DropdownMenuItem } from "../../../src/components/Dropdown/DropdownMenuItem.ptsx";
+import { DropdownMenuSearch } from "../../../src/components/Dropdown/DropdownMenuSearch.ptsx";
+import { DropdownMenuSeparator } from "../../../src/components/Dropdown/DropdownMenuSeparator.ptsx";
+import { DropdownMenuTrigger } from "../../../src/components/Dropdown/DropdownMenuTrigger.ptsx";
+import { FilterBar } from "../../../src/components/FilterBar/FilterBar.ptsx";
+import { FilterPill } from "../../../src/components/FilterBar/FilterPill.ptsx";
+import { FilterPillBody } from "../../../src/components/FilterBar/FilterPillBody.ptsx";
+import { FilterPillLabel } from "../../../src/components/FilterBar/FilterPillLabel.ptsx";
+import { FilterPillOperator } from "../../../src/components/FilterBar/FilterPillOperator.ptsx";
+import { FilterPillRemove } from "../../../src/components/FilterBar/FilterPillRemove.ptsx";
+import { FilterPillValue } from "../../../src/components/FilterBar/FilterPillValue.ptsx";
+import { Icon } from "../../../src/components/Icon/Icon.ptsx";
+import { Input } from "../../../src/components/Input/Input.ptsx";
+import type {
+  ComponentCanvas,
+  ComponentDemoMeta,
+  ComponentDemoVariant,
+  DemoNode,
+} from "../../gallery-types";
+
+export const meta = {
+  name: "filter-bar",
+  label: "FilterBar",
+  source: "src/components/FilterBar/FilterBar.ptsx",
+  kind: "composite",
+  group: "Navigation",
+  description:
+    "The filter band over a list: filter pills (label, operator, value, remove), an inset search input and the control that adds a filter, on one full-width strip between two rules.",
+  tags: ["filter", "search", "pill", "list", "toolbar", "query"],
+  usage: `<form method="get" action="/admin/content">
+  <FilterBar>
+    <FilterPill>
+      <FilterPillLabel>Content type</FilterPillLabel>
+      <FilterPillBody>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <FilterPillValue>Any</FilterPillValue>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuSearch placeholder="Search types" />
+          <DropdownMenuCheckboxItem href="?type=post">Post</DropdownMenuCheckboxItem>
+          <DropdownMenuCheckboxItem href="?type=page">Page</DropdownMenuCheckboxItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem href="?">Reset to Any</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      </FilterPillBody>
+    </FilterPill>
+    <FilterPill>
+      <FilterPillLabel>Status</FilterPillLabel>
+      <DropdownMenu classes="flex">
+        <DropdownMenuTrigger asChild>
+          <FilterPillOperator label="Change how Status is matched">is</FilterPillOperator>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuCheckboxItem href="?status=draft" checked>is</DropdownMenuCheckboxItem>
+          <DropdownMenuCheckboxItem href="?status=!draft">is not</DropdownMenuCheckboxItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <FilterPillBody attached>
+      <FilterPillValue attached href="?status=draft">Draft</FilterPillValue>
+      <FilterPillRemove href="?" label="Remove the status filter" />
+      </FilterPillBody>
+    </FilterPill>
+    <Input inset size="sm" type="search" name="q" placeholder="Type to search" />
+    <Button hierarchy="tertiary" size="sm">
+      <Icon name="filter-lines" size="sm" />
+      Filter
+    </Button>
+  </FilterBar>
+</form>`,
+  preview: "toolbar",
+  previewLabel: "Two pills, the search input and the Filter control on one band",
+  docs: {
+    purpose: [
+      "FilterBar draws the one band a list is filtered and searched through, under its title band: pills for the filters that are on, the search input, and the control that adds another filter.",
+      "Pills are server-navigation controls: every segment that changes the list is a link to the list with the change made, so the bar works without a script and every state has an address.",
+    ],
+    useWhen: [
+      "A list is filtered on several properties at once and searched, and each filter has a small closed set of values.",
+    ],
+    avoidWhen: [
+      "One filter with a handful of values: that is TabNav.",
+      "Values are taxonomy terms shown as a cloud: that is FilterChip.",
+    ],
+    rules: [
+      {
+        title: "A pill reads as a sentence",
+        description:
+          "Label, operator, value, in that order: `Status is Draft`. The operator is the DropdownMenuTrigger `asChild` of a menu of operators; a filter with one operator shows it `fixed`, as text.",
+      },
+      {
+        title: "The value opens a menu",
+        description:
+          "FilterPillValue is the DropdownMenuTrigger `asChild`; the menu's items are links to the list with that value. Long lists get a DropdownMenuSearch on top.",
+      },
+      {
+        title: "The search input is inset",
+        description:
+          "The band draws the rules; the Input inside is `inset` and draws no border of its own. The caller gives the band the page's gutter as layout classes.",
+      },
+    ],
+    accessibility: [
+      "Every segment is a native link or button; the bar is a plain container in the caller's form.",
+      "FilterPillRemove and FilterPillOperator carry a label saying what they do.",
+    ],
+    composition: [
+      "Compose FilterPill rows (a FilterPillLabel, the FilterPillOperator when there is one, then a FilterPillBody `attached` to it holding the `attached` FilterPillValue and the FilterPillRemove), then an inset `size=\"sm\"` Input, then the adder DropdownMenu as the band's own child inside FilterBar; the caller wraps the bar in the form the search submits. In the empty search box, Backspace follows the last pill's remove link and `/` opens the adder; an adder link that lands on `#<pill id>` opens that pill's value menu at once.",
+    ],
+    agentNotes: [
+      "Never draw a pill with raw utilities in a call site; the pill and its segments are these parts.",
+      "The chevron belongs to FilterPillValue; do not add a second one.",
+    ],
+    props: [
+      {
+        name: "children",
+        type: "node",
+        description: "Pills, the inset Input, the trailing control.",
+      },
+      { name: "classes", type: "string", description: "Layout classes for the bar." },
+      { name: "id", type: "string", description: "Identifier applied to the bar." },
+      { name: "FilterPill.children", type: "node", description: "The label, then the body." },
+      {
+        name: "FilterPillBody.attached",
+        type: "boolean",
+        description: "An operator straddles the strip's left edge.",
+        default: "false",
+      },
+      {
+        name: "FilterPillBody.children",
+        type: "node",
+        description: "The value and the remove, on the quiet strip.",
+      },
+      {
+        name: "FilterPillValue.attached",
+        type: "boolean",
+        description: "Square left side, against the operator.",
+        default: "false",
+      },
+      { name: "FilterPillLabel.children", type: "node", description: "What is filtered." },
+      {
+        name: "FilterPillOperator.children",
+        type: "node",
+        description: "`is`, `is not`, `after`, `before`: the operator in force.",
+      },
+      {
+        name: "FilterPillOperator.label",
+        type: "string",
+        description: "Accessible name of the button that opens the operators.",
+      },
+      {
+        name: "FilterPillOperator.fixed",
+        type: "boolean",
+        description: "The filter's only operator: plain text, no menu.",
+        default: "false",
+      },
+      { name: "FilterPillValue.children", type: "node", description: "The current value." },
+      {
+        name: "FilterPillValue.href",
+        type: "string",
+        description: "A link instead of a button, for a value that opens no menu.",
+      },
+      {
+        name: "FilterPillRemove.href",
+        type: "string",
+        description: "The list without this filter.",
+        required: true,
+      },
+      {
+        name: "FilterPillRemove.label",
+        type: "string",
+        description: "Accessible name of the remove link.",
+        required: true,
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+const BAR_NODE: DemoNode = {
+  component: "FilterBar",
+  props: { classes: "w-[40rem] px-4" },
+  children: [
+    {
+      component: "FilterPill",
+      props: {},
+      children: [
+        { component: "FilterPillLabel", props: { children: "Content type" } },
+        {
+          component: "FilterPillBody",
+          props: {},
+          children: [{ component: "FilterPillValue", props: { children: "Any" } }],
+        },
+      ],
+    },
+    {
+      component: "FilterPill",
+      props: {},
+      children: [
+        { component: "FilterPillLabel", props: { children: "Status" } },
+        {
+          component: "FilterPillOperator",
+          props: { label: "Change how Status is matched", children: "is" },
+        },
+        {
+          component: "FilterPillBody",
+          props: { attached: true },
+          children: [
+            {
+              component: "FilterPillValue",
+              props: { attached: true, href: "#", children: "Draft" },
+            },
+            {
+              component: "FilterPillRemove",
+              props: { href: "#", label: "Remove the status filter" },
+            },
+          ],
+        },
+      ],
+    },
+    {
+      component: "Input",
+      props: { inset: true, size: "sm", type: "search", placeholder: "Type to search" },
+    },
+  ],
+};
+
+export const variants = [
+  {
+    label: "Pills, search and the adder",
+    description:
+      "A type picker with a searchable menu, a status pill that flips and removes, the inset search, the Filter control.",
+    notes: ["Open the Content type value: the menu starts in its search box."],
+    Demo: () => (
+      <FilterBar classes="w-[40rem] px-4">
+        <FilterPill>
+          <FilterPillLabel>Content type</FilterPillLabel>
+          <FilterPillBody>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <FilterPillValue>Any</FilterPillValue>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuSearch placeholder="Search types" />
+                <DropdownMenuCheckboxItem href="#">Post</DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem href="#" checked>
+                  Page
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem href="#">Reset to Any</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </FilterPillBody>
+        </FilterPill>
+        <FilterPill>
+          <FilterPillLabel>Status</FilterPillLabel>
+          <DropdownMenu classes="flex">
+            <DropdownMenuTrigger asChild>
+              <FilterPillOperator label="Change how Status is matched">is</FilterPillOperator>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuCheckboxItem href="#" checked>
+                is
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem href="#">is not</DropdownMenuCheckboxItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <FilterPillBody attached>
+            <FilterPillValue attached href="#">
+              Draft
+            </FilterPillValue>
+            <FilterPillRemove href="#" label="Remove the status filter" />
+          </FilterPillBody>
+        </FilterPill>
+        <Input inset size="sm" type="search" name="q" placeholder="Type to search" />
+        <Button hierarchy="tertiary" size="sm">
+          <Icon name="filter-lines" size="sm" />
+          Filter
+        </Button>
+      </FilterBar>
+    ),
+    node: BAR_NODE,
+  },
+] satisfies ComponentDemoVariant[];
+
+export const canvas = {
+  controls: [
+    { name: "label", type: "text", default: "Status" },
+    { name: "operator", type: "text", default: "is" },
+    { name: "value", type: "text", default: "Draft" },
+  ],
+  node: (values) => ({
+    component: "FilterBar",
+    props: { classes: "w-[32rem] px-4" },
+    children: [
+      {
+        component: "FilterPill",
+        props: {},
+        children: [
+          { component: "FilterPillLabel", props: { children: String(values.label) } },
+          {
+            component: "FilterPillOperator",
+            props: { children: String(values.operator), label: "Change the operator" },
+          },
+          {
+            component: "FilterPillBody",
+            props: { attached: true },
+            children: [
+              {
+                component: "FilterPillValue",
+                props: { attached: true, href: "#", children: String(values.value) },
+              },
+              { component: "FilterPillRemove", props: { href: "#", label: "Remove this filter" } },
+            ],
+          },
+        ],
+      },
+      {
+        component: "Input",
+        props: { inset: true, size: "sm", type: "search", placeholder: "Type to search" },
+      },
+    ],
+  }),
+} satisfies ComponentCanvas;

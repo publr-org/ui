@@ -1,0 +1,15 @@
+// The card's muted secondary line — size, visibility, dimensions.
+
+export type AssetCardMetaProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function AssetCardMeta({ children, classes = "", id }: AssetCardMetaProps) {
+  return (
+    <span id={id} class={["block truncate text-2xs text-muted-foreground", classes]}>
+      {children}
+    </span>
+  );
+}

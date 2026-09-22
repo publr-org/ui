@@ -1,0 +1,101 @@
+import type { IconSize } from "../../../src/components/Icon/Icon.ptsx";
+import { SelectedSidesIcon } from "../../../src/components/SelectedSidesIcon/SelectedSidesIcon.ptsx";
+import type { ComponentCanvas, ComponentDemoMeta, DemoNode } from "../../gallery-types";
+
+export const meta = {
+  name: "selected-sides-icon",
+  label: "Selected sides icon",
+  source: "src/components/SelectedSidesIcon/SelectedSidesIcon.ptsx",
+  kind: "composite",
+  group: "Other",
+  description: "Overlays library artwork for the currently selected box sides.",
+  tags: ["icon", "sides", "spacing", "box"],
+  usage: `<SelectedSidesIcon top bottom size="lg" />`,
+  preview: "inspector",
+  previewLabel: "Opposite vertical sides",
+  docs: {
+    purpose: ["Represent one or more selected box sides with existing library icons."],
+    useWhen: ["A box-model control needs to show which sides its value edits."],
+    avoidWhen: ["A single ordinary library icon already represents the action."],
+    rules: [
+      {
+        title: "Supply selected sides",
+        description: "Enable top, right, bottom, or left independently with boolean props.",
+      },
+      {
+        title: "Do not supply a name",
+        description: "The component owns the four library icon names and overlays them.",
+      },
+      {
+        title: "Nothing selected still draws the box",
+        description:
+          "With every side off the component renders the unselected guide artwork, so the control never collapses to empty space.",
+      },
+    ],
+    accessibility: ["The geometry artwork is decorative and hidden from assistive technology."],
+    composition: ["Compose it inside BoxValueControlIcon for box-model value rows."],
+    agentNotes: ["Do not draw side paths inline or add duplicate combined icons."],
+    props: [
+      { name: "top", type: "boolean", description: "Highlights the top side.", default: "false" },
+      {
+        name: "right",
+        type: "boolean",
+        description: "Highlights the right side.",
+        default: "false",
+      },
+      {
+        name: "bottom",
+        type: "boolean",
+        description: "Highlights the bottom side.",
+        default: "false",
+      },
+      { name: "left", type: "boolean", description: "Highlights the left side.", default: "false" },
+      {
+        name: "size",
+        type: "IconSize",
+        description: "The ordinary Icon size scale.",
+        default: "md",
+      },
+      { name: "id", type: "string", description: "Identifier applied to the overlay root." },
+      { name: "classes", type: "string", description: "Additional root classes." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const node = {
+  component: "SelectedSidesIcon",
+  props: { top: true, bottom: true, size: "xl" },
+} satisfies DemoNode;
+
+export function Demo() {
+  return <SelectedSidesIcon top bottom size="xl" />;
+}
+
+export const canvas = {
+  controls: [
+    { name: "id", type: "text", default: "" },
+    { name: "top", type: "boolean", default: true },
+    { name: "right", type: "boolean", default: false },
+    { name: "bottom", type: "boolean", default: true },
+    { name: "left", type: "boolean", default: false },
+    {
+      name: "size",
+      type: "select",
+      default: "xl",
+      options: ["xs", "sm", "md", "lg", "xl"],
+    },
+    { name: "classes", type: "text", default: "" },
+  ],
+  node: (values) => ({
+    component: "SelectedSidesIcon",
+    props: {
+      id: String(values.id),
+      top: Boolean(values.top),
+      right: Boolean(values.right),
+      bottom: Boolean(values.bottom),
+      left: Boolean(values.left),
+      size: String(values.size) as IconSize,
+      classes: String(values.classes),
+    },
+  }),
+} satisfies ComponentCanvas;

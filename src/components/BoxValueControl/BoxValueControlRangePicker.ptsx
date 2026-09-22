@@ -1,0 +1,52 @@
+import { state, toggleMode } from "./BoxValueControl.ptsx";
+import { Button } from "../Button/Button.ptsx";
+import { Icon } from "../Icon/Icon.ptsx";
+import { RangePicker } from "../RangePicker/RangePicker.ptsx";
+import { UnitControl } from "../UnitControl/UnitControl.ptsx";
+import { UnitControlInput } from "../UnitControl/UnitControlInput.ptsx";
+import { UnitControlUnit } from "../UnitControl/UnitControlUnit.ptsx";
+
+export type BoxValueControlRangePickerProps = {
+  min?: number;
+  max?: number;
+  step?: number;
+  label: string;
+};
+
+export function BoxValueControlRangePicker({
+  min = 0,
+  max = 300,
+  step = 1,
+  label,
+}: BoxValueControlRangePickerProps) {
+  return (
+    <div
+      class="col-start-2 row-start-1 grid min-h-9 grid-cols-[auto_minmax(0,1fr)_32px] items-center gap-2"
+      data-part="box-value-control-arbitrary"
+      hidden={!state.arbitrary}
+    >
+      <UnitControl autoWidth={true} disabled={false}>
+        <UnitControlInput
+          value={min}
+          min={`${min}`}
+          max={`${max}`}
+          step={`${step}`}
+          inputMode="decimal"
+        />
+        <UnitControlUnit value="px" />
+      </UnitControl>
+      <RangePicker value={min} min={min} max={max} step={step} label={label} disabled={false} />
+      <Button
+        hierarchy="tertiary"
+        size="sm"
+        label="Use named value"
+        title="Use named value"
+        pressed={true}
+        data-part="box-value-control-mode-toggle"
+        onClick={toggleMode}
+      >
+        <Icon name="settings" size="sm" />
+      </Button>
+    </div>
+  );
+}

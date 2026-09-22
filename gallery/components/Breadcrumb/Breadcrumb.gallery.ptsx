@@ -1,0 +1,337 @@
+import { Breadcrumb } from "../../../src/components/Breadcrumb/Breadcrumb.ptsx";
+import { BreadcrumbItem } from "../../../src/components/Breadcrumb/BreadcrumbItem.ptsx";
+import { BreadcrumbLink } from "../../../src/components/Breadcrumb/BreadcrumbLink.ptsx";
+import { BreadcrumbList } from "../../../src/components/Breadcrumb/BreadcrumbList.ptsx";
+import { BreadcrumbPage } from "../../../src/components/Breadcrumb/BreadcrumbPage.ptsx";
+import { BreadcrumbSeparator } from "../../../src/components/Breadcrumb/BreadcrumbSeparator.ptsx";
+import type {
+  ComponentCanvas,
+  ComponentCanvasChildInstance,
+  ComponentDemoMeta,
+  ComponentDemoVariant,
+  DemoNode,
+} from "../../gallery-types";
+
+export const meta = {
+  name: "breadcrumb",
+  label: "Breadcrumb",
+  source: "src/components/Breadcrumb/Breadcrumb.ptsx",
+  kind: "composite",
+  group: "Navigation",
+  description:
+    "APG-pattern breadcrumb trail: a labeled navigation landmark with an ordered list of ancestor links and the current page.",
+  tags: ["breadcrumb", "navigation", "trail", "landmark"],
+  usage: `<Breadcrumb>
+  <BreadcrumbList>
+    <BreadcrumbItem>
+      <BreadcrumbLink href="/admin">Dashboard</BreadcrumbLink>
+    </BreadcrumbItem>
+    <BreadcrumbSeparator />
+    <BreadcrumbItem>
+      <BreadcrumbPage>Content</BreadcrumbPage>
+    </BreadcrumbItem>
+  </BreadcrumbList>
+</Breadcrumb>`,
+  preview: "canvas",
+  previewLabel: "Two-level trail ending in the current page",
+  docs: {
+    purpose: [
+      "Breadcrumb shows where the current page sits in the admin hierarchy and links back to each ancestor.",
+      "The anatomy is the WAI-ARIA APG breadcrumb pattern verbatim: nav labeled Breadcrumb, an ordered list, real ancestor links, and the current page marked aria-current.",
+    ],
+    useWhen: [
+      "The topbar or a detail view needs to place the page in its hierarchy.",
+      "Ancestors are real navigable pages.",
+    ],
+    avoidWhen: [
+      "The trail would contain only the current page and no ancestor is navigable — render a plain heading, though a one-item trail in a shared topbar slot is fine.",
+      "Steps model a process, not a place; that is a future stepper, not a breadcrumb.",
+    ],
+    rules: [
+      {
+        title: "Order is the hierarchy",
+        description:
+          "Author items root-first and end with BreadcrumbPage. Separators are authored between items and never announced.",
+      },
+      {
+        title: "The current page is not a link",
+        description:
+          "BreadcrumbPage renders a span with aria-current=page. Do not author the current page as a BreadcrumbLink.",
+      },
+      {
+        title: "The trail owns its density",
+        description:
+          "13px medium with truncation; BreadcrumbLink is deliberately denser than prose Link and is not interchangeable with it.",
+      },
+    ],
+    accessibility: [
+      "The nav landmark is labeled Breadcrumb so assistive technology can jump to it.",
+      "The ordered list conveys length and position; separators are aria-hidden.",
+      "aria-current=page marks the trail's end.",
+    ],
+    composition: [
+      "Author BreadcrumbItem wrappers for links and the page; place BreadcrumbSeparator between items.",
+      "Compose in the shell topbar; one Breadcrumb per page.",
+    ],
+    agentNotes: [
+      "Follow the exact part order: List > Item(Link) > Separator > … > Item(Page).",
+      "Do not add role=presentation to separators; aria-hidden is the pattern.",
+      "There is no ellipsis part; keep trails shallow instead of collapsing them.",
+    ],
+    props: [
+      {
+        name: "Breadcrumb.children",
+        type: "node",
+        description: "One BreadcrumbList.",
+      },
+      {
+        name: "Breadcrumb.classes",
+        type: "string",
+        description: "Layout classes on the nav landmark.",
+      },
+      {
+        name: "Breadcrumb.id",
+        type: "string",
+        description: "Optional identifier applied to the nav.",
+      },
+      {
+        name: "BreadcrumbList.children",
+        type: "node",
+        description: "Items and separators in trail order.",
+      },
+      {
+        name: "BreadcrumbList.classes",
+        type: "string",
+        description: "Exceptional composition classes on the list.",
+      },
+      {
+        name: "BreadcrumbList.id",
+        type: "string",
+        description: "Optional identifier applied to the list.",
+      },
+      {
+        name: "BreadcrumbItem.children",
+        type: "node",
+        description: "One BreadcrumbLink or BreadcrumbPage.",
+      },
+      {
+        name: "BreadcrumbItem.classes",
+        type: "string",
+        description: "Exceptional composition classes on the item.",
+      },
+      {
+        name: "BreadcrumbItem.id",
+        type: "string",
+        description: "Optional identifier applied to the item.",
+      },
+      {
+        name: "BreadcrumbLink.href",
+        type: "string",
+        description: "Required ancestor destination.",
+      },
+      {
+        name: "BreadcrumbLink.children",
+        type: "node",
+        description: "Visible ancestor label.",
+      },
+      {
+        name: "BreadcrumbLink.classes",
+        type: "string",
+        description: "Exceptional composition classes on the link.",
+      },
+      {
+        name: "BreadcrumbLink.id",
+        type: "string",
+        description: "Optional identifier applied to the link.",
+      },
+      {
+        name: "BreadcrumbPage.children",
+        type: "node",
+        description: "The current page's visible label.",
+      },
+      {
+        name: "BreadcrumbPage.classes",
+        type: "string",
+        description: "Exceptional composition classes on the page span.",
+      },
+      {
+        name: "BreadcrumbPage.id",
+        type: "string",
+        description: "Optional identifier applied to the page span.",
+      },
+      {
+        name: "BreadcrumbSeparator.classes",
+        type: "string",
+        description: "Exceptional composition classes on the separator.",
+      },
+      {
+        name: "BreadcrumbSeparator.id",
+        type: "string",
+        description: "Optional identifier applied to the separator.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+const trailNode = (links: Array<{ label: string; href: string }>, page: string): DemoNode => ({
+  component: "Breadcrumb",
+  props: {},
+  children: [
+    {
+      component: "BreadcrumbList",
+      props: {},
+      children: [
+        ...links.flatMap((link): DemoNode[] => [
+          {
+            component: "BreadcrumbItem",
+            props: {},
+            children: [
+              { component: "BreadcrumbLink", props: { href: link.href, children: link.label } },
+            ],
+          },
+          { component: "BreadcrumbSeparator", props: {} },
+        ]),
+        {
+          component: "BreadcrumbItem",
+          props: {},
+          children: [{ component: "BreadcrumbPage", props: { children: page } }],
+        },
+      ],
+    },
+  ],
+});
+
+export const variants = [
+  {
+    label: "Two-level trail",
+    description: "One ancestor link and the current page.",
+    usage: `<Breadcrumb>
+  <BreadcrumbList>
+    <BreadcrumbItem><BreadcrumbLink href="/admin">Dashboard</BreadcrumbLink></BreadcrumbItem>
+    <BreadcrumbSeparator />
+    <BreadcrumbItem><BreadcrumbPage>Content</BreadcrumbPage></BreadcrumbItem>
+  </BreadcrumbList>
+</Breadcrumb>`,
+    notes: ["The separator is authored between items and hidden from assistive technology."],
+    Demo: () => (
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="#dashboard">Dashboard</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Content</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+    ),
+    node: trailNode([{ label: "Dashboard", href: "#dashboard" }], "Content"),
+  },
+  {
+    label: "Current page only",
+    description: "The dashboard itself: a one-item trail in the shared topbar slot.",
+    usage: `<Breadcrumb>
+  <BreadcrumbList>
+    <BreadcrumbItem><BreadcrumbPage>Dashboard</BreadcrumbPage></BreadcrumbItem>
+  </BreadcrumbList>
+</Breadcrumb>`,
+    notes: ["aria-current=page still marks the entry."],
+    Demo: () => (
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Dashboard</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+    ),
+    node: trailNode([], "Dashboard"),
+  },
+  {
+    label: "Three-level trail",
+    description: "Deep detail pages keep every ancestor navigable.",
+    usage: `<Breadcrumb>
+  <BreadcrumbList>
+    <BreadcrumbItem><BreadcrumbLink href="/admin">Dashboard</BreadcrumbLink></BreadcrumbItem>
+    <BreadcrumbSeparator />
+    <BreadcrumbItem><BreadcrumbLink href="/admin/content">Content</BreadcrumbLink></BreadcrumbItem>
+    <BreadcrumbSeparator />
+    <BreadcrumbItem><BreadcrumbPage>Autumn campaign</BreadcrumbPage></BreadcrumbItem>
+  </BreadcrumbList>
+</Breadcrumb>`,
+    notes: ["Trails stay shallow; there is deliberately no ellipsis part."],
+    Demo: () => (
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="#dashboard">Dashboard</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="#content">Content</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Autumn campaign</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+    ),
+    node: trailNode(
+      [
+        { label: "Dashboard", href: "#dashboard" },
+        { label: "Content", href: "#content" },
+      ],
+      "Autumn campaign",
+    ),
+  },
+] satisfies ComponentDemoVariant[];
+
+const scopedValue = (scope: string, name: string) => (scope ? `${scope}::${name}` : name);
+const stringValue = (values: Readonly<Record<string, unknown>>, name: string, scope = ""): string =>
+  String(values[scopedValue(scope, name)] ?? "");
+const childValues = (
+  values: Readonly<Record<string, unknown>>,
+  name: string,
+): readonly ComponentCanvasChildInstance[] => {
+  const value = values[name];
+  return Array.isArray(value)
+    ? value.filter(
+        (item): item is ComponentCanvasChildInstance =>
+          Boolean(item) && typeof item === "object" && "id" in item && "type" in item,
+      )
+    : [];
+};
+
+export const canvas = {
+  controls: [
+    { name: "page", type: "text", default: "Content" },
+    {
+      name: "ancestors",
+      type: "children",
+      allowMultiple: true,
+      default: ["ancestor"],
+      options: [
+        {
+          name: "ancestor",
+          label: "BreadcrumbLink",
+          labelControl: "ancestor.label",
+          type: "group",
+          controls: [
+            { name: "ancestor.label", label: "children", type: "text", default: "Dashboard" },
+            { name: "ancestor.href", label: "href", type: "text", default: "#dashboard" },
+          ],
+        },
+      ],
+    },
+  ],
+  node: (values) =>
+    trailNode(
+      childValues(values, "ancestors").map((child) => ({
+        label: stringValue(values, "ancestor.label", child.id),
+        href: stringValue(values, "ancestor.href", child.id),
+      })),
+      String(values.page),
+    ),
+} satisfies ComponentCanvas;

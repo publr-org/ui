@@ -1,0 +1,42 @@
+// Backdrop + centered modal panel in one part — every demonstrated call
+// site pairs them 1:1, so there is no separate overlay part. The backdrop
+// root owns pointer dismissal (clicks that land on it, not the panel) and
+// the keyboard handler (focus is trapped inside the panel, so every key in
+// the dialog bubbles here). SSR renders closed: the static `hidden` class
+// is the initial state and `hidden={!state.open}` is the live gate.
+import { backdrop, backdropDismiss, dialogKeydown, panel, state } from "./Dialog.ptsx";
+
+export type DialogContentProps = {
+  id?: string;
+  classes?: string;
+  children?: JSX.Element;
+};
+
+export function DialogContent({ id, classes = "", children }: DialogContentProps) {
+  return (
+    <div
+      class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/50 p-4 pt-[12vh]"
+      data-part="backdrop"
+      ref={backdrop}
+      onClick={backdropDismiss}
+      onKeyDown={dialogKeydown}
+      portal
+      hidden={!state.open}
+    >
+      <div
+        id={id}
+        class={[
+          "relative mx-auto w-full max-w-md rounded-lg border border-border bg-popover p-5 text-popover-foreground shadow-2xl outline-none",
+          classes,
+        ]}
+        role="dialog"
+        aria-modal="true"
+        tabindex="-1"
+        data-part="panel"
+        ref={panel}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}

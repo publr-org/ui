@@ -1,0 +1,49 @@
+import { state, toggleMode } from "./BoxValueControl.ptsx";
+import { Button } from "../Button/Button.ptsx";
+import { Icon } from "../Icon/Icon.ptsx";
+import { RangePickerBase } from "../RangePicker/RangePickerBase.ptsx";
+
+export type BoxValueControlRangeScalePickerProps = {
+  children: JSX.Element;
+};
+
+export function BoxValueControlRangeScalePicker({
+  children,
+}: BoxValueControlRangeScalePickerProps) {
+  return (
+    <div
+      class="flex-1 col-start-2 row-start-1 grid min-h-9 grid-cols-[minmax(0,1fr)_48px_32px] items-center gap-2"
+      data-part="box-value-control-named"
+      hidden={state.arbitrary}
+    >
+      {children}
+      <RangePickerBase
+        value={0}
+        valueText=""
+        min={0}
+        max={1}
+        step={1}
+        disabled={false}
+        segmented={true}
+        component="range-scale-picker"
+      />
+      <output
+        class="box-border grid h-8 w-12 place-items-center overflow-hidden rounded-md border border-input bg-background px-1 text-center text-body-sm font-semibold shadow-xs"
+        data-part="box-value-control-label"
+      ></output>
+      <Button
+        hierarchy="tertiary"
+        size="sm"
+        label="Set custom value"
+        title="Set custom value"
+        data-part="box-value-control-mode-toggle"
+        onClick={toggleMode}
+      >
+        <Icon name="settings" size="sm" />
+      </Button>
+    </div>
+  );
+}
+
+export { BoxValueControlRangeScalePickerOption } from "./BoxValueControlRangeScalePickerOption.ptsx";
+export type { BoxValueControlRangeScalePickerOptionProps } from "./BoxValueControlRangeScalePickerOption.ptsx";

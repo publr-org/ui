@@ -1,0 +1,17 @@
+export type StyleControlContentProps = {
+  id?: string;
+  classes?: string;
+  children: JSX.Element;
+};
+
+export function StyleControlContent({ id, classes = "", children }: StyleControlContentProps) {
+  return (
+    <div
+      id={id}
+      class={["col-span-2 row-start-2 mt-3 min-w-0", classes]}
+      data-part="style-control-content"
+    >
+      {children}
+    </div>
+  );
+}

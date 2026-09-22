@@ -1,0 +1,121 @@
+import { PaneHeader } from "../../../src/components/PaneHeader/PaneHeader.ptsx";
+import { Checkbox } from "../../../src/components/Checkbox/Checkbox.ptsx";
+import type { ComponentCanvas, ComponentDemoMeta, ComponentDemoVariant } from "../../gallery-types";
+
+export const meta = {
+  name: "pane-header",
+  label: "PaneHeader",
+  source: "src/components/PaneHeader/PaneHeader.ptsx",
+  kind: "composite",
+  group: "Essentials",
+  description:
+    "Dense h-12 content-pane header: title and optional description on the left, trailing controls right-aligned.",
+  tags: ["header", "pane", "list", "toolbar", "title"],
+  usage: `<PaneHeader title="All assets" description="25 assets">
+  <label class="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+    Select all
+    <Checkbox />
+  </label>
+</PaneHeader>`,
+  preview: "canvas",
+  previewLabel: "A pane header naming the current data set",
+  docs: {
+    purpose: [
+      "PaneHeader names a content pane's current data set (folder, filter, count) in one compact bar and hosts the pane-level controls that act on it.",
+    ],
+    useWhen: [
+      "A list or grid pane needs a heading with a live count and controls such as select-all.",
+    ],
+    avoidWhen: [
+      "The bar is a section eyebrow with at most a small action; that is SectionTitle.",
+      "The header is the page's own title band; compose Heading and Text in the page layout.",
+    ],
+    rules: [
+      {
+        title: "One deliberately dense treatment",
+        description:
+          "PaneHeader owns its 12px semibold title and 10px muted description — below Text's body-sm scale — so the bar stays one compact row. Do not re-size it per call site.",
+      },
+    ],
+    accessibility: [
+      "The title renders as an h2; keep one PaneHeader per pane so the outline stays meaningful.",
+      "Trailing controls keep their own labels; the header adds no implicit naming.",
+    ],
+    composition: ["Compose Checkbox, Buttons, or DropdownMenus as trailing children."],
+    agentNotes: ["title and description are plain strings; put controls, not text, in children."],
+    props: [
+      { name: "title", type: "string", description: "Required pane title (renders as an h2)." },
+      {
+        name: "description",
+        type: "string",
+        description: "Optional muted second line (for example a live count).",
+      },
+      { name: "children", type: "node", description: "Trailing right-aligned controls." },
+      { name: "id", type: "string", description: "Identifier applied to the header root." },
+      {
+        name: "classes",
+        type: "string",
+        description: "Layout or exceptional composition classes.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const variants = [
+  {
+    label: "With count and control",
+    description: "Title, live count, and a trailing select-all control.",
+    usage: `<PaneHeader title="All assets" description="25 assets">
+  <label class="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+    Select all
+    <Checkbox />
+  </label>
+</PaneHeader>`,
+    Demo: () => (
+      <div class="w-[28rem]">
+        <PaneHeader title="All assets" description="25 assets">
+          <label class="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+            Select all
+            <Checkbox />
+          </label>
+        </PaneHeader>
+      </div>
+    ),
+    node: {
+      component: "PaneHeader",
+      props: { title: "All assets", description: "25 assets" },
+      children: [{ component: "Checkbox", props: {} }],
+      wrapper: "w-[28rem]",
+    },
+  },
+  {
+    label: "Title only",
+    description: "The description line collapses when absent.",
+    usage: `<PaneHeader title="Unreviewed" />`,
+    Demo: () => (
+      <div class="w-[28rem]">
+        <PaneHeader title="Unreviewed" />
+      </div>
+    ),
+    node: {
+      component: "PaneHeader",
+      props: { title: "Unreviewed" },
+      wrapper: "w-[28rem]",
+    },
+  },
+] satisfies ComponentDemoVariant[];
+
+export const canvas = {
+  controls: [
+    { name: "title", type: "text", default: "All assets" },
+    { name: "description", type: "text", default: "25 assets" },
+  ],
+  node: (values) => ({
+    component: "PaneHeader",
+    props: {
+      title: String(values.title),
+      description: String(values.description) || undefined,
+    },
+    wrapper: "w-[28rem]",
+  }),
+} satisfies ComponentCanvas;

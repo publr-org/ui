@@ -1,0 +1,217 @@
+/* The gallery stylesheet: the palette as tokens, and the few rules a
+   stylesheet must own. Every utility a page uses is compiled by the jit engine
+   in the browser (engine.ts). */
+
+@layer theme, base, components, utilities;
+
+:root {
+  color-scheme: light;
+  --radius: 0.5rem;
+  --background: oklch(0.985 0.003 240);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.55 0.17 250);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.955 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --ui-accent: oklch(0.945 0.018 250);
+  --accent-foreground: oklch(0.205 0 0);
+  --border: oklch(0.922 0 0);
+  --publr-icon-selection-blend: darken;
+  --input: oklch(0.882 0 0);
+  --ring: oklch(0.55 0.17 250);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
+  --success: oklch(0.56 0.16 145);
+  --warning: oklch(0.68 0.16 75);
+}
+
+.dark {
+  color-scheme: dark;
+  --background: oklch(0.18 0.006 260);
+  --foreground: oklch(0.965 0.002 240);
+  --card: oklch(0.21 0.006 260);
+  --card-foreground: oklch(0.965 0.002 240);
+  --popover: oklch(0.225 0.006 260);
+  --popover-foreground: oklch(0.965 0.002 240);
+  --primary: oklch(0.68 0.16 250);
+  --primary-foreground: oklch(0.16 0.006 260);
+  --secondary: oklch(0.28 0.006 260);
+  --secondary-foreground: oklch(0.94 0.002 240);
+  --muted: oklch(0.27 0.006 260);
+  --muted-foreground: oklch(0.71 0.008 260);
+  --ui-accent: oklch(0.31 0.025 250);
+  --accent-foreground: oklch(0.96 0.002 240);
+  --border: oklch(0.34 0.008 260);
+  --publr-icon-selection-blend: lighten;
+  --input: oklch(0.4 0.008 260);
+  --ring: oklch(0.7 0.15 250);
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.16 0.006 260);
+  --success: oklch(0.72 0.15 145);
+  --warning: oklch(0.78 0.14 75);
+}
+
+/* The JIT emits semantic `--color-*` aliases on :root. Re-declare them at
+   each theme boundary so var() resolves against that boundary's palette
+   instead of inheriting the root's already-computed light value. */
+:root,
+.dark {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-ui-accent: var(--ui-accent);
+  --color-accent: var(--primary);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+}
+
+html,
+body,
+#gallery {
+  min-height: 100%;
+}
+
+html:not([data-jit-ready]) #gallery {
+  visibility: hidden;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-gallery-action-toast] {
+  position: fixed;
+  z-index: 100;
+  right: 20px;
+  bottom: 20px;
+  max-width: calc(100vw - 40px);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--popover);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 16%);
+  color: var(--popover-foreground);
+  font:
+    500 13px/18px ui-sans-serif,
+    system-ui,
+    sans-serif;
+  overflow: hidden;
+  padding: 9px 12px;
+  pointer-events: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-gallery-action-toast][hidden] {
+  display: none;
+}
+
+.pbe-ui[hidden],
+.pbe-ui [hidden] {
+  display: none !important;
+}
+
+/* Preview frames carry display utilities, which otherwise override the user
+   agent's native [hidden] rule when Show code replaces the iframe. */
+[data-preview-surface][hidden] {
+  display: none !important;
+}
+
+/* Nested-property flyouts must retain native hidden semantics until their
+   group row is activated. */
+[data-canvas-control-panel][hidden] {
+  display: none !important;
+}
+
+/* Native-control pseudo-elements are the only component detail not currently
+   expressible through parser-safe Publr JIT output. */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
+[data-part="range-picker-input"]::-webkit-slider-runnable-track {
+  height: 5px;
+  background: transparent;
+}
+
+[data-part="range-picker-input"]::-webkit-slider-thumb {
+  width: 16px;
+  height: 16px;
+  margin-top: -6px;
+  appearance: none;
+  opacity: 0;
+}
+
+[data-part="range-picker-input"]::-moz-range-track {
+  height: 5px;
+  background: transparent;
+}
+
+[data-part="range-picker-input"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: 0;
+  opacity: 0;
+}
+
+.gallery-canvas-dots {
+  background-image: radial-gradient(
+    circle,
+    color-mix(in oklch, var(--ring) 22%, transparent) 1px,
+    transparent 1.25px
+  );
+  background-position: -1px -1px;
+  background-size: 20px 20px;
+}
+
+@media (max-width: 760px) {
+  #gallery > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #gallery > div > aside {
+    display: none;
+  }
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* The canvas frame's stage fills its document; the jit has no dvh unit. */
+#preview[data-mode="canvas"] {
+  min-height: 100vh;
+}
+
+/* A canvas in a narrow frame, such as a card on the Components page, keeps
+   its stage padding small so the demo gets the width. */
+@media (max-width: 480px) {
+  #preview[data-mode="canvas"] {
+    padding: 1rem;
+  }
+}

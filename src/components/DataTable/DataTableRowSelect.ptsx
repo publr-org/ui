@@ -1,0 +1,28 @@
+// Row selector: the row identity comes from the ancestor DataTableRow's
+// data-row-id (both for the membership binding and for the store action), so
+// the checkbox itself carries no row props.
+import { Publr } from "publr-jsx";
+import { state, rowSelectionChanged } from "./DataTable.ptsx";
+import { Checkbox } from "../Checkbox/Checkbox.ptsx";
+
+export type DataTableRowSelectProps = {
+  id?: string;
+  classes?: string;
+  label?: string;
+};
+
+export function DataTableRowSelect({
+  id,
+  classes = "",
+  label = "Select row",
+}: DataTableRowSelectProps) {
+  return (
+    <Checkbox
+      id={id}
+      classes={classes}
+      aria-label={label}
+      onChange={rowSelectionChanged}
+      checked={state.selectedRowIds.includes(Publr.dataset("rowId"))}
+    />
+  );
+}

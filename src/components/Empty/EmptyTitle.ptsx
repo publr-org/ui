@@ -1,0 +1,19 @@
+// Empty-state heading. Composes Heading at the xs visual size; level keeps
+// the document outline honest per page.
+import { Heading } from "../Heading/Heading.ptsx";
+import type { HeadingLevel } from "../Heading/Heading.ptsx";
+
+export type EmptyTitleProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+  level?: HeadingLevel;
+};
+
+export function EmptyTitle({ children, classes = "", id, level = 3 }: EmptyTitleProps) {
+  return (
+    <Heading id={id} level={level} size="xs" classes={classes}>
+      {children}
+    </Heading>
+  );
+}

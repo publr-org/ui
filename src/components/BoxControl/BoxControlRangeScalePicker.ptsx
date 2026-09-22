@@ -1,0 +1,13 @@
+import {
+  BoxValueControlRangeScalePicker,
+  type BoxValueControlRangeScalePickerProps,
+} from "../BoxValueControl/BoxValueControlRangeScalePicker.ptsx";
+
+export type BoxControlRangeScalePickerProps = BoxValueControlRangeScalePickerProps;
+
+export function BoxControlRangeScalePicker({ children }: BoxControlRangeScalePickerProps) {
+  return <BoxValueControlRangeScalePicker>{children}</BoxValueControlRangeScalePicker>;
+}
+
+export { BoxControlRangeScalePickerOption } from "./BoxControlRangeScalePickerOption.ptsx";
+export type { BoxControlRangeScalePickerOptionProps } from "./BoxControlRangeScalePickerOption.ptsx";

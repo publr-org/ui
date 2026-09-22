@@ -1,0 +1,38 @@
+// Second-level context-nav row under an active SidebarNavItem (the classic
+// admin's .nav-subitem): same anchor semantics, indented and quieter. The
+// caller wraps a run of sub-items in the group rule
+// (`ml-4 border-l border-sidebar-border pl-2` layout composition) so the vertical
+// rule spans the whole group.
+
+export type SidebarNavSubItemProps = {
+  active?: boolean;
+  children?: JSX.Element;
+  classes?: string;
+  href: string;
+  id?: string;
+};
+
+export function SidebarNavSubItem({
+  active = false,
+  children,
+  classes = "",
+  href,
+  id,
+}: SidebarNavSubItemProps) {
+  return (
+    <a
+      id={id}
+      href={href}
+      aria-current={active ? "page" : undefined}
+      class={[
+        "flex h-8 items-center gap-2 rounded-lg px-2.5 text-body-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sidebar-ring",
+        active
+          ? "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+          : "text-sidebar-muted hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
+        classes,
+      ]}
+    >
+      {children}
+    </a>
+  );
+}

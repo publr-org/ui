@@ -1,0 +1,150 @@
+import type { ComponentCanvas, ComponentDemoMeta, DemoNode } from "../../gallery-types";
+
+export const meta = {
+  name: "checkbox",
+  label: "Checkbox",
+  source: "src/components/Checkbox/Checkbox.ptsx",
+  kind: "primitive",
+  group: "Forms",
+  description: "A styled native checkbox control.",
+  tags: ["checkbox", "form", "selection"],
+  usage: `<Checkbox id="terms" name="terms" aria-label="Accept terms" />`,
+  preview: "canvas",
+  previewLabel: "Native checkbox states",
+  docs: {
+    purpose: [
+      "Checkbox provides the shared visual and validation treatment for the native checkbox control.",
+      "It stays dumb and parent-controlled; Field or a native label owns labeling, and owners own selection state.",
+    ],
+    useWhen: [
+      "Collecting a native boolean form value.",
+      "Building row selection in tables — compose it inside the selection column.",
+    ],
+    avoidWhen: [
+      "Expressing an on/off setting that applies immediately; use Switch when it exists.",
+      "Choosing exactly one of several options; use RadioGroup when it exists.",
+    ],
+    rules: [
+      {
+        title: "Keep form composition outside",
+        description: "Checkbox does not accept label, description, or error-message props.",
+      },
+      {
+        title: "Use semantic invalid state",
+        description: "invalid owns the destructive border and aria-invalid state.",
+      },
+      {
+        title: "checked is the initial state",
+        description:
+          "checked renders the native attribute (uncontrolled initial state); reactive control uses the :checked binding.",
+      },
+    ],
+    accessibility: [
+      "Associate Checkbox with FieldLabel or a native <label> through id/htmlFor.",
+      "For an isolated control such as a row selector, pass aria-label directly with native hyphenated syntax.",
+      "Native focus, Space activation, form participation, and constraint behavior are preserved.",
+    ],
+    composition: [
+      "Use Field and FieldLabel for complete form rows.",
+      "Table selection columns compose a bare Checkbox with an aria-label per row.",
+    ],
+    agentNotes: [
+      "indeterminate exists as a declared prop so the :indeterminate binding transports through the ZSX lowering, but its static value cannot be server-rendered — always drive it reactively from store state, exactly like :checked.",
+      'Never author aria-checked="mixed"; the real indeterminate property already exposes the mixed state and a static attribute goes stale after native activation.',
+      "Do not restore the old wrapper element, label props, or data-publr-state mirroring.",
+    ],
+    props: [
+      {
+        name: "id",
+        type: "string",
+        description: "Optional identifier applied to the native input.",
+      },
+      { name: "name", type: "string", description: "Native form field name." },
+      { name: "value", type: "string", description: "Native submitted value." },
+      {
+        name: "checked",
+        type: "boolean",
+        description: "Native checked attribute — the uncontrolled initial state.",
+        default: "false",
+      },
+      {
+        name: "indeterminate",
+        type: "boolean",
+        description:
+          "Bind transport for the mixed state: drive it reactively (:indeterminate) from store state; the static value cannot be server-rendered.",
+        default: "false",
+      },
+      {
+        name: "disabled",
+        type: "boolean",
+        description: "Native disabled state.",
+        default: "false",
+      },
+      {
+        name: "invalid",
+        type: "boolean",
+        description: "Semantic validation state and aria-invalid source.",
+        default: "false",
+      },
+      {
+        name: "required",
+        type: "boolean",
+        description: "Native required state.",
+        default: "false",
+      },
+      {
+        name: "classes",
+        type: "string",
+        description: "Additional classes merged into the native input.",
+      },
+      {
+        name: "onChange",
+        type: "(event: Event) => void",
+        description: "Parent-owned native change callback (checkbox commit event).",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+// Declarative, so the DOM and ZSX targets render the same thing.
+export const node = {
+  component: "Checkbox",
+  props: {
+    name: "terms",
+    "aria-label": "Accept terms",
+  },
+} satisfies DemoNode;
+
+export const canvas = {
+  controls: [
+    { name: "id", type: "text", default: "demo-checkbox" },
+    { name: "name", type: "text", default: "demoCheckbox" },
+    { name: "value", type: "text", default: "" },
+    { name: "aria-label", label: "aria-label", type: "text", default: "Demo checkbox" },
+    { name: "checked", type: "boolean", default: false },
+    { name: "disabled", type: "boolean", default: false },
+    { name: "invalid", type: "boolean", default: false },
+    { name: "required", type: "boolean", default: false },
+    { name: "classes", type: "text", default: "", placeholder: "e.g. size-5" },
+  ],
+  node: (values) => {
+    const optionalString = (name: string) => {
+      const value = String(values[name]);
+      return value ? { [name]: value } : {};
+    };
+    return {
+      component: "Checkbox",
+      props: {
+        ...optionalString("id"),
+        ...optionalString("name"),
+        ...optionalString("value"),
+        ...optionalString("aria-label"),
+        checked: Boolean(values.checked),
+        disabled: Boolean(values.disabled),
+        invalid: Boolean(values.invalid),
+        required: Boolean(values.required),
+        classes: String(values.classes),
+      },
+    };
+  },
+} satisfies ComponentCanvas;

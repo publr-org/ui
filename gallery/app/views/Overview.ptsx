@@ -1,0 +1,85 @@
+// A component's overview: purpose, the default preview, the agent reference,
+// when to use it, and its core rules.
+import { GuidanceCard } from "./shared/Cards.ptsx";
+import { Frame } from "./shared/Frame.ptsx";
+import { Hero } from "./shared/Hero.ptsx";
+import { Topbar } from "./shared/Topbar.ptsx";
+import { defaultVariantIndex } from "../frames/previews";
+import { PREVIEW_SURFACE_WIDTHS } from "../frames/surfaces";
+import { KIND_LABELS, agentReference, copyText, selectRoute, titleCase, type DemoEntry } from "../state/gallery";
+
+export function CopyAgentButton({ entry, label, classes }: { entry: DemoEntry; label: string; classes: string }) {
+  return (
+    <button type="button" class={classes} onClick={(event: MouseEvent) => copyText(agentReference(entry), event.currentTarget as HTMLButtonElement)}>
+      {label}
+    </button>
+  );
+}
+
+export function Overview({ entry }: { entry: DemoEntry }) {
+  const rules = entry.docs.rules.slice(0, 4);
+  return (
+    <div>
+      <Topbar parts={[KIND_LABELS[entry.kind], entry.group, entry.label]} />
+      <article class="mx-auto max-w-[1260px] px-8 py-10">
+        <Hero entry={entry} page="Overview" />
+        <section class="mt-9 grid grid-cols-[minmax(0,1fr)_320px] gap-7 max-gallery-lg:grid-cols-1">
+          <div class="min-w-0">
+            <div class="space-y-4 text-[14px] leading-6">
+              {entry.docs.purpose.map((paragraph) => (
+                <p>{paragraph}</p>
+              ))}
+            </div>
+            <div class="mt-6 grid min-h-48 place-items-center rounded-xl border border-border bg-muted/30 p-4" aria-label={entry.label + " default preview"}>
+              <div class={PREVIEW_SURFACE_WIDTHS[entry.preview] + " mx-auto w-full"}>
+                <Frame entry={entry} variant={defaultVariantIndex(entry)} title={entry.label + " default preview"} />
+              </div>
+            </div>
+          </div>
+          <aside class="rounded-xl border border-foreground/15 bg-foreground p-4 text-background">
+            <div class="flex items-center justify-between gap-3">
+              <h2 class="text-[12px] font-semibold">Agent reference</h2>
+              <CopyAgentButton entry={entry} label="Copy JSON" classes="cursor-pointer rounded-md border border-background/20 px-2 py-1 text-[10px] font-medium hover:bg-background/10" />
+            </div>
+            <p class="mt-2 text-[11px] leading-4 text-background/65">Structured component rules, props, and examples from the same source as this page.</p>
+            <dl class="mt-4 grid grid-cols-[60px_1fr] gap-x-3 gap-y-2 text-[10px]">
+              <dt class="text-background/55">Source</dt>
+              <dd class="min-w-0 break-all font-mono">{entry.source}</dd>
+              <dt class="text-background/55">Type</dt>
+              <dd>{titleCase(entry.kind)}</dd>
+              <dt class="text-background/55">Group</dt>
+              <dd>{entry.group}</dd>
+            </dl>
+          </aside>
+        </section>
+        <section class="mt-10 grid grid-cols-2 gap-5 max-gallery-lg:grid-cols-1">
+          <GuidanceCard title="Use it when" items={entry.docs.useWhen} marker="bg-emerald-500" />
+          <GuidanceCard title="Choose something else when" items={entry.docs.avoidWhen} marker="bg-amber-500" />
+        </section>
+        <section class="mt-10">
+          <aside class="rounded-xl border border-border bg-background p-5">
+            <h2 class="text-[13px] font-semibold">Core rules</h2>
+            <ol class="mt-4 space-y-4">
+              {rules.map((rule, index) => (
+                <li class="grid grid-cols-[22px_1fr] gap-2">
+                  <span class="grid size-5 place-items-center rounded-full bg-muted text-[9px] font-semibold">{index + 1}</span>
+                  <span>
+                    <strong class="block text-[11px] font-semibold">{rule.title}</strong>
+                    <span class="mt-0.5 block text-[10px] leading-4 text-muted-foreground">{rule.description}</span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+            <button
+              type="button"
+              class="mt-5 cursor-pointer text-[11px] font-medium text-ring hover:underline"
+              onClick={() => selectRoute({ kind: "component", name: entry.name, page: "guidelines" })}
+            >
+              Read full usage guidelines →
+            </button>
+          </aside>
+        </section>
+      </article>
+    </div>
+  );
+}

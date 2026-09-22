@@ -1,0 +1,121 @@
+// The canvas: the component in its own frame on a dotted stage, and the
+// property panel whose controls come from the recipe. Groups and children
+// open as flyouts beside the panel, nesting as deep as the recipe composes.
+import { GIcon } from "./shared/Icon.ptsx";
+import { Frame } from "./shared/Frame.ptsx";
+import { Control } from "./canvas/Controls.ptsx";
+import { Panel, positionPanels, type PanelItem } from "./canvas/Panel.ptsx";
+import { canvasValue, childInstances, currentValues, resetValues, valueName } from "../state/canvas";
+import { KIND_LABELS, state, titleCase, update, type DemoEntry } from "../state/gallery";
+import type { ComponentCanvasControl } from "../../gallery-types";
+
+function panelsOf(entry: DemoEntry, controls: readonly ComponentCanvasControl[], parent?: string, scope = ""): PanelItem[] {
+  return controls.flatMap((control): PanelItem[] => {
+    if (control.type === "group") {
+      const panel = scope || control.name;
+      return [{ control, panel, scope, parent }, ...panelsOf(entry, control.controls, panel, scope)];
+    }
+    if (control.type === "children") {
+      const panel = valueName(scope, control.name);
+      return [
+        { control, panel, scope, parent },
+        ...childInstances(canvasValue(entry, control, scope)).flatMap((instance) => {
+          const option = control.options.find((candidate) => candidate.name === instance.type);
+          return option ? [{ control: option, panel: instance.id, scope: instance.id, parent }, ...panelsOf(entry, option.controls, instance.id, instance.id)] : [];
+        }),
+      ];
+    }
+    return [];
+  });
+}
+
+function Segment({ options, active, onPick, label }: { options: string[]; active: string; onPick: (value: string) => void; label: string }) {
+  return (
+    <div class="flex rounded-md border border-border bg-muted/50 p-0.5" aria-label={label}>
+      {options.map((option) => (
+        <button
+          type="button"
+          aria-pressed={String(active === option)}
+          class={"h-7 cursor-pointer rounded px-2.5 text-[10px] font-medium " + (active === option ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}
+          onClick={() => onPick(option)}
+        >
+          {titleCase(option)}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export function Canvas({ entry }: { entry: DemoEntry }) {
+  const controls = entry.canvas?.controls ?? [];
+  currentValues(entry);
+  const panels = panelsOf(entry, controls);
+  const appearance = state.canvasAppearance;
+  const variant = entry.variants?.length ? 0 : -1;
+  return (
+    <div>
+      <header class="sticky top-0 z-20 flex h-14 items-center justify-between gap-4 border-b border-border bg-background/95 px-7 backdrop-blur">
+        <div class="flex min-w-0 items-center gap-2 text-[12px]">
+          <span class="text-muted-foreground">{KIND_LABELS[entry.kind]}</span>
+          <span class="text-border">/</span>
+          <span class="text-muted-foreground">{entry.label}</span>
+          <span class="text-border">/</span>
+          <span class="font-medium text-foreground">Canvas</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <Segment
+            options={["light", "dark"]}
+            active={appearance}
+            label="Canvas appearance"
+            onPick={(value) => {
+              state.canvasAppearance = value as "light" | "dark";
+              update();
+            }}
+          />
+          <button
+            type="button"
+            class="h-8 cursor-pointer rounded-md border border-border bg-background px-2.5 text-[10px] font-medium hover:bg-muted"
+            onClick={() => {
+              resetValues(entry);
+              update();
+            }}
+          >
+            Reset
+          </button>
+        </div>
+      </header>
+      <section data-canvas-page class="grid h-[calc(100dvh-56px)] min-h-0 grid-cols-[minmax(0,1fr)_minmax(0,350px)] overflow-hidden max-gallery-canvas:grid-cols-1 max-gallery-canvas:grid-rows-[minmax(280px,1fr)_minmax(0,1fr)]">
+        <Frame entry={entry} variant={variant} appearance={appearance} mode="canvas" title={entry.label + " canvas"} classes="block h-full min-h-0 w-full bg-background" />
+        <aside class="relative flex h-full min-h-0 w-full max-w-full flex-col overflow-hidden border-l border-border bg-background max-gallery-canvas:border-t max-gallery-canvas:border-l-0" aria-label="Canvas properties">
+          <header class="flex h-14 shrink-0 items-center justify-between border-b border-border px-4">
+            <span>
+              <strong class="block text-[12px] font-semibold">Properties</strong>
+              <span class="block text-[10px] text-muted-foreground">Preview controls</span>
+            </span>
+            <span class="text-muted-foreground">
+              <GIcon name="chevron-right" />
+            </span>
+          </header>
+          {controls.length > 0 ? (
+            <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain" onScroll={() => positionPanels()}>
+              {controls.map((control) => (
+                <Control entry={entry} control={control} wide={false} scope="" />
+              ))}
+            </div>
+          ) : (
+            <div class="min-h-0 flex-1 overflow-y-auto px-4 py-8 text-center">
+              <span class="mx-auto grid size-9 place-items-center rounded-full bg-muted text-muted-foreground">
+                <GIcon name="settings" />
+              </span>
+              <p class="mt-3 text-[11px] font-medium">No editable preview props</p>
+              <p class="mt-1 text-[10px] leading-4 text-muted-foreground">This component depends on composed children or store-owned state.</p>
+            </div>
+          )}
+          {panels.map((item) => (
+            <Panel entry={entry} item={item} />
+          ))}
+        </aside>
+      </section>
+    </div>
+  );
+}

@@ -1,0 +1,9 @@
+import { BoxValueControlIcon } from "../BoxValueControl/BoxValueControlIcon.ptsx";
+
+export type BoxControlIconProps = {
+  children: JSX.Element;
+};
+
+export function BoxControlIcon({ children }: BoxControlIconProps) {
+  return <BoxValueControlIcon>{children}</BoxValueControlIcon>;
+}

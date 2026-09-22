@@ -1,0 +1,13 @@
+export type PaginationContentProps = {
+  id?: string;
+  classes?: string;
+  children: JSX.Element;
+};
+
+export function PaginationContent({ id, classes = "", children }: PaginationContentProps) {
+  return (
+    <ul id={id} class={["flex flex-row items-center gap-1", classes]}>
+      {children}
+    </ul>
+  );
+}

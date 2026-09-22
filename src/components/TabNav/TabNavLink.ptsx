@@ -1,0 +1,41 @@
+// One tab link. The active tab is the current view: it keeps its href (the
+// canonical URL of the view you are on) and is announced via aria-current.
+// onClick exists for progressive enhancement — a page may intercept the
+// navigation (@click.prevent) and apply the view change live; the href stays
+// the no-JS/new-tab fallback.
+
+export type TabNavLinkProps = {
+  id?: string;
+  classes?: string;
+  href: string;
+  active?: boolean;
+  children: JSX.Element;
+  onClick?: (event: Event) => void;
+};
+
+export function TabNavLink({
+  id,
+  classes = "",
+  href,
+  active = false,
+  children,
+  onClick,
+}: TabNavLinkProps) {
+  return (
+    <a
+      id={id}
+      href={href}
+      aria-current={active ? "page" : undefined}
+      onClick={onClick}
+      class={[
+        "inline-flex h-7 items-center rounded-md px-3 text-body-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+        active
+          ? "bg-card text-foreground shadow-xs"
+          : "text-muted-foreground hover:text-foreground",
+        classes,
+      ]}
+    >
+      {children}
+    </a>
+  );
+}

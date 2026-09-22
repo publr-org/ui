@@ -1,0 +1,42 @@
+// A native checkbox announced as a switch and drawn as one: a track that fills when
+// on, a thumb that slides. Deliberately dumb like Checkbox: a label or Field owns the
+// labeling, the parent owns the state, and the form posts it as a checkbox does.
+import { Dynamic } from "publr-jsx";
+
+export type SwitchProps = {
+  id?: string;
+  name?: string;
+  value?: string;
+  checked?: boolean;
+  disabled?: boolean;
+  classes?: string;
+  onChange?: (event: Event) => void;
+};
+
+export function Switch({
+  id,
+  name,
+  value,
+  checked = false,
+  disabled = false,
+  classes = "",
+  onChange,
+}: SwitchProps) {
+  return (
+    <Dynamic
+      as="input"
+      type="checkbox"
+      role="switch"
+      id={id}
+      name={name}
+      value={value}
+      checked={checked}
+      disabled={disabled}
+      class={[
+        "relative inline-flex h-5 w-9 shrink-0 cursor-pointer appearance-none rounded-full border border-input bg-muted shadow-xs transition-colors duration-150 before:absolute before:top-0.5 before:left-0.5 before:size-3.5 before:rounded-full before:bg-card before:shadow-xs before:transition-transform before:duration-150 before:content-[''] checked:border-primary checked:bg-primary checked:before:translate-x-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50",
+        classes,
+      ]}
+      onChange={onChange}
+    />
+  );
+}

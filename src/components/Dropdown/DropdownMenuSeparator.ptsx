@@ -1,0 +1,15 @@
+export type DropdownMenuSeparatorProps = {
+  id?: string;
+  classes?: string;
+};
+
+export function DropdownMenuSeparator({ id, classes = "" }: DropdownMenuSeparatorProps) {
+  return (
+    <div
+      id={id}
+      class={["-mx-1 my-1 h-px bg-border", classes]}
+      role="separator"
+      data-part="separator"
+    ></div>
+  );
+}

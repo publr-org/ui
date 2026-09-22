@@ -1,0 +1,16 @@
+// The sticky breadcrumb bar above every page, with optional actions.
+export function Topbar({ parts, actions }: { parts: string[]; actions?: JSX.Element }) {
+  return (
+    <header class="sticky top-0 z-20 flex h-14 items-center justify-between gap-4 border-b border-border bg-background/95 px-7 backdrop-blur">
+      <div class="flex min-w-0 items-center gap-2 text-[12px]">
+        {parts.map((part, index) => (
+          <span class="flex items-center gap-2">
+            {index > 0 && <span class="text-border">/</span>}
+            <span class={index === parts.length - 1 ? "font-medium text-foreground" : "text-muted-foreground"}>{part}</span>
+          </span>
+        ))}
+      </div>
+      {actions}
+    </header>
+  );
+}

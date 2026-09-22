@@ -1,0 +1,25 @@
+import { Publr } from "publr-jsx";
+import { state } from "./DataTable.ptsx";
+
+export type DataTableCellProps = {
+  id?: string;
+  classes?: string;
+  column: string;
+  children?: JSX.Element;
+};
+
+export function DataTableCell({ id, classes = "", column, children }: DataTableCellProps) {
+  return (
+    <td
+      id={id}
+      class={[
+        "px-5 py-3 align-middle",
+        classes,
+        state.hiddenColumns.includes(Publr.dataset("column")) ? "hidden!" : "",
+      ]}
+      data-column={column}
+    >
+      {children}
+    </td>
+  );
+}

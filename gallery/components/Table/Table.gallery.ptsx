@@ -1,0 +1,598 @@
+import { Table } from "../../../src/components/Table/Table.ptsx";
+import { TableBody } from "../../../src/components/Table/TableBody.ptsx";
+import { TableCaption } from "../../../src/components/Table/TableCaption.ptsx";
+import { TableCell } from "../../../src/components/Table/TableCell.ptsx";
+import { TableFooter } from "../../../src/components/Table/TableFooter.ptsx";
+import { TableHead } from "../../../src/components/Table/TableHead.ptsx";
+import { TableHeader } from "../../../src/components/Table/TableHeader.ptsx";
+import { TableRow } from "../../../src/components/Table/TableRow.ptsx";
+import type {
+  ComponentCanvas,
+  ComponentCanvasChildDefault,
+  ComponentCanvasChildInstance,
+  ComponentCanvasGroupControl,
+  ComponentDemoMeta,
+  ComponentDemoVariant,
+  DemoNode,
+} from "../../gallery-types";
+
+export const meta = {
+  name: "table",
+  label: "Table",
+  source: "src/components/Table/Table.ptsx",
+  kind: "composite",
+  group: "Essentials",
+  description:
+    "Native data table composed from caption, header, body, footer, row, and cell parts.",
+  tags: ["table", "data", "rows", "columns", "list"],
+  usage: `<Table>
+  <TableCaption>A list of your recent invoices.</TableCaption>
+  <TableHeader>
+    <TableRow>
+      <TableHead classes="w-[100px]">Invoice</TableHead>
+      <TableHead>Status</TableHead>
+      <TableHead>Method</TableHead>
+      <TableHead classes="text-right">Amount</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell classes="font-medium">INV001</TableCell>
+      <TableCell>Paid</TableCell>
+      <TableCell>Credit Card</TableCell>
+      <TableCell classes="text-right">$250.00</TableCell>
+    </TableRow>
+  </TableBody>
+</Table>`,
+  preview: "canvas",
+  previewLabel: "Caption, header, and body rows in the canonical order",
+  docs: {
+    purpose: [
+      "Table renders real tabular data with native <table> semantics: rows of records that share a column structure.",
+      "The parts mirror the native anatomy — Table, TableCaption, TableHeader, TableBody, TableFooter, TableRow, TableHead, TableCell — and each part owns its chrome, so any section may be omitted.",
+      "The root wraps the table in a fixed overflow container so wide tables scroll horizontally instead of breaking the page.",
+    ],
+    useWhen: [
+      "Records share columns that readers compare across rows — admin lists, invoices, entries, reports.",
+      "Column headers carry meaning and assistive technology should announce cell/header relationships.",
+    ],
+    avoidWhen: [
+      "The layout is a grid of unrelated content; compose native elements with layout utilities instead.",
+      "There is exactly one column; that is a list, not a table.",
+      "The view has no rows to show; render Empty instead of an empty body.",
+    ],
+    rules: [
+      {
+        title: "Parts compose in native order",
+        description:
+          "TableCaption, then TableHeader, TableBody, and optionally TableFooter inside Table; rows hold TableHead cells in the header and TableCell cells elsewhere. The caption element renders below the rows via caption-bottom.",
+      },
+      {
+        title: "Sections own separators, rows own hover",
+        description:
+          "TableHeader and TableFooter draw the section borders; TableRow draws the between-row border, drops it on the last row of a section, and owns the hover fill.",
+      },
+      {
+        title: "Column layout is caller classes",
+        description:
+          "Width (w-[100px]) and alignment (text-right) are layout, passed through classes on TableHead and the matching TableCell.",
+      },
+      {
+        title: "Cells compose components",
+        description:
+          "Cell typography defaults to the table's dense text-sm treatment; richer cells compose Text, Status, Avatar, or Link rather than restyling bare markup.",
+      },
+    ],
+    accessibility: [
+      "Every part renders its native element — table, caption, thead, tbody, tfoot, tr, th, td — so row/column semantics come from the browser.",
+      "TableCaption names the table for assistive technology; prefer it over an aria-label.",
+      "Header cells are real <th> elements scoped by native column association; no ARIA additions are needed.",
+    ],
+    composition: [
+      "Author parts directly inside Table in the native order.",
+      "Give each column one TableHead and align its data cells with the same classes.",
+      "Put summary rows in TableFooter; it carries the muted fill and medium weight.",
+    ],
+    agentNotes: [
+      "There are no variant, sortable, or selection props anywhere in this family; the parts are the API.",
+      "Do not wrap Table in an overflow container; the root already scrolls horizontally.",
+      "Row navigation belongs to a Link inside a cell, not to a click handler on TableRow.",
+    ],
+    props: [
+      {
+        name: "Table.children",
+        type: "node",
+        description: "The composed sections in native order.",
+      },
+      {
+        name: "Table.classes",
+        type: "string",
+        description: "Layout or exceptional composition classes on the table element.",
+      },
+      {
+        name: "Table.id",
+        type: "string",
+        description: "Optional identifier applied to the table element.",
+      },
+      {
+        name: "TableCaption.children",
+        type: "node",
+        description: "Short description naming the table.",
+      },
+      {
+        name: "TableCaption.classes",
+        type: "string",
+        description: "Exceptional composition classes on the caption.",
+      },
+      {
+        name: "TableCaption.id",
+        type: "string",
+        description: "Optional identifier applied to the caption.",
+      },
+      {
+        name: "TableHeader.children",
+        type: "node",
+        description: "One TableRow of TableHead cells.",
+      },
+      {
+        name: "TableHeader.classes",
+        type: "string",
+        description: "Exceptional composition classes on the thead.",
+      },
+      {
+        name: "TableHeader.id",
+        type: "string",
+        description: "Optional identifier applied to the thead.",
+      },
+      { name: "TableBody.children", type: "node", description: "The data TableRows." },
+      {
+        name: "TableBody.classes",
+        type: "string",
+        description: "Exceptional composition classes on the tbody.",
+      },
+      {
+        name: "TableBody.id",
+        type: "string",
+        description: "Optional identifier applied to the tbody.",
+      },
+      {
+        name: "TableFooter.children",
+        type: "node",
+        description: "Summary TableRows.",
+      },
+      {
+        name: "TableFooter.classes",
+        type: "string",
+        description: "Exceptional composition classes on the tfoot.",
+      },
+      {
+        name: "TableFooter.id",
+        type: "string",
+        description: "Optional identifier applied to the tfoot.",
+      },
+      { name: "TableRow.children", type: "node", description: "TableHead or TableCell cells." },
+      {
+        name: "TableRow.classes",
+        type: "string",
+        description: "Exceptional composition classes on the row.",
+      },
+      {
+        name: "TableRow.id",
+        type: "string",
+        description: "Optional identifier applied to the row.",
+      },
+      { name: "TableHead.children", type: "node", description: "The column label." },
+      {
+        name: "TableHead.classes",
+        type: "string",
+        description: "Column width and alignment classes.",
+      },
+      {
+        name: "TableHead.id",
+        type: "string",
+        description: "Optional identifier applied to the header cell.",
+      },
+      { name: "TableCell.children", type: "node", description: "The cell content." },
+      {
+        name: "TableCell.classes",
+        type: "string",
+        description: "Alignment and emphasis classes matching the column.",
+      },
+      {
+        name: "TableCell.id",
+        type: "string",
+        description: "Optional identifier applied to the cell.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+type InvoiceRow = readonly [string, string, string, string];
+
+const INVOICES: readonly InvoiceRow[] = [
+  ["INV001", "Paid", "Credit Card", "$250.00"],
+  ["INV002", "Pending", "PayPal", "$150.00"],
+  ["INV003", "Unpaid", "Bank Transfer", "$350.00"],
+];
+
+const invoiceRowNode = ([invoice, status, method, amount]: InvoiceRow): DemoNode => ({
+  component: "TableRow",
+  props: {},
+  children: [
+    { component: "TableCell", props: { classes: "font-medium", children: invoice } },
+    { component: "TableCell", props: { children: status } },
+    { component: "TableCell", props: { children: method } },
+    { component: "TableCell", props: { classes: "text-right", children: amount } },
+  ],
+});
+
+const headerNode: DemoNode = {
+  component: "TableHeader",
+  props: {},
+  children: [
+    {
+      component: "TableRow",
+      props: {},
+      children: [
+        { component: "TableHead", props: { classes: "w-[100px]", children: "Invoice" } },
+        { component: "TableHead", props: { children: "Status" } },
+        { component: "TableHead", props: { children: "Method" } },
+        { component: "TableHead", props: { classes: "text-right", children: "Amount" } },
+      ],
+    },
+  ],
+};
+
+const CANONICAL_NODE: DemoNode = {
+  component: "Table",
+  props: {},
+  wrapper: "w-full",
+  children: [
+    {
+      component: "TableCaption",
+      props: { children: "A list of your recent invoices." },
+    },
+    headerNode,
+    { component: "TableBody", props: {}, children: INVOICES.map(invoiceRowNode) },
+  ],
+};
+
+const InvoiceHeader = () => (
+  <TableHeader>
+    <TableRow>
+      <TableHead classes="w-[100px]">Invoice</TableHead>
+      <TableHead>Status</TableHead>
+      <TableHead>Method</TableHead>
+      <TableHead classes="text-right">Amount</TableHead>
+    </TableRow>
+  </TableHeader>
+);
+
+const InvoiceRows = () => (
+  <>
+    {INVOICES.map((row) => (
+      <TableRow>
+        <TableCell classes="font-medium">{row[0]}</TableCell>
+        <TableCell>{row[1]}</TableCell>
+        <TableCell>{row[2]}</TableCell>
+        <TableCell classes="text-right">{row[3]}</TableCell>
+      </TableRow>
+    ))}
+  </>
+);
+
+export const variants = [
+  {
+    label: "With caption and header",
+    description: "The canonical invoice list: caption, column headers, and data rows.",
+    usage: meta.usage,
+    notes: [
+      "Column width and alignment travel as classes on TableHead and the matching TableCell.",
+    ],
+    Demo: () => (
+      <Table classes="w-full">
+        <TableCaption>A list of your recent invoices.</TableCaption>
+        <InvoiceHeader />
+        <TableBody>
+          <InvoiceRows />
+        </TableBody>
+      </Table>
+    ),
+    node: CANONICAL_NODE,
+  },
+  {
+    label: "With footer",
+    description: "A summary row in TableFooter carries the muted fill and medium weight.",
+    usage: `<Table>
+  <TableHeader>
+    <TableRow>
+      <TableHead classes="w-[100px]">Invoice</TableHead>
+      <TableHead>Status</TableHead>
+      <TableHead>Method</TableHead>
+      <TableHead classes="text-right">Amount</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell classes="font-medium">INV001</TableCell>
+      <TableCell>Paid</TableCell>
+      <TableCell>Credit Card</TableCell>
+      <TableCell classes="text-right">$250.00</TableCell>
+    </TableRow>
+  </TableBody>
+  <TableFooter>
+    <TableRow>
+      <TableCell classes="font-medium">Total</TableCell>
+      <TableCell></TableCell>
+      <TableCell></TableCell>
+      <TableCell classes="text-right">$750.00</TableCell>
+    </TableRow>
+  </TableFooter>
+</Table>`,
+    notes: ["The footer owns its top separator; rows keep their own borders inside sections."],
+    Demo: () => (
+      <Table classes="w-full">
+        <InvoiceHeader />
+        <TableBody>
+          <InvoiceRows />
+        </TableBody>
+        <TableFooter>
+          <TableRow>
+            <TableCell classes="font-medium">Total</TableCell>
+            <TableCell></TableCell>
+            <TableCell></TableCell>
+            <TableCell classes="text-right">$750.00</TableCell>
+          </TableRow>
+        </TableFooter>
+      </Table>
+    ),
+    node: {
+      component: "Table",
+      props: {},
+      wrapper: "w-full",
+      children: [
+        headerNode,
+        { component: "TableBody", props: {}, children: INVOICES.map(invoiceRowNode) },
+        {
+          component: "TableFooter",
+          props: {},
+          children: [
+            {
+              component: "TableRow",
+              props: {},
+              children: [
+                { component: "TableCell", props: { classes: "font-medium", children: "Total" } },
+                { component: "TableCell", props: {} },
+                { component: "TableCell", props: {} },
+                { component: "TableCell", props: { classes: "text-right", children: "$750.00" } },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    label: "Body only",
+    description: "A headerless admin list keeps row semantics without column labels.",
+    usage: `<Table>
+  <TableBody>
+    <TableRow>
+      <TableCell classes="font-medium">INV001</TableCell>
+      <TableCell>Paid</TableCell>
+      <TableCell>Credit Card</TableCell>
+      <TableCell classes="text-right">$250.00</TableCell>
+    </TableRow>
+  </TableBody>
+</Table>`,
+    notes: ["Omitted sections collapse; the last row drops its border."],
+    Demo: () => (
+      <Table classes="w-full">
+        <TableBody>
+          <InvoiceRows />
+        </TableBody>
+      </Table>
+    ),
+    node: {
+      component: "Table",
+      props: {},
+      wrapper: "w-full",
+      children: [{ component: "TableBody", props: {}, children: INVOICES.map(invoiceRowNode) }],
+    },
+  },
+] satisfies ComponentDemoVariant[];
+
+const scopedValue = (scope: string, name: string) => (scope ? `${scope}::${name}` : name);
+const stringValue = (values: Readonly<Record<string, unknown>>, name: string, scope = ""): string =>
+  String(values[scopedValue(scope, name)] ?? "");
+const childValues = (
+  values: Readonly<Record<string, unknown>>,
+  name: string,
+  scope = "",
+): readonly ComponentCanvasChildInstance[] => {
+  const value = values[scopedValue(scope, name)];
+  return Array.isArray(value)
+    ? value.filter(
+        (item): item is ComponentCanvasChildInstance =>
+          Boolean(item) && typeof item === "object" && "id" in item && "type" in item,
+      )
+    : [];
+};
+
+// The canvas composes the real anatomy recursively: Table accepts caption,
+// header, body, and footer sections; sections accept TableRows; rows accept
+// TableHead or TableCell cells. One shared row/cell option set keeps the
+// duplicate control definitions across sections identical.
+const headOption = {
+  name: "head",
+  label: "TableHead",
+  labelControl: "head.children",
+  type: "group",
+  controls: [
+    { name: "head.children", label: "children", type: "text", default: "Column" },
+    { name: "head.classes", label: "classes", type: "text", default: "" },
+  ],
+} satisfies ComponentCanvasGroupControl;
+
+const cellOption = {
+  name: "cell",
+  label: "TableCell",
+  labelControl: "cell.children",
+  type: "group",
+  controls: [
+    { name: "cell.children", label: "children", type: "text", default: "Cell" },
+    { name: "cell.classes", label: "classes", type: "text", default: "" },
+  ],
+} satisfies ComponentCanvasGroupControl;
+
+const rowOption = {
+  name: "row",
+  label: "TableRow",
+  type: "group",
+  controls: [
+    { name: "row.classes", label: "classes", type: "text", default: "" },
+    {
+      name: "row.children",
+      label: "children",
+      type: "children",
+      allowMultiple: true,
+      default: ["cell", "cell", "cell", "cell"],
+      options: [headOption, cellOption],
+    },
+  ],
+} satisfies ComponentCanvasGroupControl;
+
+const sectionOption = (
+  name: "header" | "body" | "footer",
+  label: string,
+  rows: readonly ComponentCanvasChildDefault[],
+) =>
+  ({
+    name,
+    label,
+    type: "group",
+    controls: [
+      { name: `${name}.classes`, label: "classes", type: "text", default: "" },
+      {
+        name: `${name}.children`,
+        label: "children",
+        type: "children",
+        allowMultiple: true,
+        default: rows,
+        options: [rowOption],
+      },
+    ],
+  }) satisfies ComponentCanvasGroupControl;
+
+const headerRowDefault: ComponentCanvasChildDefault = {
+  type: "row",
+  values: {
+    "row.children": [
+      { type: "head", values: { "head.children": "Invoice", "head.classes": "w-[100px]" } },
+      { type: "head", values: { "head.children": "Status" } },
+      { type: "head", values: { "head.children": "Method" } },
+      { type: "head", values: { "head.children": "Amount", "head.classes": "text-right" } },
+    ],
+  },
+};
+
+const invoiceRowDefault = ([
+  invoice,
+  status,
+  method,
+  amount,
+]: InvoiceRow): ComponentCanvasChildDefault => ({
+  type: "row",
+  values: {
+    "row.children": [
+      { type: "cell", values: { "cell.children": invoice, "cell.classes": "font-medium" } },
+      { type: "cell", values: { "cell.children": status } },
+      { type: "cell", values: { "cell.children": method } },
+      { type: "cell", values: { "cell.children": amount, "cell.classes": "text-right" } },
+    ],
+  },
+});
+
+export const canvas = {
+  controls: [
+    { name: "table.classes", label: "classes", type: "text", default: "" },
+    {
+      name: "table.children",
+      label: "children",
+      type: "children",
+      default: [
+        { type: "caption", values: { "caption.children": "A list of your recent invoices." } },
+        { type: "header", values: { "header.children": [headerRowDefault] } },
+        { type: "body", values: { "body.children": INVOICES.map(invoiceRowDefault) } },
+      ],
+      options: [
+        {
+          name: "caption",
+          label: "TableCaption",
+          labelControl: "caption.children",
+          type: "group",
+          controls: [
+            {
+              name: "caption.children",
+              label: "children",
+              type: "text",
+              default: "A list of your recent invoices.",
+            },
+            { name: "caption.classes", label: "classes", type: "text", default: "" },
+          ],
+        },
+        sectionOption("header", "TableHeader", [
+          { type: "row", values: { "row.children": ["head", "head", "head", "head"] } },
+        ]),
+        sectionOption("body", "TableBody", ["row"]),
+        sectionOption("footer", "TableFooter", ["row"]),
+      ],
+    },
+  ],
+  node: (values) => {
+    const text = (scope: string, name: string) => stringValue(values, name, scope);
+    const children = (scope: string, name: string) => childValues(values, name, scope);
+
+    const rowNode = (row: ComponentCanvasChildInstance): DemoNode => ({
+      component: "TableRow",
+      props: { classes: text(row.id, "row.classes") },
+      children: children(row.id, "row.children").map((cell): DemoNode => ({
+        component: cell.type === "head" ? "TableHead" : "TableCell",
+        props: {
+          children: text(cell.id, `${cell.type}.children`),
+          classes: text(cell.id, `${cell.type}.classes`),
+        },
+      })),
+    });
+
+    const sectionComponent = {
+      header: "TableHeader",
+      body: "TableBody",
+      footer: "TableFooter",
+    } as const;
+
+    return {
+      component: "Table",
+      props: { classes: text("", "table.classes") },
+      wrapper: "w-full",
+      children: children("", "table.children").map((section): DemoNode => {
+        if (section.type === "caption") {
+          return {
+            component: "TableCaption",
+            props: {
+              children: text(section.id, "caption.children"),
+              classes: text(section.id, "caption.classes"),
+            },
+          };
+        }
+        const component =
+          sectionComponent[section.type as keyof typeof sectionComponent] ?? "TableBody";
+        return {
+          component,
+          props: { classes: text(section.id, `${section.type}.classes`) },
+          children: children(section.id, `${section.type}.children`).map(rowNode),
+        };
+      }),
+    };
+  },
+} satisfies ComponentCanvas;

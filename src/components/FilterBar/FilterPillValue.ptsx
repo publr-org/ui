@@ -1,0 +1,47 @@
+// The pill's value: the current answer (`Any`, `Draft`, `2 types`) as the primary pill,
+// with a chevron saying it opens; `attached` squares its left side against the operator. A button by default, so a DropdownMenuTrigger can
+// take it `asChild`; with `href` it is a link instead. The chevron is drawn here so every
+// pill reads alike.
+import { Dynamic } from "publr-jsx";
+import { Icon } from "../Icon/Icon.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type FilterPillValueProps = {
+  /** An operator pill ends where this begins: the left side is square. */
+  attached?: boolean;
+  children?: JSX.Element;
+  classes?: string;
+  href?: string;
+  id?: string;
+  label?: string;
+};
+
+export function FilterPillValue({
+  attached = false,
+  children,
+  classes = "",
+  href,
+  id,
+  label,
+}: FilterPillValueProps) {
+  return (
+    <Dynamic
+      as={href === undefined ? "button" : "a"}
+      id={id}
+      href={href}
+      type={href === undefined ? "button" : undefined}
+      aria-label={label}
+      class={[
+        "inline-flex h-8 cursor-pointer items-center gap-2 whitespace-nowrap border-0 bg-primary pr-5 text-primary-foreground no-underline transition-colors hover:bg-primary/90 hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring aria-expanded:bg-primary/85",
+        attached ? "rounded-r-full pl-5" : "rounded-full pl-5",
+        classes,
+      ]}
+      data-part="filter-pill-value"
+    >
+      <Text as="span" variant="body-sm" classes="font-medium">
+        {children}
+      </Text>
+      <Icon name="chevron-down" size="xs" classes="shrink-0" />
+    </Dynamic>
+  );
+}

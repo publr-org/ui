@@ -1,0 +1,985 @@
+import { reactive } from "../../../src/publr-runtime";
+import { Button } from "../../../src/components/Button/Button.ptsx";
+import { Icon } from "../../../src/components/Icon/Icon.ptsx";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from "../../../src/components/Select/Select.ptsx";
+import type {
+  ComponentCanvas,
+  ComponentCanvasChildInstance,
+  ComponentDemoMeta,
+  ComponentDemoVariant,
+  DemoNode,
+} from "../../gallery-types";
+
+export const meta = {
+  name: "select",
+  label: "Select",
+  source: "src/components/Select/Select.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description:
+    "A composable select with a portaled listbox, horizontal edge alignment, and collision handling.",
+  tags: ["form", "listbox", "overlay", "keyboard"],
+  usage: `<Select name="fruit" defaultValue="banana">
+  <SelectTrigger>
+    <SelectValue>Select a fruit</SelectValue>
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="apple">Apple</SelectItem>
+    <SelectItem value="banana">Banana</SelectItem>
+  </SelectContent>
+</Select>`,
+  preview: "inspector",
+  previewLabel: "Controlled listbox select",
+  docs: {
+    purpose: [
+      "Select presents a closed set of options through a styled listbox rather than a native control, so option rows can carry grouping, labels, separators, and a selection indicator.",
+      "It is controlled: the parent owns the current value and Select reports changes through onChange.",
+    ],
+    useWhen: [
+      "A form field chooses exactly one value from a known list.",
+      "The options need grouping, headings, or separators that a native select cannot express.",
+    ],
+    avoidWhen: [
+      "A native select is sufficient; prefer native semantics when the options are a plain list.",
+      "Multiple values must be selected, or options are loaded asynchronously by the component itself.",
+    ],
+    rules: [
+      {
+        title: "Parts are composed, not configured",
+        description:
+          "Compose SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectLabel, SelectItem, and SelectSeparator as children rather than passing an options array.",
+      },
+      {
+        title: "Selection is controlled",
+        description:
+          "Pass value and handle onChange. defaultValue seeds an uncontrolled form-only select.",
+      },
+      {
+        title: "SelectValue is the placeholder",
+        description:
+          "Its text shows while nothing is selected and is replaced by the selected option's label.",
+      },
+      {
+        title: "Trigger density is composed, not configured",
+        description:
+          "There is no size prop. Trigger content is composed, so typography comes from Text and density from the trigger's classes escape.",
+      },
+      {
+        title: "Width is automatic until it is capped",
+        description:
+          "The trigger is as wide as its widest option, so choosing never resizes it. Cap it with a width class on SelectTrigger classes and the selected label truncates instead. The panel follows the trigger unless autoWidth sizes it from its own rows.",
+      },
+      {
+        title: "Alignment is horizontal",
+        description:
+          "SelectContent align=left joins left edges and align=right joins right edges. The listbox prefers below, may flip above or across on collision, and stays within the viewport.",
+      },
+    ],
+    accessibility: [
+      'The trigger is a button carrying aria-haspopup="listbox" and a reactive aria-expanded.',
+      "When no visible label names the trigger, pass aria-label directly; universal aria-* and data-* attributes are forwarded to the rendered root.",
+      'The panel is role="listbox", option rows are role="option" with aria-selected, and disabled rows carry aria-disabled.',
+      "Arrow keys, Home, End, Enter, Space, Escape, Tab, and single-character typeahead drive the list; leaving the component closes it.",
+      "Pass id so an external label can target the submitted control.",
+    ],
+    composition: [
+      "Option rows compose Text and Icon rather than repeating typography or drawing their own check mark.",
+      'SelectGroup wraps rows in role="group"; SelectLabel heads a group and SelectSeparator divides them.',
+    ],
+    agentNotes: [
+      "Never pass an options array; compose SelectItem children.",
+      "Do not add loading or async behavior; the parent owns option data and state.",
+      "Keep name set when the value must participate in a form submission.",
+    ],
+    props: [
+      { name: "value", type: "string", description: "Controlled selected value." },
+      {
+        name: "defaultValue",
+        type: "string",
+        description: "Initial value when the select is left uncontrolled.",
+        default: '""',
+      },
+      { name: "name", type: "string", description: "Form field name for the submitted value." },
+      {
+        name: "onChange",
+        type: "(value: string) => void",
+        description: "Selection notification.",
+      },
+      {
+        name: "children",
+        type: "[SelectTrigger, SelectContent]",
+        description: "The trigger and the listbox content.",
+        required: true,
+      },
+      { name: "id", type: "string", description: "Identifier applied to the submitted control." },
+      { name: "classes", type: "string", description: "Classes merged into the select root." },
+      {
+        name: "autoWidth",
+        type: "boolean",
+        description:
+          "Sizes the panel from its own rows. When false the panel is at least as wide as the trigger.",
+        default: "false",
+      },
+      {
+        name: "disabled",
+        type: "boolean",
+        description: "Disables the complete select, including its submitted form control.",
+        default: "false",
+      },
+      { name: "SelectTrigger.id", type: "string", description: "Optional trigger identifier." },
+      {
+        name: "SelectTrigger.classes",
+        type: "string",
+        description:
+          "Trigger escape for density and for capping the auto width, e.g. a compact filter-row trigger.",
+      },
+      {
+        name: "SelectTrigger.asChild",
+        type: "boolean",
+        description: "Merges trigger behavior onto exactly one Element child.",
+        default: "false",
+      },
+      {
+        name: "SelectTrigger.label",
+        type: "string",
+        description: "Optional accessible name when no visible label names the trigger.",
+      },
+      {
+        name: "SelectTrigger.children",
+        type: "SelectValue",
+        description: "The value/placeholder component composed inside the trigger.",
+        required: true,
+      },
+      {
+        name: "SelectValue.id",
+        type: "string",
+        description: "Optional identifier applied to the value text root.",
+      },
+      {
+        name: "SelectValue.classes",
+        type: "string",
+        description: "Exceptional classes applied to the value text root.",
+      },
+      {
+        name: "SelectValue.children",
+        type: "string",
+        description: "Placeholder text shown while nothing is selected.",
+        required: true,
+      },
+      {
+        name: "SelectContent.id",
+        type: "string",
+        description: "Optional identifier applied to the listbox panel.",
+      },
+      {
+        name: "SelectContent.classes",
+        type: "string",
+        description: "Listbox panel escape for width and max height.",
+      },
+      {
+        name: "SelectContent.align",
+        type: '"left" | "right"',
+        description: "Preferred matching trigger edge before collision handling.",
+        default: '"left"',
+      },
+      {
+        name: "SelectContent.children",
+        type: "SelectItem | SelectGroup | SelectSeparator | readonly child[]",
+        description: "Ordered listbox rows, groups, and separators.",
+        required: true,
+      },
+      {
+        name: "SelectItem.id",
+        type: "string",
+        description: "Optional identifier applied to the option row.",
+      },
+      {
+        name: "SelectItem.value",
+        type: "string",
+        description: "Value submitted and reported when the row is chosen.",
+        required: true,
+      },
+      {
+        name: "SelectItem.disabled",
+        type: "boolean",
+        description: "Marks the row inert and aria-disabled.",
+        default: "false",
+      },
+      {
+        name: "SelectItem.classes",
+        type: "string",
+        description: "Exceptional classes applied to the option row.",
+      },
+      {
+        name: "SelectItem.children",
+        type: "string",
+        description: "Visible option label.",
+        required: true,
+      },
+      {
+        name: "SelectGroup.id",
+        type: "string",
+        description: "Optional identifier applied to the option group.",
+      },
+      {
+        name: "SelectGroup.classes",
+        type: "string",
+        description: "Exceptional classes applied to the option group.",
+      },
+      {
+        name: "SelectGroup.children",
+        type: "SelectLabel | SelectItem | SelectSeparator | readonly child[]",
+        description: "Labelled option rows and optional separators in the group.",
+        required: true,
+      },
+      {
+        name: "SelectLabel.id",
+        type: "string",
+        description: "Optional identifier applied to the group label.",
+      },
+      {
+        name: "SelectLabel.children",
+        type: "string",
+        description: "Heading text for the surrounding group.",
+        required: true,
+      },
+      {
+        name: "SelectLabel.classes",
+        type: "string",
+        description: "Exceptional classes applied to the group label.",
+      },
+      {
+        name: "SelectSeparator.id",
+        type: "string",
+        description: "Optional identifier applied to the listbox separator.",
+      },
+      {
+        name: "SelectSeparator.classes",
+        type: "string",
+        description: "Exceptional classes applied to the listbox separator.",
+      },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+function BasicDemo() {
+  return (
+    <Select name="fruit" defaultValue="banana">
+      <SelectTrigger>
+        <SelectValue>Select a fruit</SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="apple">Apple</SelectItem>
+        <SelectItem value="banana">Banana</SelectItem>
+        <SelectItem value="cherry" disabled={true}>
+          Cherry
+        </SelectItem>
+        <SelectItem value="grape">Grape</SelectItem>
+        <SelectItem value="orange">Orange</SelectItem>
+      </SelectContent>
+    </Select>
+  );
+}
+
+function GroupedDemo() {
+  const state = reactive({ food: "carrot" });
+
+  return (
+    <Select name="food" value={state.food} onChange={(next: string) => (state.food = next)}>
+      <SelectTrigger>
+        <SelectValue>Choose food</SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          <SelectLabel>Fruits</SelectLabel>
+          <SelectItem value="apple">Apple</SelectItem>
+          <SelectItem value="banana">Banana</SelectItem>
+        </SelectGroup>
+        <SelectSeparator />
+        <SelectGroup>
+          <SelectLabel>Vegetables</SelectLabel>
+          <SelectItem value="carrot">Carrot</SelectItem>
+          <SelectItem value="potato" disabled={true}>
+            Potato
+          </SelectItem>
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  );
+}
+
+function PlaceholderDemo() {
+  const state = reactive({ status: "" });
+
+  return (
+    <Select value={state.status} onChange={(next: string) => (state.status = next)}>
+      <SelectTrigger>
+        <SelectValue>All statuses</SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="draft">Draft</SelectItem>
+        <SelectItem value="published">Published</SelectItem>
+      </SelectContent>
+    </Select>
+  );
+}
+
+function DisabledDemo() {
+  return (
+    <Select name="fruit" defaultValue="apple" disabled={true}>
+      <SelectTrigger>
+        <SelectValue>Select a fruit</SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="apple">Apple</SelectItem>
+        <SelectItem value="banana">Banana</SelectItem>
+      </SelectContent>
+    </Select>
+  );
+}
+
+function AdoptedTriggerDemo() {
+  return (
+    <Select name="fruit" defaultValue="apple">
+      <SelectTrigger asChild>
+        <Button hierarchy="secondary">
+          <SelectValue>Select a fruit</SelectValue>
+          <Icon name="chevron-down" size="sm" />
+        </Button>
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="apple">Apple</SelectItem>
+        <SelectItem value="banana">Banana</SelectItem>
+      </SelectContent>
+    </Select>
+  );
+}
+
+function CappedWidthDemo() {
+  const state = reactive({ layout: "two-column" });
+
+  return (
+    <Select
+      name="layout"
+      autoWidth={true}
+      value={state.layout}
+      onChange={(next: string) => (state.layout = next)}
+    >
+      <SelectTrigger classes="w-40">
+        <SelectValue>Choose a layout</SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="single">Single column</SelectItem>
+        <SelectItem value="two-column">Two column with sidebar</SelectItem>
+        <SelectItem value="full-bleed">Full bleed hero and grid</SelectItem>
+      </SelectContent>
+    </Select>
+  );
+}
+
+const selectValueNode = (children: string): DemoNode => ({
+  component: "SelectValue",
+  props: { children },
+});
+
+const selectItemNode = (value: string, children: string, disabled = false): DemoNode => ({
+  component: "SelectItem",
+  props: { value, children, disabled },
+});
+
+const selectLabelNode = (children: string): DemoNode => ({
+  component: "SelectLabel",
+  props: { children },
+});
+
+const selectGroupNode = (children: DemoNode[]): DemoNode => ({
+  component: "SelectGroup",
+  props: {},
+  children,
+});
+
+const selectSeparatorNode = (): DemoNode => ({
+  component: "SelectSeparator",
+  props: {},
+});
+
+const selectDemoNode = ({
+  props,
+  placeholder,
+  items,
+  triggerProps = {},
+}: {
+  props: Record<string, unknown>;
+  placeholder: string;
+  items: DemoNode[];
+  triggerProps?: Record<string, unknown>;
+}): DemoNode => ({
+  component: "Select",
+  props,
+  children: [
+    {
+      component: "SelectTrigger",
+      props: triggerProps,
+      children: [selectValueNode(placeholder)],
+    },
+    {
+      component: "SelectContent",
+      props: {},
+      children: items,
+    },
+  ],
+});
+
+const basicNode = selectDemoNode({
+  props: { name: "fruit", defaultValue: "banana" },
+  placeholder: "Select a fruit",
+  items: [
+    selectItemNode("apple", "Apple"),
+    selectItemNode("banana", "Banana"),
+    selectItemNode("cherry", "Cherry", true),
+    selectItemNode("grape", "Grape"),
+    selectItemNode("orange", "Orange"),
+  ],
+});
+
+const groupedNode = selectDemoNode({
+  props: { name: "food", value: "carrot" },
+  placeholder: "Choose food",
+  items: [
+    selectGroupNode([
+      selectLabelNode("Fruits"),
+      selectItemNode("apple", "Apple"),
+      selectItemNode("banana", "Banana"),
+    ]),
+    selectSeparatorNode(),
+    selectGroupNode([
+      selectLabelNode("Vegetables"),
+      selectItemNode("carrot", "Carrot"),
+      selectItemNode("potato", "Potato", true),
+    ]),
+  ],
+});
+
+const placeholderNode = selectDemoNode({
+  props: { value: "" },
+  placeholder: "All statuses",
+  items: [selectItemNode("draft", "Draft"), selectItemNode("published", "Published")],
+});
+
+const cappedWidthNode = selectDemoNode({
+  props: { name: "layout", autoWidth: true, value: "two-column" },
+  triggerProps: { classes: "w-40" },
+  placeholder: "Choose a layout",
+  items: [
+    selectItemNode("single", "Single column"),
+    selectItemNode("two-column", "Two column with sidebar"),
+    selectItemNode("full-bleed", "Full bleed hero and grid"),
+  ],
+});
+
+const disabledNode = selectDemoNode({
+  props: { name: "fruit", defaultValue: "apple", disabled: true },
+  placeholder: "Select a fruit",
+  items: [selectItemNode("apple", "Apple"), selectItemNode("banana", "Banana")],
+});
+
+const adoptedTriggerNode: DemoNode = {
+  component: "Select",
+  props: { name: "fruit", defaultValue: "apple" },
+  children: [
+    {
+      component: "SelectTrigger",
+      props: { asChild: true },
+      children: [
+        {
+          component: "Button",
+          props: { hierarchy: "secondary" },
+          children: [
+            selectValueNode("Select a fruit"),
+            { component: "Icon", props: { name: "chevron-down", size: "sm" } },
+          ],
+        },
+      ],
+    },
+    {
+      component: "SelectContent",
+      props: {},
+      children: [selectItemNode("apple", "Apple"), selectItemNode("banana", "Banana")],
+    },
+  ],
+};
+
+const scopedValue = (scope: string, name: string) => (scope ? `${scope}::${name}` : name);
+const stringValue = (values: Readonly<Record<string, unknown>>, name: string, scope = ""): string =>
+  String(values[scopedValue(scope, name)] ?? "");
+const booleanValue = (
+  values: Readonly<Record<string, unknown>>,
+  name: string,
+  scope = "",
+): boolean => Boolean(values[scopedValue(scope, name)]);
+const childValues = (
+  values: Readonly<Record<string, unknown>>,
+  name: string,
+  scope = "",
+): readonly ComponentCanvasChildInstance[] => {
+  const value = values[scopedValue(scope, name)];
+  return Array.isArray(value)
+    ? value.filter(
+        (item): item is ComponentCanvasChildInstance =>
+          Boolean(item) && typeof item === "object" && "id" in item && "type" in item,
+      )
+    : [];
+};
+
+export const canvas = {
+  controls: [
+    { name: "select.id", label: "id", type: "text", default: "" },
+    { name: "select.classes", label: "classes", type: "text", default: "" },
+    { name: "select.name", label: "name", type: "text", default: "fruit" },
+    { name: "select.value", label: "value", type: "text", default: "" },
+    { name: "select.defaultValue", label: "defaultValue", type: "text", default: "" },
+    {
+      name: "select.autoWidth",
+      label: "autoWidth",
+      type: "boolean",
+      description: "Sizes the panel from its rows instead of the trigger.",
+      default: false,
+    },
+    { name: "select.disabled", label: "disabled", type: "boolean", default: false },
+    {
+      name: "select.children",
+      label: "children",
+      type: "children",
+      default: ["trigger", "content"],
+      options: [
+        {
+          name: "trigger",
+          label: "SelectTrigger",
+          type: "group",
+          controls: [
+            { name: "trigger.id", label: "id", type: "text", default: "" },
+            {
+              name: "trigger.classes",
+              label: "classes",
+              type: "text",
+              default: "",
+              placeholder: "e.g. w-40, h-7 py-0 text-xs",
+            },
+            { name: "trigger.asChild", label: "asChild", type: "boolean", default: false },
+            {
+              name: "trigger.children",
+              label: "children",
+              type: "children",
+              default: ["value"],
+              options: [
+                {
+                  name: "value",
+                  label: "SelectValue",
+                  labelControl: "value.children",
+                  type: "group",
+                  controls: [
+                    { name: "value.id", label: "id", type: "text", default: "" },
+                    { name: "value.classes", label: "classes", type: "text", default: "" },
+                    {
+                      name: "value.children",
+                      label: "children",
+                      type: "text",
+                      default: "Select a fruit",
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          name: "content",
+          label: "SelectContent",
+          type: "group",
+          controls: [
+            { name: "content.id", label: "id", type: "text", default: "" },
+            {
+              name: "content.align",
+              label: "align",
+              type: "select",
+              default: "left",
+              options: ["left", "right"],
+            },
+            { name: "content.classes", label: "classes", type: "text", default: "" },
+            {
+              name: "content.children",
+              label: "children",
+              type: "children",
+              allowMultiple: true,
+              default: [
+                {
+                  type: "item",
+                  values: { "item.children": "Apple", "item.value": "apple" },
+                },
+                {
+                  type: "item",
+                  values: { "item.children": "Banana", "item.value": "banana" },
+                },
+              ],
+              options: [
+                {
+                  name: "item",
+                  label: "SelectItem",
+                  labelControl: "item.children",
+                  type: "group",
+                  controls: [
+                    { name: "item.id", label: "id", type: "text", default: "" },
+                    { name: "item.children", label: "children", type: "text", default: "Option" },
+                    { name: "item.value", label: "value", type: "text", default: "option" },
+                    { name: "item.disabled", label: "disabled", type: "boolean", default: false },
+                    { name: "item.classes", label: "classes", type: "text", default: "" },
+                  ],
+                },
+                {
+                  name: "group",
+                  label: "SelectGroup",
+                  type: "group",
+                  controls: [
+                    { name: "group.id", label: "id", type: "text", default: "" },
+                    { name: "group.classes", label: "classes", type: "text", default: "" },
+                    {
+                      name: "group.children",
+                      label: "children",
+                      type: "children",
+                      allowMultiple: true,
+                      default: [
+                        {
+                          type: "label",
+                          values: { "label.children": "Group" },
+                        },
+                        {
+                          type: "item",
+                          values: { "item.children": "Option", "item.value": "option" },
+                        },
+                      ],
+                      options: [
+                        {
+                          name: "label",
+                          label: "SelectLabel",
+                          labelControl: "label.children",
+                          type: "group",
+                          controls: [
+                            { name: "label.id", label: "id", type: "text", default: "" },
+                            {
+                              name: "label.children",
+                              label: "children",
+                              type: "text",
+                              default: "Group",
+                            },
+                            { name: "label.classes", label: "classes", type: "text", default: "" },
+                          ],
+                        },
+                        {
+                          name: "item",
+                          label: "SelectItem",
+                          labelControl: "item.children",
+                          type: "group",
+                          controls: [
+                            { name: "item.id", label: "id", type: "text", default: "" },
+                            {
+                              name: "item.children",
+                              label: "children",
+                              type: "text",
+                              default: "Option",
+                            },
+                            { name: "item.value", label: "value", type: "text", default: "option" },
+                            {
+                              name: "item.disabled",
+                              label: "disabled",
+                              type: "boolean",
+                              default: false,
+                            },
+                            { name: "item.classes", label: "classes", type: "text", default: "" },
+                          ],
+                        },
+                        {
+                          name: "separator",
+                          label: "SelectSeparator",
+                          type: "group",
+                          controls: [
+                            { name: "separator.id", label: "id", type: "text", default: "" },
+                            {
+                              name: "separator.classes",
+                              label: "classes",
+                              type: "text",
+                              default: "",
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  name: "separator",
+                  label: "SelectSeparator",
+                  type: "group",
+                  controls: [
+                    { name: "separator.id", label: "id", type: "text", default: "" },
+                    { name: "separator.classes", label: "classes", type: "text", default: "" },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+  node: (values): DemoNode => {
+    const text = (scope: string, name: string) => stringValue(values, name, scope);
+    const on = (scope: string, name: string) => booleanValue(values, name, scope);
+    const children = (scope: string, name: string) => childValues(values, name, scope);
+
+    const makeItem = (instance: ComponentCanvasChildInstance): DemoNode => ({
+      component: "SelectItem",
+      props: {
+        id: text(instance.id, "item.id"),
+        children: text(instance.id, "item.children"),
+        value: text(instance.id, "item.value"),
+        disabled: on(instance.id, "item.disabled"),
+        classes: text(instance.id, "item.classes"),
+      },
+    });
+    const makeSeparator = (instance: ComponentCanvasChildInstance): DemoNode => ({
+      component: "SelectSeparator",
+      props: {
+        id: text(instance.id, "separator.id"),
+        classes: text(instance.id, "separator.classes"),
+      },
+    });
+    const makeGroup = (instance: ComponentCanvasChildInstance): DemoNode => {
+      const groupChildren = children(instance.id, "group.children").flatMap((child) => {
+        if (child.type === "label") {
+          return [
+            {
+              component: "SelectLabel",
+              props: {
+                id: text(child.id, "label.id"),
+                children: text(child.id, "label.children"),
+                classes: text(child.id, "label.classes"),
+              },
+            } satisfies DemoNode,
+          ];
+        }
+        if (child.type === "item") return [makeItem(child)];
+        if (child.type === "separator") return [makeSeparator(child)];
+        return [];
+      });
+      return {
+        component: "SelectGroup",
+        props: {
+          id: text(instance.id, "group.id"),
+          classes: text(instance.id, "group.classes"),
+          ...(groupChildren.length === 0 ? { children: "" } : {}),
+        },
+        ...(groupChildren.length === 0 ? {} : { children: groupChildren }),
+      };
+    };
+
+    const rootChildren = children("", "select.children").flatMap((instance): DemoNode[] => {
+      if (instance.type === "trigger") {
+        const triggerChildren = children(instance.id, "trigger.children");
+        const valueChildren = triggerChildren.flatMap((child): DemoNode[] =>
+          child.type === "value"
+            ? [
+                {
+                  component: "SelectValue",
+                  props: {
+                    id: text(child.id, "value.id"),
+                    classes: text(child.id, "value.classes"),
+                    children: text(child.id, "value.children"),
+                  },
+                },
+              ]
+            : [],
+        );
+        const asChild = on(instance.id, "trigger.asChild");
+        const adoptedChildren: DemoNode[] = asChild
+          ? [
+              {
+                component: "Button",
+                props: { hierarchy: "secondary" },
+                children: [
+                  ...valueChildren,
+                  { component: "Icon", props: { name: "chevron-down", size: "sm" } },
+                ],
+              },
+            ]
+          : valueChildren;
+        return [
+          {
+            component: "SelectTrigger",
+            props: {
+              id: text(instance.id, "trigger.id"),
+              classes: text(instance.id, "trigger.classes"),
+              asChild,
+              ...(adoptedChildren.length === 0 ? { children: "" } : {}),
+            },
+            ...(adoptedChildren.length === 0 ? {} : { children: adoptedChildren }),
+          },
+        ];
+      }
+      if (instance.type === "content") {
+        const contentChildren = children(instance.id, "content.children").flatMap((child) => {
+          if (child.type === "item") return [makeItem(child)];
+          if (child.type === "group") return [makeGroup(child)];
+          if (child.type === "separator") return [makeSeparator(child)];
+          return [];
+        });
+        return [
+          {
+            component: "SelectContent",
+            props: {
+              id: text(instance.id, "content.id"),
+              align: text(instance.id, "content.align"),
+              classes: text(instance.id, "content.classes"),
+              ...(contentChildren.length === 0 ? { children: "" } : {}),
+            },
+            ...(contentChildren.length === 0 ? {} : { children: contentChildren }),
+          },
+        ];
+      }
+      return [];
+    });
+
+    return {
+      component: "Select",
+      props: {
+        ...(text("", "select.id") ? { id: text("", "select.id") } : {}),
+        classes: text("", "select.classes"),
+        name: text("", "select.name"),
+        value: text("", "select.value"),
+        defaultValue: text("", "select.defaultValue"),
+        autoWidth: on("", "select.autoWidth"),
+        disabled: on("", "select.disabled"),
+        ...(rootChildren.length === 0 ? { children: "" } : {}),
+      },
+      ...(rootChildren.length === 0 ? {} : { children: rootChildren }),
+    };
+  },
+} satisfies ComponentCanvas;
+
+export const variants = [
+  {
+    label: "Basic",
+    description: "An uncontrolled list with an initial value and one disabled row.",
+    usage: `<Select name="fruit" defaultValue="banana">
+  <SelectTrigger>
+    <SelectValue>Select a fruit</SelectValue>
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="apple">Apple</SelectItem>
+    <SelectItem value="banana">Banana</SelectItem>
+    <SelectItem value="cherry" disabled={true}>Cherry</SelectItem>
+    <SelectItem value="grape">Grape</SelectItem>
+    <SelectItem value="orange">Orange</SelectItem>
+    </SelectContent>
+</Select>`,
+    node: basicNode,
+    Demo: BasicDemo,
+  },
+  {
+    label: "Grouped",
+    description: "Groups carry a label and are divided by a separator.",
+    usage: `<Select name="food" value={state.food} onChange={pick}>
+  <SelectTrigger>
+    <SelectValue>Choose food</SelectValue>
+  </SelectTrigger>
+  <SelectContent>
+    <SelectGroup>
+      <SelectLabel>Fruits</SelectLabel>
+      <SelectItem value="apple">Apple</SelectItem>
+      <SelectItem value="banana">Banana</SelectItem>
+    </SelectGroup>
+    <SelectSeparator />
+    <SelectGroup>
+      <SelectLabel>Vegetables</SelectLabel>
+      <SelectItem value="carrot">Carrot</SelectItem>
+      <SelectItem value="potato" disabled={true}>Potato</SelectItem>
+    </SelectGroup>
+    </SelectContent>
+</Select>`,
+    node: groupedNode,
+    Demo: GroupedDemo,
+  },
+  {
+    label: "Placeholder",
+    description: "With nothing selected, SelectValue's text shows in the muted tone.",
+    usage: `<Select value={state.status} onChange={pick}>
+  <SelectTrigger>
+    <SelectValue>All statuses</SelectValue>
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="draft">Draft</SelectItem>
+    <SelectItem value="published">Published</SelectItem>
+    </SelectContent>
+</Select>`,
+    node: placeholderNode,
+    Demo: PlaceholderDemo,
+  },
+  {
+    label: "Capped width",
+    description:
+      "A width class on the trigger caps the automatic width and truncates the label; autoWidth keeps the panel readable.",
+    usage: `<Select name="layout" autoWidth={true} value={state.layout} onChange={pick}>
+  <SelectTrigger classes="w-40">
+    <SelectValue>Choose a layout</SelectValue>
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="single">Single column</SelectItem>
+    <SelectItem value="two-column">Two column with sidebar</SelectItem>
+    <SelectItem value="full-bleed">Full bleed hero and grid</SelectItem>
+    </SelectContent>
+</Select>`,
+    node: cappedWidthNode,
+    Demo: CappedWidthDemo,
+  },
+  {
+    label: "Disabled",
+    description: "A disabled Select cannot open or submit its value.",
+    usage: `<Select name="fruit" defaultValue="apple" disabled={true}>
+  <SelectTrigger>
+    <SelectValue>Select a fruit</SelectValue>
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="apple">Apple</SelectItem>
+    <SelectItem value="banana">Banana</SelectItem>
+    </SelectContent>
+</Select>`,
+    node: disabledNode,
+    Demo: DisabledDemo,
+  },
+  {
+    label: "Adopted trigger",
+    description: "asChild merges Select trigger behavior onto a composed Button.",
+    usage: `<Select name="fruit" defaultValue="apple">
+  <SelectTrigger asChild>
+    <Button hierarchy="secondary">
+      <SelectValue>Select a fruit</SelectValue>
+      <Icon name="chevron-down" size="sm" />
+    </Button>
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="apple">Apple</SelectItem>
+    <SelectItem value="banana">Banana</SelectItem>
+  </SelectContent>
+</Select>`,
+    node: adoptedTriggerNode,
+    Demo: AdoptedTriggerDemo,
+  },
+] satisfies ComponentDemoVariant[];

@@ -1,0 +1,46 @@
+// A demo in its own frame, in one appearance. The frame sizes itself once
+// the demo has rendered; until then it takes the surface's initial height.
+// Preview frames start when they come near the viewport, a few at a time:
+// every frame runs on the page's one thread, so a page of thirty frames
+// renders the visible ones first.
+import { frameSource, initialHeight, observeFrame, type FrameMode } from "../../frames/previews";
+import type { Appearance, DemoEntry } from "../../state/gallery";
+
+const ignore = (_element: Element | null): void => {};
+
+export function Frame({
+  entry,
+  variant,
+  appearance = "light",
+  mode = "preview",
+  title,
+  classes = "block w-full rounded-lg border border-border bg-background shadow-sm",
+  lazy,
+}: {
+  entry: DemoEntry;
+  variant: number;
+  appearance?: Appearance;
+  mode?: FrameMode;
+  title: string;
+  classes?: string;
+  /** Start loading only near the viewport; the default for preview frames. */
+  lazy?: boolean;
+}) {
+  const frame = frameSource(entry, variant, appearance, mode);
+  const height = initialHeight(entry, mode);
+  const deferred = lazy ?? mode === "preview";
+  return (
+    <iframe
+      src={deferred ? undefined : frame.src}
+      data-src={deferred ? frame.src : undefined}
+      ref={deferred ? observeFrame : ignore}
+      title={title}
+      data-frame-id={frame.id}
+      data-frame-mode={mode}
+      data-frame-entry={entry.name}
+      data-frame-min-height={height === undefined ? undefined : String(height)}
+      class={"border-0 " + classes}
+      style={height === undefined ? undefined : "height:" + height + "px"}
+    ></iframe>
+  );
+}

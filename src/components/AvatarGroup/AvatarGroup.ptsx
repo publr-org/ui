@@ -1,0 +1,21 @@
+// Overlapping avatar stack. The group owns the overlap and the divider ring
+// on its direct children, so Avatar and AvatarGroupCount need no stack-aware
+// props of their own.
+
+export type AvatarGroupProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function AvatarGroup({ children, classes = "", id }: AvatarGroupProps) {
+  return (
+    <div
+      id={id}
+      class={["flex -space-x-2 [&>*]:ring-2 [&>*]:ring-background", classes]}
+      data-part="avatar-group"
+    >
+      {children}
+    </div>
+  );
+}

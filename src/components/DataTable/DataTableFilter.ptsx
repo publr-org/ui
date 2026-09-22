@@ -1,0 +1,31 @@
+import { filterRows } from "./DataTable.ptsx";
+import { Input } from "../Input/Input.ptsx";
+export type DataTableFilterProps = {
+  id?: string;
+  classes?: string;
+  name?: string;
+  value?: string;
+  placeholder?: string;
+  label?: string;
+};
+export function DataTableFilter({
+  id,
+  classes = "",
+  name,
+  value = "",
+  placeholder = "Filter rows…",
+  label = "Filter rows",
+}: DataTableFilterProps) {
+  return (
+    <Input
+      id={id}
+      type="search"
+      name={name}
+      value={value}
+      placeholder={placeholder}
+      aria-label={label}
+      classes={classes}
+      onInput={filterRows}
+    />
+  );
+}
