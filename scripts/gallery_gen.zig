@@ -9,6 +9,7 @@
 //!
 //! Run from `zig build gallery`; no node anywhere.
 const std = @import("std");
+const publr_icons = @import("publr_icons");
 const pjsx = @import("pjsx");
 
 const file_bytes_max = 4 << 20;
@@ -279,7 +280,23 @@ fn page_html(gen: *Gen, body: []const u8, whole_graph: bool) ![]const u8 {
             try w.print("<link rel=\"modulepreload\" href=\"./{s}\">\n", .{path});
         }
     }
-    try w.writeAll(body);
+    const marker = std.mem.indexOf(u8, body, "SPRITE") orelse return error.MissingSpriteMarker;
+    try w.writeAll(body[0..marker]);
+    try w.writeAll(try sprite_html(gen));
+    try w.writeAll(body[marker + "SPRITE".len ..]);
+    return out.written();
+}
+
+/// The page's icon sprite, the way a server writes it: one symbol per icon.
+fn sprite_html(gen: *Gen) ![]const u8 {
+    var out: std.Io.Writer.Allocating = .init(gen.arena);
+    const w = &out.writer;
+    try w.writeAll("<svg id=\"publr-icon-sprite\" style=\"display:none\" aria-hidden=\"true\">");
+    inline for (@typeInfo(publr_icons.Name).@"enum".fields) |field| {
+        const name = comptime publr_icons.kebab(field.name);
+        try w.print("<symbol id=\"publr-icon-{s}\" viewBox=\"{s}\" fill=\"none\">{s}</symbol>", .{ name, publr_icons.view_box, @field(publr_icons, field.name) });
+    }
+    try w.writeAll("</svg>\n");
     return out.written();
 }
 
@@ -317,7 +334,7 @@ const index_body =
     \\<body>
     \\<div id="gallery"></div>
     \\<script type="module" src="./ui/gallery/app/main.js"></script>
-    \\</body>
+    \\SPRITE</body>
     \\</html>
     \\
 ;
@@ -327,7 +344,7 @@ const preview_body =
     \\<body>
     \\<div id="preview"></div>
     \\<script type="module" src="./ui/gallery/app/preview.js"></script>
-    \\</body>
+    \\SPRITE</body>
     \\</html>
     \\
 ;

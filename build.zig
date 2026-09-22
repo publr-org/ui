@@ -41,7 +41,10 @@ pub fn build(b: *std.Build) void {
             .root_source_file = b.path("scripts/gallery_gen.zig"),
             .target = b.graph.host,
             .optimize = .Debug,
-            .imports = &.{.{ .name = "pjsx", .module = pjsx_host.module("pjsx") }},
+            .imports = &.{
+                .{ .name = "pjsx", .module = pjsx_host.module("pjsx") },
+                .{ .name = "publr_icons", .module = b.createModule(.{ .root_source_file = b.path("../icons/publr_icons.zig") }) },
+            },
         }),
     });
     const gen = b.addRunArtifact(tool);

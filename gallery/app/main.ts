@@ -2,7 +2,6 @@
 // on every state update. Demos live in their own frames (see preview.ts).
 import { mount } from "publr/dom";
 import { component } from "publr-jsx";
-import { mountIconSprite } from "../../src/icons";
 import { startEngine } from "./runtime/engine";
 import { App } from "./views/App.ptsx";
 import { clearHoverPreview } from "./views/Sidebar.ptsx";
@@ -10,7 +9,6 @@ import { closeAllPanels, installPanelListeners, positionPanels } from "./views/c
 import { installFrameListener } from "./frames/previews";
 import { onUpdate, parseRoute, revealComponent, state } from "./state/gallery";
 
-mountIconSprite(document);
 await startEngine("./runtime/jit_engine.wasm");
 
 const root = document.getElementById("gallery")!;

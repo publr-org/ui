@@ -30,7 +30,7 @@ export function Icon({ classes = "", id, name, size = "md" }: IconProps) {
       aria-hidden="true"
       data-part="icon"
     >
-      <use href={`#pbe-i-${name}`} />
+      <use href={`#publr-icon-${name}`} />
     </svg>
   );
 }

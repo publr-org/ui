@@ -3,7 +3,6 @@
 // mounts it, reports its height, and in canvas mode re-renders on the values
 // the parent posts.
 import { mount } from "publr/dom";
-import { mountIconSprite } from "../../src/icons";
 import { startEngine } from "./runtime/engine";
 import { loadComponents, renderNode } from "./runtime/render-node";
 import { loaders } from "./generated/loaders";
@@ -21,7 +20,6 @@ const loaderByName = loaders as Record<string, () => Promise<ComponentDemoModule
 
 const post = (message: Record<string, unknown>) => parent.postMessage({ ...message, frame: frameId }, location.origin);
 
-mountIconSprite(document);
 const stem = params.get("stem") ?? "";
 const [module] = await Promise.all([
   stem in loaderByName ? loaderByName[stem]().then((loaded) => loaded as ComponentDemoModule) : Promise.resolve(undefined),
