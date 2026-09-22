@@ -283,7 +283,7 @@ fn page_html(gen: *Gen, body: []const u8, whole_graph: bool) ![]const u8 {
     return out.written();
 }
 
-const runtime_files = [_][]const u8{ "publr", "publr-dom", "publr-html", "publr-runtime", "publr-transport", "publr-query", "publr-focus", "publr-position", "publr-router", "publr-class-merge", "class-value", "lifecycle", "operation-context", "query-cache", "ref" };
+const runtime_files = [_][]const u8{ "publr", "publr-dom", "publr-jsx", "publr-html", "publr-runtime", "publr-transport", "publr-query", "publr-focus", "publr-position", "publr-router", "publr-class-merge", "class-value", "lifecycle", "operation-context", "query-cache", "ref" };
 
 const head_html =
     \\<!doctype html>
@@ -296,7 +296,7 @@ const head_html =
     \\<link rel="stylesheet" href="./gallery.css">
     \\<script type="importmap">
     \\{"imports":{
-    \\"publr-jsx":"./ui/gallery/app/runtime/publr-jsx.js",
+    \\"publr-jsx":"./runtime/publr-jsx.js",
     \\"publr":"./runtime/publr.js",
     \\"publr/dom":"./runtime/publr-dom.js",
     \\"publr/html":"./runtime/publr-html.js",
