@@ -43,12 +43,15 @@ export type ButtonProps = SharedButtonProps &
   (
     | {
         href: string;
+        /** `_blank` opens the link in a new tab, never with a way back to this page. */
+        target?: "_blank";
         disabled?: never;
         loading?: never;
         type?: never;
       }
     | {
         href?: undefined;
+        target?: never;
         disabled?: boolean;
         loading?: boolean;
         type?: ButtonType;
@@ -145,6 +148,7 @@ export function Button({
   role,
   type,
   href,
+  target,
   pressed,
   marked = false,
   form,
@@ -165,6 +169,8 @@ export function Button({
       as={href === undefined ? "button" : "a"}
       id={id}
       href={href}
+      target={target}
+      rel={href === undefined ? undefined : "noopener"}
       form={form}
       name={name}
       value={value}
