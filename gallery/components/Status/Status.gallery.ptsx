@@ -28,7 +28,7 @@ export const meta = {
     ],
     useWhen: [
       "A row, sidebar, or summary needs a compact inline state indicator next to other text.",
-      "The state maps to one of the closed semantic tones: neutral, success, warning, error, accent, or review.",
+      "The state maps to one of the closed semantic tones: neutral, success, warning, error, accent, review, or info.",
     ],
     avoidWhen: [
       "The indicator needs a filled pill or count surface; that is Badge.",
@@ -39,7 +39,7 @@ export const meta = {
       {
         title: "Tones are semantic, not workflow names",
         description:
-          "Status ships neutral, success, warning, error, accent, and review. Product vocabularies such as Published or Draft belong to a product composite that maps its states onto these tones.",
+          "Status ships neutral, success, warning, error, accent, review, and info. Product vocabularies such as Published or Draft belong to a product composite that maps its states onto these tones.",
       },
       {
         title: "The visible label is the content",
@@ -70,7 +70,7 @@ export const meta = {
         name: "tone",
         type: "StatusTone",
         description:
-          "Closed semantic tone: neutral, success, warning, error, accent, or review. Colors the dot and label together.",
+          "Closed semantic tone: neutral, success, warning, error, accent, review, or info. Colors the dot and label together.",
         default: "neutral",
       },
       {
@@ -99,6 +99,7 @@ const TONE_LABELS: Record<StatusTone, string> = {
   error: "Unavailable",
   accent: "Changed",
   review: "Needs review",
+  info: "Preview",
 };
 
 const TONE_ROW_WRAPPER = "flex flex-wrap items-center gap-x-6 gap-y-3";

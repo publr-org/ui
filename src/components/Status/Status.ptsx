@@ -3,7 +3,15 @@
 // component. Workflow vocabularies (Published, Draft, …) belong to product
 // composites, not this primitive.
 
-export const STATUS_TONES = ["neutral", "success", "warning", "error", "accent", "review"] as const;
+export const STATUS_TONES = [
+  "neutral",
+  "success",
+  "warning",
+  "error",
+  "accent",
+  "review",
+  "info",
+] as const;
 
 export type StatusTone = (typeof STATUS_TONES)[number];
 
@@ -21,6 +29,7 @@ const TONE_TEXT_CLASSES: Record<StatusTone, string> = {
   error: "text-destructive",
   accent: "text-primary",
   review: "text-review",
+  info: "text-info",
 };
 
 const TONE_DOT_CLASSES: Record<StatusTone, string> = {
@@ -30,6 +39,7 @@ const TONE_DOT_CLASSES: Record<StatusTone, string> = {
   error: "bg-destructive",
   accent: "bg-primary",
   review: "bg-review",
+  info: "bg-info",
 };
 
 export function Status({ children, classes = "", id, tone = "neutral" }: StatusProps) {

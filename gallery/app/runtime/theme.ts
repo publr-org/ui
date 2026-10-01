@@ -27,6 +27,8 @@ export const THEME_TOKENS = [
   { name: "color-warning-foreground", value: "var(--warning-foreground)" },
   { name: "color-review", value: "var(--review)" },
   { name: "color-review-foreground", value: "var(--review-foreground)" },
+  { name: "color-info", value: "var(--info)" },
+  { name: "color-info-foreground", value: "var(--info-foreground)" },
   { name: "color-border", value: "var(--border)" },
   { name: "color-input", value: "var(--input)" },
   { name: "color-ring", value: "var(--ring)" },
