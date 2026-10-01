@@ -291,7 +291,7 @@ fn page_html(gen: *Gen, body: []const u8, whole_graph: bool) ![]const u8 {
 fn sprite_html(gen: *Gen) ![]const u8 {
     var out: std.Io.Writer.Allocating = .init(gen.arena);
     const w = &out.writer;
-    try w.writeAll("<svg id=\"publr-icon-sprite\" style=\"display:none\" aria-hidden=\"true\">");
+    try w.writeAll("<svg id=\"publr-icon-sprite\" style=\"position:absolute;width:0;height:0;overflow:hidden\" aria-hidden=\"true\">");
     inline for (@typeInfo(publr_icons.Name).@"enum".fields) |field| {
         const name = comptime publr_icons.kebab(field.name);
         try w.print("<symbol id=\"publr-icon-{s}\" viewBox=\"{s}\" fill=\"none\">{s}</symbol>", .{ name, publr_icons.view_box, @field(publr_icons, field.name) });
