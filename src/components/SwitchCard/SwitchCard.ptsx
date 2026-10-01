@@ -1,0 +1,126 @@
+// One of several places to go, as a card: a monochrome icon tile, a title, a line of
+// description and a dot in its tone; the one you are in also takes its tone's outline. A card at
+// a depth hangs under the card before it with a connector, one step in per level, for a tree
+// (projects under their workspace, or pages under their section); nested cards are usually the
+// small size. Actions for a card go beside it, never inside.
+import { Icon } from "../Icon/Icon.ptsx";
+import type { IconName } from "../Icon/Icon.ptsx";
+import type { StatusTone } from "../Status/Status.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export const SWITCH_CARD_SIZES = ["default", "small"] as const;
+
+export type SwitchCardSize = (typeof SWITCH_CARD_SIZES)[number];
+
+export const SWITCH_CARD_DEPTHS = ["0", "1", "2", "3"] as const;
+
+export type SwitchCardDepth = (typeof SWITCH_CARD_DEPTHS)[number];
+
+export type SwitchCardProps = {
+  id?: string;
+  classes?: string;
+  title: string;
+  description?: string;
+  icon_name: IconName;
+  /** What the place is, as a colour: its dot, and its outline when current. */
+  tone?: StatusTone;
+  current?: boolean;
+  size?: SwitchCardSize;
+  /** How many levels in it hangs under the card above it; "0" for a root. */
+  depth?: SwitchCardDepth;
+  disabled?: boolean;
+  onClick?: (event: MouseEvent) => void;
+};
+
+const CURRENT_CLASSES: Record<StatusTone, string> = {
+  neutral: "border-input bg-muted/40",
+  success: "border-success/40 bg-success/5",
+  warning: "border-warning/40 bg-warning/5",
+  error: "border-destructive/40 bg-destructive/5",
+  accent: "border-primary/40 bg-primary/5",
+  review: "border-review/40 bg-review/5",
+  info: "border-info/40 bg-info/5",
+};
+
+const DEPTH_CLASSES: Record<SwitchCardDepth, string> = {
+  "0": "",
+  "1": "pl-6",
+  "2": "pl-12",
+  "3": "pl-18",
+};
+
+const CONNECTOR_CLASSES: Record<SwitchCardDepth, string> = {
+  "0": "hidden",
+  "1": "left-3",
+  "2": "left-9",
+  "3": "left-15",
+};
+
+const DOT_CLASSES: Record<StatusTone, string> = {
+  neutral: "bg-muted-foreground",
+  success: "bg-success",
+  warning: "bg-warning",
+  error: "bg-destructive",
+  accent: "bg-primary",
+  review: "bg-review",
+  info: "bg-info",
+};
+
+export function SwitchCard({
+  id,
+  classes = "",
+  title,
+  description = "",
+  icon_name,
+  tone = "neutral",
+  current = false,
+  size = "default",
+  depth = "0",
+  disabled = false,
+  onClick,
+}: SwitchCardProps) {
+  const small = size === "small";
+
+  return (
+    <div id={id} class={["relative flex items-center gap-1", DEPTH_CLASSES[depth], classes]}>
+      <span
+        aria-hidden="true"
+        class={[
+          "absolute -top-2 bottom-1/2 w-2.5 rounded-bl-md border-b border-l border-border",
+          CONNECTOR_CLASSES[depth],
+        ]}
+      ></span>
+      <button
+        type="button"
+        class={[
+          "flex min-w-0 flex-1 items-center rounded-lg border text-left outline-ring transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60",
+          small ? "gap-2.5 px-2.5 py-2" : "gap-3 p-3",
+          current ? CURRENT_CLASSES[tone] : "border-border bg-card hover:bg-muted/50",
+        ]}
+        aria-current={current ? "true" : undefined}
+        disabled={disabled}
+        onClick={onClick}
+      >
+        <span
+          class={[
+            "inline-flex shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground",
+            small ? "size-6" : "size-8",
+          ]}
+        >
+          <Icon name={icon_name} size={small ? "xs" : "sm"} />
+        </span>
+        <span class="flex min-w-0 flex-1 flex-col">
+          <Text as="span" variant={small ? "body-md" : "heading-xs"} classes="truncate">
+            {title}
+          </Text>
+          {description !== "" && (
+            <Text as="span" variant="body-xs" tone="muted" classes="truncate">
+              {description}
+            </Text>
+          )}
+        </span>
+        <span aria-hidden="true" class={["size-2 shrink-0 rounded-full", DOT_CLASSES[tone]]}></span>
+      </button>
+    </div>
+  );
+}

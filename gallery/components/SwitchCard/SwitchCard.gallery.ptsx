@@ -1,0 +1,65 @@
+import { SwitchCard } from "../../../src/components/SwitchCard/SwitchCard.ptsx";
+import type { ComponentDemoMeta, ComponentDemoVariant } from "../../gallery-types";
+
+export const meta = {
+  name: "switch-card",
+  label: "SwitchCard",
+  source: "src/components/SwitchCard/SwitchCard.ptsx",
+  kind: "composite",
+  group: "Navigation",
+  description:
+    "One of several places to go, as a card: icon tile, title, description, and a tinted outline and dot for the current one; small and nested for a tree.",
+  tags: ["switcher", "tree", "card"],
+  usage: `<SwitchCard title="Acme" description="Your workspace" icon_name="globe" tone="success" current />
+<SwitchCard title="Website" description="Live" icon_name="stack" tone="success" size="small" depth="1" />`,
+  preview: "demo",
+  previewLabel: "Workspaces with their projects nested under each",
+  docs: {
+    purpose: [
+      "Lists places to switch to (workspaces and their projects) where the current one stands out and children hang under their parent.",
+    ],
+    useWhen: ["A short list of destinations, one of them the current one, nested a few levels deep."],
+    avoidWhen: [
+      "The destination is a page link with a description; that is LinkCard.",
+      "The choice is a form value; that is ChoiceCard.",
+    ],
+    rules: [
+      {
+        title: "Colour says what it is",
+        description:
+          "The icon tile stays monochrome; every card's dot takes its semantic tone, and the current card its outline too.",
+      },
+    ],
+    accessibility: ["The card is a button; the current one carries aria-current."],
+    composition: [
+      "Put actions for a card (rename, delete) beside it in a row, never inside the button.",
+      "Deeper cards follow their parent card in the list; the connector draws the tree.",
+    ],
+    agentNotes: ["Use size=\"small\" with depth above \"0\" for children."],
+    props: [
+      { name: "title", type: "string", description: "Its name." },
+      { name: "description", type: "string", description: "One line under the name." },
+      { name: "icon_name", type: "IconName", description: "The icon in the tile." },
+      { name: "tone", type: "StatusTone", description: "Its dot's colour, and its outline's when current.", default: "neutral" },
+      { name: "current", type: "boolean", description: "The one you are in.", default: "false" },
+      { name: "size", type: "\"default\" | \"small\"", description: "Small for nested cards.", default: "default" },
+      { name: "depth", type: "\"0\" | \"1\" | \"2\" | \"3\"", description: "How many levels in it hangs under the card above.", default: "\"0\"" },
+      { name: "onClick", type: "(event) => void", description: "Goes there." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const variants = [
+  {
+    label: "A tree of workspaces",
+    description: "One workspace current with a project under it, and another with its own project.",
+    Demo: () => (
+      <div class="flex max-w-sm flex-col gap-1.5">
+        <SwitchCard title="Acme" description="Your workspace" icon_name="globe" tone="success" current />
+        <SwitchCard title="Website" description="Live" icon_name="stack" tone="success" size="small" depth="1" />
+        <SwitchCard title="Side projects" description="Shared with you" icon_name="group" tone="info" />
+        <SwitchCard title="Recipes" description="In preview" icon_name="stack" tone="warning" size="small" depth="1" />
+      </div>
+    ),
+  },
+] satisfies ComponentDemoVariant[];
