@@ -1,0 +1,63 @@
+import { StatusButton } from "../../../src/components/StatusButton/StatusButton.ptsx";
+import type { ComponentDemoMeta, ComponentDemoVariant } from "../../gallery-types";
+
+export const meta = {
+  name: "status-button",
+  label: "StatusButton",
+  source: "src/components/StatusButton/StatusButton.ptsx",
+  kind: "composite",
+  group: "Navigation",
+  description:
+    "A button whose face is a state: its label and icon in a tinted outline of its tone, with a stripe that is solid for the live state and hatched otherwise.",
+  tags: ["status", "switcher", "pill", "button"],
+  usage: `<StatusButton tone="success" live icon_name="globe" label="Site: Live. Switch site">Acme › Live</StatusButton>`,
+  preview: "demo",
+  previewLabel: "A switcher's face in three tones",
+  docs: {
+    purpose: [
+      "Shows which of several places you are in (the live site, a preview, an experiment) and opens where to go elsewhere, usually a Drawer or a menu.",
+    ],
+    useWhen: ["The state is also the way to change it: one click from seeing it to switching it."],
+    avoidWhen: [
+      "The state is only shown; that is Status.",
+      "The control starts an action; that is Button.",
+    ],
+    rules: [
+      {
+        title: "Tones are semantic",
+        description:
+          "The tone says what the state means (success for the live site, warning for an experiment), as Status's does.",
+      },
+    ],
+    accessibility: [
+      "The visible label is the state; `label` names what the button does when the state alone does not.",
+    ],
+    composition: ["Wrap it in DrawerTrigger or DropdownMenuTrigger with `asChild`."],
+    agentNotes: ["Pass the state as children and pick the tone by meaning, never by colour."],
+    props: [
+      { name: "tone", type: "StatusTone", description: "The state's semantic tone.", default: "neutral" },
+      { name: "live", type: "boolean", description: "The live state: a solid stripe; otherwise hatched.", default: "false" },
+      { name: "icon_name", type: "IconName", description: "An icon after the label for the kind of state." },
+      { name: "label", type: "string", description: "Accessible name when the state alone is not enough." },
+      { name: "children", type: "node", description: "The state's label." },
+      { name: "onClick", type: "(event) => void", description: "Opens where the state is changed." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const variants = [
+  {
+    label: "Sites",
+    description: "The live site, a preview and an experiment.",
+    usage: `<StatusButton tone="success" live icon_name="globe">Acme › Live</StatusButton>
+<StatusButton tone="info" icon_name="stack">Preview</StatusButton>
+<StatusButton tone="warning" icon_name="branch">New pricing</StatusButton>`,
+    Demo: () => (
+      <div class="flex flex-wrap items-center gap-3">
+        <StatusButton tone="success" live icon_name="globe">Acme › Live</StatusButton>
+        <StatusButton tone="info" icon_name="stack">Preview</StatusButton>
+        <StatusButton tone="warning" icon_name="branch">New pricing</StatusButton>
+      </div>
+    ),
+  },
+] satisfies ComponentDemoVariant[];

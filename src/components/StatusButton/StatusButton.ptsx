@@ -1,0 +1,77 @@
+// A button whose face is a state: its label and icon in a tinted outline of the state's
+// tone, with a stripe down the left edge, solid when the state is the live one and hatched
+// when it is not (which site this is, opening the switcher). The tone is semantic,
+// as Status's is.
+import { Icon } from "../Icon/Icon.ptsx";
+import type { IconName } from "../Icon/Icon.ptsx";
+import type { StatusTone } from "../Status/Status.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type StatusButtonProps = {
+  id?: string;
+  classes?: string;
+  tone?: StatusTone;
+  /** The live one: a solid stripe; otherwise hatched. */
+  live?: boolean;
+  /** An icon after the label, saying what kind of thing the state is. */
+  icon_name?: IconName;
+  /** The accessible name when the visible state alone does not say what the button does. */
+  label?: string;
+  children: JSX.Element;
+  onClick?: (event: MouseEvent) => void;
+};
+
+const TONE_CLASSES: Record<StatusTone, string> = {
+  neutral: "border-border bg-muted/40 text-muted-foreground hover:bg-muted",
+  success: "border-success/40 bg-success/10 text-success hover:bg-success/15",
+  warning: "border-warning/40 bg-warning/10 text-warning hover:bg-warning/15",
+  error: "border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive/15",
+  accent: "border-primary/40 bg-primary/10 text-primary hover:bg-primary/15",
+  review: "border-review/40 bg-review/10 text-review hover:bg-review/15",
+  info: "border-info/40 bg-info/10 text-info hover:bg-info/15",
+};
+
+const STRIPE_CLASSES: Record<StatusTone, string> = {
+  neutral: "bg-muted-foreground/50",
+  success: "bg-success/60",
+  warning: "bg-warning/60",
+  error: "bg-destructive/60",
+  accent: "bg-primary/60",
+  review: "bg-review/60",
+  info: "bg-info/60",
+};
+
+const HATCH = "background-image: repeating-linear-gradient(135deg, currentColor 0 2px, transparent 2px 5px); opacity: 0.5";
+
+export function StatusButton({
+  id,
+  classes = "",
+  tone = "neutral",
+  live = false,
+  icon_name,
+  label,
+  children,
+  onClick,
+}: StatusButtonProps) {
+  return (
+    <button
+      id={id}
+      type="button"
+      class={[
+        "relative inline-flex h-8 shrink-0 items-center gap-2 overflow-hidden rounded-md border pr-2.5 pl-4 outline-ring transition-colors focus-visible:outline-2 focus-visible:outline-offset-2",
+        TONE_CLASSES[tone],
+        classes,
+      ]}
+      aria-label={label}
+      onClick={onClick}
+    >
+      {live ? (
+        <span aria-hidden="true" class={["absolute inset-y-0 left-0 w-1.5", STRIPE_CLASSES[tone]]}></span>
+      ) : (
+        <span aria-hidden="true" class="absolute inset-y-0 left-0 w-1.5" style={HATCH}></span>
+      )}
+      <Text as="span" variant="heading-xs" classes="whitespace-nowrap">{children}</Text>
+      {icon_name && <Icon name={icon_name} size="sm" />}
+    </button>
+  );
+}
