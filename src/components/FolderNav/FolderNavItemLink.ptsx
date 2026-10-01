@@ -3,6 +3,7 @@
 // depth-capped folder) omits href and renders a static span with the same
 // anatomy, so it is truly inert rather than merely unclickable.
 import { Dynamic } from "publr-jsx";
+import { Icon } from "../Icon/Icon.ptsx";
 
 export type FolderNavItemLinkProps = {
   children?: JSX.Element;
@@ -11,6 +12,12 @@ export type FolderNavItemLinkProps = {
   disabled?: boolean;
   href?: string;
   id?: string;
+  /** Acts in the page instead of, or before, following `href`. */
+  onClick?: (event: MouseEvent) => void;
+  /** What it goes to, as a colour: `success` for the live one. */
+  tone?: "default" | "success";
+  /** Going there now: a spinner at the row's end, and the link busy. */
+  busy?: boolean;
 };
 
 export function FolderNavItemLink({
@@ -20,6 +27,9 @@ export function FolderNavItemLink({
   disabled = false,
   href,
   id,
+  onClick,
+  tone = "default",
+  busy = false,
 }: FolderNavItemLinkProps) {
   return (
     <Dynamic
@@ -27,17 +37,24 @@ export function FolderNavItemLink({
       id={id}
       href={href}
       aria-current={current ? "page" : undefined}
+      aria-busy={busy ? "true" : undefined}
+      onClick={onClick}
       class={[
         "flex min-w-0 flex-1 items-center gap-2 no-underline hover:no-underline",
         disabled
           ? "text-muted-foreground opacity-50"
-          : current
-            ? "font-medium text-foreground"
-            : "text-muted-foreground hover:text-foreground",
+          : tone === "success"
+            ? current
+              ? "font-medium text-success"
+              : "text-success hover:text-success/80"
+            : current
+              ? "font-medium text-foreground"
+              : "text-muted-foreground hover:text-foreground",
         classes,
       ]}
     >
       {children}
+      <Icon name="loader" size="sm" classes={busy ? "ml-auto shrink-0 animate-spin" : "hidden"} />
     </Dynamic>
   );
 }

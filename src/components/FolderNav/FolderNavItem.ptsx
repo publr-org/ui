@@ -8,11 +8,34 @@ export const FOLDER_NAV_LEVELS = ["0", "1", "2", "3", "4", "5"] as const;
 
 export type FolderNavLevel = (typeof FOLDER_NAV_LEVELS)[number];
 
+import { TreeGuides } from "../TreeGuides/TreeGuides.ptsx";
+import type { TreeGuideKind } from "../TreeGuides/TreeGuides.ptsx";
+
 export type FolderNavItemProps = {
   children?: JSX.Element;
   classes?: string;
   id?: string;
   level?: FolderNavLevel;
+  /** `md` indents 20px a level, room for tree lines; `sm` (the default) 12px. */
+  indent?: FolderNavIndent;
+  /** Tree lines in the indent, one per level (see TreeGuides); none by default. They need
+   * the `md` indent. */
+  guide_1?: TreeGuideKind;
+  guide_2?: TreeGuideKind;
+  guide_3?: TreeGuideKind;
+  guide_4?: TreeGuideKind;
+};
+
+export const FOLDER_NAV_INDENTS = ["sm", "md"] as const;
+export type FolderNavIndent = (typeof FOLDER_NAV_INDENTS)[number];
+
+const WIDE_INDENT: Record<FolderNavLevel, string> = {
+  "0": "",
+  "1": "pl-5",
+  "2": "pl-10",
+  "3": "pl-15",
+  "4": "pl-20",
+  "5": "pl-25",
 };
 
 const LEVEL_INDENT: Record<FolderNavLevel, string> = {
@@ -24,9 +47,27 @@ const LEVEL_INDENT: Record<FolderNavLevel, string> = {
   "5": "pl-15",
 };
 
-export function FolderNavItem({ children, classes = "", id, level = "0" }: FolderNavItemProps) {
+export function FolderNavItem({
+  children,
+  classes = "",
+  id,
+  level = "0",
+  indent = "sm",
+  guide_1 = "none",
+  guide_2 = "none",
+  guide_3 = "none",
+  guide_4 = "none",
+}: FolderNavItemProps) {
   return (
-    <li id={id} class={[LEVEL_INDENT[level], classes]}>
+    <li id={id} class={["relative", indent === "md" ? WIDE_INDENT[level] : LEVEL_INDENT[level], classes]}>
+      <TreeGuides
+        level_1={guide_1}
+        level_2={guide_2}
+        level_3={guide_3}
+        level_4={guide_4}
+        extend="list"
+        classes="ml-2"
+      />
       <div
         data-part="folder-nav-row"
         class="group/folder-row flex h-8 w-full items-center gap-2 rounded-md pl-2 pr-2 text-xs transition-colors hover:bg-sidebar-accent has-[a[aria-current]]:bg-sidebar-accent"
