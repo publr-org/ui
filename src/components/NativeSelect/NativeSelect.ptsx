@@ -18,6 +18,13 @@ export type NativeSelectProps = {
   required?: boolean;
   /** Drawn without its own border and shadow: inside an InputGroup, which owns them. */
   inset?: boolean;
+  /** The text size, as Input's: `md` the form default, `sm` beside small inputs. */
+  size?: "sm" | "md";
+};
+
+const SIZE_CLASSES: Record<"sm" | "md", string> = {
+  sm: "text-body-sm",
+  md: "text-base leading-6",
 };
 
 export function NativeSelect({
@@ -33,6 +40,7 @@ export function NativeSelect({
   onInput,
   required = false,
   inset = false,
+  size = "md",
 }: NativeSelectProps) {
   return (
     <select
@@ -46,7 +54,8 @@ export function NativeSelect({
       onInput={onInput}
       onChange={onChange}
       class={[
-        "flex w-full min-w-0 cursor-pointer appearance-none px-3.5 py-2 text-base leading-6 font-normal text-foreground transition duration-150 placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+        "flex w-full min-w-0 cursor-pointer appearance-none px-3.5 py-2 font-normal text-foreground transition duration-150 placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+        SIZE_CLASSES[size],
         inset
           ? "shrink-0 border-0 border-l border-input bg-muted/40 rounded-none shadow-none"
           : "rounded-lg border bg-card shadow-xs hover:border-muted-foreground/40 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/15",
