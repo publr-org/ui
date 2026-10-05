@@ -13,7 +13,7 @@ export function DataTableCell({ id, classes = "", column, children }: DataTableC
     <td
       id={id}
       class={[
-        "px-5 py-3 align-middle",
+        "px-5 py-2 align-middle",
         classes,
         state.hiddenColumns.includes(Publr.dataset("column")) ? "hidden!" : "",
       ]}

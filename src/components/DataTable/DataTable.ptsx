@@ -339,7 +339,7 @@ export function DataTable({
   return (
     <div
       id={id}
-      class={classes}
+      class={["flex flex-1 flex-col", classes]}
       data-part="data-table"
       ref={root_ref}
       data-address={state.address}
@@ -501,7 +501,7 @@ export function DataTable({
         </div>
       )}
       {address && (
-        <div>
+        <div class="flex flex-1 flex-col">
           <Table>
             <TableHeader>
               <TableRow>
@@ -591,12 +591,10 @@ export function DataTable({
             </TableBody>
           </Table>
           {state.empty && (
-            <div class="mx-8">
-              <Empty>
-                <EmptyTitle>Nothing here</EmptyTitle>
-                <EmptyDescription>{state.empty_text}</EmptyDescription>
-              </Empty>
-            </div>
+            <Empty>
+              <EmptyTitle>Nothing here</EmptyTitle>
+              <EmptyDescription>{state.empty_text}</EmptyDescription>
+            </Empty>
           )}
         </div>
       )}

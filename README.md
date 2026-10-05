@@ -10,7 +10,7 @@
 
 ---
 
-Publr UI is a set of 55 components written in PTSX: TypeScript with JSX and
+Publr UI is a set of 56 components written in PTSX: TypeScript with JSX and
 Publr directives. The same file is lowered to Zig for server-rendered pages and
 to DOM for the browser, so the CMS admin, the site editor and a plain HTML page
 all draw from one definition. There is no build output and no package to
@@ -41,7 +41,7 @@ its own binary.
 |---|---|
 | Essentials | Accordion, AssetCard, Avatar, AvatarGroup, BulkActions, Button, Code, DataTable, Dialog, Drawer, Dropdown, Empty, Heading, Icon, PageHeader, PaneHeader, Pagination, SectionTitle, Select, Separator, Status, Table, Text, Timeline |
 | Navigation | Breadcrumb, FilterBar, FilterChip, FolderNav, Link, Sidebar, TabNav |
-| Forms | Checkbox, CheckboxField, ChoiceButton, ChoiceCard, Field, Input, InputGroup, MultiSelect, NativeSelect, Radio, RangePicker, RangeScalePicker, Switch, Textarea, UnitControl |
+| Forms | Checkbox, CheckboxField, ChoiceButton, ChoiceCard, Field, Input, InputGroup, MultiSelect, NativeSelect, PromptBox, Radio, RangePicker, RangeScalePicker, Switch, Textarea, UnitControl |
 | Cards and callouts | Callout, LinkCard, ReferenceCard, PanelTab |
 | Editor | BoxControl, BoxValueControl, StyleControl, SelectedCornersIcon, SelectedSidesIcon |
 

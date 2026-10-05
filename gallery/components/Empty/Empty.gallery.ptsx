@@ -57,7 +57,7 @@ export const meta = {
       {
         title: "Typography comes from Heading and Text",
         description:
-          "EmptyTitle composes Heading at the xs size; EmptyDescription composes muted body-sm Text. Call sites do not restyle them per screen.",
+          "EmptyTitle composes Heading at the lg size; EmptyDescription composes muted body-md Text; the root draws the slab mark over a faint isometric lattice. Call sites do not restyle them per screen.",
       },
       {
         title: "One media treatment",
@@ -87,6 +87,12 @@ export const meta = {
         description: "The composed parts in semantic order.",
       },
       {
+        name: "Empty.compact",
+        type: "boolean",
+        description: "For small spots (a drawer, a panel): a dashed outline, less room and no slab mark.",
+        default: "false",
+      },
+      {
         name: "Empty.classes",
         type: "string",
         description: "Layout or exceptional composition classes on the root.",
@@ -110,6 +116,12 @@ export const meta = {
         name: "EmptyMedia.id",
         type: "string",
         description: "Optional identifier applied to the chip.",
+      },
+      {
+        name: "EmptyTitle.size",
+        type: "HeadingSize",
+        description: "Visual size of the title; compact empties use xs.",
+        default: "lg",
       },
       {
         name: "EmptyTitle.level",

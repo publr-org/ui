@@ -1,0 +1,44 @@
+import { IsoField } from "../../../src/components/IsoField/IsoField.ptsx";
+import type { ComponentDemoMeta, DemoNode } from "../../gallery-types";
+
+export const meta = {
+  name: "iso-field",
+  label: "IsoField",
+  source: "src/components/IsoField/IsoField.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description: "A decorative isometric lattice with every cell filled with grey that fades radially from the top centre.",
+  tags: ["background", "decoration", "isometric", "grid"],
+  usage: `<div class="relative"><IsoField /><div class="relative">Content</div></div>`,
+  preview: "demo",
+  previewLabel: "Isometric backdrop",
+  docs: {
+    purpose: ["IsoField gives a page's hero the same isometric lattice as the empty state mark."],
+    useWhen: ["A landing-style page needs depth behind its main content."],
+    avoidWhen: ["Behind dense forms or tables; it competes with text."],
+    rules: [
+      {
+        title: "Parent positions it",
+        description: "Place it first inside a relative parent and lift the content with relative.",
+      },
+    ],
+    accessibility: ["Decorative only: hidden from assistive technology."],
+    composition: ["Sits behind a hero's heading and PromptBox."],
+    agentNotes: ["Do not recolor it from the app; change this component."],
+    props: [{ name: "classes", type: "string", description: "Layout classes (height, inset)." }],
+  },
+} satisfies ComponentDemoMeta;
+
+export const node = {
+  component: "IsoField",
+  props: {},
+  wrapper: "relative h-64 w-full max-w-xl overflow-hidden",
+} satisfies DemoNode;
+
+export function Demo() {
+  return (
+    <div class="relative h-64 w-full max-w-xl overflow-hidden">
+      <IsoField classes="h-64" />
+    </div>
+  );
+}

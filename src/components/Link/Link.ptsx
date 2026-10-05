@@ -17,6 +17,7 @@ export const LINK_VARIANTS = {
   "body-md": "text-sm leading-5 font-medium",
   "body-sm": "text-body-sm font-medium",
   "body-xs": "text-2xs leading-4 font-medium",
+  nav: "text-nav font-medium",
   "mono-sm": "font-mono text-body-sm",
   "mono-xs": "font-mono text-2xs leading-4",
 } as const;

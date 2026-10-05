@@ -1,37 +1,60 @@
 // A short notice inside a page: why something is not available, what to watch out
-// for. An icon for the tone, a title, and a line or two of children.
+// for, what was refused. An icon for the tone, a title, and a line or two of children
+// (or a list of problems).
+import { Code } from "../Code/Code.ptsx";
 import { Icon } from "../Icon/Icon.ptsx";
 import { Text } from "../Text/Text.ptsx";
 
 export type CalloutProps = {
-  tone?: "info" | "warning";
+  tone?: "info" | "warning" | "error";
   title: string;
   children?: JSX.Element;
+  /** Several things at once, each with what it is about (`code`, optional) and what to
+   * know: the problems that stopped a save. */
+  items?: Array<{ code: string; text: string }>;
   classes?: string;
   id?: string;
 };
 
-export function Callout({ tone = "info", title, children, classes = "", id }: CalloutProps) {
+export function Callout({
+  tone = "info",
+  title,
+  children,
+  items = [],
+  classes = "",
+  id,
+}: CalloutProps) {
   return (
     <div
       id={id}
       role="note"
       class={[
         "flex items-start gap-3 rounded-xl border px-5 py-4",
-        tone === "warning" ? "border-warning/40 bg-warning/5" : "border-border bg-muted/40",
+        tone === "warning"
+          ? "border-warning/40 bg-warning/5"
+          : tone === "error"
+            ? "border-destructive/30 bg-destructive/5"
+            : "border-border bg-muted/40",
         classes,
       ]}
       data-part="callout"
       data-tone={tone}
     >
-      <span class={tone === "warning" ? "mt-0.5 text-warning" : "mt-0.5 text-muted-foreground"}>
-        {tone === "warning" ? (
-          <Icon name="alert-triangle" size="md" />
-        ) : (
-          <Icon name="info-circle" size="md" />
-        )}
+      <span
+        class={[
+          "mt-0.5",
+          tone === "warning"
+            ? "text-warning"
+            : tone === "error"
+              ? "text-destructive"
+              : "text-muted-foreground",
+        ]}
+      >
+        {tone === "warning" && <Icon name="alert-triangle" size="md" />}
+        {tone === "error" && <Icon name="alert-hexagon" size="md" />}
+        {tone === "info" && <Icon name="info-circle" size="md" />}
       </span>
-      <span class="flex min-w-0 flex-col gap-1">
+      <div class="flex min-w-0 flex-col gap-1">
         <Text as="span" variant="heading-xs">
           {title}
         </Text>
@@ -40,7 +63,19 @@ export function Callout({ tone = "info", title, children, classes = "", id }: Ca
             {children}
           </Text>
         )}
-      </span>
+        {items.length > 0 && (
+          <ul class="mt-1 flex flex-col gap-1">
+            {items.map((item) => (
+              <li class="flex items-baseline gap-2">
+                {item.code !== "" && <Code classes="shrink-0">{item.code}</Code>}
+                <Text as="span" variant="body-sm">
+                  {item.text}
+                </Text>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

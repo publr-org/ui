@@ -1,14 +1,27 @@
-// One breadcrumb list entry wrapping a BreadcrumbLink or BreadcrumbPage.
+// One breadcrumb list entry wrapping a BreadcrumbLink or BreadcrumbPage. `separated`
+// leads it with the trail's separator, for entries drawn in a loop, where a sibling
+// BreadcrumbSeparator cannot go.
 
 export type BreadcrumbItemProps = {
   children?: JSX.Element;
   classes?: string;
   id?: string;
+  separated?: boolean;
 };
 
-export function BreadcrumbItem({ children, classes = "", id }: BreadcrumbItemProps) {
+export function BreadcrumbItem({
+  children,
+  classes = "",
+  id,
+  separated = false,
+}: BreadcrumbItemProps) {
   return (
     <li id={id} class={["flex min-w-0 items-center gap-2", classes]}>
+      {separated && (
+        <span aria-hidden="true" class="text-input">
+          /
+        </span>
+      )}
       {children}
     </li>
   );

@@ -17,7 +17,7 @@ export function DataTableHead({ id, classes = "", column, children }: DataTableH
     <th
       id={id}
       class={[
-        "h-12 whitespace-nowrap px-5 text-left align-middle text-xs font-medium text-muted-foreground",
+        "h-9 whitespace-nowrap px-5 text-left align-middle text-xs font-medium text-muted-foreground",
         classes,
         state.hiddenColumns.includes(Publr.dataset("column")) ? "hidden!" : "",
       ]}

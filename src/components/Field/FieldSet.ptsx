@@ -1,0 +1,23 @@
+// A group of fields under one name: roles to tick, options that belong together. The
+// legend composes Text like a FieldLabel; the members follow with the field rhythm.
+import { Text } from "../Text/Text.ptsx";
+
+export type FieldSetProps = {
+  legend: string;
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function FieldSet({ legend, children, classes = "", id }: FieldSetProps) {
+  return (
+    <fieldset id={id} class={["m-0 flex min-w-0 flex-col gap-3 border-0 p-0", classes]}>
+      <legend class="mb-2 p-0">
+        <Text as="span" variant="body-sm">
+          {legend}
+        </Text>
+      </legend>
+      {children}
+    </fieldset>
+  );
+}

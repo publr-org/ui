@@ -1,0 +1,56 @@
+import { PromptBox } from "../../../src/components/PromptBox/PromptBox.ptsx";
+import { Button } from "../../../src/components/Button/Button.ptsx";
+import type { ComponentDemoMeta, DemoNode } from "../../gallery-types";
+
+export const meta = {
+  name: "prompt-box",
+  label: "PromptBox",
+  source: "src/components/PromptBox/PromptBox.ptsx",
+  kind: "composite",
+  group: "Forms",
+  description: "A rounded composer: a borderless multiline input over a footer of actions.",
+  tags: ["prompt", "composer", "textarea", "agent"],
+  usage: `<PromptBox name="prompt" placeholder="Ask for a page..." hint="Moodboard"><Button>Build</Button></PromptBox>`,
+  preview: "demo",
+  previewLabel: "Agent composer",
+  docs: {
+    purpose: ["PromptBox is the one place a person writes a task for an agent."],
+    useWhen: ["A page's main action is a free-text request with a submit action."],
+    avoidWhen: ["Collecting an ordinary form value; use Field with Textarea."],
+    rules: [
+      {
+        title: "Actions go in the footer",
+        description: "Pass Buttons as children; they sit at the end of the footer row.",
+      },
+    ],
+    accessibility: ["Give the textarea a name and a placeholder that says what to ask for."],
+    composition: ["Footer actions are Buttons; the hint is quiet text."],
+    agentNotes: ["Do not restyle the container from the app; change this component."],
+    props: [
+      { name: "name", type: "string", description: "Native field name." },
+      { name: "placeholder", type: "string", description: "Native placeholder text." },
+      { name: "rows", type: "number", description: "Visible rows.", default: "3" },
+      { name: "disabled", type: "boolean", description: "Native disabled state." },
+      { name: "hint", type: "string", description: "Quiet text at the footer's start." },
+      { name: "classes", type: "string", description: "Layout classes for the container." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const node = {
+  component: "PromptBox",
+  props: { name: "prompt", placeholder: "Ask for a page, a type, a plugin...", hint: "Context" },
+  wrapper: "w-full max-w-xl",
+} satisfies DemoNode;
+
+export function Demo() {
+  return (
+    <div class="w-full max-w-xl">
+      <PromptBox name="prompt" placeholder="Ask for a page, a type, a plugin..." hint="Context">
+        <Button hierarchy="primary" size="md">
+          Build
+        </Button>
+      </PromptBox>
+    </div>
+  );
+}

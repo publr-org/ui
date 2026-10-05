@@ -1,0 +1,31 @@
+// The isometric slab from the pitch deck's artwork with nothing on it yet: a dashed ghost
+// block where the first one would go. Decorative, monochrome, thin outlines.
+
+export type EmptyMarkProps = {
+  classes?: string;
+  id?: string;
+};
+
+export function EmptyMark({ classes = "", id }: EmptyMarkProps) {
+  return (
+    <svg
+      id={id}
+      viewBox="0 0 320 200"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.4"
+      stroke-linejoin="round"
+      aria-hidden="true"
+      class={["block h-32 w-auto text-foreground", classes]}
+    >
+      <polygon points="300,100 160,180 160,192 300,112" fill="var(--muted-foreground)" />
+      <polygon points="20,100 160,180 160,192 20,112" fill="var(--muted-foreground)" fill-opacity="0.6" />
+      <polygon points="160,20 300,100 160,180 20,100" fill="var(--muted)" />
+      <g stroke-dasharray="4 4" class="text-muted-foreground">
+        <polygon points="120,56 160,79 160,123 120,100" />
+        <polygon points="200,56 160,79 160,123 200,100" />
+        <polygon points="160,33 200,56 160,79 120,56" />
+      </g>
+    </svg>
+  );
+}

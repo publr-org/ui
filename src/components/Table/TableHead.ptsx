@@ -16,7 +16,7 @@ export function TableHead({ align = "left", children, classes = "", id }: TableH
     <th
       id={id}
       class={[
-        "h-11 whitespace-nowrap px-4 align-middle first:pl-8 last:pr-8",
+        "h-9 whitespace-nowrap px-4 align-middle first:pl-8 last:pr-8",
         align === "right" ? "text-right" : "text-left",
         classes,
       ]}

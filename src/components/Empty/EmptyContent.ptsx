@@ -9,7 +9,7 @@ export type EmptyContentProps = {
 
 export function EmptyContent({ children, classes = "", id }: EmptyContentProps) {
   return (
-    <div id={id} class={["mt-4 flex items-center justify-center gap-2", classes]}>
+    <div id={id} class={["mt-6 flex items-center justify-center gap-2", classes]}>
       {children}
     </div>
   );

@@ -23,7 +23,7 @@ export function TableCell({
     <td
       id={id}
       class={[
-        "px-4 py-3.5 align-middle first:pl-8 last:pr-8",
+        "px-4 py-2.5 align-middle first:pl-8 last:pr-8",
         align === "right" ? "text-right" : "text-left",
         numeric ? "whitespace-nowrap tabular-nums" : "",
         classes,

@@ -30,6 +30,7 @@ export const TEXT_VARIANTS = {
   "body-md": "text-sm leading-5 font-normal",
   "body-sm": "text-body-sm font-normal",
   "body-xs": "text-2xs leading-4 font-normal",
+  nav: "text-nav font-medium",
   "mono-sm": "font-mono text-body-sm",
   "mono-xs": "font-mono text-2xs leading-4",
   eyebrow: "text-xs leading-4 font-semibold uppercase tracking-eyebrow",

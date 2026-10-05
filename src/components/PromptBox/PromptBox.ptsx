@@ -1,0 +1,45 @@
+import { Text } from "../Text/Text.ptsx";
+
+export type PromptBoxProps = {
+  name?: string;
+  placeholder?: string;
+  rows?: number;
+  disabled?: boolean;
+  /** Quiet text at the start of the footer; the actions (children) sit at the end. */
+  hint?: string;
+  children?: JSX.Element;
+  classes?: string;
+};
+
+export function PromptBox({
+  name,
+  placeholder,
+  rows = 3,
+  disabled = false,
+  hint,
+  children,
+  classes = "",
+}: PromptBoxProps) {
+  return (
+    <div
+      class={[
+        "flex w-full flex-col gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm transition focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/15",
+        classes,
+      ]}
+    >
+      <textarea
+        name={name}
+        rows={rows}
+        placeholder={placeholder}
+        disabled={disabled}
+        class="w-full resize-none border-0 bg-transparent p-0 text-base leading-6 font-normal text-foreground outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
+      ></textarea>
+      <div class="flex items-center justify-between gap-3">
+        <Text as="span" variant="body-md" tone="muted">
+          {hint}
+        </Text>
+        <div class="flex items-center gap-2">{children}</div>
+      </div>
+    </div>
+  );
+}
