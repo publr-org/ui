@@ -33,9 +33,9 @@ export function FolderNavItemLink({
 }: FolderNavItemLinkProps) {
   return (
     <Dynamic
-      as={href === undefined ? "span" : "a"}
+      as={href === undefined || disabled ? "span" : "a"}
       id={id}
-      href={href}
+      href={disabled ? undefined : href}
       aria-current={current ? "page" : undefined}
       aria-busy={busy ? "true" : undefined}
       onClick={onClick}
