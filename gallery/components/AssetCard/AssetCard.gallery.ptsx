@@ -1,4 +1,6 @@
 import { AssetCard } from "../../../src/components/AssetCard/AssetCard.ptsx";
+import { AssetCardCaption } from "../../../src/components/AssetCard/AssetCardCaption.ptsx";
+import { AssetCardGrid } from "../../../src/components/AssetCard/AssetCardGrid.ptsx";
 import { AssetCardMeta } from "../../../src/components/AssetCard/AssetCardMeta.ptsx";
 import { AssetCardPreview } from "../../../src/components/AssetCard/AssetCardPreview.ptsx";
 import { AssetCardSelect } from "../../../src/components/AssetCard/AssetCardSelect.ptsx";
@@ -77,6 +79,47 @@ export const meta = {
         description: "Card content: selection, activation control, preview, text lines.",
       },
       { name: "id", type: "string", description: "Identifier applied to the article root." },
+      {
+        name: "look",
+        type: '"card" | "tile"',
+        description:
+          "`card`: bordered, rounded, its text under the preview. `tile`: a bare square for an AssetCardGrid, its text in an AssetCardCaption, selection a frame inside it.",
+        default: "card",
+      },
+      {
+        name: "AssetCardCaption.always",
+        type: "boolean",
+        description: "Keep the caption in view, not only while the tile is hovered or focused.",
+        default: "false",
+      },
+      {
+        name: "AssetCardGrid.size",
+        type: '"sm" | "md" | "lg"',
+        description: "How large the tiles are; the columns follow the width.",
+        default: "md",
+      },
+      {
+        name: "AssetCardFile.label",
+        type: "string",
+        description: "A file without a picture: its type (`PDF`, `MP3`) under its kind's Icon, composed as the child, inside AssetCardPreview.",
+      },
+      {
+        name: "AssetCardBadge.label",
+        type: "string",
+        description: "A mark in the tile's corner, over a preview that does not say what the file is (a video's first frame); an optional Icon before it.",
+      },
+      {
+        name: "AssetCardTitle.tone",
+        type: '"default" | "overlay"',
+        description: "`overlay` reads on the preview, inside an AssetCardCaption.",
+        default: "default",
+      },
+      {
+        name: "AssetCardMeta.tone",
+        type: '"default" | "overlay"',
+        description: "`overlay` reads on the preview, inside an AssetCardCaption.",
+        default: "default",
+      },
       {
         name: "classes",
         type: "string",
@@ -233,6 +276,83 @@ export const variants = [
         {
           component: "AssetCardMeta",
           props: { children: "3.1 MB · 3000 × 2000", classes: "mb-2 px-2.5" },
+        },
+      ],
+    },
+  },
+  {
+    label: "Tiles",
+    description:
+      "The media library's wall: bare squares edge to edge in an AssetCardGrid, each naming itself over its preview on hover, or always.",
+    usage: `<AssetCardGrid size="md">
+  <AssetCard look="tile">
+    <AssetCardSelect>
+      <Checkbox value="m_3" />
+    </AssetCardSelect>
+    <a href="/admin/media/m_3" class="block">
+      <AssetCardPreview>
+        <img src="/media/2026/10/harbour.jpg?w=480&h=480&fit=cover" alt="" class="size-full object-cover" />
+      </AssetCardPreview>
+      <AssetCardCaption>
+        <AssetCardTitle tone="overlay">harbour</AssetCardTitle>
+        <AssetCardMeta tone="overlay">JPG · 2400 × 1600 · 1.2 MB</AssetCardMeta>
+      </AssetCardCaption>
+    </a>
+  </AssetCard>
+</AssetCardGrid>`,
+    notes: ["Hover a tile for its caption; the second keeps it in view with `always`."],
+    Demo: () => (
+      <AssetCardGrid size="lg" classes="w-96">
+        <AssetCard look="tile">
+          <AssetCardSelect>
+            <Checkbox value="m_3" />
+          </AssetCardSelect>
+          <AssetCardPreview>
+            <Icon name="image" size="lg" classes="text-muted-foreground" />
+          </AssetCardPreview>
+          <AssetCardCaption>
+            <AssetCardTitle tone="overlay">harbour</AssetCardTitle>
+            <AssetCardMeta tone="overlay">JPG · 2400 × 1600 · 1.2 MB</AssetCardMeta>
+          </AssetCardCaption>
+        </AssetCard>
+        <AssetCard look="tile">
+          <AssetCardSelect>
+            <Checkbox value="m_4" checked />
+          </AssetCardSelect>
+          <AssetCardPreview>
+            <Icon name="file" size="lg" classes="text-muted-foreground" />
+          </AssetCardPreview>
+          <AssetCardCaption always>
+            <AssetCardTitle tone="overlay">brief</AssetCardTitle>
+            <AssetCardMeta tone="overlay">PDF · 30 KB</AssetCardMeta>
+          </AssetCardCaption>
+        </AssetCard>
+      </AssetCardGrid>
+    ),
+    node: {
+      component: "AssetCardGrid",
+      props: { size: "lg", classes: "w-96" },
+      children: [
+        {
+          component: "AssetCard",
+          props: { look: "tile" },
+          children: [
+            {
+              component: "AssetCardPreview",
+              props: {},
+              children: [
+                { component: "Icon", props: { name: "image", size: "lg", classes: "text-muted-foreground" } },
+              ],
+            },
+            {
+              component: "AssetCardCaption",
+              props: { always: true },
+              children: [
+                { component: "AssetCardTitle", props: { tone: "overlay", children: "harbour" } },
+                { component: "AssetCardMeta", props: { tone: "overlay", children: "JPG · 1.2 MB" } },
+              ],
+            },
+          ],
         },
       ],
     },

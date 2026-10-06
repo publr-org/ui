@@ -1,0 +1,26 @@
+// A mark in a tile's top-right corner over its preview: what kind of file it is when the
+// preview alone does not say, a video's first frame being only a picture. It owns its
+// label; compose an optional Icon before it.
+
+export type AssetCardBadgeProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+  /** The file's type: `MP4`. */
+  label: string;
+};
+
+export function AssetCardBadge({ children, classes = "", id, label }: AssetCardBadgeProps) {
+  return (
+    <span
+      id={id}
+      class={[
+        "pointer-events-none absolute right-2 top-2 z-10 inline-flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-2xs font-semibold text-white backdrop-blur-sm [&>svg]:size-3",
+        classes,
+      ]}
+    >
+      {children}
+      {label}
+    </span>
+  );
+}

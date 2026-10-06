@@ -4,11 +4,20 @@ export type AssetCardMetaProps = {
   children?: JSX.Element;
   classes?: string;
   id?: string;
+  /** `overlay` sits on the preview, inside an AssetCardCaption. */
+  tone?: "default" | "overlay";
 };
 
-export function AssetCardMeta({ children, classes = "", id }: AssetCardMetaProps) {
+export function AssetCardMeta({ children, classes = "", id, tone = "default" }: AssetCardMetaProps) {
   return (
-    <span id={id} class={["block truncate text-2xs text-muted-foreground", classes]}>
+    <span
+      id={id}
+      class={[
+        "block truncate text-2xs",
+        tone === "overlay" ? "text-white/80" : "text-muted-foreground",
+        classes,
+      ]}
+    >
       {children}
     </span>
   );

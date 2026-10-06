@@ -1,12 +1,14 @@
 // The isometric slab from the pitch deck's artwork with nothing on it yet: a dashed ghost
-// block where the first one would go. Decorative, monochrome, thin outlines.
+// of what would go there, a block by default, or two sheets of paper standing on it for an
+// empty set of files. Decorative, monochrome, thin outlines.
 
 export type EmptyMarkProps = {
   classes?: string;
   id?: string;
+  subject?: "block" | "files";
 };
 
-export function EmptyMark({ classes = "", id }: EmptyMarkProps) {
+export function EmptyMark({ classes = "", id, subject = "block" }: EmptyMarkProps) {
   return (
     <svg
       id={id}
@@ -21,11 +23,20 @@ export function EmptyMark({ classes = "", id }: EmptyMarkProps) {
       <polygon points="300,100 160,180 160,192 300,112" fill="var(--muted-foreground)" />
       <polygon points="20,100 160,180 160,192 20,112" fill="var(--muted-foreground)" fill-opacity="0.6" />
       <polygon points="160,20 300,100 160,180 20,100" fill="var(--muted)" />
-      <g stroke-dasharray="4 4" class="text-muted-foreground">
-        <polygon points="120,56 160,79 160,123 120,100" />
-        <polygon points="200,56 160,79 160,123 200,100" />
-        <polygon points="160,33 200,56 160,79 120,56" />
-      </g>
+      {subject === "files" ? (
+        <g stroke-dasharray="4 4" class="text-muted-foreground">
+          <polygon points="126,108 174,80 174,34 126,62" fill="var(--muted)" />
+          <polygon points="136,114 184,86 184,46 172,41 136,62" fill="var(--muted)" />
+          <polygon points="172,41 184,46 172,53" />
+          <path d="M144 72 L166 59 M144 80 L166 67 M144 88 L158 80" />
+        </g>
+      ) : (
+        <g stroke-dasharray="4 4" class="text-muted-foreground">
+          <polygon points="120,56 160,79 160,123 120,100" />
+          <polygon points="200,56 160,79 160,123 200,100" />
+          <polygon points="160,33 200,56 160,79 120,56" />
+        </g>
+      )}
     </svg>
   );
 }

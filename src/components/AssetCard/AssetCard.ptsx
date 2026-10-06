@@ -3,22 +3,29 @@
 // keeps no selected prop, so there is exactly one source of selection truth.
 // Compose AssetCardSelect + Checkbox, AssetCardPreview, and a caller-owned
 // activation control (button or link) carrying AssetCardTitle/AssetCardMeta.
+// The `tile` look is a bare square for an edge-to-edge AssetCardGrid: no border,
+// no radius, its name in an AssetCardCaption over the preview, selection a frame
+// drawn inside it.
+
+export const ASSET_CARD_LOOKS = ["card", "tile"] as const;
+
+export type AssetCardLook = (typeof ASSET_CARD_LOOKS)[number];
 
 export type AssetCardProps = {
   children?: JSX.Element;
   classes?: string;
   id?: string;
+  look?: AssetCardLook;
 };
 
-export function AssetCard({ children, classes = "", id }: AssetCardProps) {
+const LOOK: Record<AssetCardLook, string> = {
+  card: "rounded-lg border border-border bg-card transition-shadow hover:shadow-md has-[input:checked]:border-primary has-[input:checked]:ring-2 has-[input:checked]:ring-primary/30",
+  tile: "bg-muted after:pointer-events-none after:content-[''] after:absolute after:inset-0 after:z-10 after:border-3 after:border-primary after:opacity-0 after:transition-opacity has-[input:checked]:after:opacity-100",
+};
+
+export function AssetCard({ children, classes = "", id, look = "card" }: AssetCardProps) {
   return (
-    <article
-      id={id}
-      class={[
-        "group/asset-card relative overflow-hidden rounded-lg border border-border bg-card transition-shadow hover:shadow-md has-[input:checked]:border-primary has-[input:checked]:ring-2 has-[input:checked]:ring-primary/30",
-        classes,
-      ]}
-    >
+    <article id={id} class={["group/asset-card relative overflow-hidden", LOOK[look], classes]}>
       {children}
     </article>
   );

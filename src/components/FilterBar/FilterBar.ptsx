@@ -4,7 +4,8 @@
 // inside the caller's form, the adder is a DropdownMenu that is the band's own child. The
 // caller gives the band the page's gutter (`px-8`); every segment stretches to its height.
 // The band's behaviour is small: in an empty search box Backspace follows the last pill's
-// remove link and `/` opens the adder; and a page that arrives at `#<pill id>` (the adder's
+// remove link and `/` opens the adder (the last menu outside a pill, or the one inside a
+// `data-part="filter-bar-adder"` when other menus follow it); and a page that arrives at `#<pill id>` (the adder's
 // links do) opens that pill's value menu at once, so picking a filter leads straight to
 // picking its value.
 import { Publr } from "publr-jsx";
@@ -50,10 +51,12 @@ export const keydown = (event: Event) => {
     state.pressed = "Backspace";
     last.click();
   } else if (event.key === "/") {
+    // A band with more menus after the adder (a view menu) marks it; else it is the last.
+    const marked = bar.querySelector<HTMLElement>("[data-part='filter-bar-adder'] [data-part='trigger']");
     const triggers = [...bar.querySelectorAll<HTMLElement>("[data-part='trigger']")].filter(
       (trigger) => !trigger.closest("[data-part='filter-pill']"),
     );
-    const adder = triggers[triggers.length - 1];
+    const adder = marked ?? triggers[triggers.length - 1];
     if (!adder) return;
     event.preventDefault();
     state.pressed = "/";

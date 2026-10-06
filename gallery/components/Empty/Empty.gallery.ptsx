@@ -236,6 +236,32 @@ export const variants = [
     node: CANONICAL_NODE,
   },
   {
+    label: "Files",
+    description: "An empty media library: sheets of paper stand on the slab.",
+    usage: `<Empty mark="files">
+  <EmptyTitle>No files here</EmptyTitle>
+  <EmptyDescription>Drop files anywhere on this page, or use Upload.</EmptyDescription>
+</Empty>`,
+    notes: ["`mark` names what the slab is missing; the block is the default."],
+    Demo: () => (
+      <Empty classes="w-full" mark="files">
+        <EmptyTitle>No files here</EmptyTitle>
+        <EmptyDescription>Drop files anywhere on this page, or use Upload.</EmptyDescription>
+      </Empty>
+    ),
+    node: {
+      component: "Empty",
+      props: { mark: "files" },
+      children: [
+        { component: "EmptyTitle", props: { children: "No files here" } },
+        {
+          component: "EmptyDescription",
+          props: { children: "Drop files anywhere on this page, or use Upload." },
+        },
+      ],
+    },
+  },
+  {
     label: "Without action",
     description: "Search and filter results that need no call to action.",
     usage: `<Empty>

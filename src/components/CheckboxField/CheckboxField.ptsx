@@ -18,6 +18,8 @@ export type CheckboxFieldProps = {
   /** The controls of the rule, shown while the box is ticked. */
   children?: JSX.Element;
   classes?: string;
+  /** The id of the form it posts with, when it sits outside that form. */
+  form?: string;
   onChange?: (event: Event) => void;
 };
 
@@ -31,6 +33,7 @@ export function CheckboxField({
   description,
   children,
   classes = "",
+  form,
   onChange,
 }: CheckboxFieldProps) {
   return (
@@ -45,6 +48,7 @@ export function CheckboxField({
         checked={checked}
         disabled={disabled}
         classes="peer mt-0.5"
+        form={form}
         onChange={onChange}
       />
       <FieldLabel htmlFor={id}>{label}</FieldLabel>

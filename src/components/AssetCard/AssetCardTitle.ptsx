@@ -5,11 +5,20 @@ export type AssetCardTitleProps = {
   children?: JSX.Element;
   classes?: string;
   id?: string;
+  /** `overlay` sits on the preview, inside an AssetCardCaption. */
+  tone?: "default" | "overlay";
 };
 
-export function AssetCardTitle({ children, classes = "", id }: AssetCardTitleProps) {
+export function AssetCardTitle({ children, classes = "", id, tone = "default" }: AssetCardTitleProps) {
   return (
-    <span id={id} class={["block truncate text-xs font-medium text-foreground", classes]}>
+    <span
+      id={id}
+      class={[
+        "block truncate text-xs font-medium",
+        tone === "overlay" ? "text-white" : "text-foreground",
+        classes,
+      ]}
+    >
       {children}
     </span>
   );

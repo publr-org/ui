@@ -20,9 +20,12 @@ export type AvatarProps = {
   id?: string;
   name: string;
   size?: AvatarSize;
+  /** Where the picture is; without it, the email's Gravatar. A site that serves the
+   * picture from its own address (fetched once, kept) passes it here. */
+  src?: string;
 };
 
-export function Avatar({ children, classes = "", email, id, name, size = "md" }: AvatarProps) {
+export function Avatar({ children, classes = "", email, id, name, size = "md", src }: AvatarProps) {
   return (
     <span
       id={id}
@@ -41,7 +44,15 @@ export function Avatar({ children, classes = "", email, id, name, size = "md" }:
       >
         {initials(name)}
       </span>
-      {email && (
+      {src ? (
+        <img
+          src={src}
+          alt=""
+          aria-hidden="true"
+          class="absolute inset-0 h-full w-full rounded-full object-cover"
+          data-part="gravatar"
+        />
+      ) : email && (
         <img
           src={gravatarUrl(email, 80)}
           alt=""

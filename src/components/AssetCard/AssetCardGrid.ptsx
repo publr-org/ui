@@ -1,0 +1,27 @@
+// Tiles side by side with nothing between them, filling the width: the media library's
+// wall of squares. `size` is how large a tile is; the columns follow the width.
+
+export const ASSET_CARD_GRID_SIZES = ["sm", "md", "lg"] as const;
+
+export type AssetCardGridSize = (typeof ASSET_CARD_GRID_SIZES)[number];
+
+export type AssetCardGridProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+  size?: AssetCardGridSize;
+};
+
+const COLUMNS: Record<AssetCardGridSize, string> = {
+  sm: "grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10",
+  md: "grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7",
+  lg: "grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4",
+};
+
+export function AssetCardGrid({ children, classes = "", id, size = "md" }: AssetCardGridProps) {
+  return (
+    <div id={id} class={["grid gap-0", COLUMNS[size], classes]}>
+      {children}
+    </div>
+  );
+}

@@ -13,13 +13,16 @@ export type ReferenceCardProps = {
   title: string;
   /** The record's status label, and the tone that colours its dot. */
   status: string;
-  /** neutral, success, warning, error, accent or review; anything else draws neutral. */
+  /** neutral, success, warning, error, accent, review or info; anything else draws no
+   * status. One condition per tone, so the card reads the same inside a live list. */
   tone?: string;
-  /** Where the open row leads. */
+  /** Where the open row leads; empty draws the card as a preview, leading nowhere. */
   href: string;
   onOpen?: (event: Event) => void;
   /** The rail's controls. */
   children?: JSX.Element;
+  /** Beside another version: `added` rings it green, `removed` red and faded. */
+  mark?: string;
   classes?: string;
   id?: string;
 };
@@ -32,6 +35,7 @@ export function ReferenceCard({
   href,
   onOpen,
   children,
+  mark = "",
   classes = "",
   id,
 }: ReferenceCardProps) {
@@ -40,6 +44,8 @@ export function ReferenceCard({
       id={id}
       class={[
         "group/reference flex overflow-hidden rounded-lg border border-border bg-card shadow-xs transition-[border-color,box-shadow] duration-150 hover:border-input",
+        mark === "added" ? "ring-2 ring-success/40" : "",
+        mark === "removed" ? "opacity-60 ring-2 ring-destructive/40" : "",
         classes,
       ]}
       data-part="reference-card"
@@ -67,28 +73,33 @@ export function ReferenceCard({
             {tone === "error" && <Status tone="error">{status}</Status>}
             {tone === "accent" && <Status tone="accent">{status}</Status>}
             {tone === "review" && <Status tone="review">{status}</Status>}
-            {tone !== "success" &&
-              tone !== "warning" &&
-              tone !== "error" &&
-              tone !== "accent" &&
-              tone !== "review" && <Status tone="neutral">{status}</Status>}
+            {tone === "info" && <Status tone="info">{status}</Status>}
+            {tone === "neutral" && <Status tone="neutral">{status}</Status>}
           </span>
         </div>
-        <Link
-          onClick={onOpen}
-          href={href}
-          tone="default"
-          classes="flex w-full items-center gap-3 px-4 py-4 hover:bg-muted/30"
-        >
-          <Text as="span" variant="heading-xs" classes="min-w-0 flex-1 truncate">
-            {title}
-          </Text>
-          <Icon
-            name="chevron-right"
-            size="sm"
-            classes="shrink-0 text-muted-foreground transition-transform group-hover/reference:translate-x-0.5"
-          />
-        </Link>
+        {href !== "" ? (
+          <Link
+            onClick={onOpen}
+            href={href}
+            tone="default"
+            classes="flex w-full items-center gap-3 px-4 py-4 hover:bg-muted/30"
+          >
+            <Text as="span" variant="heading-xs" classes="min-w-0 flex-1 truncate">
+              {title}
+            </Text>
+            <Icon
+              name="chevron-right"
+              size="sm"
+              classes="shrink-0 text-muted-foreground transition-transform group-hover/reference:translate-x-0.5"
+            />
+          </Link>
+        ) : (
+          <div class="flex w-full items-center gap-3 px-4 py-4">
+            <Text as="span" variant="heading-xs" classes="min-w-0 flex-1 truncate">
+              {title}
+            </Text>
+          </div>
+        )}
       </div>
     </article>
   );

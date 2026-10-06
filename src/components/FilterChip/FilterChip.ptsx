@@ -14,6 +14,8 @@ export type FilterChipProps = {
   href?: string;
   id?: string;
   selected?: boolean;
+  /** Acts in the page instead of, or before, following `href`. */
+  onClick?: (event: MouseEvent) => void;
 };
 
 export function FilterChip({
@@ -24,12 +26,14 @@ export function FilterChip({
   href,
   id,
   selected = false,
+  onClick,
 }: FilterChipProps) {
   return (
     <Dynamic
       as={href === undefined ? "span" : "a"}
       id={id}
       href={href}
+      onClick={onClick}
       aria-current={selected ? "true" : undefined}
       class={[
         "inline-flex items-center gap-1 rounded-full px-2 py-1 text-3xs font-medium no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",

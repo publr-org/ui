@@ -1,0 +1,11 @@
+// Placeholder block: a light gray shape standing in for something about to appear, pulsing
+// gently. classes size and place it (width, height, rounding of a circle); the look is the
+// component's own.
+
+export type SkeletonProps = {
+  classes?: string;
+};
+
+export function Skeleton({ classes = "" }: SkeletonProps) {
+  return <div class={["animate-pulse rounded-md bg-muted", classes]} aria-hidden="true" data-part="skeleton" />;
+}

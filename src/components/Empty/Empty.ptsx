@@ -1,7 +1,8 @@
 // Zero-data placeholder root. One centered native column; the part margins
 // (description mt-2, content mt-6) own the vertical rhythm so any omitted part
-// collapses cleanly. The default carries the dot mark and room to breathe; `compact`
-// is for small spots (a drawer, a panel) and drops the mark.
+// collapses cleanly. The default carries the dot mark and room to breathe; `mark` names
+// what the slab is missing (`files` for a library); `compact` is for small spots (a
+// drawer, a panel) and drops the mark.
 import { EmptyMark } from "./EmptyMark.ptsx";
 import { EmptyGrid } from "./EmptyGrid.ptsx";
 
@@ -10,9 +11,10 @@ export type EmptyProps = {
   classes?: string;
   id?: string;
   compact?: boolean;
+  mark?: "block" | "files";
 };
 
-export function Empty({ children, classes = "", id, compact = false }: EmptyProps) {
+export function Empty({ children, classes = "", id, compact = false, mark = "block" }: EmptyProps) {
   return (
     <div
       id={id}
@@ -25,7 +27,7 @@ export function Empty({ children, classes = "", id, compact = false }: EmptyProp
       {!compact && (
         <div class="relative mb-8">
           <EmptyGrid />
-          <EmptyMark classes="relative" />
+          <EmptyMark classes="relative" subject={mark} />
         </div>
       )}
       <div class="relative flex flex-col items-center">{children}</div>

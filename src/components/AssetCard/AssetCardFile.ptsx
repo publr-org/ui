@@ -1,0 +1,21 @@
+// What a file without a picture shows in its preview: its kind's icon over its type,
+// large, so a PDF reads as a PDF from across the grid. Compose an Icon as the child.
+
+export type AssetCardFileProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+  /** The file's type as people say it: `PDF`, `MP3`, `ZIP`. */
+  label: string;
+};
+
+export function AssetCardFile({ children, classes = "", id, label }: AssetCardFileProps) {
+  return (
+    <span id={id} class={["flex flex-col items-center justify-center gap-3 text-muted-foreground", classes]}>
+      <span class="flex size-14 items-center justify-center rounded-xl border border-border bg-card shadow-xs [&>svg]:size-7">
+        {children}
+      </span>
+      <span class="font-mono text-sm font-semibold tracking-widest text-muted-foreground">{label}</span>
+    </span>
+  );
+}

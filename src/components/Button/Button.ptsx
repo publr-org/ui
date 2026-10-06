@@ -62,7 +62,7 @@ const DEFAULT_HIERARCHY_CLASSES: Record<ButtonHierarchy, string> = {
   primary:
     "border-primary bg-primary text-primary-foreground shadow-xs outline-ring hover:border-primary/85 hover:bg-primary/85 aria-[pressed=true]:bg-primary/85 aria-expanded:bg-primary/85",
   secondary:
-    "border-border bg-card text-foreground shadow-xs outline-ring hover:border-input hover:bg-muted/50 aria-[pressed=true]:border-ring aria-[pressed=true]:bg-ui-accent aria-expanded:border-ring aria-expanded:bg-ui-accent",
+    "border-border bg-card text-foreground shadow-xs outline-ring hover:border-input hover:bg-[color-mix(in_oklab,var(--muted)_50%,var(--card))] aria-[pressed=true]:border-ring aria-[pressed=true]:bg-ui-accent aria-expanded:border-ring aria-expanded:bg-ui-accent",
   tertiary:
     "border-transparent bg-transparent text-muted-foreground outline-ring hover:bg-ui-accent hover:text-foreground aria-[pressed=true]:border-ring aria-[pressed=true]:bg-ui-accent aria-[pressed=true]:text-foreground aria-expanded:border-ring aria-expanded:bg-ui-accent aria-expanded:text-foreground",
   link: "border-transparent bg-transparent text-primary outline-ring underline decoration-transparent underline-offset-4 hover:text-primary/80 hover:decoration-current",

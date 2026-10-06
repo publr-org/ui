@@ -17,6 +17,12 @@ export const closeDialog = (event: Event) => {
   if (!event.defaultPrevented) state.open = false;
 };
 
+/** A form in the dialog submitted (valid, and not taken over by its own handler): its
+ * work is under way, so the dialog steps aside. */
+export const closeOnSubmit = (event: Event) => {
+  if (!event.defaultPrevented) state.open = false;
+};
+
 export const backdropDismiss = (event: Event) => {
   if (event.target === backdrop.current) state.open = false;
 };

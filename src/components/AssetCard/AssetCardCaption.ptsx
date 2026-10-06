@@ -1,0 +1,28 @@
+// A tile's name and facts laid over the bottom of its preview on a dark fade, so they
+// read on any image. It shows while the tile is hovered or holds focus, or `always`.
+// Compose AssetCardTitle and AssetCardMeta with tone="overlay".
+
+export type AssetCardCaptionProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+  /** Keep it in view, not only on hover and focus. */
+  always?: boolean;
+};
+
+export function AssetCardCaption({ children, classes = "", id, always = false }: AssetCardCaptionProps) {
+  return (
+    <span
+      id={id}
+      class={[
+        "pointer-events-none absolute inset-x-0 bottom-0 flex flex-col gap-0.5 bg-linear-to-t from-black/75 via-black/40 to-transparent px-3 pt-8 pb-2.5 text-left transition-opacity",
+        always
+          ? "opacity-100"
+          : "opacity-0 group-hover/asset-card:opacity-100 group-focus-within/asset-card:opacity-100",
+        classes,
+      ]}
+    >
+      {children}
+    </span>
+  );
+}

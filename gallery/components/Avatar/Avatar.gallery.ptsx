@@ -58,6 +58,11 @@ export const meta = {
           "Pass email to layer the address's Gravatar over the initials. The blank default keeps initials for addresses without one; an authored AvatarImage still wins over both.",
       },
       {
+        title: "src serves the picture from the site",
+        description:
+          "Pass src, the picture's address on the site itself, to show it instead of Gravatar: a site that fetches the Gravatar once and keeps it never sends its pages' visitors to gravatar.com.",
+      },
+      {
         title: "Image covers, never replaces",
         description:
           "AvatarImage absolutely covers the derived initials when a portrait exists. Author it only when there is a real src.",
@@ -85,6 +90,11 @@ export const meta = {
       "AvatarBadge has no tone enum; restyle through classes when a non-success dot is genuinely needed.",
     ],
     props: [
+      {
+        name: "Avatar.src",
+        type: "string",
+        description: "The picture's address on the site; without it, the email's Gravatar.",
+      },
       {
         name: "Avatar.name",
         type: "string",
