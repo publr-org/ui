@@ -123,3 +123,93 @@ test "every recipe and the gallery app lower to DOM" {
     try std.testing.expect(checked >= 40);
     try std.testing.expectEqual(@as(u32, 0), failures);
 }
+
+// Tiers (docs/design/ui.md, 1b): a primitive imports no composite, and no component reaches
+// a data source: no `fetch`, no `Publr.request`, no import from the admin or of the transport.
+// DataTable still fetches its own pages: listed debt (`.agents/specs/html-swapping-debt.md`),
+// the only exception, so nothing new joins it.
+const data_source_debt = [_][]const u8{"DataTable"};
+const data_sources = [_][]const u8{ "fetch(", "Publr.request", "\"@publr/admin", "\"publr/transport\"" };
+
+const Tier = enum { primitive, composite, unknown };
+
+fn tier_of(arena: std.mem.Allocator, io: std.Io, name: []const u8) !Tier {
+    const path = try std.fmt.allocPrint(arena, "gallery/components/{s}/{s}.gallery.ptsx", .{ name, name });
+    const source = std.Io.Dir.cwd().readFileAlloc(io, path, arena, .limited(file_bytes_max)) catch {
+        return .unknown;
+    };
+
+    if (std.mem.indexOf(u8, source, "kind: \"composite\"") != null) return .composite;
+    if (std.mem.indexOf(u8, source, "kind: \"primitive\"") != null) return .primitive;
+    return .unknown;
+}
+
+fn is_debt(name: []const u8) bool {
+    for (data_source_debt) |debt| {
+        if (std.mem.eql(u8, debt, name)) return true;
+    }
+    return false;
+}
+
+/// The component folders a source imports from (`from "../Other/...`).
+fn imported_folders(arena: std.mem.Allocator, source: []const u8) ![]const []const u8 {
+    var folders: std.ArrayList([]const u8) = .empty;
+    var rest = source;
+    const marker = "from \"../";
+
+    while (std.mem.indexOf(u8, rest, marker)) |at| {
+        const after = rest[at + marker.len ..];
+        const end = std.mem.indexOfScalar(u8, after, '/') orelse break;
+
+        try folders.append(arena, after[0..end]);
+        rest = after[end..];
+    }
+
+    return folders.items;
+}
+
+test "tiers: primitives import no composite, and no component reaches a data source" {
+    var arena_state = std.heap.ArenaAllocator.init(std.testing.allocator);
+    defer arena_state.deinit();
+    const arena = arena_state.allocator();
+    const io = std.testing.io;
+
+    var dir = try std.Io.Dir.cwd().openDir(io, components_dir, .{ .iterate = true });
+    defer dir.close(io);
+    var walker = try dir.walk(arena);
+    defer walker.deinit();
+
+    var failures: u32 = 0;
+    var checked: u32 = 0;
+
+    while (try walker.next(io)) |entry| {
+        if (entry.kind != .file or !std.mem.endsWith(u8, entry.basename, ".ptsx")) continue;
+
+        const folder = entry.path[0 .. std.mem.indexOfScalar(u8, entry.path, '/') orelse continue];
+        const source = try dir.readFileAlloc(io, entry.path, arena, .limited(file_bytes_max));
+        const tier = try tier_of(arena, io, folder);
+
+        checked += 1;
+
+        if (tier == .primitive) {
+            for (try imported_folders(arena, source)) |imported| {
+                if (try tier_of(arena, io, imported) == .composite) {
+                    std.debug.print("tiers: primitive {s} imports composite {s}\n", .{ entry.path, imported });
+                    failures += 1;
+                }
+            }
+        }
+
+        if (is_debt(folder)) continue;
+
+        for (data_sources) |needle| {
+            if (std.mem.indexOf(u8, source, needle) != null) {
+                std.debug.print("tiers: {s} reaches a data source ({s}); data comes in as props\n", .{ entry.path, needle });
+                failures += 1;
+            }
+        }
+    }
+
+    try std.testing.expect(checked >= components_min);
+    try std.testing.expectEqual(@as(u32, 0), failures);
+}

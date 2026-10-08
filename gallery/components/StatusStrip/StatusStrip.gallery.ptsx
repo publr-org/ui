@@ -1,0 +1,53 @@
+import { StatusStrip } from "../../../src/components/StatusStrip/StatusStrip.ptsx";
+import { Status } from "../../../src/components/Status/Status.ptsx";
+import type { ComponentDemoMeta, ComponentDemoVariant } from "../../gallery-types";
+
+export const meta = {
+  name: "status-strip",
+  label: "StatusStrip",
+  source: "src/components/StatusStrip/StatusStrip.ptsx",
+  kind: "composite",
+  group: "Editor",
+  description: "The row of facts under a page's title: the status, a rule, a quiet note.",
+  tags: ["status", "saved", "editor", "meta"],
+  usage: `<StatusStrip status="Published" tone="success" note="All changes saved" />`,
+  preview: "toolbar",
+  previewLabel: "A published record, and a draft with pending changes",
+  docs: {
+    purpose: ["Says where the thing on the page stands and what happened to it last, the same on every editor."],
+    useWhen: ["An editor page's facts band: status first, then when it was saved."],
+    avoidWhen: ["A status inside a list or a card: that is Status alone."],
+    rules: [
+      { title: "Tone by meaning", description: "success for live, neutral for a draft, warning for pending changes." },
+    ],
+    accessibility: ["The note is plain text; announce saves elsewhere when they matter."],
+    composition: ["Goes in a layout's meta slot; extra facts come as children, before the rule."],
+    agentNotes: ["Pass the status label and its tone from data; never colour a status by hand."],
+    props: [
+      { name: "status", type: "string", description: "The status's label.", required: true },
+      { name: "tone", type: "string", description: "Its tone.", default: "neutral" },
+      { name: "note", type: "string", description: "The quiet note after the rule.", default: '""' },
+      { name: "children", type: "node", description: "More facts before the rule." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const variants = [
+  {
+    label: "Editor",
+    description: "Published, and a draft with pending changes.",
+    usage: `<StatusStrip status="Published" tone="success" note="All changes saved" />`,
+    Demo: () => (
+      <div class="flex flex-col gap-4">
+        <div class="flex min-h-12 flex-wrap items-center gap-3">
+          <StatusStrip status="Published" tone="success" note="All changes saved" />
+        </div>
+        <div class="flex min-h-12 flex-wrap items-center gap-3">
+          <StatusStrip status="Draft" tone="neutral" note="Saved a minute ago">
+            <Status tone="warning">unpublished changes</Status>
+          </StatusStrip>
+        </div>
+      </div>
+    ),
+  },
+] satisfies ComponentDemoVariant[];

@@ -1,0 +1,47 @@
+// One form field as the admin lays it out: the label with its required mark, the control,
+// then the help under it and an error last. A composite of Field's parts; the control is
+// whatever comes as children. A row whose control names itself (a group, a heading) leaves
+// the label empty.
+import { Field } from "../Field/Field.ptsx";
+import { FieldDescription } from "../Field/FieldDescription.ptsx";
+import { FieldError } from "../Field/FieldError.ptsx";
+import { FieldLabel } from "../Field/FieldLabel.ptsx";
+
+export type FieldRowProps = {
+  /** The label; empty draws none. */
+  label?: string;
+  /** The control's id, so the label names it. */
+  htmlFor?: string;
+  required?: boolean;
+  /** The line under the control; empty draws none. */
+  description?: string;
+  /** What is wrong with the value; empty draws none. */
+  error?: string;
+  classes?: string;
+  id?: string;
+  children?: JSX.Element;
+};
+
+export function FieldRow({
+  label = "",
+  htmlFor,
+  required = false,
+  description = "",
+  error = "",
+  classes = "",
+  id,
+  children,
+}: FieldRowProps) {
+  return (
+    <Field id={id} classes={classes}>
+      {label !== "" && (
+        <FieldLabel htmlFor={htmlFor} required={required}>
+          {label}
+        </FieldLabel>
+      )}
+      {children}
+      {description !== "" && <FieldDescription>{description}</FieldDescription>}
+      {error !== "" && <FieldError>{error}</FieldError>}
+    </Field>
+  );
+}

@@ -14,7 +14,7 @@ export type FieldProps = {
 
 export function Field({ children, classes = "", id }: FieldProps) {
   return (
-    <div id={id} class={["grid gap-2", classes]} data-part="field">
+    <div id={id} class={["grid grid-cols-1 gap-2", classes]} data-part="field">
       {children}
     </div>
   );

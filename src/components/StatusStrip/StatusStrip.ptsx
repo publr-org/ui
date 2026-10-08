@@ -1,0 +1,38 @@
+// The row of facts under a page's title: the thing's status, a rule, a quiet note (when it
+// was saved, what is pending), then anything else the page adds. A composite of Status,
+// Separator and Text.
+import { Separator } from "../Separator/Separator.ptsx";
+import { Status } from "../Status/Status.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type StatusStripProps = {
+  /** The status's label: `Published`. */
+  status: string;
+  /** neutral, success, warning, error, accent, review or info; anything else draws none. */
+  tone?: string;
+  /** The quiet note after the rule; empty draws neither. */
+  note?: string;
+  /** More facts or actions after the note: another status, a retry button. */
+  children?: JSX.Element;
+};
+
+export function StatusStrip({ status, tone = "neutral", note = "", children }: StatusStripProps) {
+  return (
+    <div class="contents" data-part="status-strip">
+      {tone === "success" && <Status tone="success">{status}</Status>}
+      {tone === "warning" && <Status tone="warning">{status}</Status>}
+      {tone === "error" && <Status tone="error">{status}</Status>}
+      {tone === "accent" && <Status tone="accent">{status}</Status>}
+      {tone === "review" && <Status tone="review">{status}</Status>}
+      {tone === "info" && <Status tone="info">{status}</Status>}
+      {tone === "neutral" && <Status tone="neutral">{status}</Status>}
+      {children}
+      {note !== "" && <Separator orientation="vertical" />}
+      {note !== "" && (
+        <Text as="span" variant="body-xs" tone="muted">
+          {note}
+        </Text>
+      )}
+    </div>
+  );
+}

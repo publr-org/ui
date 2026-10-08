@@ -1,0 +1,58 @@
+import { FieldRow } from "../../../src/components/FieldRow/FieldRow.ptsx";
+import { Input } from "../../../src/components/Input/Input.ptsx";
+import { Textarea } from "../../../src/components/Textarea/Textarea.ptsx";
+import type { ComponentDemoMeta, ComponentDemoVariant } from "../../gallery-types";
+
+export const meta = {
+  name: "field-row",
+  label: "FieldRow",
+  source: "src/components/FieldRow/FieldRow.ptsx",
+  kind: "composite",
+  group: "Forms",
+  description: "One form field laid out the admin's way: label with its required mark, the control, the help under it, an error last.",
+  tags: ["field", "form", "label", "help", "error"],
+  usage: `<FieldRow label="Title" htmlFor="title" required><Input id="title" name="title" /></FieldRow>`,
+  preview: "inspector",
+  previewLabel: "A required title and an introduction with help",
+  docs: {
+    purpose: ["Draws a field the same way on every form, so a plugin's form and the record editor match without either repeating the layout."],
+    useWhen: ["A labelled control in a form: an input, a textarea, a list of linked items."],
+    avoidWhen: ["The control names itself (a checkbox with its own label, a group with a heading): leave `label` empty or use Field's parts."],
+    rules: [
+      { title: "One control per row", description: "The children are the control; the row owns the spacing between label, control and help." },
+      { title: "Help is short", description: "`description` is one line about what the value is for; errors go in `error`." },
+    ],
+    accessibility: ["Pass `htmlFor` with the control's id so the label names it."],
+    composition: ["Put rows in a column with the form's own gap; the row sets no outer spacing."],
+    agentNotes: ["Never rebuild a field from FieldLabel and FieldDescription by hand on a page; use FieldRow."],
+    props: [
+      { name: "label", type: "string", description: "The label; empty draws none.", default: '""' },
+      { name: "htmlFor", type: "string", description: "The control's id." },
+      { name: "required", type: "boolean", description: "Marks the label as required.", default: "false" },
+      { name: "description", type: "string", description: "The help under the control.", default: '""' },
+      { name: "error", type: "string", description: "What is wrong with the value.", default: '""' },
+      { name: "children", type: "node", description: "The control." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const variants = [
+  {
+    label: "Form",
+    description: "A required title, then an introduction with help.",
+    usage: `<FieldRow label="Title" htmlFor="title" required><Input id="title" name="title" value="Publr in a day" /></FieldRow>`,
+    Demo: () => (
+      <div class="flex max-w-xl flex-col gap-7">
+        <FieldRow label="Title" htmlFor="demo-title" required>
+          <Input id="demo-title" name="title" value="Publr in a day" />
+        </FieldRow>
+        <FieldRow label="Introduction" htmlFor="demo-intro" description="Shown on the course's first page.">
+          <Textarea id="demo-intro" name="intro" rows={4} value="From an empty folder to a site people can read." />
+        </FieldRow>
+        <FieldRow label="Slug" htmlFor="demo-slug" error="Already used by another course.">
+          <Input id="demo-slug" name="slug" value="publr" invalid />
+        </FieldRow>
+      </div>
+    ),
+  },
+] satisfies ComponentDemoVariant[];

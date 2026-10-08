@@ -1,0 +1,57 @@
+// A list of linked things in order, each a ReferenceCard whose rail moves it up, down or
+// out, then a place to add another. The list holds no data of its own: it draws `items`
+// and hands every press to the caller, the button carrying the item's id as its `value`.
+// A button whose handler is absent is not drawn.
+import { Button } from "../Button/Button.ptsx";
+import { Icon } from "../Icon/Icon.ptsx";
+import { ReferenceAddCard } from "../ReferenceCard/ReferenceAddCard.ptsx";
+import { ReferenceCard } from "../ReferenceCard/ReferenceCard.ptsx";
+
+export type ItemListProps = {
+  items: Array<{
+    id: string;
+    title: string;
+    /** What the item is: its type's name. */
+    type_label: string;
+    status: string;
+    /** The status's tone, as ReferenceCard takes it. */
+    tone: string;
+    /** Where the card opens; empty draws a card leading nowhere. */
+    href: string;
+  }>;
+  /** Each handler reads the item's id from the pressed button's `value`. */
+  onMoveUp?: (event: Event) => void;
+  onMoveDown?: (event: Event) => void;
+  onRemove?: (event: Event) => void;
+  /** Opening a card: a drawer instead of following its `href`. */
+  onOpen?: (event: Event) => void;
+  /** The way to add another, drawn in the dashed card after the list; none draws none. */
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function ItemList({ items, onMoveUp, onMoveDown, onRemove, onOpen, children, classes = "", id }: ItemListProps) {
+  return (
+    <div id={id} class={["flex flex-col gap-2", classes]} data-part="item-list">
+      {items.map((item) => (
+        <ReferenceCard key={item.id} type_label={item.type_label} title={item.title}
+          status={item.status} tone={item.tone} href={item.href} onOpen={onOpen}>
+          {onMoveUp && (
+            <Button value={item.id} hierarchy="tertiary" size="xs" label="Move up" title="Move up"
+              onClick={onMoveUp}><Icon name="chevron-up" size="xs" /></Button>
+          )}
+          {onMoveDown && (
+            <Button value={item.id} hierarchy="tertiary" size="xs" label="Move down" title="Move down"
+              onClick={onMoveDown}><Icon name="chevron-down" size="xs" /></Button>
+          )}
+          {onRemove && (
+            <Button value={item.id} hierarchy="tertiary" size="xs" label="Remove" title="Remove"
+              onClick={onRemove}><Icon name="x-close" size="xs" /></Button>
+          )}
+        </ReferenceCard>
+      ))}
+      {children && <ReferenceAddCard>{children}</ReferenceAddCard>}
+    </div>
+  );
+}

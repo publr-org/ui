@@ -1,0 +1,59 @@
+import { ItemList } from "../../../src/components/ItemList/ItemList.ptsx";
+import { Button } from "../../../src/components/Button/Button.ptsx";
+import { Icon } from "../../../src/components/Icon/Icon.ptsx";
+import type { ComponentDemoMeta, ComponentDemoVariant } from "../../gallery-types";
+
+const chapters = [
+  { id: "1", title: "Getting started", type_label: "Chapter", status: "Published", tone: "success", href: "#getting-started" },
+  { id: "2", title: "Content", type_label: "Chapter", status: "Draft", tone: "neutral", href: "#content" },
+  { id: "3", title: "The site", type_label: "Chapter", status: "Draft", tone: "neutral", href: "#the-site" },
+];
+
+export const noop = (_event: Event) => {};
+
+export const meta = {
+  name: "item-list",
+  label: "ItemList",
+  source: "src/components/ItemList/ItemList.ptsx",
+  kind: "composite",
+  group: "Forms",
+  description: "Linked things in order, each a card that moves up, down or out, then a place to add another.",
+  tags: ["reference", "list", "order", "cards", "relation"],
+  usage: `<ItemList items={chapters} onMoveUp={moved} onMoveDown={moved} onRemove={removed}><Button hierarchy="secondary" size="sm">Add</Button></ItemList>`,
+  preview: "inspector",
+  previewLabel: "Three chapters in a course",
+  docs: {
+    purpose: ["Shows an ordered relation (a course's chapters, a page's sections) and lets people reorder it, the same everywhere."],
+    useWhen: ["Records linked in an order the user controls."],
+    avoidWhen: ["A table of many records to filter: that is DataTable.", "One linked record: that is ReferenceCard alone."],
+    rules: [
+      { title: "The caller owns the data", description: "The list draws `items` and hands each press to a handler; the handler changes the data and the list redraws." },
+      { title: "Only what is offered", description: "A handler left out leaves its button out." },
+    ],
+    accessibility: ["Every rail button has a name: Move up, Move down, Remove."],
+    composition: ["The add buttons come as children and sit in the dashed card after the list."],
+    agentNotes: ["Read the item's id from `event.currentTarget.value` in the handlers."],
+    props: [
+      { name: "items", type: "Array<{ id, title, type_label, status, tone, href }>", description: "The items in order.", required: true },
+      { name: "onMoveUp", type: "(event) => void", description: "Moves the pressed item up." },
+      { name: "onMoveDown", type: "(event) => void", description: "Moves the pressed item down." },
+      { name: "onRemove", type: "(event) => void", description: "Takes the pressed item out." },
+      { name: "children", type: "node", description: "The way to add another." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const variants = [
+  {
+    label: "Chapters",
+    description: "A course's chapters, reorderable, with a way to add one.",
+    usage: `<ItemList items={chapters} onMoveUp={moved} onMoveDown={moved} onRemove={removed}>…</ItemList>`,
+    Demo: () => (
+      <div class="max-w-xl">
+        <ItemList items={chapters} onMoveUp={noop} onMoveDown={noop} onRemove={noop}>
+          <Button hierarchy="secondary" size="sm"><Icon name="plus" size="sm" /><span>Create new item</span></Button>
+        </ItemList>
+      </div>
+    ),
+  },
+] satisfies ComponentDemoVariant[];
