@@ -1,3 +1,4 @@
+import { Publr } from "publr-jsx";
 import { filterRows } from "./DataTable.ptsx";
 import { Input } from "../Input/Input.ptsx";
 export type DataTableFilterProps = {
@@ -13,8 +14,8 @@ export function DataTableFilter({
   classes = "",
   name,
   value = "",
-  placeholder = "Filter rows…",
-  label = "Filter rows",
+  placeholder = "",
+  label = "",
 }: DataTableFilterProps) {
   return (
     <Input
@@ -22,8 +23,8 @@ export function DataTableFilter({
       type="search"
       name={name}
       value={value}
-      placeholder={placeholder}
-      aria-label={label}
+      placeholder={placeholder !== "" ? placeholder : Publr.t("Filter rows…")}
+      aria-label={label !== "" ? label : Publr.t("Filter rows")}
       classes={classes}
       onInput={filterRows}
     />

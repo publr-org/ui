@@ -25,6 +25,7 @@ export const meta = {
     useWhen: [
       "A sentence names a handle, a slug, a field path, or a kind by its literal value.",
       "A page shows a stored document or value verbatim.",
+      "A page gives commands to copy and run: CodeBlock framed.",
     ],
     avoidWhen: [
       "The value is a column of its own in a table; TableCell mono owns that treatment.",
@@ -65,6 +66,12 @@ export const meta = {
         name: "children",
         type: "node",
         description: "The literal, as text.",
+      },
+      {
+        name: "variant",
+        type: '"plain" | "framed"',
+        default: "plain",
+        description: "CodeBlock only: framed sets the block on a surface of its own.",
       },
       {
         name: "classes",
@@ -125,6 +132,10 @@ function BlockDemo() {
   return <CodeBlock>{`{"title": "Hello, world", "views": 3}`}</CodeBlock>;
 }
 
+function FramedDemo() {
+  return <CodeBlock variant="framed">{`cd ~/sites/blog\n./publr skill install`}</CodeBlock>;
+}
+
 export const variants = [
   {
     label: "Inline code",
@@ -153,6 +164,17 @@ export const variants = [
     node: {
       component: "CodeBlock",
       props: { children: `{"title": "Hello, world", "views": 3}` },
+    },
+  },
+  {
+    label: "Framed block",
+    description: "Commands to copy and run, set apart on their own surface.",
+    usage: `<CodeBlock variant="framed">./publr skill install</CodeBlock>`,
+    notes: ["One command per line; the text around it says where to run them."],
+    Demo: FramedDemo,
+    node: {
+      component: "CodeBlock",
+      props: { variant: "framed", children: "cd ~/sites/blog\n./publr skill install" },
     },
   },
 ] satisfies ComponentDemoVariant[];

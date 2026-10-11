@@ -1,4 +1,4 @@
-import { Slot } from "publr-jsx";
+import { Publr, Slot } from "publr-jsx";
 
 export type StyleControlCloseTriggerProps = {
   id?: string;
@@ -13,7 +13,7 @@ export function StyleControlCloseTrigger({
   id,
   classes = "",
   asChild = false,
-  label = "Close",
+  label = "",
   children,
   onClick,
 }: StyleControlCloseTriggerProps) {
@@ -25,7 +25,7 @@ export function StyleControlCloseTrigger({
           class={["shrink-0", classes]}
           role="button"
           tabindex={0}
-          aria-label={label}
+          aria-label={label !== "" ? label : Publr.t("Close")}
           data-part="style-control-close-trigger"
           onClick={onClick}
         >
@@ -39,7 +39,7 @@ export function StyleControlCloseTrigger({
             classes,
           ]}
           type="button"
-          aria-label={label}
+          aria-label={label !== "" ? label : Publr.t("Close")}
           data-part="style-control-close-trigger"
           onClick={onClick}
         >

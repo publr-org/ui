@@ -4,15 +4,17 @@ import { Dynamic } from "publr-jsx";
 import { Icon } from "../Icon/Icon.ptsx";
 import type { IconSize } from "../Icon/Icon.ptsx";
 
-export const BUTTON_HIERARCHIES = ["primary", "secondary", "tertiary", "link"] as const;
+export const BUTTON_HIERARCHIES = ["primary", "secondary", "tertiary", "link", "contrast", "quiet"] as const;
 export const BUTTON_INTENTS = ["default", "destructive"] as const;
-export const BUTTON_SIZES = ["xs", "sm", "md", "lg"] as const;
+export const BUTTON_SIZES = ["mini", "xs", "sm", "md", "lg"] as const;
 export const BUTTON_ATTACHMENTS = ["none", "start", "end"] as const;
+export const BUTTON_SHAPES = ["default", "pill"] as const;
 
 export type ButtonHierarchy = (typeof BUTTON_HIERARCHIES)[number];
 export type ButtonIntent = (typeof BUTTON_INTENTS)[number];
 export type ButtonSize = (typeof BUTTON_SIZES)[number];
 export type ButtonAttachment = (typeof BUTTON_ATTACHMENTS)[number];
+export type ButtonShape = (typeof BUTTON_SHAPES)[number];
 export type ButtonType = "button" | "submit" | "reset";
 
 type SharedButtonProps = {
@@ -24,6 +26,10 @@ type SharedButtonProps = {
   /** One half of a SplitButton: `start` is the face, `end` the arrow; the group draws the
    * outline they share. */
   attach?: ButtonAttachment;
+  /** `pill` rounds the ends fully: chips and the actions of a prompt. */
+  shape?: ButtonShape;
+  /** The key that does the same, shown quietly after the label: "⌘↵". */
+  shortcut?: string;
   children: JSX.Element;
   title?: string;
   role?: "menuitem";
@@ -66,6 +72,10 @@ const DEFAULT_HIERARCHY_CLASSES: Record<ButtonHierarchy, string> = {
   tertiary:
     "border-transparent bg-transparent text-muted-foreground outline-ring hover:bg-ui-accent hover:text-foreground aria-[pressed=true]:border-ring aria-[pressed=true]:bg-ui-accent aria-[pressed=true]:text-foreground aria-expanded:border-ring aria-expanded:bg-ui-accent aria-expanded:text-foreground",
   link: "border-transparent bg-transparent text-primary outline-ring underline decoration-transparent underline-offset-4 hover:text-primary/80 hover:decoration-current",
+  contrast:
+    "border-foreground bg-foreground text-background shadow-xs outline-ring hover:opacity-90 aria-[pressed=true]:opacity-90",
+  quiet:
+    "border-transparent bg-transparent text-foreground outline-ring hover:bg-ui-accent aria-[pressed=true]:bg-ui-accent aria-expanded:bg-ui-accent",
 };
 
 const DESTRUCTIVE_HIERARCHY_CLASSES: Record<ButtonHierarchy, string> = {
@@ -76,20 +86,33 @@ const DESTRUCTIVE_HIERARCHY_CLASSES: Record<ButtonHierarchy, string> = {
   tertiary:
     "border-transparent bg-transparent text-destructive outline-destructive hover:bg-destructive/10 aria-[pressed=true]:bg-destructive/10 aria-expanded:bg-destructive/10",
   link: "border-transparent bg-transparent text-destructive outline-destructive underline decoration-transparent underline-offset-4 hover:text-destructive/80 hover:decoration-current",
+  contrast:
+    "border-destructive bg-destructive text-destructive-foreground shadow-xs outline-destructive hover:opacity-90",
+  quiet:
+    "border-transparent bg-transparent text-destructive outline-destructive hover:bg-destructive/10",
+};
+
+const SHAPE_CLASSES: Record<ButtonShape, string> = {
+  default: "",
+  pill: "rounded-full",
 };
 
 const ROOT_SIZE_CLASSES: Record<ButtonSize, string> = {
+  mini: "h-7 rounded-md px-2",
   xs: "h-6 rounded-md px-2",
   sm: "h-8 rounded-lg px-3",
   md: "h-9 rounded-lg px-3.5",
   lg: "h-10 rounded-lg px-4",
 };
 
+// Square only when it is an icon alone: such a button names itself with `label`. CSS
+// cannot see text beside the icon, so a button with words and no label never shrinks.
 const ICON_ONLY_SIZE_CLASSES: Record<ButtonSize, string> = {
-  xs: "has-[>[data-part=button-content]>[data-part=icon]:only-child]:w-6 has-[>[data-part=button-content]>[data-part=icon]:only-child]:px-0",
-  sm: "has-[>[data-part=button-content]>[data-part=icon]:only-child]:w-8 has-[>[data-part=button-content]>[data-part=icon]:only-child]:px-0",
-  md: "has-[>[data-part=button-content]>[data-part=icon]:only-child]:w-9 has-[>[data-part=button-content]>[data-part=icon]:only-child]:px-0",
-  lg: "has-[>[data-part=button-content]>[data-part=icon]:only-child]:w-10 has-[>[data-part=button-content]>[data-part=icon]:only-child]:px-0",
+  mini: "[&[aria-label]]:has-[>[data-part=button-content]>[data-part=icon]:only-child]:w-7 [&[aria-label]]:has-[>[data-part=button-content]>[data-part=icon]:only-child]:px-0",
+  xs: "[&[aria-label]]:has-[>[data-part=button-content]>[data-part=icon]:only-child]:w-6 [&[aria-label]]:has-[>[data-part=button-content]>[data-part=icon]:only-child]:px-0",
+  sm: "[&[aria-label]]:has-[>[data-part=button-content]>[data-part=icon]:only-child]:w-8 [&[aria-label]]:has-[>[data-part=button-content]>[data-part=icon]:only-child]:px-0",
+  md: "[&[aria-label]]:has-[>[data-part=button-content]>[data-part=icon]:only-child]:w-9 [&[aria-label]]:has-[>[data-part=button-content]>[data-part=icon]:only-child]:px-0",
+  lg: "[&[aria-label]]:has-[>[data-part=button-content]>[data-part=icon]:only-child]:w-10 [&[aria-label]]:has-[>[data-part=button-content]>[data-part=icon]:only-child]:px-0",
 };
 
 /// Inside a SplitButton the halves carry no outline of their own: the group draws the
@@ -113,6 +136,7 @@ const ATTACH_LIGHT_DIVIDER_CLASSES: Record<ButtonAttachment, string> = {
 };
 
 const CONTENT_SIZE_CLASSES: Record<ButtonSize, string> = {
+  mini: "gap-1",
   xs: "gap-1",
   sm: "gap-1.5",
   md: "gap-2",
@@ -120,6 +144,7 @@ const CONTENT_SIZE_CLASSES: Record<ButtonSize, string> = {
 };
 
 const CONTENT_TYPOGRAPHY_CLASSES: Record<ButtonSize, string> = {
+  mini: "text-[9px] leading-[1.2] font-semibold",
   xs: "text-body-sm font-medium",
   sm: "text-body-sm font-medium",
   md: "text-sm leading-5 font-medium",
@@ -127,6 +152,7 @@ const CONTENT_TYPOGRAPHY_CLASSES: Record<ButtonSize, string> = {
 };
 
 const SPINNER_SIZES: Record<ButtonSize, IconSize> = {
+  mini: "xs",
   xs: "xs",
   sm: "sm",
   md: "sm",
@@ -141,6 +167,8 @@ export function Button({
   intent = "default",
   size = "md",
   attach = "none",
+  shape = "default",
+  shortcut,
   children,
   title,
   disabled,
@@ -183,6 +211,7 @@ export function Button({
         ROOT_SIZE_CLASSES[size],
         ICON_ONLY_SIZE_CLASSES[size],
         ATTACH_CLASSES[attach],
+        SHAPE_CLASSES[shape],
         hierarchy === "primary"
           ? ATTACH_DIVIDER_CLASSES[attach]
           : ATTACH_LIGHT_DIVIDER_CLASSES[attach],
@@ -226,6 +255,11 @@ export function Button({
         data-part="button-content"
       >
         {children}
+        {shortcut && (
+          <span aria-hidden="true" class="text-[11px] leading-none opacity-60" data-part="button-shortcut">
+            {shortcut}
+          </span>
+        )}
       </span>
     </Dynamic>
   );

@@ -1,5 +1,6 @@
 // Trailing clear-selection button, wired to the data-table store's
 // clearSelection transition.
+import { Publr } from "publr-jsx";
 import { clearSelection } from "../DataTable/DataTable.ptsx";
 
 export type BulkActionsClearProps = {
@@ -20,7 +21,7 @@ export function BulkActionsClear({ id, classes = "", children }: BulkActionsClea
       ]}
       onClick={clearSelection}
     >
-      {children ?? <span>Clear</span>}
+      {children ?? <span>{Publr.t("Clear")}</span>}
     </button>
   );
 }

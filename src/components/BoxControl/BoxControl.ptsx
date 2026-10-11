@@ -55,6 +55,8 @@ export type BoxControlProps = {
   displayValue: string;
   selectionKind?: BoxControlSelectionKind;
   defaultSelection: BoxControlSelection;
+  /** Controlled: the parent's selection, which the pane then always shows. */
+  selection?: BoxControlSelection;
   disabled?: boolean;
   customKind?: BoxControlCustomKind;
   customValue?: string;
@@ -84,6 +86,7 @@ export function BoxControl({
   displayValue,
   selectionKind = "sides",
   defaultSelection,
+  selection,
   disabled = false,
   customKind = "number",
   customValue = "",
@@ -107,48 +110,51 @@ export function BoxControl({
     customOpen: false,
     kind: selectionKind,
     selection: defaultSelection,
+    get current(): BoxControlSelection {
+      return selection ?? state.selection;
+    },
     get topSelected() {
-      return state.selection === "All sides" || state.selection.includes("Top");
+      return state.current === "All sides" || state.current.includes("Top");
     },
     get rightSelected() {
-      return state.selection === "All sides" || state.selection.includes("Right");
+      return state.current === "All sides" || state.current.includes("Right");
     },
     get bottomSelected() {
-      return state.selection === "All sides" || state.selection.includes("Bottom");
+      return state.current === "All sides" || state.current.includes("Bottom");
     },
     get leftSelected() {
-      return state.selection === "All sides" || state.selection.includes("Left");
+      return state.current === "All sides" || state.current.includes("Left");
     },
     get topLeftSelected() {
-      return state.selection === "All corners" || state.selection.includes("Top Left");
+      return state.current === "All corners" || state.current.includes("Top Left");
     },
     get topRightSelected() {
-      return state.selection === "All corners" || state.selection.includes("Top Right");
+      return state.current === "All corners" || state.current.includes("Top Right");
     },
     get bottomRightSelected() {
-      return state.selection === "All corners" || state.selection.includes("Bottom Right");
+      return state.current === "All corners" || state.current.includes("Bottom Right");
     },
     get bottomLeftSelected() {
-      return state.selection === "All corners" || state.selection.includes("Bottom Left");
+      return state.current === "All corners" || state.current.includes("Bottom Left");
     },
     get pairVertical() {
-      return state.selection.includes("Top") || state.selection.includes("Bottom");
+      return state.current.includes("Top") || state.current.includes("Bottom");
     },
     get pairDisabled() {
       return (
-        state.selection !== "Top" &&
-        state.selection !== "Bottom" &&
-        state.selection !== "Left" &&
-        state.selection !== "Right" &&
-        state.selection !== "Top, Bottom" &&
-        state.selection !== "Left, Right"
+        state.current !== "Top" &&
+        state.current !== "Bottom" &&
+        state.current !== "Left" &&
+        state.current !== "Right" &&
+        state.current !== "Top, Bottom" &&
+        state.current !== "Left, Right"
       );
     },
     get pairPressed() {
-      return state.selection === "Top, Bottom" || state.selection === "Left, Right";
+      return state.current === "Top, Bottom" || state.current === "Left, Right";
     },
     get allPressed() {
-      return state.selection === "All sides" || state.selection === "All corners";
+      return state.current === "All sides" || state.current === "All corners";
     },
   });
 
@@ -161,11 +167,11 @@ export function BoxControl({
     );
   };
   const selectPair = (event: Event) => {
-    if (state.selection === "Top" || state.selection === "Bottom") state.selection = "Top, Bottom";
-    else if (state.selection === "Left" || state.selection === "Right")
+    if (state.current === "Top" || state.current === "Bottom") state.selection = "Top, Bottom";
+    else if (state.current === "Left" || state.current === "Right")
       state.selection = "Left, Right";
-    else if (state.selection === "Top, Bottom") state.selection = "Top";
-    else if (state.selection === "Left, Right") state.selection = "Left";
+    else if (state.current === "Top, Bottom") state.selection = "Top";
+    else if (state.current === "Left, Right") state.selection = "Left";
     notifySelection(event);
   };
   const selectAll = (event: Event) => {
@@ -199,7 +205,7 @@ export function BoxControl({
               {title}
             </Text>
             <Text variant="body-sm" tone="muted" classes="block">
-              {state.selection}
+              {state.current}
             </Text>
           </span>
           <span class="ml-auto flex shrink-0 items-center gap-1" data-part="box-control-actions">
@@ -207,8 +213,8 @@ export function BoxControl({
               <button
                 type="button"
                 class="grid size-8 cursor-pointer place-items-center rounded-md border border-transparent bg-transparent text-muted-foreground hover:bg-ui-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-40 aria-pressed:border-ring aria-pressed:bg-[color-mix(in_oklch,var(--ring)_12%,var(--popover))] aria-pressed:text-ring"
-                aria-label="Sync opposite sides"
-                title="Sync opposite sides"
+                aria-label={Publr.t("Sync opposite sides")}
+                title={Publr.t("Sync opposite sides")}
                 aria-pressed={state.pairPressed}
                 disabled={state.pairDisabled}
                 onClick={selectPair}
@@ -227,8 +233,8 @@ export function BoxControl({
             <button
               type="button"
               class="grid size-8 cursor-pointer place-items-center rounded-md border border-transparent bg-transparent text-muted-foreground hover:bg-ui-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring aria-pressed:border-ring aria-pressed:bg-[color-mix(in_oklch,var(--ring)_12%,var(--popover))] aria-pressed:text-ring"
-              aria-label={selectionKind === "corners" ? "Select all corners" : "Select all sides"}
-              title={selectionKind === "corners" ? "Select all corners" : "Select all sides"}
+              aria-label={selectionKind === "corners" ? Publr.t("Select all corners") : Publr.t("Select all sides")}
+              title={selectionKind === "corners" ? Publr.t("Select all corners") : Publr.t("Select all sides")}
               aria-pressed={state.allPressed}
               onClick={selectAll}
               data-part="box-control-all-toggle"
@@ -254,8 +260,8 @@ export function BoxControl({
             <Button
               hierarchy="tertiary"
               size="xs"
-              label="Close"
-              title="Close"
+              label={Publr.t("Close")}
+              title={Publr.t("Close")}
               onClick={onClose}
               data-part="box-control-close"
             >
@@ -327,8 +333,8 @@ export function BoxControl({
             hierarchy="tertiary"
             size="xs"
             classes="aria-pressed:bg-[color-mix(in_oklch,var(--ring)_12%,var(--popover))] aria-pressed:text-ring"
-            label="Set custom value"
-            title="Set custom value"
+            label={Publr.t("Set custom value")}
+            title={Publr.t("Set custom value")}
             onClick={toggleCustom}
             data-part="box-control-custom-toggle"
           >
@@ -354,7 +360,7 @@ export function BoxControl({
             <Text variant="body-sm" tone="accent" classes="h-full w-9 min-w-0">
               <select
                 class="size-full cursor-pointer border-0 bg-transparent outline-none"
-                aria-label="CSS unit"
+                aria-label={Publr.t("CSS unit")}
                 value={customUnit}
                 onChange={onCustomChange}
               >
@@ -409,7 +415,7 @@ export function BoxControl({
             <Input
               type="text"
               value={customValue}
-              placeholder="CSS value"
+              placeholder={Publr.t("CSS value")}
               classes="h-7 w-full px-[7px]"
               onChange={onCustomChange}
             />
@@ -418,8 +424,8 @@ export function BoxControl({
             hierarchy="tertiary"
             size="xs"
             classes="aria-pressed:bg-[color-mix(in_oklch,var(--ring)_12%,var(--popover))] aria-pressed:text-ring"
-            label="Use design token"
-            title="Use design token"
+            label={Publr.t("Use design token")}
+            title={Publr.t("Use design token")}
             aria-pressed="true"
             onClick={toggleCustom}
             data-part="box-control-custom-toggle"

@@ -2,6 +2,7 @@
 // indeterminate when only some are. Both states are declarative property
 // bindings; activation is one pure pageSelectionChanged transition whose
 // scope is the whole rendered page, including rows the quick filter hides.
+import { Publr } from "publr-jsx";
 import { state, pageSelectionChanged } from "./DataTable.ptsx";
 import { Checkbox } from "../Checkbox/Checkbox.ptsx";
 
@@ -14,13 +15,13 @@ export type DataTableSelectAllProps = {
 export function DataTableSelectAll({
   id,
   classes = "",
-  label = "Select all rows",
+  label = "",
 }: DataTableSelectAllProps) {
   return (
     <Checkbox
       id={id}
       classes={classes}
-      aria-label={label}
+      aria-label={label !== "" ? label : Publr.t("Select all rows")}
       onChange={pageSelectionChanged}
       checked={state.allSelected}
       indeterminate={state.partiallySelected}

@@ -1,7 +1,10 @@
+import { Icon } from "../Icon/Icon.ptsx";
+
 // Styled native <select> for plain form submits (GET filters, POST forms).
 // The compound Select remains the rich listbox; NativeSelect exists for the
 // cases where native form semantics — submit-on-change, no-JS fallback,
-// form= association — are the point. Selection is authored natively via
+// form= association — are the point. The browser's arrow is replaced by the design
+// system's chevron; `classes` lays out the whole control. Selection is authored natively via
 // `selected` on option children; there is no options-array or value API.
 
 export type NativeSelectProps = {
@@ -43,27 +46,36 @@ export function NativeSelect({
   size = "md",
 }: NativeSelectProps) {
   return (
-    <select
-      aria-label={label}
-      id={id}
-      name={name}
-      form={form}
-      disabled={disabled}
-      required={required}
-      aria-invalid={invalid}
-      onInput={onInput}
-      onChange={onChange}
-      class={[
-        "flex w-full min-w-0 cursor-pointer appearance-none px-3.5 py-2 font-normal text-foreground transition duration-150 placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
-        SIZE_CLASSES[size],
-        inset
-          ? "shrink-0 border-0 border-l border-input bg-muted/40 rounded-none shadow-none"
-          : "rounded-lg border bg-card shadow-xs hover:border-muted-foreground/40 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/15",
-        inset ? "" : invalid ? "border-destructive" : "border-input",
-        classes,
-      ]}
+    <span
+      class={["relative flex min-w-0", inset ? "shrink-0" : "w-full", classes]}
+      data-part="native-select"
     >
-      {children}
-    </select>
+      <select
+        aria-label={label}
+        id={id}
+        name={name}
+        form={form}
+        disabled={disabled}
+        required={required}
+        aria-invalid={invalid}
+        onInput={onInput}
+        onChange={onChange}
+        class={[
+          "flex w-full min-w-0 cursor-pointer appearance-none py-2 pl-3.5 pr-9 font-normal text-foreground transition duration-150 placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+          SIZE_CLASSES[size],
+          inset
+            ? "border-0 border-l border-input bg-muted/40 rounded-none shadow-none"
+            : "rounded-lg border bg-card shadow-xs hover:border-muted-foreground/40 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/15",
+          inset ? "" : invalid ? "border-destructive" : "border-input",
+        ]}
+      >
+        {children}
+      </select>
+      <Icon
+        name="chevron-down"
+        size="sm"
+        classes="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+      />
+    </span>
   );
 }

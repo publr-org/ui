@@ -237,8 +237,8 @@ export function BoxControlNext({
             hierarchy="tertiary"
             size="sm"
             classes="w-8 px-0"
-            label="Sync opposite sides"
-            title="Sync opposite sides"
+            label={Publr.t("Sync opposite sides")}
+            title={Publr.t("Sync opposite sides")}
             disabled={disabled}
             pressed={false}
             data-part="box-control-pair-toggle"
@@ -283,7 +283,7 @@ export function BoxControlNext({
             <Icon name="border-radius-none" size="md" />
           </Button>
           <StyleControlCloseTrigger asChild onClick={onClose}>
-            <Button hierarchy="tertiary" size="sm" label="Close" title="Close" disabled={disabled}>
+            <Button hierarchy="tertiary" size="sm" label={Publr.t("Close")} title={Publr.t("Close")} disabled={disabled}>
               <Icon name="close" size="sm" />
             </Button>
           </StyleControlCloseTrigger>

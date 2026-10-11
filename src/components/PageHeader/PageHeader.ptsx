@@ -17,6 +17,8 @@ export type PageHeaderProps = {
   children?: JSX.Element;
   classes?: string;
   description?: string;
+  /** Makes the muted line a link, to the thing it names. */
+  description_href?: string;
   id?: string;
   title: string;
 };
@@ -28,6 +30,7 @@ export function PageHeader({
   children,
   classes = "",
   description,
+  description_href,
   id,
   title,
 }: PageHeaderProps) {
@@ -43,12 +46,18 @@ export function PageHeader({
             {back_label}
           </Link>
         )}
-        <Heading level={1} size="xl">
+        <Heading level={1} size="xl" classes="[overflow-wrap:anywhere]">
           {title}
         </Heading>
         {description && (
           <Text as="p" variant="body-md" tone="muted" classes="mt-1.5">
-            {description}
+            {description_href ? (
+              <Link href={description_href ?? ""} tone="quiet" variant="body-md" classes="font-normal">
+                {description}
+              </Link>
+            ) : (
+              description
+            )}
           </Text>
         )}
       </div>

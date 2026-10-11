@@ -47,6 +47,11 @@ export const meta = {
       { name: "title", type: "string", description: "Required page title (renders as the h1)." },
       { name: "description", type: "string", description: "Optional muted line under the title." },
       {
+        name: "description_href",
+        type: "string",
+        description: "Makes the muted line a link, to the thing it names.",
+      },
+      {
         name: "back_label",
         type: "string",
         description: "The parent page's name, shown as a back link above the title.",

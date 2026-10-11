@@ -2,6 +2,8 @@ import { RangePickerBase } from "./RangePickerBase.ptsx";
 
 export type RangePickerProps = {
   id?: string;
+  /** The form field it posts as. */
+  name?: string;
   classes?: string;
   value: number;
   max: number;
@@ -15,6 +17,7 @@ export type RangePickerProps = {
 
 export function RangePicker({
   id,
+  name,
   classes = "",
   value,
   max,
@@ -28,6 +31,7 @@ export function RangePicker({
   return (
     <RangePickerBase
       id={id}
+      name={name}
       classes={classes}
       value={value}
       valueText={`${value}`}

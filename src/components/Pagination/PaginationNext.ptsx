@@ -1,7 +1,7 @@
 // Next-page control. Without an href (last page) it renders a
 // non-interactive disabled control rather than a dead link.
 
-import { Dynamic } from "publr-jsx";
+import { Dynamic, Publr } from "publr-jsx";
 import { Icon } from "../Icon/Icon.ptsx";
 
 export type PaginationNextProps = {
@@ -16,7 +16,7 @@ export function PaginationNext({
   id,
   classes = "",
   href,
-  label = "Go to next page",
+  label = "",
   onClick,
 }: PaginationNextProps) {
   return (
@@ -24,7 +24,7 @@ export function PaginationNext({
       as={href === undefined ? "span" : "a"}
       id={id}
       href={href}
-      aria-label={label}
+      aria-label={label !== "" ? label : Publr.t("Go to next page")}
       aria-disabled={href === undefined ? "true" : undefined}
       onClick={onClick}
       class={[

@@ -277,12 +277,12 @@ Publr.effect(() => {
     const root = root_ref.current;
     if (!root?.isConnected || !state.request_url) return;
     if (failed) {
-      state.error = "Could not load results. Try again.";
+      state.error = Publr.t("Could not load results. Try again.");
       return;
     }
     if (!next || next === committed) return;
     if (!next.data || !Array.isArray(next.data.rows) || !table_url(next.data.address)) {
-      state.error = "Could not load results. Try again.";
+      state.error = Publr.t("Could not load results. Try again.");
       return;
     }
     committed = next;
@@ -357,7 +357,7 @@ export function DataTable({
                 {filter.operators.length > 1 ? (
                   <DropdownMenu classes="flex">
                     <DropdownMenuTrigger asChild>
-                      <FilterPillOperator label="Change filter operator">
+                      <FilterPillOperator label={Publr.t("Change filter operator")}>
                         {filter.operator}
                       </FilterPillOperator>
                     </DropdownMenuTrigger>
@@ -413,13 +413,13 @@ export function DataTable({
                               classes="w-40"
                             />
                             <Button type="submit" size="sm">
-                              Apply
+                              {Publr.t("Apply")}
                             </Button>
                           </form>
                         </DropdownMenuContent>
                       ) : (
                         <DropdownMenuContent>
-                          {filter.searchable && <DropdownMenuSearch placeholder="Search options" />}
+                          {filter.searchable && <DropdownMenuSearch placeholder={Publr.t("Search options")} />}
                           {filter.options.map((option) => (
                             <DropdownMenuCheckboxItem
                               key={option.label}
@@ -433,7 +433,7 @@ export function DataTable({
                           {filter.reset_href && <DropdownMenuSeparator />}
                           {filter.reset_href && (
                             <DropdownMenuItem onClick={onNavigate} href={filter.reset_href}>
-                              Reset to Any
+                              {Publr.t("Reset to Any")}
                             </DropdownMenuItem>
                           )}
                         </DropdownMenuContent>
@@ -444,7 +444,7 @@ export function DataTable({
                     <FilterPillRemove
                       onClick={onNavigate}
                       href={filter.remove_href}
-                      label="Remove filter"
+                      label={Publr.t("Remove filter")}
                     />
                   )}
                 </FilterPillBody>
@@ -461,10 +461,10 @@ export function DataTable({
                 inset
                 size="sm"
                 type="search"
-                aria-label="Search table"
+                aria-label={Publr.t("Search table")}
                 name={search_name}
                 value={state.search}
-                placeholder="Type to search"
+                placeholder={Publr.t("Type to search")}
                 classes="px-0"
               />
             </form>
@@ -472,7 +472,7 @@ export function DataTable({
               <DropdownMenuTrigger asChild>
                 <Button type="button" hierarchy="tertiary" size="sm">
                   <Icon name="filter-lines" size="sm" />
-                  <span>Filter</span>
+                  <span>{Publr.t("Filter")}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="right">
@@ -496,7 +496,7 @@ export function DataTable({
         <div role="alert" class="flex items-center gap-3 px-8 py-3">
           <Text variant="body-md">{state.error}</Text>
           <Button hierarchy="secondary" size="sm" onClick={retry}>
-            Retry
+            {Publr.t("Retry")}
           </Button>
         </div>
       )}
@@ -592,7 +592,7 @@ export function DataTable({
           </Table>
           {state.empty && (
             <Empty>
-              <EmptyTitle>Nothing here</EmptyTitle>
+              <EmptyTitle>{Publr.t("Nothing here")}</EmptyTitle>
               <EmptyDescription>{state.empty_text}</EmptyDescription>
             </Empty>
           )}

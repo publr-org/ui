@@ -1,17 +1,27 @@
 // Preformatted block: a JSON document, a stored value, shown as it is. Wraps
 // long lines instead of scrolling, so a value stays readable in a narrow pane.
+// `framed` sets it apart on its own surface: commands to copy and run.
 
 export type CodeBlockProps = {
   children?: JSX.Element;
+  /** `well`: a scrolling, quiet panel of small monospace text, selected whole on click.
+   * `command`: one paste-ready command or snippet, on one line that scrolls. */
+  variant?: "plain" | "framed" | "well" | "command";
   classes?: string;
   id?: string;
 };
 
-export function CodeBlock({ children, classes = "", id }: CodeBlockProps) {
+export function CodeBlock({ children, variant = "plain", classes = "", id }: CodeBlockProps) {
   return (
     <pre
       id={id}
-      class={["m-0 whitespace-pre-wrap font-mono text-body-sm text-foreground", classes]}
+      class={[
+        "m-0 whitespace-pre-wrap font-mono text-body-sm text-foreground",
+        variant === "framed" ? "rounded-lg border border-border bg-muted px-4 py-3" : "",
+        variant === "well" ? "max-h-64 overflow-auto whitespace-pre rounded-xl bg-muted/60 p-3 text-[9px]/[1.625] text-muted-foreground select-all" : "",
+        variant === "command" ? "overflow-x-auto whitespace-pre rounded-md border border-border bg-muted/40 px-3 py-2.5 text-[12px]/[1.6]" : "",
+        classes,
+      ]}
     >
       {children}
     </pre>

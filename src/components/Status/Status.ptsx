@@ -20,6 +20,8 @@ export type StatusProps = {
   classes?: string;
   id?: string;
   tone?: StatusTone;
+  /** The label's color: the tone's (default), or the plain text color beside a toned dot. */
+  label?: "tone" | "plain";
 };
 
 const TONE_TEXT_CLASSES: Record<StatusTone, string> = {
@@ -42,7 +44,7 @@ const TONE_DOT_CLASSES: Record<StatusTone, string> = {
   info: "bg-info",
 };
 
-export function Status({ children, classes = "", id, tone = "neutral" }: StatusProps) {
+export function Status({ children, classes = "", id, tone = "neutral", label = "tone" }: StatusProps) {
   return (
     <span
       id={id}
@@ -50,7 +52,7 @@ export function Status({ children, classes = "", id, tone = "neutral" }: StatusP
       // one step below Text's body-sm scale.
       class={[
         "inline-flex items-center gap-1.5 whitespace-nowrap text-[13px] font-medium",
-        TONE_TEXT_CLASSES[tone],
+        label === "plain" ? "text-foreground" : TONE_TEXT_CLASSES[tone],
         classes,
       ]}
       data-status-tone={tone}

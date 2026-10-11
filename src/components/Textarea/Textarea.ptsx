@@ -12,7 +12,13 @@ export type TextareaProps = {
   maxLength?: number;
   rows?: number;
   mono?: boolean;
+  /** `code`: a fixed-height, quiet well of small monospace text (CSS to paste); `compact`:
+   * an inspector's small field (13px, three rows). */
+  variant?: "default" | "code" | "compact";
+  /** The accessible name, where no FieldLabel names the textarea. */
+  label?: string;
   classes?: string;
+  spellcheck?: boolean;
   onInput?: (event: Event) => void;
   onChange?: (event: Event) => void;
 };
@@ -32,6 +38,9 @@ export function Textarea({
   maxLength,
   rows = 5,
   mono = false,
+  variant = "default",
+  label,
+  spellcheck,
   onInput,
   onChange,
 }: TextareaProps) {
@@ -48,10 +57,14 @@ export function Textarea({
       maxlength={maxLength}
       rows={rows}
       aria-invalid={invalid}
+      aria-label={label}
+      spellcheck={spellcheck}
       class={[
         "flex min-h-28 w-full resize-y px-3.5 py-2 text-base leading-6 font-normal text-foreground rounded-lg border bg-card shadow-xs transition duration-150 placeholder:text-muted-foreground hover:border-muted-foreground/40 focus-visible:border-ring focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/15 disabled:cursor-not-allowed disabled:opacity-50",
         mono ? "font-mono text-sm leading-6" : "",
         invalid ? "border-destructive" : "border-input",
+        variant === "code" ? "h-36 min-h-0 resize-none border-border bg-muted/60 p-3 font-mono text-[10px]/[1.5] shadow-none" : "",
+        variant === "compact" ? "min-h-0 px-2 py-1.5 text-body-sm" : "",
         classes,
       ]}
       onInput={onInput}

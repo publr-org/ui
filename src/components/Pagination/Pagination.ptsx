@@ -1,6 +1,7 @@
 // Page-navigation family (shadcn-shaped parts, ported from the old design
 // system). Pure server navigation: links carry hrefs the page builds; the
 // current page is a non-link marked with aria-current. No behavior store.
+import { Publr } from "publr-jsx";
 
 export type PaginationProps = {
   id?: string;
@@ -9,9 +10,9 @@ export type PaginationProps = {
   children: JSX.Element;
 };
 
-export function Pagination({ id, classes = "", label = "Pagination", children }: PaginationProps) {
+export function Pagination({ id, classes = "", label = "", children }: PaginationProps) {
   return (
-    <nav id={id} class={["mx-auto flex w-full justify-center", classes]} aria-label={label}>
+    <nav id={id} class={["mx-auto flex w-full justify-center", classes]} aria-label={label !== "" ? label : Publr.t("Pagination")}>
       {children}
     </nav>
   );

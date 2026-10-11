@@ -6,8 +6,10 @@
 // only from statically enumerable file-local maps. Focused tests lock this
 // mirror to Text so the typography contract cannot drift.
 export const LINK_VARIANTS = {
+  "heading-hero": "text-[34px] leading-[1.1] font-semibold tracking-[-0.02em]",
   "heading-2xl": "text-3xl leading-9 font-semibold tracking-tight",
   "heading-xl": "text-[28px] leading-8 font-semibold tracking-heading-xl",
+  "heading-title": "text-2xl leading-8 font-semibold tracking-[-0.02em]",
   "heading-lg": "text-xl leading-7 font-semibold tracking-heading-lg",
   "heading-md": "text-lg leading-6 font-semibold",
   "heading-sm": "text-heading-sm font-semibold",
@@ -20,6 +22,27 @@ export const LINK_VARIANTS = {
   nav: "text-nav font-medium",
   "mono-sm": "font-mono text-body-sm",
   "mono-xs": "font-mono text-2xs leading-4",
+  "heading-2xs": "text-[13px] leading-5 font-semibold",
+  "label-sm-strong": "text-[11px] leading-4 font-semibold",
+  "label-xs-strong": "text-[10px] leading-3 font-semibold",
+  "label-2xs-strong": "text-[9px] leading-[1.2] font-semibold",
+  "label-3xs": "text-[8px] leading-[1.2] font-medium",
+  "body-2xs": "text-[9px] leading-[1.45] font-normal",
+  "body-3xs": "text-[8px] leading-[1.45] font-normal",
+  "mono-2xs": "font-mono text-[9px] leading-[1.4]",
+  "mono-3xs": "font-mono text-[8px] leading-[1.4]",
+  "heading-dialog": "text-base leading-6 font-semibold",
+  "body-compact": "text-xs leading-4 font-normal",
+  "label-4xs": "text-[7px] leading-[1.2] font-medium",
+  "overline-xs": "text-[7px] leading-[1.2] font-semibold uppercase",
+  "heading-stat": "text-[18px] leading-7 font-semibold",
+  "body-micro": "text-[10px] leading-[1.4] font-normal",
+  "label-lg": "text-sm leading-5 font-medium",
+  "label-md": "text-xs leading-4 font-medium",
+  "label-md-strong": "text-xs leading-4 font-semibold",
+  "label-sm": "text-[11px] leading-4 font-medium",
+  "label-xs": "text-[10px] leading-3 font-medium",
+  "label-2xs": "text-[9px] leading-[1.2] font-medium",
 } as const;
 
 export const LINK_TONES = {

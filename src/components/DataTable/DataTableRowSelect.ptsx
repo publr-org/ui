@@ -14,13 +14,13 @@ export type DataTableRowSelectProps = {
 export function DataTableRowSelect({
   id,
   classes = "",
-  label = "Select row",
+  label = "",
 }: DataTableRowSelectProps) {
   return (
     <Checkbox
       id={id}
       classes={classes}
-      aria-label={label}
+      aria-label={label !== "" ? label : Publr.t("Select row")}
       onChange={rowSelectionChanged}
       checked={state.selectedRowIds.includes(Publr.dataset("rowId"))}
     />

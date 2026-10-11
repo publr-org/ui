@@ -4,20 +4,26 @@ export type DropdownMenuContentProps = {
   id?: string;
   classes?: string;
   align?: "left" | "right";
+  /** `sm`: a compact actions menu (inspector sections); `lg`: the block toolbar's menus. */
+  size?: "sm" | "md" | "lg";
   children?: JSX.Element;
 };
+
+const SIZE_CLASSES = { sm: "min-w-36 p-1", md: "p-1", lg: "min-w-56 p-1.5" } as const;
 
 export function DropdownMenuContent({
   id,
   classes = "",
   align = "left",
+  size = "md",
   children,
 }: DropdownMenuContentProps) {
   return (
     <div
       id={id}
       class={[
-        "hidden fixed z-50 max-h-[var(--publr-available-height)] min-w-[var(--publr-anchor-width)] max-w-[calc(100vw-1rem)] overflow-auto rounded-lg border border-border bg-popover p-1 text-sm text-popover-foreground shadow-lg",
+        "hidden fixed z-50 max-h-[var(--publr-available-height)] min-w-[var(--publr-anchor-width)] max-w-[calc(100vw-1rem)] overflow-auto rounded-lg border border-border bg-popover text-sm text-popover-foreground shadow-lg",
+        SIZE_CLASSES[size],
         classes,
       ]}
       role="menu"

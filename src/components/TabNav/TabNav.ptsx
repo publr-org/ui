@@ -3,6 +3,7 @@
 // panel-tabs component — there are no tabpanels, no client tab state, and no
 // ARIA tablist here; these are links, and forcing them through a panel-tabs
 // primitive would misstate the semantics.
+import { Publr } from "publr-jsx";
 
 export type TabNavProps = {
   id?: string;
@@ -11,12 +12,12 @@ export type TabNavProps = {
   children: JSX.Element;
 };
 
-export function TabNav({ id, classes = "", label = "Tabs", children }: TabNavProps) {
+export function TabNav({ id, classes = "", label = "", children }: TabNavProps) {
   return (
     <nav
       id={id}
       class={["inline-flex items-center gap-0.5 rounded-lg bg-muted p-0.5", classes]}
-      aria-label={label}
+      aria-label={label !== "" ? label : Publr.t("Tabs")}
     >
       {children}
     </nav>

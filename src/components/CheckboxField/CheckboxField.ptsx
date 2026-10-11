@@ -20,6 +20,8 @@ export type CheckboxFieldProps = {
   classes?: string;
   /** The id of the form it posts with, when it sits outside that form. */
   form?: string;
+  /** Set apart in its own quiet box: an option of a dialog's list. */
+  framed?: boolean;
   onChange?: (event: Event) => void;
 };
 
@@ -34,11 +36,12 @@ export function CheckboxField({
   children,
   classes = "",
   form,
+  framed = false,
   onChange,
 }: CheckboxFieldProps) {
   return (
     <div
-      class={["grid grid-cols-[auto_1fr] items-start gap-x-3 gap-y-1", classes]}
+      class={["grid grid-cols-[auto_1fr] items-start gap-x-3 gap-y-1", framed ? "rounded-lg border border-border bg-muted/30 p-4" : "", classes]}
       data-part="checkbox-field"
     >
       <Checkbox

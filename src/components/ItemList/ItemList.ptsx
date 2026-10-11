@@ -2,6 +2,7 @@
 // out, then a place to add another. The list holds no data of its own: it draws `items`
 // and hands every press to the caller, the button carrying the item's id as its `value`.
 // A button whose handler is absent is not drawn.
+import { Publr } from "publr-jsx";
 import { Button } from "../Button/Button.ptsx";
 import { Icon } from "../Icon/Icon.ptsx";
 import { ReferenceAddCard } from "../ReferenceCard/ReferenceAddCard.ptsx";
@@ -38,15 +39,15 @@ export function ItemList({ items, onMoveUp, onMoveDown, onRemove, onOpen, childr
         <ReferenceCard key={item.id} type_label={item.type_label} title={item.title}
           status={item.status} tone={item.tone} href={item.href} onOpen={onOpen}>
           {onMoveUp && (
-            <Button value={item.id} hierarchy="tertiary" size="xs" label="Move up" title="Move up"
+            <Button value={item.id} hierarchy="tertiary" size="xs" label={Publr.t("Move up")} title={Publr.t("Move up")}
               onClick={onMoveUp}><Icon name="chevron-up" size="xs" /></Button>
           )}
           {onMoveDown && (
-            <Button value={item.id} hierarchy="tertiary" size="xs" label="Move down" title="Move down"
+            <Button value={item.id} hierarchy="tertiary" size="xs" label={Publr.t("Move down")} title={Publr.t("Move down")}
               onClick={onMoveDown}><Icon name="chevron-down" size="xs" /></Button>
           )}
           {onRemove && (
-            <Button value={item.id} hierarchy="tertiary" size="xs" label="Remove" title="Remove"
+            <Button value={item.id} hierarchy="tertiary" size="xs" label={Publr.t("Remove")} title={Publr.t("Remove")}
               onClick={onRemove}><Icon name="x-close" size="xs" /></Button>
           )}
         </ReferenceCard>

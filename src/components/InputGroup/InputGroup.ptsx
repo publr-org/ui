@@ -16,6 +16,8 @@ export type InputGroupProps = {
   trailing?: string;
   /** Fixed text after the input, in the muted tone like `leading`: a unit, `kg`. */
   trailing_text?: string;
+  /** `dense`: a 32px number field in a settings row, its unit in small quiet type. */
+  size?: "md" | "dense";
 };
 
 export function InputGroup({
@@ -26,12 +28,14 @@ export function InputGroup({
   leading,
   trailing,
   trailing_text,
+  size = "md",
 }: InputGroupProps) {
   return (
     <div
       id={id}
       class={[
         "flex w-full items-stretch overflow-hidden rounded-lg border bg-card shadow-xs transition duration-150 hover:border-muted-foreground/40 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/15",
+        size === "dense" ? "h-8 shadow-none" : "",
         invalid ? "border-destructive" : "border-input",
         classes,
       ]}
@@ -42,9 +46,9 @@ export function InputGroup({
           as="span"
           variant="body-lg"
           tone="muted"
-          classes="flex shrink-0 items-center border-r border-input bg-muted/40 px-3.5"
+          classes="flex min-w-0 max-w-[60%] items-center border-r border-input bg-muted/40 px-3.5"
         >
-          {leading}
+          <span class="truncate">{leading}</span>
         </Text>
       )}
       {children}
@@ -53,16 +57,21 @@ export function InputGroup({
           <Code>{trailing}</Code>
         </span>
       )}
-      {trailing_text && (
-        <Text
-          as="span"
-          variant="body-lg"
-          tone="muted"
-          classes="flex shrink-0 items-center border-l border-input bg-muted/40 px-3.5"
-        >
-          {trailing_text}
-        </Text>
-      )}
+      {trailing_text &&
+        (size === "dense" ? (
+          <Text as="span" variant="label-3xs" tone="muted" classes="flex shrink-0 items-center px-1.5">
+            {trailing_text}
+          </Text>
+        ) : (
+          <Text
+            as="span"
+            variant="body-lg"
+            tone="muted"
+            classes="flex shrink-0 items-center border-l border-input bg-muted/40 px-3.5"
+          >
+            {trailing_text}
+          </Text>
+        ))}
     </div>
   );
 }

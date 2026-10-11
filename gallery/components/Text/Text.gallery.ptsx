@@ -135,9 +135,12 @@ const descriptions: Record<TextVariant, string> = {
   "body-md": "Default body copy.",
   "body-sm": "Compact supporting copy.",
   "body-xs": "Small supporting copy.",
+  "body-lead": "A typeface's sample line on a board card.",
+  display: "A typeface's name shown large, in itself.",
   "mono-sm": "Monospaced code and values.",
   "mono-xs": "Compact monospaced values.",
   "eyebrow-xs": "Compact uppercase label.",
+  "eyebrow-2xs": "A board card's eyebrow: where it is from, what it is.",
   eyebrow: "Uppercase micro-type label above a section or band.",
 };
 

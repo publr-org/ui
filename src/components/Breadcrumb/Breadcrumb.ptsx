@@ -1,6 +1,8 @@
 // Breadcrumb trail root per the WAI-ARIA APG breadcrumb pattern: a labeled
 // navigation landmark wrapping an ordered list of links to the current page.
 
+import { Publr } from "publr-jsx";
+
 export type BreadcrumbProps = {
   children?: JSX.Element;
   classes?: string;
@@ -9,7 +11,7 @@ export type BreadcrumbProps = {
 
 export function Breadcrumb({ children, classes = "", id }: BreadcrumbProps) {
   return (
-    <nav id={id} aria-label="Breadcrumb" class={["min-w-0", classes]}>
+    <nav id={id} aria-label={Publr.t("Breadcrumb")} class={["min-w-0", classes]}>
       {children}
     </nav>
   );

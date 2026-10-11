@@ -1,16 +1,28 @@
+export const PANEL_TAB_VARIANTS = ["default", "rail"] as const;
+export type PanelTabVariant = (typeof PANEL_TAB_VARIANTS)[number];
+
 export type PanelTabProps = {
-  id: string;
-  panel: string;
+  id?: string;
+  panel?: string;
   selected: boolean;
   label: string;
+  /** `rail` is the tall tab of an editor's side panels: 48px, the label always in the
+   * foreground, a thin accent rule under the selected one. */
+  variant?: PanelTabVariant;
   onClick?: (event: MouseEvent) => void;
 };
 
-export function PanelTab({ id, panel, selected, label, onClick }: PanelTabProps) {
+const VARIANT_CLASSES: Record<PanelTabVariant, string> = {
+  default:
+    "h-9 border-b-2 border-transparent px-3 text-body-sm font-medium text-muted-foreground transition-colors hover:text-foreground aria-selected:border-primary aria-selected:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+  rail: "relative h-12 cursor-pointer px-4 text-[13px] leading-5 font-medium text-foreground hover:text-primary aria-selected:shadow-[inset_0_-1.5px_0_0_var(--color-primary)] focus-visible:shadow-[inset_0_0_0_1.5px_var(--color-primary)] focus-visible:outline-none",
+};
+
+export function PanelTab({ id, panel, selected, label, variant = "default", onClick }: PanelTabProps) {
   return (
     <button type="button" role="tab" id={id} aria-controls={panel}
       aria-selected={selected} tabIndex={selected ? 0 : -1} onClick={onClick}
-      class="inline-flex h-9 items-center border-b-2 border-transparent px-3 text-body-sm font-medium text-muted-foreground transition-colors hover:text-foreground aria-selected:border-primary aria-selected:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+      class={["inline-flex items-center", VARIANT_CLASSES[variant]]}>
       {label}
     </button>
   );

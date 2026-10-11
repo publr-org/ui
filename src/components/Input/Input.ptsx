@@ -51,22 +51,43 @@ export type InputProps = {
   inputMode?: InputMode;
   /** Drawn without its own border and shadow: inside an InputGroup, which owns them. */
   inset?: boolean;
-  /** The text size: `md` the form default, `sm` for dense places such as a filter band. */
-  size?: "sm" | "md";
+  /** The text size: `md` the form default, `sm` for dense places such as a filter band;
+   * `field` (40px, 12px type), `dense` (32px, 9px) and `micro` (28px, 8px) for the small
+   * controls of editors that lay out many values at once; `control` (36px, 14px) beside md
+   * buttons in a toolbar; `title` (13px semibold, no padding) for a name edited in place,
+   * with `inset`. */
+  size?: "sm" | "md" | "field" | "dense" | "micro" | "control" | "title";
+  /** Set in the monospace face: token values, CSS, keys. */
+  mono?: boolean;
+  /** Semibold: a name among descriptions. */
+  strong?: boolean;
+  /** A number: set at the end, in figures of one width. */
+  numeric?: boolean;
   classes?: string;
+  /** The accessible name, where no FieldLabel names the input. */
+  label?: string;
   onInput?: (event: Event) => void;
   onChange?: (event: Event) => void;
+  onKeyDown?: (event: KeyboardEvent) => void;
 };
 
-const SIZE_CLASSES: Record<"sm" | "md", string> = {
+const SIZE_CLASSES: Record<"sm" | "md" | "field" | "dense" | "micro" | "control" | "title", string> = {
   sm: "text-body-sm",
   md: "text-base leading-6",
+  field: "h-10 px-3 py-0 text-[12px]",
+  dense: "h-8 px-2 py-0 text-[9px]",
+  micro: "h-7 px-2 py-0 text-[8px]",
+  control: "h-9 py-0 text-sm leading-5",
+  title: "px-0 py-0 text-[13px] leading-5 font-semibold",
 };
 
 export function Input({
   classes = "",
   inset = false,
   size = "md",
+  mono = false,
+  numeric = false,
+  strong = false,
   type = "text",
   id,
   name,
@@ -84,8 +105,10 @@ export function Input({
   minLength,
   maxLength,
   inputMode,
+  label,
   onInput,
   onChange,
+  onKeyDown,
 }: InputProps) {
   return (
     <Dynamic
@@ -107,6 +130,7 @@ export function Input({
       maxlength={maxLength}
       inputmode={inputMode}
       aria-invalid={invalid}
+      aria-label={label}
       class={[
         "flex w-full px-[var(--input-padding-x,0.875rem)] py-[var(--input-padding-y,0.5rem)] font-normal text-foreground bg-card transition duration-150 placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
         SIZE_CLASSES[size],
@@ -114,10 +138,15 @@ export function Input({
           ? "min-w-0 flex-1 rounded-none border-0 bg-transparent shadow-none"
           : "rounded-lg border shadow-xs hover:border-muted-foreground/40 focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/15",
         inset ? "" : invalid ? "border-destructive" : "border-input",
+        size === "micro" || size === "dense" ? "rounded-md shadow-none" : "",
+        mono ? "font-mono" : "",
+        strong ? "font-semibold" : "",
+        numeric ? "text-right tabular-nums" : "",
         classes,
       ]}
       onInput={onInput}
       onChange={onChange}
+      onKeyDown={onKeyDown}
     />
   );
 }

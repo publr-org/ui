@@ -23,6 +23,7 @@ export const state = Publr.reactive({
 
 export const root = Publr.ref();
 let initialized = false;
+let seedTries = 0;
 let deliveredInputRevision = 0;
 let deliveredChangeRevision = 0;
 
@@ -82,12 +83,19 @@ export const unitChanged = (event: Event) => {
   state.changeRevision++;
 };
 
-Publr.effect(() => {
+/** Reads the default value from its hidden seed. Built in the browser, the fieldset's ref
+ * is set before its children are appended, so the seed is read once they are (a microtask
+ * later): the parts the value is written into exist by then too. */
+const seedFromDefault = (): void => {
   if (initialized) return;
-  const seed = owner()?.querySelector<HTMLInputElement>(
+  const host = owner();
+  const seed = host?.querySelector<HTMLInputElement>(
     ':scope > [data-part="box-value-control-default"]',
   );
-  if (!seed) return;
+  if (!seed) {
+    if (host && seedTries++ < 3) queueMicrotask(seedFromDefault);
+    return;
+  }
   initialized = true;
   state.arbitrary = seed.dataset.kind === "arbitrary";
   state.named = seed.value || options()[0]?.value || "";
@@ -95,6 +103,10 @@ Publr.effect(() => {
   state.unit = seed.dataset.unit ?? "px";
   const selected = options().find((option) => option.value === state.named) ?? options()[0];
   state.namedLabel = selected?.dataset.label ?? "";
+};
+
+Publr.effect(() => {
+  if (owner()) queueMicrotask(seedFromDefault);
 });
 
 Publr.effect(() => {
@@ -124,7 +136,7 @@ Publr.effect(() => {
     namedInput.max = String(scaleMaximum);
     namedInput.value = String(selectedIndex);
     namedInput.disabled = disabled;
-    namedInput.setAttribute("aria-label", host.dataset.label ?? "Value");
+    namedInput.setAttribute("aria-label", host.dataset.label ?? Publr.t("Value"));
     namedInput.setAttribute("aria-valuetext", namedLabel);
   }
   const namedRange = namedPart?.querySelector<HTMLElement>('[data-part="range-scale-picker"]');
@@ -135,7 +147,7 @@ Publr.effect(() => {
   const label = namedPart?.querySelector<HTMLElement>('[data-part="box-value-control-label"]');
   if (label) {
     label.textContent = namedLabel;
-    label.setAttribute("aria-label", `Selected ${host.dataset.label ?? "value"}`);
+    label.setAttribute("aria-label", Publr.t("Selected {name}", { name: host.dataset.label ?? Publr.t("value") }));
   }
   const tooltipLabel = namedPart?.querySelector<HTMLElement>(
     '[data-part="range-picker-tooltip"] [data-text-variant]',

@@ -7,9 +7,38 @@ export type PromptBoxProps = {
   disabled?: boolean;
   /** Quiet text at the start of the footer; the actions (children) sit at the end. */
   hint?: string;
+  /** What comes with the words, above them: attached pictures. */
+  attachments?: JSX.Element;
   children?: JSX.Element;
   classes?: string;
+  /** `hero`: the large, translucent composer that opens a workspace over a wash. */
+  variant?: "default" | "hero";
+  /** The words, when the composer is controlled. */
+  value?: string;
+  /** The textarea's accessible name. */
+  label?: string;
+  /** In place of the hint, at the footer's start: a chip, a picker. */
+  start?: JSX.Element;
+  onInput?: (event: Event) => void;
+  onKeyDown?: (event: KeyboardEvent) => void;
 };
+
+const ROOT_CLASSES = {
+  default:
+    "flex w-full flex-col gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm transition focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/15",
+  hero: "flex w-full flex-col rounded-[22px] border border-border/60 bg-card/80 p-2 shadow-[0_24px_80px_-32px_rgba(0,0,0,.45)] backdrop-blur-xl",
+} as const;
+
+const AREA_CLASSES = {
+  default:
+    "w-full resize-none border-0 bg-transparent p-0 text-base leading-6 font-normal text-foreground outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed",
+  hero: "block min-h-[96px] w-full resize-none border-0 bg-transparent px-4 pt-3.5 text-[17px] leading-[1.5] font-normal text-foreground outline-none placeholder:text-muted-foreground/70 disabled:cursor-not-allowed",
+} as const;
+
+const FOOTER_CLASSES = {
+  default: "flex items-center justify-between gap-3",
+  hero: "flex items-center justify-between gap-2 px-2 pb-1",
+} as const;
 
 export function PromptBox({
   name,
@@ -17,27 +46,38 @@ export function PromptBox({
   rows = 3,
   disabled = false,
   hint,
+  attachments,
   children,
   classes = "",
+  variant = "default",
+  value,
+  label,
+  start,
+  onInput,
+  onKeyDown,
 }: PromptBoxProps) {
   return (
-    <div
-      class={[
-        "flex w-full flex-col gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm transition focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/15",
-        classes,
-      ]}
-    >
+    <div class={[ROOT_CLASSES[variant], classes]} data-prompt-variant={variant}>
+      <div class="flex flex-wrap gap-2 empty:hidden">{attachments}</div>
       <textarea
         name={name}
         rows={rows}
         placeholder={placeholder}
         disabled={disabled}
-        class="w-full resize-none border-0 bg-transparent p-0 text-base leading-6 font-normal text-foreground outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
+        value={value}
+        aria-label={label}
+        class={AREA_CLASSES[variant]}
+        onInput={onInput}
+        onKeyDown={onKeyDown}
       ></textarea>
-      <div class="flex items-center justify-between gap-3">
-        <Text as="span" variant="body-md" tone="muted">
-          {hint}
-        </Text>
+      <div class={FOOTER_CLASSES[variant]}>
+        {start ? (
+          <div class="flex items-center gap-1">{start}</div>
+        ) : (
+          <Text as="span" variant="body-md" tone="muted">
+            {hint}
+          </Text>
+        )}
         <div class="flex items-center gap-2">{children}</div>
       </div>
     </div>

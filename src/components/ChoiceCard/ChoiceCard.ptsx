@@ -32,7 +32,7 @@ export function ChoiceCard({
     <label
       id={id}
       class={[
-        "flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-card px-4 py-3.5 shadow-xs transition-colors hover:border-input has-[:checked]:border-ring has-[:checked]:bg-ui-accent has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60 has-[:disabled]:hover:border-border",
+        "flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-card px-5 py-4 shadow-xs transition-colors hover:border-input has-[:checked]:border-ring has-[:checked]:bg-ui-accent has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-ring has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-60 has-[:disabled]:hover:border-border",
         classes,
       ]}
       data-part="choice-card"

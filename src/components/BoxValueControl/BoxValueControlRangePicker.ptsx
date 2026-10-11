@@ -1,3 +1,4 @@
+import { Publr } from "publr-jsx";
 import { state, toggleMode } from "./BoxValueControl.ptsx";
 import { Button } from "../Button/Button.ptsx";
 import { Icon } from "../Icon/Icon.ptsx";
@@ -39,8 +40,8 @@ export function BoxValueControlRangePicker({
       <Button
         hierarchy="tertiary"
         size="sm"
-        label="Use named value"
-        title="Use named value"
+        label={Publr.t("Use named value")}
+        title={Publr.t("Use named value")}
         pressed={true}
         data-part="box-value-control-mode-toggle"
         onClick={toggleMode}

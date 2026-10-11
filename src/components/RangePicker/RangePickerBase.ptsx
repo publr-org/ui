@@ -2,6 +2,8 @@ import { Text } from "../Text/Text.ptsx";
 
 export type RangePickerBaseProps = {
   id?: string;
+  /** The form field it posts as. */
+  name?: string;
   classes?: string;
   value: number;
   valueText: string;
@@ -18,6 +20,7 @@ export type RangePickerBaseProps = {
 
 export function RangePickerBase({
   id,
+  name,
   classes = "",
   value,
   valueText,
@@ -88,6 +91,7 @@ export function RangePickerBase({
       ></span>
       <input
         id={id}
+        name={name}
         type="range"
         min={min}
         max={max}
