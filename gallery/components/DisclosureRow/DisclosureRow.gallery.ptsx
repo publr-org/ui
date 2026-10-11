@@ -1,0 +1,38 @@
+import { ColorDot } from "../../../src/components/ColorDot/ColorDot.ptsx";
+import { DisclosureRow } from "../../../src/components/DisclosureRow/DisclosureRow.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "disclosure-row",
+  label: "DisclosureRow",
+  source: "src/components/DisclosureRow/DisclosureRow.ptsx",
+  kind: "composite",
+  group: "Essentials",
+  description: "A bordered row that opens what is under it: a leading mark, a name over a description, a chevron that turns when open.",
+  tags: ["design system builder"],
+  usage: `<DisclosureRow label="Surface" description="Page and card backgrounds" leading={<ColorDot color="#f4f3ec" />} />`,
+  preview: "demo",
+  previewLabel: "DisclosureRow in the design system builder",
+  docs: {
+    purpose: ["A bordered row that opens what is under it: a leading mark, a name over a description, a chevron that turns when open."],
+    useWhen: ["The Site theme builder's semantic colors and similar palette editors."],
+    avoidWhen: ["Ordinary forms; use the form primitives."],
+    rules: [{ title: "Default look only", description: "Pass data through props; never restyle it from the app." }],
+    accessibility: ["Interactive variants are native buttons with an accessible name."],
+    composition: ["Text runs are Text; colors come in as props."],
+    agentNotes: ["Do not restyle from the app; change this component."],
+    props: [
+      { name: "label", type: "string", description: "The name.", required: true },
+      { name: "description", type: "string", description: "One line under it.", default: "\"\"" },
+      { name: "leading", type: "JSX.Element", description: "The mark at the start." },
+      { name: "open", type: "boolean", description: "Whether its body shows.", default: "false" },
+      { name: "onClick", type: "(event) => void", description: "Toggles it." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="grid w-72 gap-2"><DisclosureRow label="Surface" description="Page and card backgrounds" open leading={<ColorDot color="#f4f3ec" />} /><DisclosureRow label="Foreground" description="Primary text and strong icons" leading={<ColorDot color="#203439" />} /></div>
+  );
+}

@@ -1,0 +1,81 @@
+// One shell command to run, on its own line, with a button that copies it. Where the
+// clipboard API is refused (a plain-http address), the line is selected and copied.
+import { Publr } from "publr-jsx";
+import { Button } from "../Button/Button.ptsx";
+import { Icon } from "../Icon/Icon.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export const state = Publr.reactive({
+  text: "",
+  copied: false,
+});
+
+const line = Publr.ref();
+
+const copy_selected = () => {
+  const element = line.current as HTMLElement | null;
+  const selection = window.getSelection();
+  if (!element || !selection) return;
+  selection.selectAllChildren(element);
+  state.copied = document.execCommand("copy");
+  selection.removeAllRanges();
+};
+
+export const copy = () => {
+  if (!navigator.clipboard || !window.isSecureContext) {
+    copy_selected();
+    return;
+  }
+  navigator.clipboard.writeText(state.text).then(
+    () => {
+      state.copied = true;
+    },
+    copy_selected,
+  );
+};
+
+Publr.effect(() => {
+  if (!state.copied) return;
+  const timer = window.setTimeout(() => {
+    state.copied = false;
+  }, 2000);
+  return () => window.clearTimeout(timer);
+});
+
+export type CommandProps = {
+  /** The command, exactly as it is to be typed. */
+  command: string;
+  classes?: string;
+  id?: string;
+};
+
+export function Command({ command, classes = "", id }: CommandProps) {
+  state.text = command;
+
+  return (
+    <div
+      id={id}
+      class={[
+        "flex items-start gap-3 rounded-lg border border-border bg-muted/50 py-1 pr-1 pl-3",
+        classes,
+      ]}
+      data-part="command"
+    >
+      <Text as="span" variant="mono-sm" tone="muted" classes="py-1.5">
+        $
+      </Text>
+      <Text ref={line} as="span" variant="mono-sm" classes="min-w-0 flex-1 py-1.5 break-all">
+        {state.text}
+      </Text>
+      <Button
+        hierarchy="tertiary"
+        size="sm"
+        label={state.copied ? Publr.t("Copied") : Publr.t("Copy command")}
+        title={state.copied ? Publr.t("Copied") : Publr.t("Copy command")}
+        onClick={copy}
+      >
+        {state.copied ? <Icon name="check" size="sm" /> : <Icon name="copy" size="sm" />}
+      </Button>
+    </div>
+  );
+}

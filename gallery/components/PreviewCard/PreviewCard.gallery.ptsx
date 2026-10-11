@@ -1,0 +1,45 @@
+import { PreviewCard } from "../../../src/components/PreviewCard/PreviewCard.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "preview-card",
+  label: "PreviewCard",
+  source: "src/components/PreviewCard/PreviewCard.ptsx",
+  kind: "composite",
+  group: "Cards and callouts",
+  description: "A card that opens something: a square live preview, its name with a quiet action word, an optional description.",
+  tags: ["preview-card", "pattern", "template", "gallery"],
+  usage: `<PreviewCard label="Commerce story hero" onClick={open}><div ref={draw} /></PreviewCard>`,
+  preview: "demo",
+  previewLabel: "Two cards, one described",
+  docs: {
+    purpose: ["Shows a library of designs (patterns, templates) as previews you open."],
+    useWhen: ["Each item is best recognised by how it looks."],
+    avoidWhen: ["Items read by name or facts; use a list or a table."],
+    rules: [{ title: "The caller draws the preview", description: "Children fill the square; the card clips them." }],
+    accessibility: ["The card is a button named by its label; Enter and Space open it through onKeyDown."],
+    composition: ["Built from Text; the preview is the caller's element."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [
+      { name: "label", type: `string`, description: "The card's name." },
+      { name: "action", type: `string`, description: "The quiet word at the end.", default: `"Edit"` },
+      { name: "description", type: `string`, description: "A line under the name." },
+      { name: "children", type: `JSX.Element`, description: "The preview." },
+      { name: "onClick", type: `(event) => void`, description: "Opens it." },
+      { name: "onKeyDown", type: `(event) => void`, description: "Keys on the card." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="grid w-full max-w-xl grid-cols-2 gap-5">
+      <PreviewCard label="Editorial shop header">
+        <div class="h-full bg-muted"></div>
+      </PreviewCard>
+      <PreviewCard label="Home" description="The front page: the shared header and footer around the composition.">
+        <div class="h-full bg-muted"></div>
+      </PreviewCard>
+    </div>
+  );
+}

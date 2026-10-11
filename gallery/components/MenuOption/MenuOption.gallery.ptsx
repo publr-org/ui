@@ -1,0 +1,40 @@
+import { MenuOption } from "../../../src/components/MenuOption/MenuOption.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "menu-option",
+  label: "MenuOption",
+  source: "src/components/MenuOption/MenuOption.ptsx",
+  kind: "primitive",
+  group: "Editor",
+  description: "One entry of a floating pick list: an icon and a name, highlighted while the keys would pick it.",
+  tags: ["menu", "picker", "slash", "editor"],
+  usage: `<MenuOption icon="heading" label="Heading" value="heading" active />`,
+  preview: "demo",
+  previewLabel: "MenuOption as the editor uses it",
+  docs: {
+    purpose: ["An entry of a pick list driven from elsewhere, such as the text being typed after a slash."],
+    useWhen: ["Focus stays in the text and the arrows move a highlight through the entries."],
+    avoidWhen: ["A menu that takes focus; use the Dropdown family."],
+    rules: [{ title: "Default look only", description: "Pass data through props; never restyle it from the app." }],
+    accessibility: ["role=menuitem; aria-current marks the highlighted entry."],
+    composition: ["Runs of entries take a MenuOptionLabel above them."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [
+      { name: "icon", type: "IconName", description: "The entry's icon.", required: true },
+      { name: "label", type: "string", description: "Its name.", required: true },
+      { name: "active", type: "boolean", description: "The entry the keys would pick.", default: "false" },
+      { name: "value", type: "string", description: "Marks the entry (data-option)." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="w-56 rounded-lg border border-border bg-popover p-1.5 shadow-lg">
+      <MenuOption icon="pattern" label="Pattern" value="pattern" active />
+      <MenuOption icon="paragraph" label="Paragraph" value="paragraph" />
+      <MenuOption icon="heading" label="Heading" value="heading" />
+    </div>
+  );
+}

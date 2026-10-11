@@ -1,0 +1,84 @@
+// A dashed area files are dropped on. The owner holds what is going on: it hands in `over`
+// while files hover (the area outlines itself) and takes the drag events, as Board does.
+// By default a click browses the computer through a file input inside, limited by `accept`,
+// and hands the input's `onChange`; with `browse` off the area is the owner's to click
+// (`onClick`), and its children (a button saying what a click does) sit under the text.
+import { Dynamic } from "publr-jsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type DropZoneProps = {
+  title: string;
+  description?: string;
+  /** What the file input takes: `.woff2,.ttf`, `image/*`. */
+  accept?: string;
+  multiple?: boolean;
+  disabled?: boolean;
+  /** Fill the space it is given, rather than its own minimum. */
+  grow?: boolean;
+  /** Files are held over it. */
+  over?: boolean;
+  /** A click opens the computer's file chooser; off, the click is the owner's. */
+  browse?: boolean;
+  classes?: string;
+  children?: JSX.Element;
+  /** Files were picked: the file input's change event. */
+  onChange?: (event: Event) => void;
+  onClick?: (event: MouseEvent) => void;
+  onDragOver?: (event: DragEvent) => void;
+  onDragLeave?: (event: DragEvent) => void;
+  onDrop?: (event: DragEvent) => void;
+};
+
+export function DropZone({
+  title,
+  description,
+  accept,
+  multiple = true,
+  disabled = false,
+  grow = false,
+  over = false,
+  browse = true,
+  classes = "",
+  children,
+  onChange,
+  onClick,
+  onDragOver,
+  onDragLeave,
+  onDrop,
+}: DropZoneProps) {
+  return (
+    <Dynamic
+      as={browse ? "label" : "div"}
+      class={[
+        "relative flex min-h-44 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed p-8 text-center transition duration-150",
+        over ? "border-primary bg-primary/5" : "border-border hover:border-muted-foreground/60 hover:bg-muted/30",
+        grow ? "h-full" : "",
+        classes,
+      ]}
+      data-part="drop-zone"
+      onClick={onClick}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+    >
+      {browse && (
+        <input
+          type="file"
+          class="sr-only"
+          accept={accept}
+          multiple={multiple}
+          disabled={disabled}
+          aria-label={title}
+          onChange={onChange}
+        />
+      )}
+      <Text variant="heading-sm">{title}</Text>
+      {description && (
+        <Text as="p" variant="body-sm" tone="muted" classes="max-w-sm">
+          {description}
+        </Text>
+      )}
+      {children && <div class="mt-2 flex items-center gap-2">{children}</div>}
+    </Dynamic>
+  );
+}

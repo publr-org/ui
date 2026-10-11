@@ -1,0 +1,30 @@
+// A row an inspector panel lists to pick from: an icon and a label; the picked one tinted.
+import { Icon } from "../Icon/Icon.ptsx";
+import type { IconName } from "../Icon/Icon.ptsx";
+
+export type PanelRowProps = {
+  id?: string;
+  label: string;
+  icon: IconName;
+  selected?: boolean;
+  classes?: string;
+  onClick?: (event: MouseEvent) => void;
+};
+
+export function PanelRow({ id, label, icon, selected = false, classes = "", onClick }: PanelRowProps) {
+  return (
+    <button
+      id={id}
+      type="button"
+      class={[
+        "flex w-full cursor-pointer items-center gap-3 rounded-xs px-2 py-2.5 text-left text-body-sm font-medium text-foreground outline-ring hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 aria-[current=true]:bg-ui-accent aria-[current=true]:text-accent-foreground",
+        classes,
+      ]}
+      aria-current={selected ? "true" : undefined}
+      onClick={onClick}
+    >
+      <Icon name={icon} size="lg" />
+      {label}
+    </button>
+  );
+}

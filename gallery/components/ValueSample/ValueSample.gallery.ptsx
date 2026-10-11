@@ -1,0 +1,43 @@
+import { ValueSample } from "../../../src/components/ValueSample/ValueSample.ptsx";
+import type { ComponentDemoMeta, DemoNode } from "../../gallery-types";
+
+export const meta = {
+  name: "value-sample",
+  label: "ValueSample",
+  source: "src/components/ValueSample/ValueSample.ptsx",
+  kind: "primitive",
+  group: "Editor",
+  description: "A small drawing of one design value: a size, a weight, a gap, a radius, a line height, a letter spacing or a color.",
+  tags: ["value-sample"],
+  usage: `<ValueSample kind="radius" value="8px" />`,
+  preview: "demo",
+  previewLabel: "Each kind of design value drawn",
+  docs: {
+    purpose: ["A small drawing of one design value: a size, a weight, a gap, a radius, a line height, a letter spacing or a color."],
+    useWhen: ["Each kind of design value drawn."],
+    avoidWhen: ["A look this component does not offer: add it here, never restyle it at the call site."],
+    rules: [{ title: "Default look only", description: "Pass data and callbacks; the classes prop is for layout only." }],
+    accessibility: ["Interactive parts are native buttons and inputs with accessible names."],
+    composition: ["Built from Text and the other primitives."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [],
+  },
+} satisfies ComponentDemoMeta;
+
+export const node = { component: "ValueSample", props: {}, wrapper: "w-full max-w-xl" } satisfies DemoNode;
+
+export function Demo() {
+  return (
+    <div class="w-full max-w-xl">
+      <div class="flex gap-6">
+        <ValueSample kind="size" value="24px" />
+        <ValueSample kind="weight" value="700" label="bold" />
+        <ValueSample kind="spacing" value="1rem" />
+        <ValueSample kind="radius" value="8px" />
+        <ValueSample kind="leading" value="1.5" />
+        <ValueSample kind="tracking" value="0.1em" />
+        <ValueSample kind="color" value="#3858e9" />
+      </div>
+    </div>
+  );
+}

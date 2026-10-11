@@ -1,0 +1,38 @@
+import { Badge } from "../../../src/components/Badge/Badge.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "badge",
+  label: "Badge",
+  source: "src/components/Badge/Badge.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description: "A small rounded label beside a title or in a row: a state or a count.",
+  tags: ["badge", "design system builder"],
+  usage: `<Badge>Draft</Badge>`,
+  preview: "demo",
+  previewLabel: "Badge",
+  docs: {
+    purpose: ["A small rounded label beside a title or in a row: a state or a count."],
+    useWhen: ["A small rounded label beside a title or in a row: a state or a count."],
+    avoidWhen: ["Use Status for a dot-and-label state inside running text."],
+    rules: [{ title: "Default look", description: "Use it as it is; classes are for layout only." }],
+    accessibility: ["The component owns its text and roles; pass the label as a prop or children."],
+    composition: ["Built from Text, Icon and plain elements only."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [
+      { name: "tone", type: `"neutral" | "success" | "outline"`, description: "The badge's tone." },
+      { name: "size", type: `"xs" | "sm"`, description: "Counts and tags, or states." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="flex items-center gap-3">
+      <Badge>Draft</Badge>
+      <Badge tone="success">Live</Badge>
+      <Badge tone="outline" size="xs">10</Badge>
+    </div>
+  );
+}

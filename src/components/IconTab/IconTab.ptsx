@@ -1,0 +1,36 @@
+// A tab named by an icon alone (the label is its accessible name): equal tabs in a
+// row, the selected one underlined in the accent.
+import { Icon } from "../Icon/Icon.ptsx";
+import type { IconName } from "../Icon/Icon.ptsx";
+
+export type IconTabProps = {
+  id?: string;
+  classes?: string;
+  label: string;
+  icon: IconName;
+  selected: boolean;
+  disabled?: boolean;
+  tab?: string;
+  onClick?: (event: MouseEvent) => void;
+};
+
+
+export function IconTab({ id, classes = "", label, icon, selected, disabled = false, tab, onClick }: IconTabProps) {
+  return (
+    <button
+      id={id}
+      type="button"
+      role="tab"
+      class={["relative flex h-11 flex-1 cursor-pointer items-center justify-center text-muted-foreground aria-selected:text-foreground aria-selected:shadow-[inset_0_-2px_0_0_var(--primary)]", classes]}
+      aria-selected={selected}
+      aria-label={label}
+      title={label}
+      disabled={disabled}
+      data-itab={tab}
+     
+      onClick={onClick}
+    >
+      <Icon name={icon} size="md" />
+    </button>
+  );
+}

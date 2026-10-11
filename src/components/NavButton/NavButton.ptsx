@@ -1,0 +1,76 @@
+// One row of an in-app navigation list that is driven by state rather than links: a
+// leading glyph, the label, and an optional trailing mark (a chevron into a section, an
+// arrow out to another app). The current row is announced with aria-current.
+import { Badge } from "../Badge/Badge.ptsx";
+import { Icon } from "../Icon/Icon.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export const NAV_BUTTON_TRAILING = ["none", "chevron", "external"] as const;
+export type NavButtonTrailing = (typeof NAV_BUTTON_TRAILING)[number];
+
+export type NavButtonProps = {
+  /** The row's label. */
+  label: string;
+  /** The leading glyph: a GlyphTile or an Icon. */
+  glyph?: JSX.Element;
+  trailing?: NavButtonTrailing;
+  current?: boolean;
+  /** `sm` the dense 36px row (an app's nav); `md` a 38px row at reading size, quiet until
+   * current (a category list); `xs` the dense quiet row of a side list (a library's
+   * categories). */
+  size?: "xs" | "sm" | "md";
+  /** A count at the row's end: how many things the row holds. */
+  count?: number;
+  /** A small tag at the row's end: a count in a pill, a part's area. */
+  badge?: string;
+  classes?: string;
+  id?: string;
+  onClick?: (event: MouseEvent) => void;
+};
+
+export function NavButton({ label, glyph, trailing = "none", current = false, size = "sm", count, badge, classes = "", id, onClick }: NavButtonProps) {
+  return (
+    <button
+      id={id}
+      type="button"
+      aria-current={current ? "true" : undefined}
+      class={[
+        "flex w-full cursor-pointer items-center rounded-lg border-0 bg-transparent text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring aria-[current=true]:bg-muted",
+        size === "md"
+          ? "h-[38px] gap-3 px-3 text-muted-foreground hover:bg-muted/60 hover:text-foreground aria-[current=true]:text-foreground"
+          : size === "xs"
+            ? "h-9 gap-2.5 px-2.5 text-muted-foreground hover:bg-muted hover:text-foreground aria-[current=true]:text-foreground"
+            : "h-9 gap-2.5 px-2.5 text-foreground hover:bg-muted",
+        classes,
+      ]}
+      onClick={onClick}
+    >
+      {glyph}
+      {size === "md" ? (
+        <Text variant="body-md" classes="min-w-0 flex-1 truncate">
+          {label}
+        </Text>
+      ) : size === "xs" ? (
+        <Text variant="label-xs" classes="min-w-0 flex-1 truncate">
+          {label}
+        </Text>
+      ) : (
+        <Text variant="label-sm" classes="min-w-0 flex-1 truncate">
+          {label}
+        </Text>
+      )}
+      {badge !== undefined && (
+        <Badge tone="surface" size="xs" classes="min-w-5">
+          {badge}
+        </Badge>
+      )}
+      {count !== undefined && (
+        <Text variant="label-xs" tone="muted" classes="tabular-nums">
+          {String(count)}
+        </Text>
+      )}
+      {trailing === "chevron" && <Icon name="chevron-right" size="xs" classes="text-muted-foreground" />}
+      {trailing === "external" && <Icon name="arrow-up-right" size="xs" classes="text-muted-foreground" />}
+    </button>
+  );
+}

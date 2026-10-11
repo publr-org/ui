@@ -1,0 +1,27 @@
+// A compact row that picks a group: its name at the start, how many it holds in a pill at
+// the end. `pressed` marks the group that is open. Rows stack into a filter list.
+export type CountButtonProps = {
+  label: string;
+  count: number;
+  pressed?: boolean;
+  classes?: string;
+  onClick?: (event: MouseEvent) => void;
+};
+
+export function CountButton({ label, count, pressed = false, classes = "", onClick }: CountButtonProps) {
+  return (
+    <button
+      type="button"
+      aria-pressed={pressed ? "true" : "false"}
+      data-count-button={label}
+      class={[
+        "flex h-9 w-full cursor-pointer items-center rounded-lg px-2.5 text-left text-[10px] leading-3 font-medium text-muted-foreground hover:bg-ui-accent hover:text-foreground aria-[pressed=true]:bg-ui-accent aria-[pressed=true]:text-foreground focus-visible:shadow-[inset_0_0_0_1.5px_var(--color-primary)] focus-visible:outline-none",
+        classes,
+      ]}
+      onClick={onClick}
+    >
+      <span>{label}</span>
+      <span class="ml-auto min-w-5 rounded-full bg-background px-1.5 py-0.5 text-center text-[8px] leading-3 text-muted-foreground tabular-nums">{String(count)}</span>
+    </button>
+  );
+}

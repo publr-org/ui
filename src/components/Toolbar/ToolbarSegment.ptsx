@@ -1,0 +1,48 @@
+// One segment of ToolbarSegments: an icon, and beside it while pressed an optional value
+// (the viewport's width). Pressed reads as a raised white face with a ring.
+import { Icon } from "../Icon/Icon.ptsx";
+import type { IconName } from "../Icon/Icon.ptsx";
+import type { ToolbarButtonTone } from "./ToolbarButton.ptsx";
+
+export type ToolbarSegmentProps = {
+  id?: string;
+  label: string;
+  icon: IconName;
+  pressed?: boolean;
+  disabled?: boolean;
+  /** Shown beside the icon while pressed. */
+  value?: string;
+  tone?: ToolbarButtonTone;
+  classes?: string;
+  onClick?: (event: MouseEvent) => void;
+};
+
+const LOOKS: Record<ToolbarButtonTone, string> = {
+  default:
+    "text-muted-foreground outline-ring hover:bg-background hover:text-foreground aria-[pressed=true]:border-[color-mix(in_oklch,var(--ring)_55%,transparent)] aria-[pressed=true]:bg-background aria-[pressed=true]:text-foreground aria-[pressed=true]:shadow-[0_1px_2px_rgb(0_0_0/0.12),inset_0_0_0_1px_color-mix(in_oklch,var(--ring)_55%,transparent)]",
+  inverse:
+    "text-white/85 outline-white hover:border-white/50 hover:bg-white/25 hover:text-white aria-[pressed=true]:border-white/50 aria-[pressed=true]:bg-white/25 aria-[pressed=true]:text-white",
+};
+
+export function ToolbarSegment({ id, label, icon, pressed = false, disabled = false, value = "", tone = "default", classes = "", onClick }: ToolbarSegmentProps) {
+  return (
+    <button
+      id={id}
+      type="button"
+      class={[
+        "relative flex h-8 min-w-8 cursor-pointer items-center justify-center gap-1.5 rounded-md border border-transparent bg-transparent px-1.5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-35",
+        LOOKS[tone],
+        classes,
+      ]}
+      title={label}
+      aria-label={label}
+      aria-pressed={pressed}
+      disabled={disabled}
+      data-part="toolbar-segment"
+      onClick={onClick}
+    >
+      <Icon name={icon} size="md" />
+      {pressed && value !== "" && <span class="text-[11px] font-semibold tabular-nums">{value}</span>}
+    </button>
+  );
+}

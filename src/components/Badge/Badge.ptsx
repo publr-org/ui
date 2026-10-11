@@ -1,0 +1,42 @@
+// A small rounded label beside a title or in a list row: a state ("Draft", "Live") or a
+// count. Tones are semantic; `neutral` is the quiet default.
+
+export const BADGE_TONES = ["neutral", "success", "outline", "surface"] as const;
+export const BADGE_SIZES = ["xs", "sm"] as const;
+export type BadgeTone = (typeof BADGE_TONES)[number];
+export type BadgeSize = (typeof BADGE_SIZES)[number];
+export const BADGE_SHAPES = ["pill", "tag"] as const;
+export type BadgeShape = (typeof BADGE_SHAPES)[number];
+
+export type BadgeProps = {
+  children: JSX.Element;
+  tone?: BadgeTone;
+  /** `xs` 8–9px counts and tags, `sm` 10px states. */
+  size?: BadgeSize;
+  /** `pill` fully rounded (states, counts), `tag` a small-cornered label ("Bold 700"). */
+  shape?: BadgeShape;
+  classes?: string;
+};
+
+const TONE_CLASSES: Record<BadgeTone, string> = {
+  neutral: "bg-muted text-muted-foreground",
+  success: "bg-success/10 text-success font-semibold",
+  outline: "border border-border bg-background text-muted-foreground",
+  surface: "bg-card text-muted-foreground",
+};
+
+const SIZE_CLASSES: Record<BadgeSize, string> = {
+  xs: "px-1.5 py-0.5 text-[8px] leading-3",
+  sm: "px-2 py-0.5 text-[10px] leading-4",
+};
+
+export function Badge({ children, tone = "neutral", size = "sm", shape = "pill", classes = "" }: BadgeProps) {
+  return (
+    <span
+      class={["inline-flex shrink-0 items-center justify-center font-medium whitespace-nowrap tabular-nums", shape === "tag" ? "rounded-sm" : "rounded-full", TONE_CLASSES[tone], SIZE_CLASSES[size], shape === "tag" ? "px-1.5" : "", classes]}
+      data-badge-tone={tone}
+    >
+      {children}
+    </span>
+  );
+}

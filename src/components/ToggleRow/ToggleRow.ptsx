@@ -1,0 +1,27 @@
+// A full-width row that turns one thing on or off: its name, and a check while on.
+// Stacked in a list (the inspector's less common controls).
+import { Text } from "../Text/Text.ptsx";
+
+export type ToggleRowProps = { id?: string; classes?: string; label: string; pressed: boolean; onClick?: (event: MouseEvent) => void };
+
+
+export function ToggleRow({ id, classes = "", label, pressed, onClick }: ToggleRowProps) {
+  return (
+    <button
+      id={id}
+      type="button"
+      class={["group flex h-10 w-full cursor-pointer items-center justify-between rounded-md border border-input bg-card px-3 text-left text-foreground aria-[pressed=true]:border-primary aria-[pressed=true]:bg-[color-mix(in_oklch,var(--primary)_8%,var(--card))]", classes]}
+      aria-pressed={pressed}
+      data-part="toggle-row"
+     
+      onClick={onClick}
+    >
+      <Text variant="label-md" classes="font-normal">
+        {label}
+      </Text>
+      <Text variant="label-md" tone="accent" classes="invisible group-aria-[pressed=true]:visible">
+        ✓
+      </Text>
+    </button>
+  );
+}

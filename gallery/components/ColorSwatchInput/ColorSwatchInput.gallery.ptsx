@@ -1,0 +1,35 @@
+import { ColorSwatchInput } from "../../../src/components/ColorSwatchInput/ColorSwatchInput.ptsx";
+import type { ComponentDemoMeta, DemoNode } from "../../gallery-types";
+
+export const meta = {
+  name: "color-swatch-input",
+  label: "ColorSwatchInput",
+  source: "src/components/ColorSwatchInput/ColorSwatchInput.ptsx",
+  kind: "primitive",
+  group: "Forms",
+  description: "A color picked from a swatch: the swatch shows the value; clicking it opens the browser color picker.",
+  tags: ["color-swatch-input"],
+  usage: `<ColorSwatchInput value="#3858e9" label="Base" />`,
+  preview: "demo",
+  previewLabel: "A swatch that opens the color picker",
+  docs: {
+    purpose: ["A color picked from a swatch: the swatch shows the value; clicking it opens the browser color picker."],
+    useWhen: ["A swatch that opens the color picker."],
+    avoidWhen: ["A look this component does not offer: add it here, never restyle it at the call site."],
+    rules: [{ title: "Default look only", description: "Pass data and callbacks; the classes prop is for layout only." }],
+    accessibility: ["Interactive parts are native buttons and inputs with accessible names."],
+    composition: ["Built from Text and the other primitives."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [],
+  },
+} satisfies ComponentDemoMeta;
+
+export const node = { component: "ColorSwatchInput", props: {}, wrapper: "w-full max-w-xl" } satisfies DemoNode;
+
+export function Demo() {
+  return (
+    <div class="w-full max-w-xl">
+      <ColorSwatchInput value="#3858e9" label="Base" />
+    </div>
+  );
+}

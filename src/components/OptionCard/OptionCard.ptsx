@@ -1,0 +1,58 @@
+// A named choice drawn as a small card: the name, a check when chosen, and a caption
+// line. Laid out by the parent in a grid of two. `fontFamily` draws the name in the
+// family it stands for.
+import { Publr } from "publr-jsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type OptionCardProps = {
+  id?: string;
+  classes?: string;
+  label: string;
+  caption?: string;
+  pressed: boolean;
+  fontFamily?: string;
+  disabled?: boolean;
+  onClick?: (event: MouseEvent) => void;
+  onPointerEnter?: (event: PointerEvent) => void;
+  onPointerLeave?: (event: PointerEvent) => void;
+};
+
+
+export function OptionCard({ id, classes = "", label, caption = "", pressed, fontFamily = "", disabled = false, onClick, onPointerEnter, onPointerLeave }: OptionCardProps) {
+  return (
+    <button
+      id={id}
+      type="button"
+      class={[
+        "group flex min-h-14 cursor-pointer flex-col items-start justify-center rounded-md border border-input bg-card px-3 text-left text-foreground hover:border-primary hover:bg-[color-mix(in_oklch,var(--primary)_7%,var(--card))] disabled:cursor-default disabled:opacity-40 aria-[pressed=true]:border-primary aria-[pressed=true]:bg-[color-mix(in_oklch,var(--primary)_12%,var(--card))] aria-[pressed=true]:shadow-[inset_0_0_0_1px_var(--primary)]",
+        classes,
+      ]}
+      aria-pressed={pressed}
+      aria-label={label}
+      disabled={disabled}
+      data-part="option-card"
+     
+      onClick={onClick}
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
+    >
+      <span class="flex w-full items-center justify-between gap-2">
+        {fontFamily ? (
+          <Text as="strong" variant="body-sm" classes="truncate font-medium" style={`font-family:${fontFamily}`}>
+            {label}
+          </Text>
+        ) : (
+          <Text as="strong" variant="label-md-strong" classes="truncate">
+            {label}
+          </Text>
+        )}
+        <Text variant="label-md" tone="accent" classes="invisible group-aria-[pressed=true]:visible">
+          ✓
+        </Text>
+      </span>
+      <Text variant="body-2xs" tone="muted" classes="mt-0.5">
+        {caption !== "" ? caption : Publr.t("Preview on hover")}
+      </Text>
+    </button>
+  );
+}

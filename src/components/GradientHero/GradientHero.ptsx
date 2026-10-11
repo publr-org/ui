@@ -1,0 +1,22 @@
+// A full-bleed opening band washed in soft color: a background built from a few radial
+// gradients (passed in, so the colors can be a site's own), its content centred in one
+// column. The front door of a workspace: one question, one prompt.
+
+export type GradientHeroProps = {
+  /** A CSS `background-image` value: the wash. */
+  gradient: string;
+  children?: JSX.Element;
+  classes?: string;
+};
+
+export function GradientHero({ gradient, children, classes = "" }: GradientHeroProps) {
+  return (
+    <section
+      class={["relative flex min-h-[560px] flex-1 flex-col items-center justify-center overflow-hidden px-6 py-16", classes]}
+      style={{ backgroundImage: gradient }}
+      data-part="gradient-hero"
+    >
+      <div class="relative flex w-full max-w-[760px] flex-col items-center">{children}</div>
+    </section>
+  );
+}

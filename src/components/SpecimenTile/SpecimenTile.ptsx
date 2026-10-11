@@ -1,0 +1,41 @@
+// A small square set in a palette: "Aa" in one color on another, and optionally a row
+// of dots for more of the palette's colors. Stands for a color context or a theme.
+
+export const SPECIMEN_TILE_SIZES = ["md", "lg"] as const;
+export type SpecimenTileSize = (typeof SPECIMEN_TILE_SIZES)[number];
+
+export type SpecimenTileProps = {
+  /** The ground: any CSS color. */
+  surface: string;
+  /** The letters: any CSS color. */
+  foreground: string;
+  /** More colors, as dots under the letters (`lg` only). */
+  dots?: string[];
+  /** `md` a 40px rounded square, `lg` a 64px square that sits flush in a card. */
+  size?: SpecimenTileSize;
+  classes?: string;
+};
+
+export function SpecimenTile({ surface, foreground, dots = [], size = "md", classes = "" }: SpecimenTileProps) {
+  return (
+    <span
+      aria-hidden="true"
+      class={[
+        "flex shrink-0 flex-col items-center justify-center gap-1 border-border font-black leading-none",
+        size === "lg" ? "h-16 w-16 border-r text-[15px]" : "h-10 w-10 rounded-lg border text-[13px]",
+        classes,
+      ]}
+      style={{ backgroundColor: surface, color: foreground }}
+      data-part="specimen-tile"
+    >
+      Aa
+      {size === "lg" && dots.length > 0 && (
+        <span class="flex gap-1">
+          {dots.map((dot) => (
+            <i class="h-2.5 w-2.5 rounded-full border border-black/10" style={{ backgroundColor: dot }}></i>
+          ))}
+        </span>
+      )}
+    </span>
+  );
+}

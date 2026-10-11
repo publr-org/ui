@@ -1,0 +1,59 @@
+// A picture of something that a click places: a bordered preview holding the caller's
+// picture (`children`: an element the caller draws into, filling the holder), its name beneath and a quiet secondary action
+// beside it. `fit` lets the preview set its own height (a strip of a page), `square`
+// crops it to a square (a grid of many).
+import { Text } from "../Text/Text.ptsx";
+
+export const SNAPSHOT_TILE_SHAPES = ["fit", "square"] as const;
+export type SnapshotTileShape = (typeof SNAPSHOT_TILE_SHAPES)[number];
+
+export type SnapshotTileProps = {
+  label: string;
+  shape?: SnapshotTileShape;
+  /** The secondary action's word and accessible name. */
+  action?: string;
+  actionLabel?: string;
+  /** Marks the tile for the caller (`data-snapshot-tile`). */
+  value?: string;
+  classes?: string;
+  /** The picture: an element the caller draws into. In `fit` it sets the height. */
+  children?: JSX.Element;
+  onClick?: (event: MouseEvent) => void;
+  onAction?: (event: MouseEvent) => void;
+};
+
+export function SnapshotTile({ label, shape = "fit", action = "", actionLabel = "", value = "", classes = "", children, onClick, onAction }: SnapshotTileProps) {
+  return (
+    <div class={["group min-w-0", classes]} data-snapshot-tile={value}>
+      <button type="button" aria-label={label} class="group block w-full cursor-pointer text-left focus-visible:outline-none" onClick={onClick}>
+        <span
+          data-snapshot-holder={value}
+          class={[
+            "relative block w-full overflow-hidden rounded-xs border border-border bg-white group-hover:border-primary group-focus-visible:border-primary",
+            shape === "square" ? "aspect-square" : "",
+          ]}
+        >
+          {children}
+        </span>
+      </button>
+      <span class={["flex items-center justify-between", shape === "square" ? "mt-2" : "mt-1.5"]}>
+        <Text as="span" variant={shape === "square" ? "body-sm" : "label-md"}>
+          {label}
+        </Text>
+        {action && (
+          <button
+            type="button"
+            tabindex="-1"
+            aria-label={actionLabel || action}
+            class="cursor-pointer rounded-xs px-1.5 py-0.5 text-muted-foreground hover:bg-muted hover:text-primary focus-visible:shadow-[inset_0_0_0_1.5px_var(--color-primary)] focus-visible:outline-none"
+            onClick={onAction}
+          >
+            <Text as="span" variant="label-sm">
+              {action}
+            </Text>
+          </button>
+        )}
+      </span>
+    </div>
+  );
+}

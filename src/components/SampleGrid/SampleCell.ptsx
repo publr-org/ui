@@ -1,0 +1,40 @@
+// One cell of a SampleGrid: a drawing of the value on top, its name with a remove action
+// that shows on hover, and the value to edit.
+import { Text } from "../Text/Text.ptsx";
+
+export type SampleCellProps = {
+  name: string;
+  /** The drawing: a ValueSample. */
+  sample?: JSX.Element;
+  /** The value's editor: an Input. */
+  children?: JSX.Element;
+  removeLabel?: string;
+  onRemove?: (event: MouseEvent) => void;
+  classes?: string;
+};
+
+export function SampleCell({ name, sample, children, removeLabel, onRemove, classes = "" }: SampleCellProps) {
+  return (
+    <div class={["group relative flex min-h-28 min-w-0 flex-col p-3", classes]} data-part="sample-cell">
+      <div class="mb-2">{sample}</div>
+      <div class="mb-1 flex items-center gap-1">
+        <Text variant="label-2xs-strong" classes="min-w-0 flex-1 truncate">
+          {name}
+        </Text>
+        {onRemove && (
+          <button
+            type="button"
+            class="h-5 w-5 cursor-pointer rounded border-0 bg-transparent text-muted-foreground opacity-0 hover:bg-muted group-hover:opacity-100 focus-visible:opacity-100"
+            aria-label={removeLabel}
+            title={removeLabel}
+            data-part="sample-remove"
+            onClick={onRemove}
+          >
+            <Text variant="label-xs">×</Text>
+          </button>
+        )}
+      </div>
+      {children}
+    </div>
+  );
+}

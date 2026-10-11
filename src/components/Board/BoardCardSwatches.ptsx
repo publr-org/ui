@@ -1,0 +1,15 @@
+// A row of small color squares, each titled with its value.
+export type BoardCardSwatchesProps = {
+  colors: string[];
+  classes?: string;
+};
+
+export function BoardCardSwatches({ colors, classes = "" }: BoardCardSwatchesProps) {
+  return (
+    <div class={["flex flex-wrap gap-1", classes]} data-part="board-card-swatches">
+      {colors.map((color) => (
+        <span class="block h-5 w-5 rounded-sm ring-1 ring-black/10" style={`background: ${color}`} title={color}></span>
+      ))}
+    </div>
+  );
+}

@@ -1,0 +1,21 @@
+// One step of a BoardZoom: a small outlined button with a glyph or a word.
+export type BoardZoomButtonProps = {
+  label: string;
+  part?: string;
+  children?: JSX.Element;
+  onClick?: () => void;
+};
+
+export function BoardZoomButton({ label, part, children, onClick }: BoardZoomButtonProps) {
+  return (
+    <button
+      type="button"
+      class="inline-flex h-7 min-w-7 cursor-pointer appearance-none items-center justify-center rounded-md border border-current bg-transparent px-1.5 text-xs leading-none text-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
+      aria-label={label}
+      data-part={part}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}

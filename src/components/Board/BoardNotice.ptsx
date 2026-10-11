@@ -1,0 +1,17 @@
+// A board's one-line alert: what just went wrong (an upload refused).
+import { Text } from "../Text/Text.ptsx";
+
+export type BoardNoticeProps = {
+  children?: JSX.Element;
+  classes?: string;
+};
+
+export function BoardNotice({ children, classes = "" }: BoardNoticeProps) {
+  return (
+    <div class={["rounded-md border border-destructive/30 bg-background px-3 py-2 shadow-sm", classes]} role="alert" data-part="board-notice">
+      <Text variant="body-sm" tone="error">
+        {children}
+      </Text>
+    </div>
+  );
+}

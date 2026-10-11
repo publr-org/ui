@@ -1,0 +1,25 @@
+// A small panel floating over the page at a point the parent measured: a picker beside
+// the control that opened it. The parent owns where and whether.
+export type FloatingPanelProps = {
+  id?: string;
+  classes?: string;
+  top: number;
+  left: number;
+  width?: number;
+  label?: string;
+  children?: JSX.Element;
+};
+
+export function FloatingPanel({ id, classes = "", top, left, width = 286, label, children }: FloatingPanelProps) {
+  return (
+    <section
+      id={id}
+      class={["fixed z-50 rounded-[calc(var(--radius)*1.25)] border border-input bg-popover p-3 text-popover-foreground shadow-[0_12px_28px_rgb(0_0_0/0.24)]", classes]}
+      style={`top:${top}px;left:${left}px;width:${width}px`}
+      aria-label={label}
+      data-part="floating-panel"
+    >
+      {children}
+    </section>
+  );
+}

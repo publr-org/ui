@@ -1,0 +1,80 @@
+// A value that differs across breakpoints: a "Responsive" pill under the control that
+// opens its track. Each range is the breakpoints sharing one value (a changed one resets
+// on click); each point is a breakpoint (a click jumps there; the arrow keys move a
+// change to the neighbouring breakpoint). The parent owns the values.
+import { Publr } from "publr-jsx";
+import { Icon } from "../Icon/Icon.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type ResponsiveFieldRange = { key: string; span: number; color: string; changed: boolean; label: string };
+export type ResponsiveFieldPoint = { key: string; device: string; viewport: string; active: boolean; changed: boolean; movable: boolean; label: string; color: string };
+
+export type ResponsiveFieldProps = {
+  id?: string;
+  classes?: string;
+  summary: string;
+  changes: string;
+  ranges: ResponsiveFieldRange[];
+  points: ResponsiveFieldPoint[];
+  /** Ranges and points carry `data-breakpoint` (and points `data-device`); handlers read them. */
+  onReset?: (event: MouseEvent) => void;
+  onJump?: (event: MouseEvent) => void;
+  onMove?: (event: KeyboardEvent) => void;
+};
+
+
+export function ResponsiveField({ id, classes = "", summary, changes, ranges, points, onReset, onJump, onMove }: ResponsiveFieldProps) {
+  return (
+    <details id={id} class={["group mt-[9px] text-muted-foreground", classes]} data-part="responsive-field">
+      <summary class="flex w-max cursor-pointer list-none items-center gap-1.5 rounded-full bg-primary py-[5px] pr-[9px] pl-2 text-primary-foreground [&::-webkit-details-marker]:hidden" aria-label={changes} title={changes}>
+        <Icon name="responsive" size="xs" />
+        <Text variant="label-2xs-strong">{Publr.t("Responsive")}</Text>
+        <Text as="strong" variant="label-3xs" classes="border-l border-white/30 pl-1.5 opacity-70">
+          {summary}
+        </Text>
+        <span class="flex transition-transform group-open:rotate-180">
+          <Icon name="chevron-down" size="xs" />
+        </span>
+      </summary>
+      <div class="mt-2.5 px-0.5">
+        <div class="flex h-1.5 gap-0.5 rounded-full bg-border" role="group" aria-label={changes}>
+          {ranges.map((range) => (
+            <button
+              type="button"
+              class={["relative min-w-[3px] basis-0 border-0 p-0 first:rounded-l-full last:rounded-r-full", range.changed ? "cursor-pointer" : "cursor-default"]}
+              style={`flex-grow:${range.span};background-color:${range.color}`}
+              aria-label={range.label}
+              title={range.label}
+              disabled={!range.changed}
+              data-breakpoint={range.key}
+             
+              onClick={onReset}
+            ></button>
+          ))}
+        </div>
+        <div class="flex" role="group" aria-label={changes}>
+          {points.map((point) => (
+            <button
+              type="button"
+              class="group/point flex min-w-0 flex-1 cursor-pointer flex-col items-center border-0 bg-transparent p-0 text-muted-foreground hover:text-foreground aria-[current=true]:text-foreground"
+              aria-label={point.label}
+              title={point.label}
+              aria-current={point.active}
+              data-breakpoint={point.key}
+              data-changed={point.changed}
+             
+              data-device={point.device}
+              onClick={onJump}
+              onKeyDown={onMove}
+            >
+              <i class={point.changed ? "mb-[3px] h-2 w-0.5" : "mb-[3px] h-1.5 w-px bg-border"} style={point.changed ? `background-color:${point.color}` : ""}></i>
+              <Text variant="label-3xs" classes="tabular-nums group-aria-[current=true]/point:font-bold group-aria-[current=true]/point:underline">
+                {point.viewport}
+              </Text>
+            </button>
+          ))}
+        </div>
+      </div>
+    </details>
+  );
+}

@@ -1,0 +1,43 @@
+// A square-ish button with an icon above its label: one entry of a picker grid (a block
+// library, an inserter popover). `lg` is the roomy tile of a side panel, `sm` the tighter
+// tile of a popover. Grids lay the tiles out; the tile only draws itself.
+import { Icon } from "../Icon/Icon.ptsx";
+import type { IconName } from "../Icon/Icon.ptsx";
+
+export const PICKER_TILE_SIZES = ["lg", "sm"] as const;
+export type PickerTileSize = (typeof PICKER_TILE_SIZES)[number];
+
+export type PickerTileProps = {
+  icon: IconName;
+  label: string;
+  size?: PickerTileSize;
+  title?: string;
+  /** Marks the tile for the caller's keyboard handling and tests (`data-tile`). */
+  value?: string;
+  classes?: string;
+  onClick?: (event: MouseEvent) => void;
+  onKeyDown?: (event: KeyboardEvent) => void;
+};
+
+const SIZE_CLASSES: Record<PickerTileSize, string> = {
+  lg: "gap-3 rounded-xs px-1 pt-5 pb-4 text-[13px] leading-[18px] font-normal hover:bg-muted focus-visible:bg-muted",
+  sm: "gap-2 rounded-md px-1 pt-3.5 pb-2.5 text-[13px] leading-[18px] font-medium hover:bg-ui-accent hover:text-accent-foreground focus-visible:bg-ui-accent",
+};
+
+export function PickerTile({ icon, label, size = "lg", title = "", value = "", classes = "", onClick, onKeyDown }: PickerTileProps) {
+  return (
+    <button
+      type="button"
+      title={title}
+      data-tile={value}
+      class={["flex cursor-pointer flex-col items-center text-center text-foreground focus-visible:outline-none", SIZE_CLASSES[size], classes]}
+      onClick={onClick}
+      onKeyDown={onKeyDown}
+    >
+      <span class="flex h-6 items-center justify-center">
+        <Icon name={icon} size={size === "lg" ? "lg" : "md"} />
+      </span>
+      <span>{label}</span>
+    </button>
+  );
+}

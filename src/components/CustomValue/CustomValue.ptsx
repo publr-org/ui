@@ -1,0 +1,35 @@
+// "Custom value": a right-aligned disclosure under a scale control that opens a free
+// text field for a value the scale does not hold (a token step or any CSS value).
+import { Publr } from "publr-jsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type CustomValueProps = {
+  id?: string;
+  classes?: string;
+  label: string;
+  value: string;
+  placeholder?: string;
+  disabled?: boolean;
+  onChange?: (event: Event) => void;
+};
+
+export function CustomValue({ id, classes = "", label, value, placeholder = "", disabled = false, onChange }: CustomValueProps) {
+  return (
+    <details id={id} class={["mt-[5px]", classes]} data-part="custom-value">
+      <summary class="cursor-pointer text-right text-[11px] text-muted-foreground">
+        <Text variant="label-sm" tone="muted" classes="font-normal">
+          {Publr.t("Custom value")}
+        </Text>
+      </summary>
+      <input
+        type="text"
+        class="mt-1.5 h-9 w-full rounded-[3px] border border-input bg-card px-2 text-xs text-foreground focus:border-primary focus:outline-none"
+        value={value}
+        placeholder={placeholder !== "" ? placeholder : Publr.t("Token step or CSS value")}
+        aria-label={label}
+        disabled={disabled}
+        onChange={onChange}
+      />
+    </details>
+  );
+}

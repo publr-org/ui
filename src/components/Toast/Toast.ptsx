@@ -1,0 +1,18 @@
+// A short confirmation that floats over the work and fades on its own: "Heading default
+// saved". The caller places it and decides how long it stays.
+import { Text } from "../Text/Text.ptsx";
+
+export type ToastProps = {
+  children?: JSX.Element;
+  classes?: string;
+};
+
+export function Toast({ children, classes = "" }: ToastProps) {
+  return (
+    <div role="status" aria-live="polite" class={["pointer-events-none rounded-lg border border-border bg-card px-4 py-2.5 text-foreground shadow-lg", classes]}>
+      <Text as="span" variant="label-sm-strong">
+        {children}
+      </Text>
+    </div>
+  );
+}

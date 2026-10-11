@@ -1,0 +1,28 @@
+// One line of a tally: what is counted, an optional tag, and how many.
+import { Text } from "../Text/Text.ptsx";
+
+export type CountRowProps = {
+  label: string;
+  count: number;
+  /** A tag before the count: "read-only". */
+  note?: string;
+  classes?: string;
+};
+
+export function CountRow({ label, count, note = "", classes = "" }: CountRowProps) {
+  return (
+    <div class={["flex items-center justify-between gap-3 rounded-md bg-muted px-3 py-2", classes]} data-part="count-row">
+      <Text variant="body-compact">{label}</Text>
+      <span class="flex items-center gap-2 text-muted-foreground">
+        {note && (
+          <span class="rounded-full border border-border px-1.5 uppercase">
+            <Text variant="label-2xs">{note}</Text>
+          </span>
+        )}
+        <Text variant="body-compact" tone="muted" classes="tabular-nums">
+          {String(count)}
+        </Text>
+      </span>
+    </div>
+  );
+}

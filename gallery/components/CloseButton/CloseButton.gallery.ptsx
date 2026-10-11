@@ -1,0 +1,31 @@
+import { CloseButton } from "../../../src/components/CloseButton/CloseButton.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "close-button",
+  label: "CloseButton",
+  source: "src/components/CloseButton/CloseButton.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description: "The X that closes a panel or a dialog.",
+  tags: ["close", "dismiss", "panel"],
+  usage: `<CloseButton label="Close list view" />`,
+  preview: "demo",
+  previewLabel: "CloseButton as the editor uses it",
+  docs: {
+    purpose: ["Closes the panel or dialog it sits in."],
+    useWhen: ["A side panel's or a dialog's header."],
+    avoidWhen: ["Removing an item; use a destructive Button."],
+    rules: [{ title: "Default look only", description: "Pass data through props; never restyle it from the app." }],
+    accessibility: ["The label is the accessible name and the title."],
+    composition: ["Built from Icon."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [{ name: "label", type: "string", description: "The accessible name.", required: true }],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <CloseButton label="Close block inserter" />
+  );
+}

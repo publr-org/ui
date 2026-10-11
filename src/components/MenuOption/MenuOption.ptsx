@@ -1,0 +1,36 @@
+// One entry of a floating pick list: an icon and a name. `active` is the entry the keys
+// would pick (the highlight follows the arrows while focus stays elsewhere, in the text
+// being typed). A run of entries takes a `MenuOptionLabel` above it.
+import { Icon } from "../Icon/Icon.ptsx";
+import type { IconName } from "../Icon/Icon.ptsx";
+
+export type MenuOptionProps = {
+  icon: IconName;
+  label: string;
+  active?: boolean;
+  /** Marks the entry for the caller (`data-option`). */
+  value?: string;
+  classes?: string;
+  onClick?: (event: MouseEvent) => void;
+};
+
+export function MenuOption({ icon, label, active = false, value = "", classes = "", onClick }: MenuOptionProps) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      data-option={value}
+      aria-current={active ? "true" : undefined}
+      class={[
+        "flex min-h-9 w-full cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-sm leading-5 font-medium text-popover-foreground hover:bg-ui-accent hover:text-accent-foreground aria-[current=true]:bg-ui-accent aria-[current=true]:text-accent-foreground focus-visible:outline-none",
+        classes,
+      ]}
+      onClick={onClick}
+    >
+      <span class="flex size-5 items-center justify-center">
+        <Icon name={icon} size="md" />
+      </span>
+      {label}
+    </button>
+  );
+}

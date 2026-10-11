@@ -1,0 +1,18 @@
+// Numbered instructions done in order: each Step a marker, a title and what to do,
+// joined by a rule down the markers.
+
+export type StepsProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function Steps({ children, classes = "", id }: StepsProps) {
+  return (
+    <ol id={id} class={["m-0 flex list-none flex-col p-0", classes]} data-part="steps">
+      {children}
+    </ol>
+  );
+}
+
+export { Step } from "./Step.ptsx";

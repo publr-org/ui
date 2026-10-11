@@ -1,0 +1,44 @@
+import { GlyphTile } from "../../../src/components/GlyphTile/GlyphTile.ptsx";
+import { Icon } from "../../../src/components/Icon/Icon.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "glyph-tile",
+  label: "GlyphTile",
+  source: "src/components/GlyphTile/GlyphTile.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description: "A small square tile holding a glyph: a few characters in one face, or an Icon.",
+  tags: ["glyph-tile", "design system builder"],
+  usage: `<GlyphTile glyph="Ag" face="serif" framed />`,
+  preview: "demo",
+  previewLabel: "GlyphTile",
+  docs: {
+    purpose: ["A small square tile holding a glyph: a few characters in one face, or an Icon."],
+    useWhen: ["A small square tile holding a glyph: a few characters in one face, or an Icon."],
+    avoidWhen: ["Use as the leading mark of navigation rows and list entries; never as a button by itself."],
+    rules: [{ title: "Default look", description: "Use it as it is; classes are for layout only." }],
+    accessibility: ["The component owns its text and roles; pass the label as a prop or children."],
+    composition: ["Built from Text, Icon and plain elements only."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [
+      { name: "glyph", type: `string`, description: "Characters shown; children are shown when absent." },
+      { name: "face", type: `"sans" | "serif" | "mono"`, description: "The glyph's face." },
+      { name: "size", type: `"sm" | "md"`, description: "20px or 32px." },
+      { name: "framed", type: `boolean`, description: "A border around the tile." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="flex items-center gap-3">
+      <GlyphTile glyph="Ag" face="serif" framed />
+      <GlyphTile glyph="{ }" face="mono" />
+      <GlyphTile framed>
+        <Icon name="swatch-grid" size="xs" />
+      </GlyphTile>
+      <GlyphTile glyph="Aa" size="md" framed />
+    </div>
+  );
+}

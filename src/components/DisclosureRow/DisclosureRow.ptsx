@@ -1,0 +1,38 @@
+// A bordered row that opens what is under it: a leading mark, a name over a one-line
+// description, and a chevron that turns when open. The opened body follows the row.
+import { Icon } from "../Icon/Icon.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type DisclosureRowProps = {
+  label: string;
+  description?: string;
+  /** The mark at the start: a swatch, an icon. */
+  leading?: JSX.Element;
+  open?: boolean;
+  classes?: string;
+  onClick?: (event: MouseEvent) => void;
+};
+
+export function DisclosureRow({ label, description = "", leading, open = false, classes = "", onClick }: DisclosureRowProps) {
+  return (
+    <button
+      type="button"
+      aria-expanded={open ? "true" : "false"}
+      class={[
+        "flex min-h-14 w-full cursor-pointer items-center gap-3 rounded-xl border border-border bg-card px-3 py-2 text-left text-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+        classes,
+      ]}
+      data-part="disclosure-row"
+      onClick={onClick}
+    >
+      {leading}
+      <span class="flex min-w-0 flex-col">
+        <Text variant="label-sm-strong">{label}</Text>
+        <Text variant="body-2xs" tone="muted" classes="truncate">
+          {description}
+        </Text>
+      </span>
+      <Icon name="chevron-down" size="xs" classes={open ? "ml-auto rotate-180 text-muted-foreground transition-transform" : "ml-auto text-muted-foreground transition-transform"} />
+    </button>
+  );
+}

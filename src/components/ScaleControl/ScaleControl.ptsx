@@ -1,0 +1,99 @@
+// A value on a scale: a range over the scale's steps (0 is none), the step's name in a
+// chip, and a toggle to a custom value (a number and a CSS unit, or free text when the
+// value is not a length). The parent owns the value and whether custom is open.
+import { Publr } from "publr-jsx";
+import { Button } from "../Button/Button.ptsx";
+import { Icon } from "../Icon/Icon.ptsx";
+import { RangePicker } from "../RangePicker/RangePicker.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export const SCALE_CONTROL_UNITS = ["px", "%", "em", "rem", "vw", "vh"] as const;
+
+export type ScaleControlProps = {
+  id?: string;
+  classes?: string;
+  label: string;
+  index: number;
+  max: number;
+  valueLabel: string;
+  custom: boolean;
+  /** The custom value as a number and unit; `customParsed: false` edits `customText` instead. */
+  customNumber?: string;
+  customUnit?: string;
+  customParsed?: boolean;
+  customText?: string;
+  customRangeValue?: number;
+  customMin?: number;
+  customMax?: number;
+  customStep?: number;
+  disabled?: boolean;
+  onStep?: (event: Event) => void;
+  onToggleCustom?: (event: MouseEvent) => void;
+  onCustomNumber?: (event: Event) => void;
+  onCustomUnit?: (event: Event) => void;
+  onCustomText?: (event: Event) => void;
+  onCustomRange?: (event: Event) => void;
+};
+
+export function ScaleControl({
+  id,
+  classes = "",
+  label,
+  index,
+  max,
+  valueLabel,
+  custom,
+  customNumber = "0",
+  customUnit = "px",
+  customParsed = true,
+  customText = "",
+  customRangeValue = 0,
+  customMin = 0,
+  customMax = 200,
+  customStep = 1,
+  disabled = false,
+  onStep,
+  onToggleCustom,
+  onCustomNumber,
+  onCustomUnit,
+  onCustomText,
+  onCustomRange,
+}: ScaleControlProps) {
+  return (
+    <fieldset id={id} class={["m-0 min-w-0 border-0 p-0 disabled:pointer-events-none disabled:opacity-45", classes]} disabled={disabled} data-part="scale-control">
+      <div class="grid min-h-9 grid-cols-[minmax(0,1fr)_40px_24px] items-center gap-1.5" data-part="box-control-token" hidden={custom}>
+          <RangePicker value={index} max={max} label={label} onInput={onStep} onChange={onStep} />
+          <Text as="output" variant="label-xs-strong" classes="box-border grid h-7 w-10 place-items-center overflow-hidden rounded-[5px] border border-input bg-card px-1 text-center">
+            {valueLabel}
+          </Text>
+          <Button hierarchy="tertiary" size="xs" label={Publr.t("Set custom value")} title={Publr.t("Set custom value")} onClick={onToggleCustom}>
+            <Icon name="settings" size="sm" />
+          </Button>
+      </div>
+      <div class="grid min-h-9 grid-cols-[78px_minmax(0,1fr)_24px] items-center gap-1.5" data-part="box-control-custom" hidden={!custom}>
+            <label class="flex h-7 w-[78px] overflow-hidden rounded border border-input bg-card" hidden={!customParsed}>
+              <input
+                type="number"
+                inputmode="decimal"
+                class="h-7 w-[42px] min-w-0 appearance-none border-0 bg-transparent py-0 pr-0.5 pl-1.5 text-xs outline-none [&::-webkit-inner-spin-button]:appearance-none"
+                value={customNumber}
+                aria-label={label}
+                onChange={onCustomNumber}
+              />
+              <select class="h-full w-9 min-w-0 cursor-pointer border-0 bg-transparent text-[10px] font-medium text-primary outline-none" aria-label={Publr.t("CSS unit")} value={customUnit} onChange={onCustomUnit}>
+                {["px", "%", "em", "rem", "vw", "vh"].map((unit) => (
+                  <option value={unit} selected={unit === customUnit}>
+                    {unit}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <input type="text" class="col-span-2 h-7 w-full rounded border border-input bg-card px-[7px] text-xs" value={customText} placeholder={Publr.t("CSS value")} aria-label={label} hidden={customParsed} onChange={onCustomText} />
+            <RangePicker value={customRangeValue} min={customMin} max={customMax} step={customStep} label={label} classes={customParsed ? "" : "hidden"} onChange={onCustomRange} />
+          <Button hierarchy="tertiary" size="xs" label={Publr.t("Use design token")} title={Publr.t("Use design token")} pressed={true} onClick={onToggleCustom}>
+            <Icon name="settings" size="sm" />
+          </Button>
+      </div>
+    </fieldset>
+  );
+}

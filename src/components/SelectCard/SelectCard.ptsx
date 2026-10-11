@@ -1,0 +1,40 @@
+// A card in a list of choices that opens or picks one: a leading tile flush at the start,
+// a name and a quiet key under it, a chevron. The chosen card wears the focus ring.
+import { Icon } from "../Icon/Icon.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type SelectCardProps = {
+  label: string;
+  /** Under the name, monospace: a key, an identifier. */
+  detail?: string;
+  /** The tile at the start: a SpecimenTile, an image. */
+  leading?: JSX.Element;
+  selected?: boolean;
+  classes?: string;
+  onClick?: (event: MouseEvent) => void;
+};
+
+export function SelectCard({ label, detail = "", leading, selected = false, classes = "", onClick }: SelectCardProps) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected ? "true" : "false"}
+      aria-label={label}
+      class={[
+        "flex w-full cursor-pointer items-center gap-3 overflow-hidden rounded-xl border border-border bg-card p-0 text-left text-foreground hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring aria-pressed:border-ring aria-pressed:ring-1 aria-pressed:ring-ring",
+        classes,
+      ]}
+      data-part="select-card"
+      onClick={onClick}
+    >
+      {leading}
+      <span class="flex min-w-0 flex-1 flex-col py-2">
+        <Text variant="heading-2xs">{label}</Text>
+        <Text variant="mono-2xs" tone="muted">
+          {detail}
+        </Text>
+      </span>
+      <Icon name="chevron-right" size="xs" classes="mr-3 text-muted-foreground" />
+    </button>
+  );
+}

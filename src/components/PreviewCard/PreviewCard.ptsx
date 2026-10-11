@@ -1,0 +1,46 @@
+// A card that opens something: a square live preview (passed as children, drawn by the
+// caller), its name and a quiet action word beneath, and an optional description.
+import { Publr } from "publr-jsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type PreviewCardProps = {
+  label: string;
+  /** The quiet word at the end of the name row. */
+  action?: string;
+  description?: string;
+  children?: JSX.Element;
+  classes?: string;
+  onClick?: (event: MouseEvent) => void;
+  onKeyDown?: (event: KeyboardEvent) => void;
+};
+
+
+export function PreviewCard({ label, action = "", description = "", children, classes = "", onClick, onKeyDown }: PreviewCardProps) {
+  return (
+    <article
+      role="button"
+      tabindex="0"
+      aria-label={label}
+      class={["group self-start cursor-pointer rounded-xs text-left focus-visible:outline-none", classes]}
+      onClick={onClick}
+      onKeyDown={onKeyDown}
+    >
+      <div class="block aspect-square w-full overflow-hidden rounded-xs border border-border bg-card group-hover:border-primary group-focus-visible:border-primary">{children}</div>
+      <div class="mt-2 flex items-center justify-between">
+        <Text as="span" variant="body-sm">
+          {label}
+        </Text>
+        <span class="rounded-xs px-1.5 py-0.5 text-muted-foreground group-hover:text-foreground">
+          <Text as="span" variant="label-sm">
+            {action !== "" ? action : Publr.t("Edit")}
+          </Text>
+        </span>
+      </div>
+      {description && (
+        <Text as="p" variant="body-xs" tone="muted" classes="mt-0.5">
+          {description}
+        </Text>
+      )}
+    </article>
+  );
+}

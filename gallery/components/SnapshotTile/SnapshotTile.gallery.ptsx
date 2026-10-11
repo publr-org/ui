@@ -1,0 +1,40 @@
+import { SnapshotTile } from "../../../src/components/SnapshotTile/SnapshotTile.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "snapshot-tile",
+  label: "SnapshotTile",
+  source: "src/components/SnapshotTile/SnapshotTile.ptsx",
+  kind: "primitive",
+  group: "Editor",
+  description: "A preview a click places, with its name and a quiet secondary action.",
+  tags: ["preview", "pattern", "library", "editor"],
+  usage: `<SnapshotTile label="Hero" action="Edit"><span class="block h-full w-full" ref={draw}></span></SnapshotTile>`,
+  preview: "demo",
+  previewLabel: "SnapshotTile as the editor uses it",
+  docs: {
+    purpose: ["Shows what a click will place (a pattern) as a picture the caller draws into."],
+    useWhen: ["A flyout or a grid of compositions to insert."],
+    avoidWhen: ["A color or font specimen; use the specimen tiles."],
+    rules: [{ title: "Default look only", description: "Pass data through props; never restyle it from the app." }],
+    accessibility: ["The preview is a button named by the label; the action is a separate button out of the tab order."],
+    composition: ["The caller passes the picture as children: an element it draws into, filling the holder."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [
+      { name: "label", type: "string", description: "Its name.", required: true },
+      { name: "shape", type: '"fit" | "square"', description: "Its own height, or cropped to a square.", default: "fit" },
+      { name: "action", type: "string", description: "The secondary action's word." },
+      { name: "actionLabel", type: "string", description: "The action's accessible name." },
+      { name: "children", type: "JSX.Element", description: "The picture: an element the caller draws into." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="grid w-80 gap-4">
+      <SnapshotTile label="Hero" action="Edit" actionLabel="Edit pattern in the library" />
+      <SnapshotTile label="Footer" shape="square" action="Edit" />
+    </div>
+  );
+}

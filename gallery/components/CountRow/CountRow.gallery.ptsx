@@ -1,0 +1,35 @@
+import { CountRow } from "../../../src/components/CountRow/CountRow.ptsx";
+import type { ComponentDemoMeta, DemoNode } from "../../gallery-types";
+
+export const meta = {
+  name: "count-row",
+  label: "CountRow",
+  source: "src/components/CountRow/CountRow.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description: "One line of a tally: what is counted, an optional tag and how many.",
+  tags: ["count-row"],
+  usage: `<CountRow label="Template · Posts" count={1} />`,
+  preview: "demo",
+  previewLabel: "A tally line",
+  docs: {
+    purpose: ["One line of a tally: what is counted, an optional tag and how many."],
+    useWhen: ["A tally line."],
+    avoidWhen: ["A look this component does not offer: add it here, never restyle it at the call site."],
+    rules: [{ title: "Default look only", description: "Pass data and callbacks; the classes prop is for layout only." }],
+    accessibility: ["Interactive parts are native buttons and inputs with accessible names."],
+    composition: ["Built from Text and the other primitives."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [],
+  },
+} satisfies ComponentDemoMeta;
+
+export const node = { component: "CountRow", props: {}, wrapper: "w-full max-w-xl" } satisfies DemoNode;
+
+export function Demo() {
+  return (
+    <div class="w-full max-w-xl">
+      <CountRow label="Pattern · Editorial shop header" count={2} note="read-only" />
+    </div>
+  );
+}

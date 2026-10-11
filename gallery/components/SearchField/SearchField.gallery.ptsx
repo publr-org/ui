@@ -1,0 +1,41 @@
+import { SearchField } from "../../../src/components/SearchField/SearchField.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "search-field",
+  label: "SearchField",
+  source: "src/components/SearchField/SearchField.ptsx",
+  kind: "primitive",
+  group: "Forms",
+  description: "A search box: a magnifier at the start and the query; the caller filters.",
+  tags: ["search", "filter", "editor"],
+  usage: `<SearchField value="" label="Search for blocks" />`,
+  preview: "demo",
+  previewLabel: "SearchField as the editor uses it",
+  docs: {
+    purpose: ["Takes a query for a list the caller filters as it is typed: a block library, a pattern list."],
+    useWhen: ["A side panel or a popover lists many things to pick from."],
+    avoidWhen: ["A form field that is submitted; use Input inside a Field."],
+    rules: [{ title: "Default look only", description: "Pass data through props; never restyle it from the app." }],
+    accessibility: ["The label prop is the input's accessible name; the magnifier is hidden from assistive technology."],
+    composition: ["Built from Icon and a native input."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [
+      { name: "value", type: "string", description: "The query.", required: true },
+      { name: "label", type: "string", description: "The accessible name.", required: true },
+      { name: "placeholder", type: "string", description: "The quiet hint.", default: '"Search"' },
+      { name: "size", type: '"lg" | "md"', description: "40px for a side panel, 36px for a popover.", default: "lg" },
+      { name: "icon", type: "boolean", description: "The magnifier at the start.", default: "true" },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="grid w-80 gap-3">
+      <SearchField value="" label="Search for blocks" />
+      <SearchField value="head" label="Search for patterns" icon={false} />
+      <SearchField value="" label="Search for blocks" size="md" icon={false} />
+    </div>
+  );
+}

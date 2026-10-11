@@ -1,0 +1,13 @@
+// A card's padded content under its picture or swatch, or alone.
+export type BoardCardBodyProps = {
+  children?: JSX.Element;
+  classes?: string;
+};
+
+export function BoardCardBody({ children, classes = "" }: BoardCardBodyProps) {
+  return (
+    <div class={["px-3 pt-3", classes]} data-part="board-card-body">
+      {children}
+    </div>
+  );
+}

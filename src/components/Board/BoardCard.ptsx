@@ -1,0 +1,45 @@
+// One card on a Board, placed in board units. Selected, it takes a ring and shows its
+// tools in a small bar above it. A handle at its bottom-right corner resizes it; the
+// parent's gestures find it by `data-part="board-resize"` and the card by its `data-id`.
+export type BoardCardProps = {
+  /** The card's own id, on `data-id`, for the gestures. */
+  card: string;
+  /** What it shows, on `data-kind`. */
+  kind?: string;
+  x: number;
+  y: number;
+  width: number;
+  selected?: boolean;
+  /** Shown above the card while it is selected (a Remove button). */
+  tools?: JSX.Element;
+  children?: JSX.Element;
+  classes?: string;
+};
+
+export function BoardCard({ card, kind, x, y, width, selected = false, tools, children, classes = "" }: BoardCardProps) {
+  return (
+    <div
+      class={[
+        "absolute select-none rounded-lg bg-background text-foreground shadow-[0_1px_2px_rgba(0,0,0,.06),0_8px_24px_-12px_rgba(0,0,0,.25)]",
+        selected ? "z-10 ring-2 ring-primary" : "ring-1 ring-black/5",
+        classes,
+      ]}
+      style={`left: ${x}px; top: ${y}px; width: ${width}px`}
+      data-part="board-card"
+      data-id={card}
+      data-kind={kind}
+      data-selected={selected ? "true" : undefined}
+    >
+      {selected && tools && (
+        <div
+          class="absolute -top-9 left-0 flex items-center gap-0.5 rounded-md border border-border bg-background p-0.5 shadow-sm"
+          data-part="board-card-tools"
+        >
+          {tools}
+        </div>
+      )}
+      {children}
+      <span class="absolute right-0 bottom-0 h-4 w-4 cursor-nwse-resize rounded-tl-md" data-part="board-resize" aria-hidden="true"></span>
+    </div>
+  );
+}

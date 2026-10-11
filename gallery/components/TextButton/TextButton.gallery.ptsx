@@ -1,0 +1,36 @@
+import { Text } from "../../../src/components/Text/Text.ptsx";
+import { TextButton } from "../../../src/components/TextButton/TextButton.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "text-button",
+  label: "TextButton",
+  source: "src/components/TextButton/TextButton.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description: "A quiet action written as words only: no surface, muted until hovered.",
+  tags: ["design system builder"],
+  usage: `<TextButton><Text variant="label-3xs">Manage colors</Text></TextButton>`,
+  preview: "demo",
+  previewLabel: "TextButton in the design system builder",
+  docs: {
+    purpose: ["A quiet action written as words only: no surface, muted until hovered."],
+    useWhen: ["The Site theme builder's semantic colors and similar palette editors."],
+    avoidWhen: ["Ordinary forms; use the form primitives."],
+    rules: [{ title: "Default look only", description: "Pass data through props; never restyle it from the app." }],
+    accessibility: ["Interactive variants are native buttons with an accessible name."],
+    composition: ["Text runs are Text; colors come in as props."],
+    agentNotes: ["Do not restyle from the app; change this component."],
+    props: [
+      { name: "children", type: "JSX.Element", description: "The label, a Text." },
+      { name: "label", type: "string", description: "Accessible name." },
+      { name: "onClick", type: "(event) => void", description: "The action." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <TextButton><Text variant="label-md">Manage colors</Text></TextButton>
+  );
+}

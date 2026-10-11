@@ -1,0 +1,43 @@
+import { EntryButton } from "../../../src/components/EntryButton/EntryButton.ptsx";
+import { GlyphTile } from "../../../src/components/GlyphTile/GlyphTile.ptsx";
+import { Icon } from "../../../src/components/Icon/Icon.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "entry-button",
+  label: "EntryButton",
+  source: "src/components/EntryButton/EntryButton.ptsx",
+  kind: "primitive",
+  group: "Navigation",
+  description: "A pressable list entry: a leading tile, a title over a quiet second line; the pressed entry is the open one.",
+  tags: ["entry-button", "list", "picker"],
+  usage: `<EntryButton title="Paragraph" subtitle="Text" pressed glyph={<GlyphTile size="md" framed><Icon name="paragraph" size="sm" /></GlyphTile>} />`,
+  preview: "demo",
+  previewLabel: "A list of blocks, one open",
+  docs: {
+    purpose: ["Lists things a side panel opens one at a time (blocks, files), each with a tile and a second line."],
+    useWhen: ["A panel picks the one thing the main area works on."],
+    avoidWhen: ["Page navigation with plain labels; that is NavButton."],
+    rules: [{ title: "Default look", description: "Use it as it is; classes are for layout only." }],
+    accessibility: ["aria-pressed marks the open entry; the title is the accessible name."],
+    composition: ["Built from Text and a GlyphTile passed as glyph."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [
+      { name: "title", type: `string`, description: "The entry's name." },
+      { name: "subtitle", type: `string`, description: "The quiet line under it." },
+      { name: "glyph", type: `JSX.Element`, description: "The leading tile." },
+      { name: "pressed", type: `boolean`, description: "The entry is open." },
+      { name: "onClick", type: `(event) => void`, description: "What the entry does." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="w-60">
+      <EntryButton title="Heading" subtitle="Text" glyph={<GlyphTile size="md" framed><Icon name="heading" size="sm" /></GlyphTile>} />
+      <EntryButton title="Paragraph" subtitle="Text" pressed glyph={<GlyphTile size="md" framed><Icon name="paragraph" size="sm" /></GlyphTile>} />
+      <EntryButton title="Image" subtitle="Media" glyph={<GlyphTile size="md" framed><Icon name="image" size="sm" /></GlyphTile>} />
+    </div>
+  );
+}

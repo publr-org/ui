@@ -1,0 +1,39 @@
+import { GradientHero } from "../../../src/components/GradientHero/GradientHero.ptsx";
+import { Heading } from "../../../src/components/Heading/Heading.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "gradient-hero",
+  label: "GradientHero",
+  source: "src/components/GradientHero/GradientHero.ptsx",
+  kind: "composite",
+  group: "Essentials",
+  description: "A full-bleed opening band washed in soft color, its content centred in one column.",
+  tags: ["gradient-hero", "design system builder"],
+  usage: `<GradientHero gradient="radial-gradient(...)">...</GradientHero>`,
+  preview: "demo",
+  previewLabel: "GradientHero",
+  docs: {
+    purpose: ["A full-bleed opening band washed in soft color, its content centred in one column."],
+    useWhen: ["A full-bleed opening band washed in soft color, its content centred in one column."],
+    avoidWhen: ["Use once, as a workspace's front door; never inside a list or a card."],
+    rules: [{ title: "Default look", description: "Use it as it is; classes are for layout only." }],
+    accessibility: ["The component owns its text and roles; pass the label as a prop or children."],
+    composition: ["Built from Text, Icon and plain elements only."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [
+      { name: "gradient", type: `string`, description: "A CSS background-image: the wash." },
+      { name: "children", type: `JSX.Element`, description: "The centred column." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="w-full">
+      <GradientHero gradient="radial-gradient(55% 60% at 18% 22%, color-mix(in oklab, #d98f3a 55%, transparent) 0%, transparent 70%), radial-gradient(50% 55% at 82% 18%, color-mix(in oklab, #4d0c9d 50%, transparent) 0%, transparent 70%)">
+        <Heading level={2} size="hero">What should this site feel like?</Heading>
+      </GradientHero>
+    </div>
+  );
+}

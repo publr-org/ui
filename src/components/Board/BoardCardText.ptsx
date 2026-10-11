@@ -1,0 +1,40 @@
+// Text written straight on a card, without a field's frame: the card's own text (`body`)
+// or the line under it saying why it is there (`annotation`). It is one row tall until
+// the parent grows it to its text; the parent saves on change.
+export type BoardCardTextProps = {
+  value?: string;
+  placeholder?: string;
+  label: string;
+  variant?: "body" | "annotation";
+  classes?: string;
+  /** Each keystroke: the parent grows the field to its text (`scrollHeight`). */
+  onInput?: (event: Event) => void;
+  onChange?: (event: Event) => void;
+};
+
+const VARIANTS = {
+  body: "text-[15px] leading-[1.45] text-foreground placeholder:text-muted-foreground/60",
+  annotation: "text-xs leading-4 text-muted-foreground placeholder:text-muted-foreground/50",
+} as const;
+
+const WRAPPERS = {
+  body: "px-3 pt-3",
+  annotation: "px-3 pt-1 pb-2.5",
+} as const;
+
+export function BoardCardText({ value = "", placeholder, label, variant = "annotation", classes = "", onInput, onChange }: BoardCardTextProps) {
+  return (
+    <div class={[WRAPPERS[variant], classes]} data-part={`board-card-${variant}`}>
+      <textarea
+        class={["block w-full resize-none border-0 bg-transparent p-0 focus-visible:outline-none", VARIANTS[variant]]}
+        rows={1}
+        placeholder={placeholder}
+        aria-label={label}
+        onInput={onInput}
+        onChange={onChange}
+      >
+        {value}
+      </textarea>
+    </div>
+  );
+}

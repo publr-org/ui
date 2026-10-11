@@ -1,0 +1,32 @@
+// The board's floating toolbar: a pill of BoardTools centred over the top of the board,
+// and an optional hint after a rule ("or paste / drop anything").
+import { Text } from "../Text/Text.ptsx";
+
+export type BoardToolbarProps = {
+  label: string;
+  /** A short muted line after the tools. */
+  hint?: string;
+  children?: JSX.Element;
+  id?: string;
+  classes?: string;
+};
+
+export function BoardToolbar({ label, hint, children, id, classes = "" }: BoardToolbarProps) {
+  return (
+    <div
+      id={id}
+      class={["pointer-events-auto flex items-center gap-0.5 rounded-lg border border-border bg-background p-1 shadow-sm", classes]}
+      role="toolbar"
+      aria-label={label}
+      data-part="board-toolbar"
+    >
+      {children}
+      {hint && <span class="mx-1 h-5 w-px bg-border" aria-hidden="true"></span>}
+      {hint && (
+        <Text variant="body-sm" tone="muted" classes="px-2">
+          {hint}
+        </Text>
+      )}
+    </div>
+  );
+}

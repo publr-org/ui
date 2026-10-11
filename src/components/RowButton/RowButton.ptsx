@@ -1,0 +1,28 @@
+// A ruled row that leads somewhere: its name at the start, a quiet detail (a count, a
+// summary) at the end. Rows stack into summary grids; the rule sits above each one.
+import { Text } from "../Text/Text.ptsx";
+
+export type RowButtonProps = {
+  label: string;
+  detail?: string;
+  classes?: string;
+  onClick?: (event: MouseEvent) => void;
+};
+
+export function RowButton({ label, detail = "", classes = "", onClick }: RowButtonProps) {
+  return (
+    <button
+      type="button"
+      class={[
+        "flex w-full cursor-pointer items-baseline justify-between gap-4 border-0 border-t border-border bg-transparent px-0 py-3 text-left text-foreground hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+        classes,
+      ]}
+      onClick={onClick}
+    >
+      <Text variant="label-lg">{label}</Text>
+      <Text variant="body-sm" tone="muted" classes="truncate">
+        {detail}
+      </Text>
+    </button>
+  );
+}

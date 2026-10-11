@@ -1,0 +1,37 @@
+import { Notice } from "../../../src/components/Notice/Notice.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "notice",
+  label: "Notice",
+  source: "src/components/Notice/Notice.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description: "One short line the page says back, in a tinted box: what went wrong, what to fix, what worked.",
+  tags: ["notice", "design system builder"],
+  usage: `<Notice>Describe what the site should feel like first.</Notice>`,
+  preview: "demo",
+  previewLabel: "Notice",
+  docs: {
+    purpose: ["One short line the page says back, in a tinted box: what went wrong, what to fix, what worked."],
+    useWhen: ["One short line the page says back, in a tinted box: what went wrong, what to fix, what worked."],
+    avoidWhen: ["Use Callout for a notice with a title and an icon."],
+    rules: [{ title: "Default look", description: "Use it as it is; classes are for layout only." }],
+    accessibility: ["The component owns its text and roles; pass the label as a prop or children."],
+    composition: ["Built from Text, Icon and plain elements only."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [
+      { name: "tone", type: `"error" | "warning" | "success"`, description: "The notice's tone; error and warning are alerts." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="grid w-full max-w-md gap-2">
+      <Notice>Describe what the site should feel like first.</Notice>
+      <Notice tone="warning">Breakpoint widths must increase from sm through 2xl.</Notice>
+      <Notice tone="success">Imported 3 tokens.</Notice>
+    </div>
+  );
+}

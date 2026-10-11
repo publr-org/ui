@@ -1,0 +1,52 @@
+// A search box: a magnifier at the start (optional) and the query. `lg` is the 40px box of
+// an editor's side panels, `md` the smaller one of a popover. The field reports what was
+// typed; the caller filters.
+import { Publr } from "publr-jsx";
+import { Icon } from "../Icon/Icon.ptsx";
+
+export const SEARCH_FIELD_SIZES = ["lg", "md"] as const;
+export type SearchFieldSize = (typeof SEARCH_FIELD_SIZES)[number];
+
+export type SearchFieldProps = {
+  value: string;
+  /** The accessible name: "Search for blocks". */
+  label: string;
+  placeholder?: string;
+  size?: SearchFieldSize;
+  /** The magnifier at the start. */
+  icon?: boolean;
+  classes?: string;
+  onInput?: (event: Event) => void;
+  onKeyDown?: (event: KeyboardEvent) => void;
+};
+
+const SIZE_CLASSES: Record<SearchFieldSize, string> = {
+  lg: "rounded-md border-input py-2.5 text-[13px] leading-5 focus:border-ring/50 focus:ring-[3px] focus:ring-ring/25",
+  md: "rounded-md border-input py-2 text-sm leading-5 focus:border-ring focus:ring-2 focus:ring-ring/25",
+};
+
+export function SearchField({ value, label, placeholder = "", size = "lg", icon = true, classes = "", onInput, onKeyDown }: SearchFieldProps) {
+  return (
+    <div class={["relative", classes]} data-part="search-field">
+      {icon && (
+        <span class="pointer-events-none absolute top-1/2 left-3 flex -translate-y-1/2 text-foreground">
+          <Icon name="search" size="sm" classes="size-[18px]" />
+        </span>
+      )}
+      <input
+        type="text"
+        autocomplete="off"
+        value={value}
+        placeholder={placeholder !== "" ? placeholder : Publr.t("Search")}
+        aria-label={label}
+        class={[
+          "block w-full border bg-card pr-3 text-foreground placeholder:text-muted-foreground focus:outline-none",
+          icon ? "pl-10" : "pl-3",
+          SIZE_CLASSES[size],
+        ]}
+        onInput={onInput}
+        onKeyDown={onKeyDown}
+      />
+    </div>
+  );
+}

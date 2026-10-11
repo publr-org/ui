@@ -1,0 +1,27 @@
+// A raised surface holding one task: a header row (tabs, a title) over a padded body.
+// The surface PromptBox stands on, so the two can take turns in one place.
+
+export type CardProps = {
+  children?: JSX.Element;
+  /** `raised` the default surface; `muted` a quiet tinted tray inside a page (an add panel). */
+  tone?: "raised" | "muted";
+  /** `compact` a smaller card among many in a grid: tighter corners, a lighter shadow. */
+  size?: "default" | "compact";
+  classes?: string;
+  id?: string;
+};
+
+export function Card({ children, tone = "raised", size = "default", classes = "", id }: CardProps) {
+  return (
+    <section
+      id={id}
+      class={["flex w-full flex-col border border-border", size === "compact" ? "rounded-xl" : "rounded-2xl", tone === "muted" ? "bg-muted/40" : size === "compact" ? "bg-card shadow-xs" : "bg-card shadow-sm", classes]}
+      data-part="card"
+    >
+      {children}
+    </section>
+  );
+}
+
+export { CardHeader } from "./CardHeader.ptsx";
+export { CardBody } from "./CardBody.ptsx";

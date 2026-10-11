@@ -1,0 +1,39 @@
+import { RowButton } from "../../../src/components/RowButton/RowButton.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "row-button",
+  label: "RowButton",
+  source: "src/components/RowButton/RowButton.ptsx",
+  kind: "composite",
+  group: "Navigation",
+  description: "A ruled row that leads somewhere: its name at the start, a quiet detail at the end.",
+  tags: ["row-button", "design system builder"],
+  usage: `<RowButton label="Fonts" detail="3 families" />`,
+  preview: "demo",
+  previewLabel: "RowButton",
+  docs: {
+    purpose: ["A ruled row that leads somewhere: its name at the start, a quiet detail at the end."],
+    useWhen: ["A ruled row that leads somewhere: its name at the start, a quiet detail at the end."],
+    avoidWhen: ["Use for summary grids of sections; use LinkCard for richer destinations."],
+    rules: [{ title: "Default look", description: "Use it as it is; classes are for layout only." }],
+    accessibility: ["The component owns its text and roles; pass the label as a prop or children."],
+    composition: ["Built from Text, Icon and plain elements only."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [
+      { name: "label", type: `string`, description: "Where the row leads." },
+      { name: "detail", type: `string`, description: "A count or a summary, truncated." },
+      { name: "onClick", type: `(event) => void`, description: "What the row does." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="grid w-full max-w-3xl grid-cols-3 gap-x-8">
+      <RowButton label="Colors" detail="9 roles · 18 palette colors" />
+      <RowButton label="Fonts" detail="3 families" />
+      <RowButton label="Typography" detail="3 font roles" />
+    </div>
+  );
+}

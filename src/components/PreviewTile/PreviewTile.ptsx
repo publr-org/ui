@@ -1,0 +1,39 @@
+// A palette drawn as a tiny card: two lines of text and an accent pill on its surface,
+// named beneath. One of a few side by side; the chosen one is ringed.
+import { Text } from "../Text/Text.ptsx";
+
+export type PreviewTileProps = {
+  id?: string;
+  classes?: string;
+  label: string;
+  surface: string;
+  foreground: string;
+  accent: string;
+  pressed: boolean;
+  onClick?: (event: MouseEvent) => void;
+};
+
+
+export function PreviewTile({ id, classes = "", label, surface, foreground, accent, pressed, onClick }: PreviewTileProps) {
+  return (
+    <button
+      id={id}
+      type="button"
+      class={["cursor-pointer overflow-hidden rounded-md border border-input bg-card text-left text-muted-foreground hover:border-primary hover:text-foreground aria-[pressed=true]:border-primary aria-[pressed=true]:text-foreground aria-[pressed=true]:shadow-[inset_0_0_0_1px_var(--primary)]", classes]}
+      aria-pressed={pressed}
+      aria-label={label}
+      data-part="preview-tile"
+     
+      onClick={onClick}
+    >
+      <span class="relative block h-[58px] px-2.5 py-3.5" style={`background-color:${surface};color:${foreground}`}>
+        <i class="mb-[5px] block h-[3px] w-[60%] rounded-full bg-current opacity-80"></i>
+        <i class="block h-[3px] w-[38%] rounded-full bg-current opacity-40"></i>
+        <b class="absolute right-2.5 bottom-2.5 h-2.5 w-6 rounded-full" style={`background-color:${accent}`}></b>
+      </span>
+      <Text as="strong" variant="label-2xs-strong" classes="block truncate border-t border-input px-[7px] py-1.5">
+        {label}
+      </Text>
+    </button>
+  );
+}

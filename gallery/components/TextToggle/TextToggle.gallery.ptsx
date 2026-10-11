@@ -1,0 +1,35 @@
+import { TextToggle } from "../../../src/components/TextToggle/TextToggle.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "text-toggle",
+  label: "TextToggle",
+  source: "src/components/TextToggle/TextToggle.ptsx",
+  kind: "primitive",
+  group: "Forms",
+  description: "A word that is also a toggle: quiet until pressed, then underlined. A row of them picks one value to preview.",
+  tags: ["text-toggle", "design system builder"],
+  usage: `<TextToggle label="400" pressed />`,
+  preview: "demo",
+  previewLabel: "TextToggle",
+  docs: {
+    purpose: ["A word that is also a toggle: quiet until pressed, then underlined. A row of them picks one value to preview."],
+    useWhen: ["A word that is also a toggle: quiet until pressed, then underlined. A row of them picks one value to preview."],
+    avoidWhen: ["An action with consequences; use Button."],
+    rules: [{ title: "Default look", description: "Use it as it is; classes are for layout only." }],
+    accessibility: ["Give it a label where its content does not name it."],
+    composition: ["Built from Text and plain elements only."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [{ name: "label", type: "string", description: "The word shown." }, { name: "pressed", type: "boolean", description: "The chosen one." }, { name: "style", type: "string", description: "The family the row previews." }],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="flex gap-1.5">
+      <TextToggle label="300" />
+      <TextToggle label="400" pressed />
+      <TextToggle label="700" />
+    </div>
+  );
+}

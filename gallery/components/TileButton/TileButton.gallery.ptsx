@@ -1,0 +1,48 @@
+import { Icon } from "../../../src/components/Icon/Icon.ptsx";
+import { TileButton } from "../../../src/components/TileButton/TileButton.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "tile-button",
+  label: "TileButton",
+  source: "src/components/TileButton/TileButton.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description: "A square tile that opens something, its caption underneath, an optional corner action on hover.",
+  tags: ["tile", "grid", "icon library", "design system builder"],
+  usage: `<TileButton caption="check" label="Edit check" actionLabel="Remove check"><Icon name="check" size="lg" /></TileButton>`,
+  preview: "demo",
+  previewLabel: "Icon tiles",
+  docs: {
+    purpose: ["One item of a library grid: an icon, a swatch, opened by clicking the tile."],
+    useWhen: ["A grid of things that each open an editor, named under the tile."],
+    avoidWhen: ["A card with text and actions; use ReferenceCard or LinkCard."],
+    rules: [{ title: "Default look", description: "Use it as it is; classes are for layout only." }],
+    accessibility: ["Give the tile a `label` naming what it opens and the corner action an `actionLabel`."],
+    composition: ["Built from Text, Icon and plain buttons only."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [
+      { name: "caption", type: "string", description: "The name under the tile." },
+      { name: "label", type: "string", description: "The tile button's accessible name." },
+      { name: "actionLabel", type: "string", description: "The corner action's name; none hides it." },
+      { name: "onClick", type: "(event: MouseEvent) => void", description: "Opens the item." },
+      { name: "onAction", type: "(event: MouseEvent) => void", description: "The corner action (remove)." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="grid w-full max-w-md grid-cols-3 gap-4">
+      <TileButton caption="check" label="Edit check" actionLabel="Remove check">
+        <Icon name="check" size="lg" />
+      </TileButton>
+      <TileButton caption="home" label="Edit home" actionLabel="Remove home">
+        <Icon name="home" size="lg" />
+      </TileButton>
+      <TileButton caption="search" label="Edit search">
+        <Icon name="search" size="lg" />
+      </TileButton>
+    </div>
+  );
+}

@@ -1,0 +1,80 @@
+import { RichTextInput } from "../../../src/components/RichTextInput/RichTextInput.ptsx";
+import type { ComponentCanvas, ComponentDemoMeta, DemoNode } from "../../gallery-types";
+
+export const meta = {
+  name: "rich-text-input",
+  label: "Rich text input",
+  source: "src/components/RichTextInput/RichTextInput.ptsx",
+  kind: "primitive",
+  group: "Forms",
+  description: "The box a formatted text value is edited in, over the textarea holding its HTML.",
+  tags: ["richtext", "editor", "form", "field"],
+  usage: `<RichTextInput id="body" name="body" formats="bold,italic,link" />`,
+  preview: "canvas",
+  previewLabel: "Formatted text, its HTML in a textarea until an editor mounts",
+  docs: {
+    purpose: ["RichTextInput gives a formatted text value the form's input look."],
+    useWhen: ["A field whose value is HTML, edited by an inline editor the page mounts."],
+    avoidWhen: ["Plain multiline text; use Textarea."],
+    rules: [
+      {
+        title: "The textarea is the value",
+        description:
+          "The editor writes the textarea and fires input; the box is only where it draws. " +
+          "Without an editor the textarea stays, so the value is never lost.",
+      },
+    ],
+    accessibility: ["Associate it with FieldLabel through id, as with Textarea."],
+    composition: ["Use Field for labels, descriptions, and errors."],
+    agentNotes: ["The component mounts nothing; the page's script finds data-rich-text."],
+    props: [
+      { name: "id", type: "string", description: "Identifier applied to the textarea." },
+      { name: "name", type: "string", description: "Native form field name." },
+      { name: "value", type: "string", description: "The value as HTML." },
+      { name: "placeholder", type: "string", description: "Shown while the value is empty." },
+      {
+        name: "formats",
+        type: "string",
+        description: "Formatting an editor may offer, comma separated; empty for plain.",
+      },
+      { name: "rows", type: "number", description: "Rows of the textarea.", default: "5" },
+      { name: "invalid", type: "boolean", description: "Semantic validation state." },
+      { name: "classes", type: "string", description: "Layout classes for the wrapper." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const node = {
+  component: "RichTextInput",
+  props: { name: "body", value: "<p>Hello <b>world</b></p>", formats: "bold,italic,link" },
+  wrapper: "w-full max-w-sm",
+} satisfies DemoNode;
+
+export function Demo() {
+  return (
+    <div class="w-full max-w-sm">
+      <RichTextInput name="body" value="<p>Hello <b>world</b></p>" formats="bold,italic,link" />
+    </div>
+  );
+}
+
+export const canvas = {
+  controls: [
+    { name: "name", type: "text", default: "body" },
+    { name: "value", type: "text", default: "<p>Hello <b>world</b></p>" },
+    { name: "placeholder", type: "text", default: "Write something" },
+    { name: "formats", type: "text", default: "bold,italic,link" },
+    { name: "invalid", type: "boolean", default: false },
+  ],
+  node: (values) => ({
+    component: "RichTextInput",
+    props: {
+      name: String(values.name),
+      value: String(values.value),
+      placeholder: String(values.placeholder),
+      formats: String(values.formats),
+      invalid: Boolean(values.invalid),
+    },
+    wrapper: "w-full max-w-sm",
+  }),
+} satisfies ComponentCanvas;

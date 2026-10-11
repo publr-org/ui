@@ -1,0 +1,38 @@
+import { SelectCard } from "../../../src/components/SelectCard/SelectCard.ptsx";
+import { SpecimenTile } from "../../../src/components/SpecimenTile/SpecimenTile.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "select-card",
+  label: "SelectCard",
+  source: "src/components/SelectCard/SelectCard.ptsx",
+  kind: "composite",
+  group: "Navigation",
+  description: "A card in a list of choices: a leading tile flush at the start, a name over a monospace key, a chevron; the chosen one is ringed.",
+  tags: ["design system builder"],
+  usage: `<SelectCard label="Terracotta" detail="inverse" leading={<SpecimenTile size="lg" surface="#b35637" foreground="#fff7e9" />} />`,
+  preview: "demo",
+  previewLabel: "SelectCard in the design system builder",
+  docs: {
+    purpose: ["A card in a list of choices: a leading tile flush at the start, a name over a monospace key, a chevron; the chosen one is ringed."],
+    useWhen: ["The Site theme builder's semantic colors and similar palette editors."],
+    avoidWhen: ["Ordinary forms; use the form primitives."],
+    rules: [{ title: "Default look only", description: "Pass data through props; never restyle it from the app." }],
+    accessibility: ["Interactive variants are native buttons with an accessible name."],
+    composition: ["Text runs are Text; colors come in as props."],
+    agentNotes: ["Do not restyle from the app; change this component."],
+    props: [
+      { name: "label", type: "string", description: "The name.", required: true },
+      { name: "detail", type: "string", description: "The key under it.", default: "\"\"" },
+      { name: "leading", type: "JSX.Element", description: "The tile at the start." },
+      { name: "selected", type: "boolean", description: "The chosen card.", default: "false" },
+      { name: "onClick", type: "(event) => void", description: "Opens or picks it." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="grid w-72 gap-2"><SelectCard label="Default" detail="default" selected leading={<SpecimenTile size="lg" surface="#f4f3ec" foreground="#203439" />} /><SelectCard label="Terracotta" detail="inverse" leading={<SpecimenTile size="lg" surface="#b35637" foreground="#fff7e9" />} /></div>
+  );
+}

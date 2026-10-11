@@ -1,0 +1,95 @@
+// One control in an app's top bar: an icon button (36px, a 16px icon), the bar's filled
+// primary toggle (32px), a plain text action, or the bar's commit. `inverse` draws it on a
+// bar filled with a mode colour, where every control is white.
+export const TOOLBAR_BUTTON_VARIANTS = ["ghost", "primary", "text", "commit", "commit-light"] as const;
+export const TOOLBAR_BUTTON_TONES = ["default", "inverse"] as const;
+export const TOOLBAR_BUTTON_SIZES = ["md", "sm"] as const;
+
+export type ToolbarButtonVariant = (typeof TOOLBAR_BUTTON_VARIANTS)[number];
+export type ToolbarButtonTone = (typeof TOOLBAR_BUTTON_TONES)[number];
+export type ToolbarButtonSize = (typeof TOOLBAR_BUTTON_SIZES)[number];
+
+export type ToolbarButtonProps = {
+  id?: string;
+  classes?: string;
+  label?: string;
+  title?: string;
+  pressed?: boolean;
+  expanded?: boolean;
+  disabled?: boolean;
+  variant?: ToolbarButtonVariant;
+  tone?: ToolbarButtonTone;
+  size?: ToolbarButtonSize;
+  children?: JSX.Element;
+  onClick?: (event: MouseEvent) => void;
+};
+
+const SHAPES: Record<ToolbarButtonVariant, string> = {
+  ghost: "rounded-[6px]",
+  primary: "mr-2 size-8 rounded-lg shadow-xs",
+  text: "h-9 rounded-[6px] px-2 text-body-sm font-medium",
+  commit: "h-9 rounded-[6px] border px-5 text-body-sm font-medium",
+  "commit-light": "h-9 rounded-[6px] border px-5 text-body-sm font-medium",
+};
+
+const GHOST_SIZES: Record<ToolbarButtonSize, string> = {
+  md: "size-9",
+  sm: "size-7",
+};
+
+const DEFAULT_LOOKS: Record<ToolbarButtonVariant, string> = {
+    ghost:
+      "bg-transparent text-muted-foreground outline-ring hover:bg-ui-accent hover:text-foreground aria-[pressed=true]:bg-ui-accent aria-[pressed=true]:text-accent-foreground aria-expanded:bg-ui-accent aria-expanded:text-accent-foreground disabled:hover:bg-transparent",
+    primary: "bg-primary text-primary-foreground outline-ring hover:bg-primary/90 aria-expanded:bg-primary/90",
+    text: "bg-transparent text-foreground outline-ring hover:bg-ui-accent",
+    commit: "border-primary bg-primary text-primary-foreground outline-ring hover:bg-primary/90",
+    "commit-light": "border-border bg-card text-primary outline-ring hover:bg-ui-accent",
+};
+
+const INVERSE_LOOKS: Record<ToolbarButtonVariant, string> = {
+    ghost:
+      "bg-transparent text-white outline-white hover:bg-white/16 aria-[pressed=true]:bg-white/28 aria-expanded:bg-white/28 disabled:hover:bg-transparent",
+    primary: "bg-white/20 text-white outline-white hover:bg-white/30 aria-expanded:bg-white/30",
+    text: "bg-transparent text-white outline-white hover:underline",
+    commit: "border-black/30 bg-black/25 text-white outline-white hover:bg-black/35",
+    "commit-light": "border-white bg-white text-[#173b9e] outline-white hover:bg-[#eef3ff]",
+};
+
+export function ToolbarButton({
+  id,
+  classes = "",
+  label,
+  title,
+  pressed,
+  expanded,
+  disabled,
+  variant = "ghost",
+  tone = "default",
+  size = "md",
+  children,
+  onClick,
+}: ToolbarButtonProps) {
+  return (
+    <button
+      id={id}
+      type="button"
+      class={[
+        "relative inline-flex shrink-0 cursor-pointer items-center justify-center whitespace-nowrap border-transparent transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-default disabled:opacity-30",
+        SHAPES[variant],
+        variant === "ghost" ? GHOST_SIZES[size] : "",
+        tone === "inverse" ? INVERSE_LOOKS[variant] : DEFAULT_LOOKS[variant],
+        classes,
+      ]}
+      title={title}
+      aria-label={label}
+      aria-pressed={pressed}
+      aria-expanded={expanded}
+      disabled={disabled}
+      data-toolbar-variant={variant}
+      data-toolbar-tone={tone}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}

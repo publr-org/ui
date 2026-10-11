@@ -1,0 +1,33 @@
+import { DropZone } from "../../../src/components/DropZone/DropZone.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "drop-zone",
+  label: "DropZone",
+  source: "src/components/DropZone/DropZone.ptsx",
+  kind: "composite",
+  group: "Forms",
+  description: "A dashed area files are dropped on or clicked to browse for; its owner takes the picked files and the drag events.",
+  tags: ["drop-zone", "design system builder"],
+  usage: `<DropZone title="Drag and drop font files" description="…or click to browse." accept=".woff2,.ttf" />`,
+  preview: "demo",
+  previewLabel: "DropZone",
+  docs: {
+    purpose: ["A dashed area files are dropped on or clicked to browse for; its owner takes the picked files and the drag events."],
+    useWhen: ["A dashed area files are dropped on or clicked to browse for; its owner takes the picked files and the drag events."],
+    avoidWhen: ["A single picture for a field; use the media picker."],
+    rules: [{ title: "Default look", description: "Use it as it is; classes are for layout only." }],
+    accessibility: ["Give it a label where its content does not name it."],
+    composition: ["Built from Text and plain elements only."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [{ name: "title", type: "string", description: "What to drop." }, { name: "accept", type: "string", description: "What the file input takes." }, { name: "over", type: "boolean", description: "Files are held over it; the owner sets it from the drag events." }, { name: "onChange", type: "(event) => void", description: "The file input's change: files were picked." }, { name: "onDrop", type: "(event) => void", description: "Files were dropped; also onDragOver and onDragLeave." }, { name: "browse", type: "boolean", description: "Off: no file chooser; the click is the owner's (onClick) and the children, a button, sit under the text." }],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="w-full max-w-md">
+      <DropZone title="Drag and drop font files" description="…or click to browse. Fonts you own or bought (.woff2, .woff, .ttf, .otf)." accept=".woff2,.woff,.ttf,.otf" />
+    </div>
+  );
+}

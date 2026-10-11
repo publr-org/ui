@@ -1,0 +1,104 @@
+// The box model as nested layers: Margin around Border around Padding around Content,
+// each side's value a button on its edge and each radius corner a button in the
+// Border layer's corners. A click picks a side (Shift adds sides of the same kind); the
+// parent opens its editor. A layer whose sides are edited elsewhere still draws.
+import { Publr } from "publr-jsx";
+import { Icon } from "../Icon/Icon.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type BoxModelSide = { part: string; label: string; title: string; display: string; pressed: boolean };
+
+export type BoxModelProps = {
+  id?: string;
+  classes?: string;
+  margin?: BoxModelSide[];
+  border?: BoxModelSide[];
+  padding?: BoxModelSide[];
+  radius?: BoxModelSide[];
+  disabled?: boolean;
+  /** Each value carries `data-box-part="<kind>:<part>"`; Shift on the event extends. */
+  onPick?: (event: MouseEvent) => void;
+};
+
+
+const POSITIONS: Record<string, string> = {
+  top: "top-0.5 left-[calc(50%-17px)]",
+  right: "top-[calc(50%-10px)] right-px",
+  bottom: "bottom-0.5 left-[calc(50%-17px)]",
+  left: "top-[calc(50%-10px)] left-px",
+};
+
+const CORNERS: Record<string, string> = {
+  tl: "top-px left-[3px] opacity-0 pointer-events-none group-hover/border:opacity-100 group-hover/border:pointer-events-auto group-focus-within/border:opacity-100 group-focus-within/border:pointer-events-auto",
+  tr: "top-px right-[3px]",
+  br: "right-[3px] bottom-px",
+  bl: "bottom-px left-[3px]",
+};
+
+const ROTATIONS: Record<string, string> = { tl: "", tr: "rotate-90", br: "rotate-180", bl: "-rotate-90" };
+
+const VALUE =
+  "absolute z-[3] h-5 w-[34px] cursor-pointer rounded-[2px] border-0 bg-transparent text-center leading-5 text-foreground normal-case tracking-normal hover:bg-card hover:shadow-[0_0_0_1px_var(--primary)] focus-visible:bg-card focus-visible:shadow-[0_0_0_1px_var(--primary)] focus:outline-none aria-[pressed=true]:bg-primary aria-[pressed=true]:text-primary-foreground aria-[pressed=true]:shadow-[inset_0_0_0_1px_color-mix(in_oklch,var(--primary)_72%,white)]";
+
+const CORNER =
+  "absolute z-[4] grid size-[22px] cursor-pointer place-items-center rounded-[3px] text-muted-foreground hover:bg-card hover:text-primary hover:opacity-100 aria-[pressed=true]:opacity-100 aria-[pressed=true]:pointer-events-auto aria-[pressed=true]:bg-primary aria-[pressed=true]:text-primary-foreground";
+
+export function BoxModel({ id, classes = "", margin = [], border = [], padding = [], radius = [], disabled = false, onPick }: BoxModelProps) {
+  return (
+    <div id={id} class={["w-full text-muted-foreground", classes]} data-part="box-model">
+      <div class="relative h-[184px] rounded-[4px] border border-border bg-[color-mix(in_srgb,#a9835a_11%,var(--card))]" data-kind="margin">
+        <Text variant="label-2xs-strong" tone="muted" classes="absolute top-1.5 left-2 leading-none tracking-[0.09em] uppercase">
+          {Publr.t("Margin")}
+        </Text>
+        {margin.map((side) => (
+          <button type="button" class={[VALUE, POSITIONS[side.part]]} aria-label={side.label} aria-pressed={side.pressed} disabled={disabled} data-box-part={`margin:${side.part}`} onClick={onPick}>
+            <Text variant="label-xs" tone={side.display ? "default" : "muted"} classes="font-normal">
+              {side.display || "-"}
+            </Text>
+          </button>
+        ))}
+        <div class="group/border absolute inset-x-[34px] inset-y-[30px] rounded-[4px] border border-border bg-[color-mix(in_srgb,#738ba0_12%,var(--card))]" data-kind="border">
+          <Text variant="label-2xs-strong" tone="muted" classes="absolute top-1.5 left-2 leading-none tracking-[0.09em] uppercase group-hover/border:opacity-0 group-focus-within/border:opacity-0">
+            {Publr.t("Border")}
+          </Text>
+          {radius.map((corner) => (
+            <button type="button" class={[CORNER, CORNERS[corner.part]]} aria-label={corner.label} title={corner.title} aria-pressed={corner.pressed} disabled={disabled} data-box-part={`radius:${corner.part}`} onClick={onPick}>
+              <span class={["opacity-50", ROTATIONS[corner.part]]}>
+                <Icon name="border-radius-corner" size="sm" />
+              </span>
+              {corner.display && (
+                <Text variant="label-xs-strong" classes="absolute top-[10px] left-3 z-[1] whitespace-nowrap normal-case">
+                  {corner.display}
+                </Text>
+              )}
+            </button>
+          ))}
+          {border.map((side) => (
+            <button type="button" class={[VALUE, POSITIONS[side.part]]} aria-label={side.label} aria-pressed={side.pressed} disabled={disabled} data-box-part={`border:${side.part}`} onClick={onPick}>
+              <Text variant="label-xs" tone={side.display ? "default" : "muted"} classes="font-normal">
+                {side.display || "-"}
+              </Text>
+            </button>
+          ))}
+          <div class="absolute inset-x-[31px] inset-y-[29px] rounded-[4px] border border-border bg-[color-mix(in_srgb,#78947e_13%,var(--card))]" data-kind="padding">
+            <Text variant="label-2xs-strong" tone="muted" classes="absolute top-1.5 left-2 leading-none tracking-[0.09em] uppercase">
+              {Publr.t("Padding")}
+            </Text>
+            {padding.map((side) => (
+              <button type="button" class={[VALUE, POSITIONS[side.part]]} aria-label={side.label} aria-pressed={side.pressed} disabled={disabled} data-box-part={`padding:${side.part}`} onClick={onPick}>
+                <Text variant="label-xs" tone={side.display ? "default" : "muted"} classes="font-normal">
+                  {side.display || "-"}
+                </Text>
+              </button>
+            ))}
+            <div class="absolute inset-x-[34px] inset-y-[21px] grid min-w-12 place-items-center rounded-[2px] border border-border/70 bg-card">
+              <Text variant="label-3xs" classes="tracking-[0.06em] uppercase font-normal">
+                {Publr.t("Content")}
+              </Text>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

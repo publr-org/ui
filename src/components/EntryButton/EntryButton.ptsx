@@ -1,0 +1,38 @@
+// A pressable list entry with a leading tile: a title over a quiet second line (a block
+// and its category, a file and its kind). The pressed entry is the one open.
+import { Text } from "../Text/Text.ptsx";
+
+export type EntryButtonProps = {
+  title: string;
+  subtitle?: string;
+  /** The leading tile: a GlyphTile holding an Icon or a letter. */
+  glyph?: JSX.Element;
+  pressed?: boolean;
+  classes?: string;
+  onClick?: (event: MouseEvent) => void;
+};
+
+
+export function EntryButton({ title, subtitle = "", glyph, pressed = false, classes = "", onClick }: EntryButtonProps) {
+  return (
+    <button
+      type="button"
+      aria-pressed={pressed ? "true" : "false"}
+      class={[
+        "mb-0.5 flex w-full cursor-pointer items-center gap-2.5 rounded-xl border-0 bg-transparent px-2.5 py-2 text-left text-foreground transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring aria-[pressed=true]:bg-muted",
+        classes,
+      ]}
+      onClick={onClick}
+    >
+      {glyph}
+      <span class="min-w-0">
+        <Text as="span" variant="label-sm-strong" classes="block truncate">
+          {title}
+        </Text>
+        <Text as="span" variant="body-2xs" tone="muted" classes="block">
+          {subtitle}
+        </Text>
+      </span>
+    </button>
+  );
+}

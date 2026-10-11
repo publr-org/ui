@@ -1,0 +1,38 @@
+// The board's zoom control: out, the zoom as a percentage, in, and Fit. The parent owns
+// the zoom; this only says what it is and asks for a change.
+import { Publr } from "publr-jsx";
+import { BoardZoomButton } from "./BoardZoomButton.ptsx";
+
+export type BoardZoomProps = {
+  /** The zoom as the control shows it ("100%"). */
+  value: string;
+  onZoomOut?: () => void;
+  onZoomIn?: () => void;
+  onFit?: () => void;
+  id?: string;
+  classes?: string;
+};
+
+export function BoardZoom({ value, onZoomOut, onZoomIn, onFit, id, classes = "" }: BoardZoomProps) {
+  return (
+    <div
+      id={id}
+      class={["flex items-center gap-0.5 rounded-lg border border-border bg-background p-1 shadow-sm", classes]}
+      data-part="board-zoom"
+    >
+      <BoardZoomButton label={Publr.t("Zoom out")} part="board-zoom-out" onClick={onZoomOut}>
+        −
+      </BoardZoomButton>
+      <span class="min-w-10 text-center text-base tabular-nums" data-part="board-zoom-value">
+        {value}
+      </span>
+      <BoardZoomButton label={Publr.t("Zoom in")} part="board-zoom-in" onClick={onZoomIn}>
+        +
+      </BoardZoomButton>
+      <span class="mx-0.5 h-4 w-px bg-border" aria-hidden="true"></span>
+      <BoardZoomButton label={Publr.t("Fit everything")} part="board-fit" onClick={onFit}>
+        {Publr.t("Fit")}
+      </BoardZoomButton>
+    </div>
+  );
+}

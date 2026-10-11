@@ -1,0 +1,25 @@
+// A card's picture across its top: full width, the card's top corners. With a `height` it
+// keeps that height and covers it; without, it takes the picture's own proportions.
+export type BoardCardMediaProps = {
+  src: string;
+  alt?: string;
+  /** 0: the picture's own proportions. */
+  height?: number;
+  classes?: string;
+  /** The picture arrived; its natural size is on the event's target. */
+  onLoad?: (event: Event) => void;
+};
+
+export function BoardCardMedia({ src, alt = "", height = 0, classes = "", onLoad }: BoardCardMediaProps) {
+  return (
+    <img
+      src={src}
+      alt={alt}
+      draggable="false"
+      class={["block w-full rounded-t-lg bg-muted", classes]}
+      style={height > 0 ? `height: ${height}px; object-fit: cover` : undefined}
+      data-part="board-card-media"
+      onLoad={onLoad}
+    />
+  );
+}

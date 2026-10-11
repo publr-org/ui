@@ -1,0 +1,21 @@
+// A preview of an option under the pointer: a dark titled card beside the control, its
+// stage filled by the parent (a live render of the content with the option applied).
+import { Text } from "../Text/Text.ptsx";
+
+export type PreviewPopoverProps = { id?: string; classes?: string; title: string; top: number; left: number; children?: JSX.Element };
+
+export function PreviewPopover({ id, classes = "", title, top, left, children }: PreviewPopoverProps) {
+  return (
+    <div
+      id={id}
+      class={["pointer-events-none fixed z-[70] w-[300px] overflow-hidden rounded-[calc(var(--radius)*1.25)] border border-zinc-700 bg-zinc-900 text-zinc-50 shadow-[0_18px_42px_rgb(0_0_0/0.32)]", classes]}
+      style={`top:${top}px;left:${left}px`}
+      data-part="preview-popover"
+    >
+      <Text as="strong" variant="label-sm-strong" classes="block border-b border-zinc-700 px-3 py-[9px]">
+        {title}
+      </Text>
+      <div class="min-h-[108px] overflow-hidden bg-white text-zinc-900">{children}</div>
+    </div>
+  );
+}

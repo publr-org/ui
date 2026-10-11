@@ -1,0 +1,28 @@
+// One pickable entry of a scrolling list: a full-width row that shows it is the one
+// picked (aria-pressed). Its content is the caller's: a name, a specimen, a tag.
+
+export type ListOptionProps = {
+  /** The accessible name, when the content does not say it plainly. */
+  label?: string;
+  pressed?: boolean;
+  children?: JSX.Element;
+  classes?: string;
+  onClick?: (event: MouseEvent) => void;
+};
+
+export function ListOption({ label, pressed = false, children, classes = "", onClick }: ListOptionProps) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      aria-pressed={pressed ? "true" : "false"}
+      class={[
+        "grid w-full min-w-0 cursor-pointer gap-1 rounded-lg border-0 bg-transparent px-3 py-2.5 text-left text-foreground transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring aria-[pressed=true]:bg-muted",
+        classes,
+      ]}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}

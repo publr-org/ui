@@ -1,0 +1,34 @@
+import { InlineInput } from "../../../src/components/InlineInput/InlineInput.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "inline-input",
+  label: "InlineInput",
+  source: "src/components/InlineInput/InlineInput.ptsx",
+  kind: "primitive",
+  group: "Forms",
+  description: "Text edited where it is shown: an input without a frame, as wide as its words, in the type around it.",
+  tags: ["inline-input", "design system builder"],
+  usage: `<InlineInput label="Style name" value="Display" />`,
+  preview: "demo",
+  previewLabel: "InlineInput",
+  docs: {
+    purpose: ["Text edited where it is shown: an input without a frame, as wide as its words, in the type around it."],
+    useWhen: ["Text edited where it is shown: an input without a frame, as wide as its words, in the type around it."],
+    avoidWhen: ["A form field; use Input."],
+    rules: [{ title: "Default look", description: "Use it as it is; classes are for layout only." }],
+    accessibility: ["Give it a label where its content does not name it."],
+    composition: ["Built from Text and plain elements only."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [{ name: "label", type: "string", description: "Accessible name." }, { name: "tone", type: `"default" | "muted"`, description: "Muted for the quiet line under a title." }, { name: "style", type: "string", description: "The type it is edited in." }],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="grid w-full max-w-md gap-1.5">
+      <InlineInput label="Style name" value="Display" style="font-size: 40px; font-family: Georgia, serif" />
+      <InlineInput label="Where the style is used" tone="muted" placeholder="Where is this style used?" />
+    </div>
+  );
+}

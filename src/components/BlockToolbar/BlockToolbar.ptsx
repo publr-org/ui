@@ -1,0 +1,13 @@
+// The block toolbar: a floating strip: segments of buttons divided by hairlines. The parent places it.
+import { Publr } from "publr-jsx";
+
+export type BlockToolbarProps = { id?: string; classes?: string; label?: string; children?: JSX.Element };
+
+export function BlockToolbar({ id, classes = "", label = "", children }: BlockToolbarProps) {
+  return (
+    <div id={id} class={["flex items-stretch rounded-lg border border-border bg-popover text-popover-foreground shadow-lg", classes]} role="toolbar" aria-label={label !== "" ? label : Publr.t("Block tools")} data-part="block-toolbar">
+      {children}
+    </div>
+  );
+}
+

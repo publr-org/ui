@@ -1,0 +1,38 @@
+// One choice of a few, drawn as a square-ish tile: an icon or a short label. Tiles wrap
+// in a row; the chosen one is ringed and tinted.
+import { Icon } from "../Icon/Icon.ptsx";
+import type { IconName } from "../Icon/Icon.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type OptionTileProps = {
+  id?: string;
+  classes?: string;
+  label: string;
+  icon?: IconName;
+  pressed: boolean;
+  disabled?: boolean;
+  onClick?: (event: MouseEvent) => void;
+};
+
+
+export function OptionTile({ id, classes = "", label, icon = "", pressed, disabled = false, onClick }: OptionTileProps) {
+  return (
+    <button
+      id={id}
+      type="button"
+      class={[
+        "flex h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg border border-input bg-card px-2 text-muted-foreground hover:border-primary hover:text-foreground disabled:cursor-default disabled:opacity-40 aria-[pressed=true]:border-primary aria-[pressed=true]:bg-[color-mix(in_oklch,var(--primary)_9%,var(--card))] aria-[pressed=true]:text-foreground aria-[pressed=true]:shadow-[inset_0_0_0_1px_var(--primary)]",
+        classes,
+      ]}
+      aria-pressed={pressed}
+      aria-label={label}
+      title={label}
+      disabled={disabled}
+      data-part="option-tile"
+     
+      onClick={onClick}
+    >
+      {icon ? <Icon name={icon} size="lg" /> : <Text variant="heading-2xs">{label}</Text>}
+    </button>
+  );
+}

@@ -185,6 +185,33 @@ export const meta = {
       },
       { name: "SidebarNavSubItem.id", type: "string", description: "Optional identifier." },
       {
+        name: "SidebarNavAction.label",
+        type: "string",
+        description: "The button's name, read out and shown on hover: `Pin to the rail`.",
+      },
+      {
+        name: "SidebarNavAction.icon",
+        type: "IconName",
+        description: "The icon drawn; the button has no text of its own.",
+      },
+      {
+        name: "SidebarNavAction.on",
+        type: "boolean",
+        description: "A toggle that is set (pinned): always shown, aria-pressed. Otherwise shown on the row's hover.",
+        default: "false",
+      },
+      {
+        name: "SidebarNavAction.type",
+        type: '"button" | "submit"',
+        description: "Submits its form by default.",
+        default: '"submit"',
+      },
+      {
+        name: "SidebarNavAction.classes",
+        type: "string",
+        description: "Exceptional composition classes.",
+      },
+      {
         name: "SidebarNavItem.active",
         type: "boolean",
         description: "Marks the current section; renders aria-current=page.",

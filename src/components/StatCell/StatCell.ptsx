@@ -1,0 +1,28 @@
+// One figure in a summary strip: what it counts, the figure, and a quiet note. Cells sit
+// side by side, ruled between; the strip draws the rules above and below.
+import { Text } from "../Text/Text.ptsx";
+
+export type StatCellProps = {
+  label: string;
+  value: string;
+  note?: string;
+  /** A rule at the start: every cell after the first. */
+  ruled?: boolean;
+  classes?: string;
+};
+
+export function StatCell({ label, value, note = "", ruled = false, classes = "" }: StatCellProps) {
+  return (
+    <div class={["p-4", ruled ? "border-l border-border" : "", classes]} data-part="stat-cell">
+      <Text as="p" variant="label-xs-strong" tone="muted" classes="uppercase">
+        {label}
+      </Text>
+      <Text as="p" variant="heading-stat" classes="mt-1">
+        {value}
+      </Text>
+      <Text as="p" variant="body-micro" tone="muted" classes="mt-1">
+        {note}
+      </Text>
+    </div>
+  );
+}

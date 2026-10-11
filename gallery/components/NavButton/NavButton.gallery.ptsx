@@ -1,0 +1,42 @@
+import { NavButton } from "../../../src/components/NavButton/NavButton.ptsx";
+import { GlyphTile } from "../../../src/components/GlyphTile/GlyphTile.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "nav-button",
+  label: "NavButton",
+  source: "src/components/NavButton/NavButton.ptsx",
+  kind: "primitive",
+  group: "Navigation",
+  description: "A state-driven navigation row: a leading glyph, the label, and a chevron into a section or an arrow out to another app.",
+  tags: ["nav-button", "design system builder"],
+  usage: `<NavButton label="Fonts" trailing="chevron" glyph={<GlyphTile glyph="Ag" face="serif" framed />} />`,
+  preview: "demo",
+  previewLabel: "NavButton",
+  docs: {
+    purpose: ["A state-driven navigation row: a leading glyph, the label, and a chevron into a section or an arrow out to another app."],
+    useWhen: ["A state-driven navigation row: a leading glyph, the label, and a chevron into a section or an arrow out to another app."],
+    avoidWhen: ["Use for in-app navigation whose pages are state, not URLs; use SidebarNavItem for links."],
+    rules: [{ title: "Default look", description: "Use it as it is; classes are for layout only." }],
+    accessibility: ["The component owns its text and roles; pass the label as a prop or children."],
+    composition: ["Built from Text, Icon and plain elements only."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [
+      { name: "label", type: `string`, description: "The row's label." },
+      { name: "glyph", type: `JSX.Element`, description: "The leading GlyphTile or Icon." },
+      { name: "trailing", type: `"none" | "chevron" | "external"`, description: "The mark at the end." },
+      { name: "current", type: `boolean`, description: "The open page: aria-current and the muted fill." },
+      { name: "onClick", type: `(event) => void`, description: "What the row does." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="w-60 space-y-0.5">
+      <NavButton label="Overview" current glyph={<GlyphTile glyph="✦" framed />} />
+      <NavButton label="Fonts" trailing="chevron" glyph={<GlyphTile glyph="Ag" face="serif" framed />} />
+      <NavButton label="Moodboard" trailing="external" glyph={<GlyphTile glyph="◇" framed />} />
+    </div>
+  );
+}

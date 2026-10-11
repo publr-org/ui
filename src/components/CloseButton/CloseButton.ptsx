@@ -1,0 +1,23 @@
+// The X that closes a panel or a dialog: a 36px square, the icon in the foreground.
+import { Icon } from "../Icon/Icon.ptsx";
+
+export type CloseButtonProps = {
+  /** The accessible name: "Close list view". */
+  label: string;
+  classes?: string;
+  onClick?: (event: MouseEvent) => void;
+};
+
+export function CloseButton({ label, classes = "", onClick }: CloseButtonProps) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      class={["flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-xs text-foreground hover:bg-muted focus-visible:shadow-[inset_0_0_0_1.5px_var(--color-primary)] focus-visible:outline-none", classes]}
+      onClick={onClick}
+    >
+      <Icon name="x-close" size="lg" />
+    </button>
+  );
+}

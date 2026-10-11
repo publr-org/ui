@@ -1,0 +1,116 @@
+// A free board: a dotted canvas that pans and zooms, one layer of cards on it, and the
+// floating parts over it (a toolbar at the top, a zoom control at the bottom right, a
+// notice at the bottom left, an empty state in the middle). The board draws; the parent
+// owns the view (`x`, `y`, `zoom`) and every gesture, through the handlers it passes.
+export type BoardProps = {
+  /** What the canvas is, for assistive technology. */
+  label: string;
+  /** Where the board's origin sits in the viewport, in pixels, and the zoom (1 = 100%). */
+  x?: number;
+  y?: number;
+  zoom?: number;
+  /** Something is being dragged over the board: the canvas takes a tint. */
+  dropping?: boolean;
+  /** The canvas itself is being dragged: a grabbing cursor. */
+  grabbing?: boolean;
+  /** The cards, placed in board units. */
+  children?: JSX.Element;
+  toolbar?: JSX.Element;
+  controls?: JSX.Element;
+  notice?: JSX.Element;
+  /** Shown over the middle of an empty board; it takes no pointer events. */
+  empty?: JSX.Element;
+  id?: string;
+  classes?: string;
+  onPointerDown?: (event: PointerEvent) => void;
+  onPointerMove?: (event: PointerEvent) => void;
+  onPointerUp?: (event: PointerEvent) => void;
+  onWheel?: (event: WheelEvent) => void;
+  onKeyDown?: (event: KeyboardEvent) => void;
+  onDragOver?: (event: DragEvent) => void;
+  onDragLeave?: (event: DragEvent) => void;
+  onDrop?: (event: DragEvent) => void;
+};
+
+export function Board({
+  label,
+  x = 0,
+  y = 0,
+  zoom = 1,
+  dropping = false,
+  grabbing = false,
+  children,
+  toolbar,
+  controls,
+  notice,
+  empty,
+  id,
+  classes = "",
+  onPointerDown,
+  onPointerMove,
+  onPointerUp,
+  onWheel,
+  onKeyDown,
+  onDragOver,
+  onDragLeave,
+  onDrop,
+}: BoardProps) {
+  return (
+    <div
+      id={id}
+      class={["relative flex h-full min-h-0 flex-1 flex-col bg-background text-foreground", classes]}
+      data-part="board"
+    >
+      <div
+        class={[
+          "relative h-full w-full overflow-hidden outline-none",
+          dropping ? "bg-primary/5" : "bg-muted/30",
+          grabbing ? "cursor-grabbing" : "",
+        ]}
+        style={`background-image: radial-gradient(circle, color-mix(in oklab, var(--color-foreground) 14%, transparent) 1px, transparent 1px); background-position: ${x}px ${y}px; background-size: ${24 * zoom}px ${24 * zoom}px`}
+        tabindex="0"
+        role="application"
+        aria-label={label}
+        data-part="board-viewport"
+        data-dropping={dropping ? "true" : undefined}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        onWheel={onWheel}
+        onKeyDown={onKeyDown}
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
+        onDrop={onDrop}
+      >
+        <div
+          class="absolute top-0 left-0 origin-top-left"
+          style={`transform: translate(${x}px, ${y}px) scale(${zoom})`}
+          data-part="board-layer"
+        >
+          {children}
+        </div>
+      </div>
+      {toolbar && (
+        <div class="pointer-events-none absolute inset-x-0 top-3 flex justify-center" data-part="board-toolbar-slot">
+          {toolbar}
+        </div>
+      )}
+      {empty && (
+        <div class="pointer-events-none absolute inset-0 flex items-center justify-center" data-part="board-empty">
+          <div class="max-w-sm text-center">{empty}</div>
+        </div>
+      )}
+      {notice && (
+        <div class="absolute bottom-4 left-4" data-part="board-notice-slot">
+          {notice}
+        </div>
+      )}
+      {controls && (
+        <div class="absolute right-4 bottom-4" data-part="board-controls">
+          {controls}
+        </div>
+      )}
+    </div>
+  );
+}

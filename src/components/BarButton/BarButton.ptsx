@@ -1,0 +1,23 @@
+// The action that ends a popover panel: a full-width primary bar across its bottom edge,
+// a rule above it, no corners of its own (the panel clips them).
+export type BarButtonProps = {
+  label: string;
+  classes?: string;
+  onClick?: (event: MouseEvent) => void;
+};
+
+export function BarButton({ label, classes = "", onClick }: BarButtonProps) {
+  return (
+    <button
+      type="button"
+      data-part="bar-button"
+      class={[
+        "block w-full cursor-pointer border-t border-border bg-primary p-3 text-center text-sm leading-5 font-semibold text-primary-foreground hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-ring",
+        classes,
+      ]}
+      onClick={onClick}
+    >
+      {label}
+    </button>
+  );
+}

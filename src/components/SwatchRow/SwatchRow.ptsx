@@ -1,0 +1,57 @@
+// A row standing for a family of colors: its name and where it comes from, every
+// swatch with its shade's name above it (and, for a lone color, its value), and a
+// chevron; the whole row opens the family.
+import { Icon } from "../Icon/Icon.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type SwatchRowSwatch = { label: string; value: string };
+
+export type SwatchRowProps = {
+  label: string;
+  detail?: string;
+  swatches: SwatchRowSwatch[];
+  /** Beside a lone swatch: its value. */
+  note?: string;
+  classes?: string;
+  onClick?: (event: MouseEvent) => void;
+};
+
+export function SwatchRow({ label, detail = "", swatches, note = "", classes = "", onClick }: SwatchRowProps) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      class={[
+        "group grid min-h-20 w-full cursor-pointer grid-cols-[112px_minmax(0,1fr)_auto] items-center gap-4 border-0 border-b border-border bg-muted/60 px-4 py-3 text-left text-foreground last:border-b-0 hover:bg-muted focus-visible:bg-muted focus-visible:outline-none",
+        classes,
+      ]}
+      data-part="swatch-row"
+      onClick={onClick}
+    >
+      <span class="flex min-w-0 flex-col">
+        <Text variant="label-sm-strong" classes="truncate">
+          {label}
+        </Text>
+        <Text variant="label-3xs" tone="muted" classes="mt-0.5">
+          {detail}
+        </Text>
+      </span>
+      <span class="flex min-w-0 items-end gap-2 overflow-x-auto pb-0.5">
+        {swatches.map((swatch) => (
+          <span class="flex shrink-0 flex-col items-center gap-1">
+            <Text variant="label-4xs" tone="muted" classes="tabular-nums">
+              {swatch.label}
+            </Text>
+            <span class="h-9 w-9 rounded-full border border-black/10 shadow-sm" style={{ backgroundColor: swatch.value }} title={swatch.value} data-part="swatch"></span>
+          </span>
+        ))}
+        {note && (
+          <Text variant="mono-3xs" tone="muted" classes="self-center truncate">
+            {note}
+          </Text>
+        )}
+      </span>
+      <Icon name="chevron-right" size="xs" classes="text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+    </button>
+  );
+}

@@ -1,0 +1,24 @@
+// A quiet action written as words only: no surface, muted until hovered. "Manage colors"
+// beside a list's title. Its label is a Text passed as children.
+
+export type TextButtonProps = {
+  children?: JSX.Element;
+  label?: string;
+  title?: string;
+  classes?: string;
+  onClick?: (event: MouseEvent) => void;
+};
+
+export function TextButton({ children, label, title, classes = "", onClick }: TextButtonProps) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={title}
+      class={["inline-flex cursor-pointer items-center border-0 bg-transparent p-0 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring", classes]}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}

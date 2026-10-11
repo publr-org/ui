@@ -1,0 +1,23 @@
+// What a person said in a conversation, set apart from the replies around it: a rounded
+// bubble on the conversation's far side, its text as children.
+import { Text } from "../Text/Text.ptsx";
+
+export type MessageBubbleProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function MessageBubble({ children, classes = "", id }: MessageBubbleProps) {
+  return (
+    <div
+      id={id}
+      class={["max-w-[85%] self-end rounded-2xl rounded-br-sm bg-muted px-4 py-2.5", classes]}
+      data-part="message-bubble"
+    >
+      <Text as="p" variant="body-md">
+        {children}
+      </Text>
+    </div>
+  );
+}

@@ -1,0 +1,15 @@
+// The card's content, padded from its edges.
+
+export type CardBodyProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function CardBody({ children, classes = "", id }: CardBodyProps) {
+  return (
+    <div id={id} class={["p-6", classes]} data-part="card-body">
+      {children}
+    </div>
+  );
+}

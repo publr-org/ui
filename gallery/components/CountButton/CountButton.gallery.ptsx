@@ -1,0 +1,39 @@
+import { CountButton } from "../../../src/components/CountButton/CountButton.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "count-button",
+  label: "CountButton",
+  source: "src/components/CountButton/CountButton.ptsx",
+  kind: "primitive",
+  group: "Navigation",
+  description: "A compact row that picks a group, with how many it holds in a pill.",
+  tags: ["filter", "group", "count", "editor"],
+  usage: `<CountButton label="All" count={10} pressed />`,
+  preview: "demo",
+  previewLabel: "CountButton as the editor uses it",
+  docs: {
+    purpose: ["Picks one group of a filter list and says how big each group is."],
+    useWhen: ["A short list of categories beside or above what they filter."],
+    avoidWhen: ["Navigation between pages; use NavButton or the sidebar."],
+    rules: [{ title: "Default look only", description: "Pass data through props; never restyle it from the app." }],
+    accessibility: ["A native button; aria-pressed marks the open group."],
+    composition: ["Rows stack in a flex column; the pill is part of the row."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [
+      { name: "label", type: "string", description: "The group's name.", required: true },
+      { name: "count", type: "number", description: "How many it holds.", required: true },
+      { name: "pressed", type: "boolean", description: "The group that is open.", default: "false" },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="flex w-72 flex-col gap-1">
+      <CountButton label="All" count={10} pressed />
+      <CountButton label="Headers" count={1} />
+      <CountButton label="Commerce" count={2} />
+    </div>
+  );
+}

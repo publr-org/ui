@@ -1,0 +1,36 @@
+// Text edited where it is shown: an input without a frame, as wide as its words, in the
+// type around it (or the `style` it is given, so a name can be edited in its own font).
+// `muted` sets it as the quiet line under a title.
+
+export type InlineInputProps = {
+  value?: string;
+  placeholder?: string;
+  /** The accessible name. */
+  label: string;
+  tone?: "default" | "muted";
+  style?: string;
+  classes?: string;
+  onChange?: (event: Event) => void;
+  onInput?: (event: Event) => void;
+  onClick?: (event: MouseEvent) => void;
+};
+
+export function InlineInput({ value, placeholder, label, tone = "default", style, classes = "", onChange, onInput, onClick }: InlineInputProps) {
+  return (
+    <input
+      type="text"
+      value={value}
+      placeholder={placeholder}
+      aria-label={label}
+      style={style}
+      class={[
+        "block max-w-full min-w-0 border-0 bg-transparent p-0 [field-sizing:content] focus-visible:outline-none",
+        tone === "muted" ? "min-w-[16rem] text-[13px] leading-[18px] text-muted-foreground placeholder:text-muted-foreground/50" : "text-foreground",
+        classes,
+      ]}
+      onChange={onChange}
+      onInput={onInput}
+      onClick={onClick}
+    />
+  );
+}

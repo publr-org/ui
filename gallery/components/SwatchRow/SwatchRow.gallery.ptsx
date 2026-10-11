@@ -1,0 +1,35 @@
+import { SwatchRow } from "../../../src/components/SwatchRow/SwatchRow.ptsx";
+import type { ComponentDemoMeta, DemoNode } from "../../gallery-types";
+
+export const meta = {
+  name: "swatch-row",
+  label: "SwatchRow",
+  source: "src/components/SwatchRow/SwatchRow.ptsx",
+  kind: "composite",
+  group: "Editor",
+  description: "A row standing for a family of colors: its name and source, every swatch with its shade, and a way in.",
+  tags: ["swatch-row"],
+  usage: `<SwatchRow label="Sage" detail="Theme" swatches={[{ label: "Base", value: "#627c5f" }]} />`,
+  preview: "demo",
+  previewLabel: "A color family as one row",
+  docs: {
+    purpose: ["A row standing for a family of colors: its name and source, every swatch with its shade, and a way in."],
+    useWhen: ["A color family as one row."],
+    avoidWhen: ["A look this component does not offer: add it here, never restyle it at the call site."],
+    rules: [{ title: "Default look only", description: "Pass data and callbacks; the classes prop is for layout only." }],
+    accessibility: ["Interactive parts are native buttons and inputs with accessible names."],
+    composition: ["Built from Text and the other primitives."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [],
+  },
+} satisfies ComponentDemoMeta;
+
+export const node = { component: "SwatchRow", props: {}, wrapper: "w-full max-w-xl" } satisfies DemoNode;
+
+export function Demo() {
+  return (
+    <div class="w-full max-w-xl">
+      <SwatchRow label="Sage" detail="Theme" swatches={[{ label: "Base", value: "#627c5f" }]} note="#627c5f" />
+    </div>
+  );
+}

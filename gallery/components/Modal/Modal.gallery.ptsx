@@ -1,0 +1,38 @@
+import { Modal } from "../../../src/components/Modal/Modal.ptsx";
+import { Button } from "../../../src/components/Button/Button.ptsx";
+import type { ComponentDemoMeta, DemoNode } from "../../gallery-types";
+
+export const meta = {
+  name: "modal",
+  label: "Modal",
+  source: "src/components/Modal/Modal.ptsx",
+  kind: "composite",
+  group: "Essentials",
+  description: "A modal with a header, a scrolling body and a footer of actions; Escape and the overlay close it.",
+  tags: ["modal"],
+  usage: `<Modal title="Remove text-sm?" size="sm" onClose={close}>…</Modal>`,
+  preview: "demo",
+  previewLabel: "A dialog the caller opens from its own state",
+  docs: {
+    purpose: ["A modal with a header, a scrolling body and a footer of actions; Escape and the overlay close it."],
+    useWhen: ["A dialog the caller opens from its own state."],
+    avoidWhen: ["A look this component does not offer: add it here, never restyle it at the call site."],
+    rules: [{ title: "Default look only", description: "Pass data and callbacks; the classes prop is for layout only." }],
+    accessibility: ["Interactive parts are native buttons and inputs with accessible names."],
+    composition: ["Built from Text and the other primitives."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [],
+  },
+} satisfies ComponentDemoMeta;
+
+export const node = { component: "Modal", props: {}, wrapper: "w-full max-w-xl" } satisfies DemoNode;
+
+export function Demo() {
+  return (
+    <div class="w-full max-w-xl">
+      <Modal title="Edit color family" description="Rename the color or edit each reusable shade." size="lg" density="compact" onClose={() => undefined} footer={<Button hierarchy="primary">Save color</Button>}>
+        <span></span>
+      </Modal>
+    </div>
+  );
+}

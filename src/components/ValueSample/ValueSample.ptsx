@@ -1,0 +1,55 @@
+// A small drawing of one design value, so a scale reads at a glance: "Aa" at a font
+// size, a weight's name in that weight, a gap between two bars, a rounded square, two
+// lines at a line height, a word at a letter spacing, or a color dot.
+
+import { Publr } from "publr-jsx";
+
+export const VALUE_SAMPLE_KINDS = ["size", "weight", "spacing", "radius", "leading", "tracking", "color"] as const;
+export type ValueSampleKind = (typeof VALUE_SAMPLE_KINDS)[number];
+
+export type ValueSampleProps = {
+  kind: ValueSampleKind;
+  /** The CSS value drawn: a length, a weight, a color. */
+  value: string;
+  /** The words for `weight` (its key). */
+  label?: string;
+  classes?: string;
+};
+
+export function ValueSample({ kind, value, label = "", classes = "" }: ValueSampleProps) {
+  return (
+    <span class={["flex min-h-11 items-center justify-center text-foreground", classes]} aria-hidden="true" data-sample={kind}>
+      {kind === "size" && (
+        <span class="leading-none" style={{ fontSize: value }}>
+          Aa
+        </span>
+      )}
+      {kind === "weight" && (
+        <span class="text-[14px]" style={{ fontWeight: value }}>
+          {label}
+        </span>
+      )}
+      {kind === "spacing" && (
+        <span class="flex items-center gap-1">
+          <i class="h-8 w-2 rounded-sm bg-current opacity-25"></i>
+          <i class="h-px bg-current" style={{ width: value }}></i>
+          <i class="h-8 w-2 rounded-sm bg-current opacity-25"></i>
+        </span>
+      )}
+      {kind === "radius" && <span class="h-10 w-10 border-2 border-current opacity-60" style={{ borderRadius: value }}></span>}
+      {kind === "leading" && (
+        <span class="text-[15px]" style={{ lineHeight: value }}>
+          Ag
+          <br />
+          Ag
+        </span>
+      )}
+      {kind === "tracking" && (
+        <span class="text-[15px]" style={{ letterSpacing: value }}>
+          {Publr.t("Type")}
+        </span>
+      )}
+      {kind === "color" && <span class="h-10 w-10 rounded-full border border-black/10 shadow-sm" style={{ backgroundColor: value }}></span>}
+    </span>
+  );
+}

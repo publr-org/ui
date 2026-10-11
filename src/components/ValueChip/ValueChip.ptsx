@@ -1,0 +1,19 @@
+// The current value of a control, as a small chip beside its label.
+import { Text } from "../Text/Text.ptsx";
+
+export type ValueChipProps = { id?: string; classes?: string; value: string; /** Where an inherited value comes from ("From Base"): drawn dashed. */ note?: string };
+
+export function ValueChip({ id, classes = "", value, note = "" }: ValueChipProps) {
+  return (
+    <span id={id} class={["inline-flex max-w-[68%] min-w-0 items-baseline gap-[5px] rounded-[5px] border border-input bg-muted px-1.5 py-[3px]", note ? "border-dashed text-muted-foreground" : "", classes]} data-part="value-chip">
+      <Text as="strong" variant="label-xs-strong" classes="truncate leading-[14px] font-bold">
+        {value}
+      </Text>
+      {note && (
+        <Text variant="label-3xs" tone="muted" classes="flex-none">
+          {note}
+        </Text>
+      )}
+    </span>
+  );
+}

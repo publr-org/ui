@@ -1,0 +1,48 @@
+import { Textarea } from "../Textarea/Textarea.ptsx";
+
+export type RichTextInputProps = {
+  id?: string;
+  name?: string;
+  /** The value as HTML. */
+  value?: string;
+  placeholder?: string;
+  /** The formatting an editor may offer, comma separated (`bold,italic,link`); empty for
+   * plain paragraphs. */
+  formats?: string;
+  rows?: number;
+  invalid?: boolean;
+  classes?: string;
+};
+
+/** A formatted text value edited in place. The bordered box (`data-rich-canvas`) is where a
+ * page's inline editor mounts; the textarea under it holds the HTML under the field's name
+ * and stays in view until one does. */
+export function RichTextInput({
+  id,
+  name,
+  value = "",
+  placeholder = "",
+  formats = "",
+  rows = 5,
+  invalid = false,
+  classes = "",
+}: RichTextInputProps) {
+  return (
+    <div
+      class={["relative flex w-full flex-col", classes]}
+      data-rich-text=""
+      data-formats={formats}
+      data-placeholder={placeholder}
+    >
+      <div
+        data-rich-canvas=""
+        hidden
+        class={[
+          "min-h-28 w-full px-3.5 py-2 text-base leading-6 font-normal text-foreground rounded-lg border bg-card shadow-xs transition duration-150 hover:border-muted-foreground/40 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/15",
+          invalid ? "border-destructive" : "border-input",
+        ]}
+      />
+      <Textarea id={id} name={name} value={value} rows={rows} invalid={invalid} placeholder={placeholder} />
+    </div>
+  );
+}

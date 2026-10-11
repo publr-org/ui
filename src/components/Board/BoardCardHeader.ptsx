@@ -1,0 +1,39 @@
+// A card's eyebrow (where it is from, what it is) over its one-line title, the facts
+// under it as children, and a corner link out (↗) when it has an address.
+import { Publr } from "publr-jsx";
+import { Link } from "../Link/Link.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type BoardCardHeaderProps = {
+  /** The eyebrow's text; `mark` goes before it. */
+  eyebrow: string;
+  mark?: JSX.Element;
+  title: string;
+  /** Where the corner link leads, and what it is called. */
+  href?: string;
+  hrefLabel?: string;
+  children?: JSX.Element;
+  classes?: string;
+};
+
+export function BoardCardHeader({ eyebrow, mark, title, href, hrefLabel = "", children, classes = "" }: BoardCardHeaderProps) {
+  return (
+    <div class={["flex items-start gap-2", classes]} data-part="board-card-header">
+      <div class="min-w-0 flex-1">
+        <Text variant="eyebrow-2xs" tone="muted" classes="flex items-center gap-1.5">
+          {mark}
+          {eyebrow}
+        </Text>
+        <Text as="p" variant="body-md" classes="mt-1 block truncate">
+          {title}
+        </Text>
+        {children}
+      </div>
+      {href && (
+        <Link href={href} external tone="quiet" variant="body-lg" label={hrefLabel !== "" ? hrefLabel : Publr.t("Open link")} classes="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center">
+          ↗
+        </Link>
+      )}
+    </div>
+  );
+}

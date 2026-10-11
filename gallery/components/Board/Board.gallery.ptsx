@@ -1,0 +1,112 @@
+import { Board } from "../../../src/components/Board/Board.ptsx";
+import { BoardCard } from "../../../src/components/Board/BoardCard.ptsx";
+import { BoardCardBody } from "../../../src/components/Board/BoardCardBody.ptsx";
+import { BoardCardHeader } from "../../../src/components/Board/BoardCardHeader.ptsx";
+import { BoardCardSpecimen } from "../../../src/components/Board/BoardCardSpecimen.ptsx";
+import { BoardCardSwatch } from "../../../src/components/Board/BoardCardSwatch.ptsx";
+import { BoardCardSwatches } from "../../../src/components/Board/BoardCardSwatches.ptsx";
+import { BoardCardText } from "../../../src/components/Board/BoardCardText.ptsx";
+import { BoardTool } from "../../../src/components/Board/BoardTool.ptsx";
+import { BoardToolbar } from "../../../src/components/Board/BoardToolbar.ptsx";
+import { BoardZoom } from "../../../src/components/Board/BoardZoom.ptsx";
+import { Button } from "../../../src/components/Button/Button.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "board",
+  label: "Board",
+  source: "src/components/Board/Board.ptsx",
+  kind: "composite",
+  group: "Editor",
+  description: "A free canvas of cards that pans and zooms, with a floating toolbar, a zoom control and card parts.",
+  tags: ["board", "canvas", "moodboard", "cards", "zoom", "pan"],
+  usage: `<Board label="Moodboard canvas" x={0} y={0} zoom={1}
+  toolbar={<BoardToolbar label="Add" hint="or paste / drop anything"><BoardTool label="Add a note">Note</BoardTool></BoardToolbar>}
+  controls={<BoardZoom value="100%" />}>
+  <BoardCard card="a" x={40} y={80} width={260}>
+    <BoardCardText variant="body" label="Note" value="Quiet, warm, handmade." />
+    <BoardCardText label="Annotation" placeholder="Why this?" />
+  </BoardCard>
+</Board>`,
+  preview: "canvas",
+  previewLabel: "A board with a note, a link, a color and a font",
+  docs: {
+    purpose: [
+      "Board is a free canvas: cards placed in board units on a dotted ground that pans and zooms, the way a moodboard holds references.",
+      "It draws and nothing more: the parent owns the view (x, y, zoom), the cards and every gesture, through the handlers it passes.",
+    ],
+    useWhen: ["Things are arranged by hand in two dimensions and annotated: references, ideas, a pinboard."],
+    avoidWhen: ["The items have an order or a grid of their own; use a list or a table."],
+    rules: [
+      { title: "The parent owns the view", description: "Board moves its layer and its dots by x, y and zoom; gestures change them in the parent's store." },
+      { title: "Cards are found by their parts", description: "A gesture finds a card by data-part=\"board-card\" and its data-id, and the resize handle by data-part=\"board-resize\"." },
+      { title: "Floating parts are slots", description: "toolbar sits centred at the top, controls at the bottom right, notice at the bottom left, empty in the middle without pointer events." },
+    ],
+    accessibility: [
+      "The canvas is a focusable application region named by label; the parent handles its keys (Delete, Escape, zoom).",
+      "Every tool and zoom step is a real button with an accessible name.",
+    ],
+    composition: [
+      "BoardToolbar holds BoardTools; BoardZoom the zoom steps.",
+      "A BoardCard holds a BoardCardMedia or BoardCardSwatch on top, then a BoardCardBody (BoardCardHeader, BoardCardSwatches, BoardCardSpecimen) or a BoardCardText, then a BoardCardText annotation.",
+    ],
+    agentNotes: ["Texts do not grow by themselves: the parent sizes a BoardCardText to its scrollHeight on input."],
+    props: [
+      { name: "Board.label", type: "string", description: "The canvas's accessible name.", required: true },
+      { name: "Board.x / y / zoom", type: "number", description: "Where the origin sits in the viewport and the zoom (1 = 100%).", default: "0 / 0 / 1" },
+      { name: "Board.dropping", type: "boolean", description: "Something is dragged over: the canvas is tinted.", default: "false" },
+      { name: "Board.toolbar / controls / notice / empty", type: "node", description: "The floating parts." },
+      { name: "BoardCard.card", type: "string", description: "The card's id, on data-id.", required: true },
+      { name: "BoardCard.x / y / width", type: "number", description: "Place and width in board units.", required: true },
+      { name: "BoardCard.selected", type: "boolean", description: "A ring, and the tools above the card.", default: "false" },
+      { name: "BoardCardText.variant", type: '"body" | "annotation"', description: "The card's own text, or the line saying why it is there.", default: "annotation" },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export const variants = [
+  {
+    label: "A board",
+    description: "A note, a link, a color and a font, the link selected.",
+    Demo: () => (
+      <div class="h-[560px] w-full">
+        <Board
+          label="Moodboard canvas"
+          x={40}
+          y={80}
+          toolbar={
+            <BoardToolbar label="Add to the board" hint="or paste / drop anything">
+              <BoardTool label="Add a note">Note</BoardTool>
+              <BoardTool label="Add a link">Link</BoardTool>
+              <BoardTool label="Add a color">Color</BoardTool>
+            </BoardToolbar>
+          }
+          controls={<BoardZoom value="100%" />}
+        >
+          <BoardCard card="note" kind="note" x={0} y={0} width={260}>
+            <BoardCardText variant="body" label="Note" value="Quiet, warm, handmade." />
+            <BoardCardText label="Annotation" placeholder="Why this?" value="The tone of every page" />
+          </BoardCard>
+          <BoardCard card="link" kind="link" x={300} y={0} width={280} selected tools={<Button hierarchy="secondary" intent="destructive" size="xs">Remove</Button>}>
+            <BoardCardBody>
+              <BoardCardHeader eyebrow="aesop.com" title="aesop.com/uk/r/hand" href="https://www.aesop.com/uk/r/hand">
+                <BoardCardSwatches colors={["#1f2a24", "#f4efe6", "#c46a3c"]} classes="mt-2" />
+              </BoardCardHeader>
+            </BoardCardBody>
+            <BoardCardText label="Annotation" placeholder="Why this?" />
+          </BoardCard>
+          <BoardCard card="color" kind="color" x={0} y={160} width={180}>
+            <BoardCardSwatch color="#a45332" height={130} pick="#a45332" />
+            <BoardCardText label="Annotation" placeholder="Why this?" value="Terracotta accent" />
+          </BoardCard>
+          <BoardCard card="font" kind="font" x={300} y={160} width={300}>
+            <BoardCardBody>
+              <BoardCardSpecimen eyebrow="Font · Regular 400" family="Georgia" face="Georgia, serif" file="Georgia.ttf" />
+            </BoardCardBody>
+            <BoardCardText label="Annotation" placeholder="Why this?" />
+          </BoardCard>
+        </Board>
+      </div>
+    ),
+  },
+];

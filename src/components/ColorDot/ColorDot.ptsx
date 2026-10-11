@@ -1,0 +1,22 @@
+// A color shown as a round mark: a role's value at the start of its row.
+
+export const COLOR_DOT_SIZES = ["md", "lg"] as const;
+export type ColorDotSize = (typeof COLOR_DOT_SIZES)[number];
+
+export type ColorDotProps = {
+  color: string;
+  /** `md` 32px, `lg` 40px. */
+  size?: ColorDotSize;
+  classes?: string;
+};
+
+export function ColorDot({ color, size = "md", classes = "" }: ColorDotProps) {
+  return (
+    <i
+      aria-hidden="true"
+      class={["block shrink-0 rounded-full border border-black/10", size === "lg" ? "h-10 w-10" : "h-8 w-8", classes]}
+      style={{ backgroundColor: color }}
+      data-part="color-dot"
+    ></i>
+  );
+}

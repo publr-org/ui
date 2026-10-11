@@ -1,0 +1,36 @@
+import { SpecimenTile } from "../../../src/components/SpecimenTile/SpecimenTile.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "specimen-tile",
+  label: "SpecimenTile",
+  source: "src/components/SpecimenTile/SpecimenTile.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description: "A small square set in a palette: \"Aa\" in one color on another, with optional dots for more of its colors.",
+  tags: ["design system builder"],
+  usage: `<SpecimenTile size="lg" surface="#b35637" foreground="#fff7e9" dots={["#e5dac2", "#753534", "#fff7e9"]} />`,
+  preview: "demo",
+  previewLabel: "SpecimenTile in the design system builder",
+  docs: {
+    purpose: ["A small square set in a palette: \"Aa\" in one color on another, with optional dots for more of its colors."],
+    useWhen: ["The Site theme builder's semantic colors and similar palette editors."],
+    avoidWhen: ["Ordinary forms; use the form primitives."],
+    rules: [{ title: "Default look only", description: "Pass data through props; never restyle it from the app." }],
+    accessibility: ["Interactive variants are native buttons with an accessible name."],
+    composition: ["Text runs are Text; colors come in as props."],
+    agentNotes: ["Do not restyle from the app; change this component."],
+    props: [
+      { name: "surface", type: "string", description: "The ground color.", required: true },
+      { name: "foreground", type: "string", description: "The letters' color.", required: true },
+      { name: "dots", type: "string[]", description: "More colors as dots (lg only).", default: "[]" },
+      { name: "size", type: "\"md\" | \"lg\"", description: "40px rounded or 64px flush.", default: "md" },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="flex items-center gap-4"><SpecimenTile surface="#f4f3ec" foreground="#203439" /><SpecimenTile size="lg" surface="#b35637" foreground="#fff7e9" dots={["#e5dac2", "#753534", "#fff7e9"]} /></div>
+  );
+}

@@ -1,0 +1,43 @@
+import { PickerTile } from "../../../src/components/PickerTile/PickerTile.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "picker-tile",
+  label: "PickerTile",
+  source: "src/components/PickerTile/PickerTile.ptsx",
+  kind: "primitive",
+  group: "Editor",
+  description: "An icon above its label: one entry of a picker grid.",
+  tags: ["picker", "inserter", "tile", "editor"],
+  usage: `<PickerTile icon="paragraph" label="Paragraph" value="paragraph" />`,
+  preview: "demo",
+  previewLabel: "PickerTile as the editor uses it",
+  docs: {
+    purpose: ["Offers one thing to insert in a grid of many: the block library, an inserter popover."],
+    useWhen: ["A three-column grid of things picked by their icon and name."],
+    avoidWhen: ["A list with descriptions; use MenuOption or a row component."],
+    rules: [{ title: "Default look only", description: "Pass data through props; never restyle it from the app." }],
+    accessibility: ["A native button; its label is visible text."],
+    composition: ["Built from Icon; the grid around it is the caller's."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [
+      { name: "icon", type: "IconName", description: "The thing's icon.", required: true },
+      { name: "label", type: "string", description: "Its name.", required: true },
+      { name: "size", type: '"lg" | "sm"', description: "The roomy side-panel tile or the tighter popover tile.", default: "lg" },
+      { name: "value", type: "string", description: "Marks the tile (data-tile) for keys and tests." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="grid w-80 grid-cols-3">
+      <PickerTile icon="heading" label="Heading" value="heading" />
+      <PickerTile icon="paragraph" label="Paragraph" value="paragraph" />
+      <PickerTile icon="list" label="List" value="list" />
+      <PickerTile size="sm" icon="pattern" label="Pattern" value="pattern" />
+      <PickerTile size="sm" icon="image" label="Image" value="image" />
+      <PickerTile size="sm" icon="quote" label="Quote" value="quote" />
+    </div>
+  );
+}

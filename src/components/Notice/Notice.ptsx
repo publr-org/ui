@@ -1,0 +1,28 @@
+// One short line the page says back: what went wrong, what to fix, what worked. Smaller
+// than a Callout: no title, no icon, a tinted box around the words.
+import { Text } from "../Text/Text.ptsx";
+
+export const NOTICE_TONES = ["error", "warning", "success"] as const;
+export type NoticeTone = (typeof NOTICE_TONES)[number];
+
+export type NoticeProps = {
+  tone?: NoticeTone;
+  children?: JSX.Element;
+  classes?: string;
+};
+
+const TONE_CLASSES: Record<NoticeTone, string> = {
+  error: "border-destructive/30 bg-destructive/10 text-destructive",
+  warning: "border-warning/35 bg-warning/10 text-warning",
+  success: "border-success/30 bg-success/10 text-success",
+};
+
+export function Notice({ tone = "error", children, classes = "" }: NoticeProps) {
+  return (
+    <div role={tone === "success" ? "status" : "alert"} class={["rounded-lg border px-3 py-2", TONE_CLASSES[tone], classes]} data-notice-tone={tone}>
+      <Text as="p" variant="body-sm">
+        {children}
+      </Text>
+    </div>
+  );
+}

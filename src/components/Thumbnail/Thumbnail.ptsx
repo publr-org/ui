@@ -1,0 +1,20 @@
+export type ThumbnailProps = {
+  src: string;
+  alt: string;
+  /** An action in its corner, such as a button that removes it. */
+  children?: JSX.Element;
+  classes?: string;
+};
+
+/** A small square picture: one attached to a message, waiting to be sent. */
+export function Thumbnail({ src, alt, children, classes = "" }: ThumbnailProps) {
+  return (
+    <div
+      data-part="thumbnail"
+      class={["relative size-16 shrink-0 overflow-hidden rounded-lg border border-border bg-muted", classes]}
+    >
+      <img src={src} alt={alt} class="size-full object-cover" />
+      <div class="absolute top-1 right-1 empty:hidden">{children}</div>
+    </div>
+  );
+}

@@ -1,0 +1,34 @@
+// A word that is also a toggle: quiet until pressed, then underlined in the text color.
+// A row of them picks one value to preview ("100 200 … 900"); `style` lets each draw
+// the button in what it previews (a family), the label keeping its own weight.
+import { Text } from "../Text/Text.ptsx";
+
+export type TextToggleProps = {
+  label: string;
+  /** The accessible name, when the label alone is not enough. */
+  description?: string;
+  pressed?: boolean;
+  style?: string;
+  classes?: string;
+  onClick?: (event: MouseEvent) => void;
+};
+
+export function TextToggle({ label, description, pressed = false, style, classes = "", onClick }: TextToggleProps) {
+  return (
+    <button
+      type="button"
+      aria-label={description}
+      aria-pressed={pressed ? "true" : "false"}
+      class={[
+        "cursor-pointer rounded-xs border-0 bg-transparent px-0.5 text-muted-foreground decoration-2 underline-offset-4 hover:text-foreground aria-[pressed=true]:text-foreground aria-[pressed=true]:underline",
+        classes,
+      ]}
+      style={style}
+      onClick={onClick}
+    >
+      <Text variant="label-md">
+        {label}
+      </Text>
+    </button>
+  );
+}

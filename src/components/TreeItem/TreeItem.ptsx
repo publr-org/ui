@@ -1,0 +1,129 @@
+// One row of a flattened tree (an outline of nested things): a disclosure toggle, an icon,
+// the name, an optional tag and a quiet detail. Depth indents it; the caller flattens the
+// tree and owns expanding, selecting and dragging. `identity` tints rows that stand for a
+// reusable unit (a pattern copy, a shared part) at rest, on hover and when selected.
+import { Publr } from "publr-jsx";
+import { Icon } from "../Icon/Icon.ptsx";
+import type { IconName } from "../Icon/Icon.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export const TREE_ITEM_IDENTITIES = ["plain", "pattern", "part"] as const;
+export type TreeItemIdentity = (typeof TREE_ITEM_IDENTITIES)[number];
+
+export type TreeItemProps = {
+  id: string;
+  depth: number;
+  label: string;
+  icon: IconName;
+  /** A quiet detail after the name: a heading's text. */
+  detail?: string;
+  /** A small uppercase tag after the name: "Container". */
+  tag?: string;
+  hasChildren?: boolean;
+  expanded?: boolean;
+  selected?: boolean;
+  identity?: TreeItemIdentity;
+  /** The row can be dragged (the grab cursor and native drag). */
+  draggable?: boolean;
+  /** Pixels per level of depth. */
+  indent?: number;
+  /** The disclosure column; a fully open, read-only outline leaves it out. */
+  toggle?: boolean;
+  onToggle?: (event: MouseEvent) => void;
+  onSelect?: (event: MouseEvent) => void;
+  onDragStart?: (event: DragEvent) => void;
+  onDragEnd?: (event: DragEvent) => void;
+};
+
+/** The row keeps no state of its own; its store carries the toggle's actions. */
+export const state = Publr.reactive({});
+
+/** The toggle takes no focus: a press leaves the focus where it was. */
+export const toggleMouseDown = (event: Event) => {
+  event.preventDefault();
+};
+
+/** A press on the toggle (handled by `onToggle`) goes no further than the row. */
+export const rowClick = (event: Event) => {
+  const target = event.target as Element | null;
+  if (target?.closest('[data-part="tree-toggle"]')) event.stopPropagation();
+};
+
+const IDENTITY_CLASSES: Record<TreeItemIdentity, { rest: string; selected: string }> = {
+  plain: { rest: "hover:bg-ui-accent", selected: "bg-ui-accent text-accent-foreground" },
+  pattern: {
+    rest: "text-[#285ae1] bg-[color-mix(in_srgb,#285ae1_9%,transparent)] hover:bg-[color-mix(in_srgb,#285ae1_16%,transparent)]",
+    selected: "text-[#285ae1] bg-[color-mix(in_srgb,#285ae1_24%,transparent)] hover:bg-[color-mix(in_srgb,#285ae1_30%,transparent)]",
+  },
+  part: {
+    rest: "text-[#7c3aed] bg-[color-mix(in_srgb,#8b5cf6_9%,transparent)] hover:bg-[color-mix(in_srgb,#8b5cf6_16%,transparent)]",
+    selected: "text-[#7c3aed] bg-[color-mix(in_srgb,#8b5cf6_24%,transparent)] hover:bg-[color-mix(in_srgb,#8b5cf6_30%,transparent)]",
+  },
+};
+
+export function TreeItem({
+  id,
+  depth,
+  label,
+  icon,
+  detail = "",
+  tag = "",
+  hasChildren = false,
+  expanded = false,
+  selected = false,
+  identity = "plain",
+  draggable = false,
+  indent = 20,
+  toggle = true,
+  onToggle,
+  onSelect,
+  onDragStart,
+  onDragEnd,
+}: TreeItemProps) {
+  return (
+    <div
+      data-tree-row={id}
+      data-depth={depth}
+      aria-selected={selected ? "true" : "false"}
+      draggable={draggable ? "true" : "false"}
+      class={[
+        "flex items-center rounded-sm pr-2 text-[13px] leading-5 select-none",
+        selected ? IDENTITY_CLASSES[identity].selected : IDENTITY_CLASSES[identity].rest,
+        draggable ? "cursor-grab active:cursor-grabbing" : "",
+      ]}
+      style={{ paddingLeft: `${4 + depth * indent}px` }}
+      onClick={rowClick}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+    >
+      {toggle && (
+      <button
+        type="button"
+        aria-label={Publr.t("Toggle children")}
+        data-part="tree-toggle"
+        aria-expanded={hasChildren ? (expanded ? "true" : "false") : undefined}
+        class={["flex size-6 shrink-0 cursor-pointer items-center justify-center", hasChildren ? "" : "invisible"]}
+        onMouseDown={toggleMouseDown}
+        onClick={onToggle}
+      >
+        <Icon name="chevron-right" size="xs" classes={expanded ? "rotate-90 transition-transform" : "transition-transform"} />
+      </button>
+      )}
+      <button type="button" data-select-row={id} class="flex min-w-0 flex-1 cursor-[inherit] items-center gap-2 py-2 pr-2 text-left" onClick={onSelect}>
+        <span class="flex w-6 shrink-0 items-center justify-center">
+          <Icon name={icon} size="lg" />
+        </span>
+        <span class="shrink-0 font-medium">{label}</span>
+        {tag && (
+          <span class="shrink-0 rounded-xs border border-current/25 px-1.5 py-0.5 uppercase opacity-70">
+            <Text as="span" variant="label-2xs-strong" classes="tracking-wide">
+              {tag}
+            </Text>
+          </span>
+        )}
+        {detail && <span class="truncate opacity-60">{detail}</span>}
+      </button>
+      <span class="size-8 shrink-0" aria-hidden="true"></span>
+    </div>
+  );
+}

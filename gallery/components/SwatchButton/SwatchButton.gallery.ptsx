@@ -1,0 +1,36 @@
+import { SwatchButton } from "../../../src/components/SwatchButton/SwatchButton.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "swatch-button",
+  label: "SwatchButton",
+  source: "src/components/SwatchButton/SwatchButton.ptsx",
+  kind: "primitive",
+  group: "Forms",
+  description: "One color to pick: a round swatch in a grid of choices; the picked one is ringed.",
+  tags: ["design system builder"],
+  usage: `<SwatchButton color="#b35637" label="Rust" selected />`,
+  preview: "demo",
+  previewLabel: "SwatchButton in the design system builder",
+  docs: {
+    purpose: ["One color to pick: a round swatch in a grid of choices; the picked one is ringed."],
+    useWhen: ["The Site theme builder's semantic colors and similar palette editors."],
+    avoidWhen: ["Ordinary forms; use the form primitives."],
+    rules: [{ title: "Default look only", description: "Pass data through props; never restyle it from the app." }],
+    accessibility: ["Interactive variants are native buttons with an accessible name."],
+    composition: ["Text runs are Text; colors come in as props."],
+    agentNotes: ["Do not restyle from the app; change this component."],
+    props: [
+      { name: "color", type: "string", description: "The swatch's color.", required: true },
+      { name: "label", type: "string", description: "Its name, for assistive tech and the tooltip.", required: true },
+      { name: "selected", type: "boolean", description: "The picked one.", default: "false" },
+      { name: "onClick", type: "(event) => void", description: "Picks it." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="grid w-64 grid-cols-7 gap-2"><SwatchButton color="#f4f3ec" label="Stone" selected /><SwatchButton color="#b35637" label="Rust" /><SwatchButton color="#203439" label="Navy" /><SwatchButton color="#d98f3a" label="Marigold" /></div>
+  );
+}

@@ -1,0 +1,47 @@
+// One BlockToolbar control: an icon (its label the accessible name) or a short text,
+// with a chevron when it opens a menu. Pressed reads as on (bold while bold).
+import { Icon } from "../Icon/Icon.ptsx";
+import type { IconName } from "../Icon/Icon.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type BlockToolbarButtonProps = {
+  id?: string;
+  classes?: string;
+  label: string;
+  icon?: IconName;
+  /** `lg` for the movers and the more menu, as the editor draws them. */
+  iconSize?: "md" | "lg";
+  text?: string;
+  menu?: boolean;
+  pressed?: boolean;
+  disabled?: boolean;
+  onClick?: (event: MouseEvent) => void;
+};
+
+export function BlockToolbarButton({ id, classes = "", label, icon = "", iconSize = "md", text = "", menu = false, pressed = false, disabled = false, onClick }: BlockToolbarButtonProps) {
+  return (
+    <button
+      id={id}
+      type="button"
+      class={[
+        "flex h-9 min-w-9 cursor-pointer items-center justify-center gap-0.5 rounded-md text-foreground hover:bg-ui-accent hover:text-accent-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-default disabled:opacity-30 disabled:hover:bg-transparent aria-[pressed=true]:bg-ui-accent aria-[pressed=true]:text-accent-foreground",
+        text ? "px-2 whitespace-nowrap" : "px-1.5",
+        classes,
+      ]}
+      aria-label={label}
+      title={label}
+      aria-pressed={pressed}
+      disabled={disabled}
+      data-part="block-toolbar-button"
+      onClick={onClick}
+    >
+      {icon && <Icon name={icon} size={iconSize} />}
+      {text && (
+        <Text variant="label-lg" classes="font-semibold">
+          {text}
+        </Text>
+      )}
+      {menu && <Icon name="chevron-down" size="sm" />}
+    </button>
+  );
+}

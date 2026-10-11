@@ -1,0 +1,121 @@
+// A modal the caller opens and closes from its own state: a dimmed overlay over the page,
+// a bounded panel with a header (optional leading media, the title, a description and a
+// close button), a scrolling body and a footer of actions. Escape and a click on the
+// overlay press the close button, which calls `onClose`. Render it while open; drop it to close.
+import { Publr } from "publr-jsx";
+import { Button } from "../Button/Button.ptsx";
+import { Icon } from "../Icon/Icon.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export const MODAL_SIZES = ["sm", "md", "lg", "xl", "full", "screen"] as const;
+export type ModalSize = (typeof MODAL_SIZES)[number];
+
+export type ModalProps = {
+  title: string;
+  description?: string;
+  /** Beside the title: a swatch, an icon preview. */
+  media?: JSX.Element;
+  /** `sm` 460px (a confirmation), `md` 560px, `lg` 720px, `xl` 760px, `full` nearly the whole
+   * window up to 1240px, `screen` the whole window but a 32px margin: a workspace, such as
+   * the media library picked from. */
+  size?: ModalSize;
+  /** The body without padding or a scroll of its own: the children lay out the space,
+   * scrolling their own parts. */
+  flush?: boolean;
+  /** `compact`: the small type of dense editors; `default`: the form type. */
+  density?: "default" | "compact";
+  /** The footer's actions: `between` keeps a leading action apart, `end` packs them right. */
+  footerAlign?: "between" | "end";
+  footer?: JSX.Element;
+  closeLabel?: string;
+  children?: JSX.Element;
+  classes?: string;
+  onClose: () => void;
+};
+
+/** The modal keeps no state of its own; its store carries the overlay's actions. */
+export const state = Publr.reactive({});
+
+/** The modal's close button: the one path to `onClose`, so Escape and the overlay take it. */
+const closeOf = (overlay: EventTarget | null): HTMLElement | null =>
+  overlay instanceof HTMLElement ? overlay.querySelector<HTMLElement>(':scope > [data-part="modal-panel"] > header > button') : null;
+
+/** A click on the overlay itself, outside the panel, closes the modal. */
+export const overlayClick = (event: Event) => {
+  if (event.target === event.currentTarget) closeOf(event.currentTarget)?.click();
+};
+
+/** Escape anywhere in the modal closes it. */
+export const overlayKeydown = (event: Event) => {
+  if (event instanceof KeyboardEvent && event.key === "Escape") {
+    event.preventDefault();
+    closeOf(event.currentTarget)?.click();
+  }
+};
+
+const SIZE_CLASSES: Record<ModalSize, string> = {
+  sm: "max-h-[min(760px,calc(100vh-40px))] max-w-[460px] rounded-xl",
+  md: "max-h-[min(760px,calc(100vh-40px))] max-w-[560px] rounded-2xl",
+  lg: "max-h-[min(760px,calc(100vh-40px))] max-w-[720px] rounded-2xl",
+  xl: "max-h-[min(860px,calc(100vh-40px))] max-w-[760px] rounded-2xl",
+  full: "h-[calc(100vh-48px)] max-w-[1240px] rounded-2xl",
+  screen: "h-full max-w-none rounded-2xl",
+};
+
+export function Modal({
+  title,
+  description,
+  media,
+  size = "md",
+  flush = false,
+  density = "default",
+  footerAlign = "between",
+  footer,
+  closeLabel = "",
+  children,
+  classes = "",
+  onClose,
+}: ModalProps) {
+  return (
+    <div
+      class={["fixed inset-0 z-[70] flex items-center justify-center bg-black/70", size === "screen" ? "p-8" : "p-5"]}
+      data-part="modal"
+      onClick={overlayClick}
+      onKeyDown={overlayKeydown}
+    >
+      <div
+        class={["flex w-full flex-col overflow-hidden border border-border bg-card text-foreground shadow-2xl", SIZE_CLASSES[size], classes]}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        tabindex="-1"
+        data-part="modal-panel"
+      >
+        <header class={["flex shrink-0 justify-between gap-4 border-b border-border", density === "compact" ? "items-start p-5" : "items-center px-5 py-4"]}>
+          <div class="flex min-w-0 items-center gap-3">
+            {media}
+            <div class="min-w-0">
+              <Text as="h2" variant="heading-dialog">
+                {title}
+              </Text>
+              {description && (
+                <Text as="p" variant={density === "compact" ? "body-2xs" : "body-sm"} tone="muted" classes="mt-1">
+                  {description}
+                </Text>
+              )}
+            </div>
+          </div>
+          <Button hierarchy="tertiary" size="sm" label={closeLabel !== "" ? closeLabel : Publr.t("Close")} onClick={onClose}>
+            <Icon name="x-close" size="sm" />
+          </Button>
+        </header>
+        <div class={["min-h-0 flex-1", flush ? "flex flex-col" : "overflow-y-auto p-5"]}>{children}</div>
+        {footer && (
+          <footer class={["flex shrink-0 items-center gap-2 border-t border-border", footerAlign === "end" ? "justify-end px-5 py-4" : "justify-between p-4"]}>
+            {footer}
+          </footer>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,23 @@
+// A strip of segments in a top bar, one or more pressed: a device switcher beside its
+// view toggles. `inverse` draws it on a bar filled with a mode colour.
+import type { ToolbarButtonTone } from "./ToolbarButton.ptsx";
+
+export type ToolbarSegmentsProps = {
+  label: string;
+  tone?: ToolbarButtonTone;
+  classes?: string;
+  children?: JSX.Element;
+};
+
+export function ToolbarSegments({ label, tone = "default", classes = "", children }: ToolbarSegmentsProps) {
+  return (
+    <div
+      role="group"
+      aria-label={label}
+      class={["flex items-stretch gap-1 p-1", tone === "inverse" ? "bg-white/14" : "bg-muted/50", classes]}
+      data-part="toolbar-segments"
+    >
+      {children}
+    </div>
+  );
+}

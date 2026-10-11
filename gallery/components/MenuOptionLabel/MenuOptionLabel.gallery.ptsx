@@ -1,0 +1,35 @@
+import { MenuOption } from "../../../src/components/MenuOption/MenuOption.ptsx";
+import { MenuOptionLabel } from "../../../src/components/MenuOptionLabel/MenuOptionLabel.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "menu-option-label",
+  label: "MenuOptionLabel",
+  source: "src/components/MenuOptionLabel/MenuOptionLabel.ptsx",
+  kind: "primitive",
+  group: "Editor",
+  description: "The title over a run of entries in a floating pick list.",
+  tags: ["menu", "picker", "label", "editor"],
+  usage: `<MenuOptionLabel>Blocks</MenuOptionLabel>`,
+  preview: "demo",
+  previewLabel: "MenuOptionLabel as the editor uses it",
+  docs: {
+    purpose: ["Names a run of MenuOption entries."],
+    useWhen: ["A pick list holds more than one kind of entry."],
+    avoidWhen: ["Section titles in panels; use Text with an eyebrow variant."],
+    rules: [{ title: "Default look only", description: "Pass data through props; never restyle it from the app." }],
+    accessibility: ["Plain text; the entries carry their own names."],
+    composition: ["Placed above the MenuOption entries it names."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [{ name: "children", type: "JSX.Element", description: "The title.", required: true }],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="w-56 rounded-lg border border-border bg-popover p-1.5 shadow-lg">
+      <MenuOptionLabel>Blocks</MenuOptionLabel>
+      <MenuOption icon="paragraph" label="Paragraph" value="paragraph" />
+    </div>
+  );
+}

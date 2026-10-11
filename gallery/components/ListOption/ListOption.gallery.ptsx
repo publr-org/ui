@@ -1,0 +1,41 @@
+import { ListOption } from "../../../src/components/ListOption/ListOption.ptsx";
+import { Text } from "../../../src/components/Text/Text.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "list-option",
+  label: "ListOption",
+  source: "src/components/ListOption/ListOption.ptsx",
+  kind: "primitive",
+  group: "Forms",
+  description: "One pickable entry of a scrolling list: a full-width row that shows it is the one picked.",
+  tags: ["list-option", "design system builder"],
+  usage: `<ListOption pressed label="Preview Inter"><Text variant="label-md">Inter</Text></ListOption>`,
+  preview: "demo",
+  previewLabel: "ListOption",
+  docs: {
+    purpose: ["One pickable entry of a scrolling list: a full-width row that shows it is the one picked."],
+    useWhen: ["One pickable entry of a scrolling list: a full-width row that shows it is the one picked."],
+    avoidWhen: ["A link to another page; use a link or NavButton."],
+    rules: [{ title: "Default look", description: "Use it as it is; classes are for layout only." }],
+    accessibility: ["Give it a label where its content does not name it."],
+    composition: ["Built from Text and plain elements only."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [{ name: "pressed", type: "boolean", description: "The picked entry." }, { name: "label", type: "string", description: "Accessible name when the content does not say it." }],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="grid w-full max-w-sm gap-0.5">
+      <ListOption pressed label="Preview Inter">
+        <Text variant="label-md">Inter</Text>
+        <Text variant="body-xl">Sphinx of black quartz, judge my vow.</Text>
+      </ListOption>
+      <ListOption label="Preview Roboto">
+        <Text variant="label-md">Roboto</Text>
+        <Text variant="body-xl">Sphinx of black quartz, judge my vow.</Text>
+      </ListOption>
+    </div>
+  );
+}

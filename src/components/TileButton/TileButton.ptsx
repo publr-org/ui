@@ -1,0 +1,48 @@
+// A square tile that opens something, its caption beneath, and a quiet corner action that
+// shows on hover (remove). Children are the tile's art.
+import { Text } from "../Text/Text.ptsx";
+
+export type TileButtonProps = {
+  caption: string;
+  /** The accessible name of the tile. */
+  label: string;
+  title?: string;
+  actionLabel?: string;
+  actionTitle?: string;
+  children?: JSX.Element;
+  classes?: string;
+  onClick?: (event: MouseEvent) => void;
+  onAction?: (event: MouseEvent) => void;
+};
+
+export function TileButton({ caption, label, title, actionLabel, actionTitle, children, classes = "", onClick, onAction }: TileButtonProps) {
+  return (
+    <div class={["group relative min-w-0", classes]} data-part="tile-button">
+      <button
+        type="button"
+        aria-label={label}
+        title={title}
+        class="flex aspect-square w-full cursor-pointer items-center justify-center rounded-xl border border-border bg-card text-foreground hover:border-input hover:bg-muted/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        onClick={onClick}
+      >
+        {children}
+      </button>
+      <Text as="p" variant="label-md" classes="mt-2 block truncate">
+        {caption}
+      </Text>
+      {actionLabel && (
+        <button
+          type="button"
+          aria-label={actionLabel}
+          title={actionTitle}
+          class="absolute top-1.5 right-1.5 inline-flex size-6 cursor-pointer items-center justify-center rounded-md border border-border bg-card text-muted-foreground opacity-0 shadow-xs group-hover:opacity-100 hover:text-destructive focus-visible:opacity-100"
+          onClick={onAction}
+        >
+          <Text as="span" variant="label-md">
+            ×
+          </Text>
+        </button>
+      )}
+    </div>
+  );
+}

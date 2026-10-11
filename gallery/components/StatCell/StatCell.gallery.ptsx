@@ -1,0 +1,36 @@
+import { StatCell } from "../../../src/components/StatCell/StatCell.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "stat-cell",
+  label: "StatCell",
+  source: "src/components/StatCell/StatCell.ptsx",
+  kind: "composite",
+  group: "Essentials",
+  description: "One figure in a summary strip: what it counts, the figure, a quiet note.",
+  tags: ["design system builder"],
+  usage: `<StatCell label="Color roles" value="9 semantic roles" note="Mapped from the brand palette" />`,
+  preview: "demo",
+  previewLabel: "StatCell in the design system builder",
+  docs: {
+    purpose: ["One figure in a summary strip: what it counts, the figure, a quiet note."],
+    useWhen: ["The Site theme builder's semantic colors and similar palette editors."],
+    avoidWhen: ["Ordinary forms; use the form primitives."],
+    rules: [{ title: "Default look only", description: "Pass data through props; never restyle it from the app." }],
+    accessibility: ["Interactive variants are native buttons with an accessible name."],
+    composition: ["Text runs are Text; colors come in as props."],
+    agentNotes: ["Do not restyle from the app; change this component."],
+    props: [
+      { name: "label", type: "string", description: "What it counts.", required: true },
+      { name: "value", type: "string", description: "The figure.", required: true },
+      { name: "note", type: "string", description: "A quiet note.", default: "\"\"" },
+      { name: "ruled", type: "boolean", description: "A rule at its start.", default: "false" },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="grid w-[640px] grid-cols-3 border-y border-black/10"><StatCell label="Color roles" value="9 semantic roles" note="Mapped from the brand palette" /><StatCell ruled label="Contexts" value="3 color contexts" note="Default, Terracotta, Slate blue" /></div>
+  );
+}

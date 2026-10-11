@@ -1,0 +1,27 @@
+// A color picked from a swatch: the swatch shows the value, and clicking it opens the
+// browser's color picker over it. With no value the swatch shows a slash, never black, and
+// the picker opens at black.
+export type ColorSwatchInputProps = {
+  value: string;
+  label: string;
+  /** `md` 40px square, `round` a 40px dot. */
+  shape?: "square" | "round";
+  classes?: string;
+  onInput?: (event: Event) => void;
+};
+
+export function ColorSwatchInput({ value, label, shape = "square", classes = "", onInput }: ColorSwatchInputProps) {
+  return (
+    <label class={["relative block h-10 w-10 shrink-0 cursor-pointer", classes]} data-part="color-swatch-input">
+      <span
+        class={[
+          "pointer-events-none absolute inset-0 overflow-hidden border border-black/10 shadow-sm",
+          shape === "round" ? "rounded-full" : "rounded-lg",
+          value === "" ? "bg-card after:absolute after:left-1/2 after:top-[-20%] after:h-[140%] after:w-px after:rotate-45 after:bg-destructive/70 after:content-['']" : "",
+        ]}
+        style={{ backgroundColor: value }}
+      ></span>
+      <input type="color" class="absolute inset-0 h-full w-full cursor-pointer opacity-0" value={value === "" ? "#000000" : value} aria-label={label} onInput={onInput} />
+    </label>
+  );
+}

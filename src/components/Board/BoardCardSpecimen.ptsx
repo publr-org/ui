@@ -1,0 +1,42 @@
+// A typeface shown in itself: an eyebrow naming the face, the family's name large, a
+// pangram, and the file it came from. `face` is the CSS font-family the face is loaded
+// under; the parent loads it.
+import { Publr } from "publr-jsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type BoardCardSpecimenProps = {
+  eyebrow: string;
+  family: string;
+  face: string;
+  file?: string;
+  sample?: string;
+  classes?: string;
+};
+
+export function BoardCardSpecimen({
+  eyebrow,
+  family,
+  face,
+  file,
+  sample = "",
+  classes = "",
+}: BoardCardSpecimenProps) {
+  return (
+    <div class={classes} data-part="board-card-specimen">
+      <Text variant="eyebrow-2xs" tone="muted" classes="block">
+        {eyebrow}
+      </Text>
+      <Text as="p" variant="display" classes="mt-2 block truncate" style={`font-family: ${face}`}>
+        {family}
+      </Text>
+      <Text as="p" variant="body-lead" classes="mt-2 block" style={`font-family: ${face}`}>
+        {sample !== "" ? sample : Publr.t("The quick brown fox jumps over the lazy dog. 0123456789")}
+      </Text>
+      {file && (
+        <Text variant="body-sm" tone="muted" classes="mt-2 block truncate">
+          {file}
+        </Text>
+      )}
+    </div>
+  );
+}

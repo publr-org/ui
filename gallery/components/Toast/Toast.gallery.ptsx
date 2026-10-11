@@ -1,0 +1,29 @@
+import { Toast } from "../../../src/components/Toast/Toast.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "toast",
+  label: "Toast",
+  source: "src/components/Toast/Toast.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description: "A short confirmation floating over the work, gone on its own.",
+  tags: ["toast", "confirmation", "status"],
+  usage: `<Toast>Heading default saved</Toast>`,
+  preview: "demo",
+  previewLabel: "A saved confirmation",
+  docs: {
+    purpose: ["Confirms an action that changed nothing on screen in a way you would notice."],
+    useWhen: ["A save happened in place and deserves a word."],
+    avoidWhen: ["An error to act on; use Notice or Callout where it stays."],
+    rules: [{ title: "The caller places it", description: "Position and timing are the caller's; the look is the toast's." }],
+    accessibility: ["role=status, polite: read once when it appears."],
+    composition: ["Built from Text."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [{ name: "children", type: `JSX.Element`, description: "The words." }],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return <Toast>Heading default saved</Toast>;
+}

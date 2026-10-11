@@ -1,0 +1,35 @@
+// One tool in a BoardToolbar: a quiet button with an optional mark before its label. It
+// owns its label's type, like Button.
+export type BoardToolProps = {
+  /** The accessible name; the visible text is `children`. */
+  label: string;
+  title?: string;
+  disabled?: boolean;
+  /** A mark (an Icon, a brand mark) before the text. */
+  icon?: JSX.Element;
+  children?: JSX.Element;
+  id?: string;
+  classes?: string;
+  onClick?: (event: MouseEvent) => void;
+};
+
+export function BoardTool({ label, title, disabled = false, icon, children, id, classes = "", onClick }: BoardToolProps) {
+  return (
+    <button
+      id={id}
+      type="button"
+      class={[
+        "inline-flex h-8 cursor-pointer appearance-none items-center gap-1.5 whitespace-nowrap rounded-md border border-transparent bg-transparent px-2.5 leading-none text-foreground transition duration-150 hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50",
+        classes,
+      ]}
+      title={title}
+      aria-label={label}
+      disabled={disabled}
+      data-part="board-tool"
+      onClick={onClick}
+    >
+      {icon}
+      <span class="text-xs leading-4 font-medium">{children}</span>
+    </button>
+  );
+}

@@ -1,0 +1,33 @@
+import { PreviewFrame } from "../../../src/components/PreviewFrame/PreviewFrame.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "preview-frame",
+  label: "PreviewFrame",
+  source: "src/components/PreviewFrame/PreviewFrame.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description: "The raised frame a live preview sits in: rounded, hairline-bordered, a long soft shadow, clipping its child.",
+  tags: ["design system builder"],
+  usage: `<PreviewFrame><iframe /></PreviewFrame>`,
+  preview: "demo",
+  previewLabel: "PreviewFrame in the design system builder",
+  docs: {
+    purpose: ["The raised frame a live preview sits in: rounded, hairline-bordered, a long soft shadow, clipping its child."],
+    useWhen: ["The Site theme builder's semantic colors and similar palette editors."],
+    avoidWhen: ["Ordinary forms; use the form primitives."],
+    rules: [{ title: "Default look only", description: "Pass data through props; never restyle it from the app." }],
+    accessibility: ["Interactive variants are native buttons with an accessible name."],
+    composition: ["Text runs are Text; colors come in as props."],
+    agentNotes: ["Do not restyle from the app; change this component."],
+    props: [
+      { name: "children", type: "JSX.Element", description: "The preview." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="w-96"><PreviewFrame><div class="h-32 bg-[#f4f3ec]"></div></PreviewFrame></div>
+  );
+}

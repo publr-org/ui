@@ -1,0 +1,33 @@
+// A small live screen: what a browser tab shows right now, its site named beneath. One or
+// two float over a preview while an agent works in those tabs; a click brings the tab forward.
+import { Text } from "../Text/Text.ptsx";
+
+export type ScreenTileProps = {
+  /** The latest frame, as an image address; empty until the first one comes. */
+  src: string;
+  /** The site the tab is on. */
+  label: string;
+  value?: string;
+  classes?: string;
+  onClick?: (event: MouseEvent) => void;
+};
+
+export function ScreenTile({ src, label, value, classes = "", onClick }: ScreenTileProps) {
+  return (
+    <button
+      type="button"
+      data-part="screen-tile"
+      value={value}
+      aria-label={`Show ${label}`}
+      class={["w-56 cursor-pointer overflow-hidden rounded-lg border border-border bg-card text-left shadow-lg hover:border-primary", classes]}
+      onClick={onClick}
+    >
+      <span class="block aspect-video bg-muted">
+        {src !== "" && <img src={src} alt="" class="size-full object-cover object-top" />}
+      </span>
+      <Text as="span" variant="label-2xs-strong" classes="block truncate border-t border-border px-2 py-1">
+        {label}
+      </Text>
+    </button>
+  );
+}

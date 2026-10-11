@@ -1,0 +1,59 @@
+// A color control's face: the current color as a round swatch (checked when empty),
+// the control's name and the color's name, and a disclosure mark. Opens a picker the
+// parent owns; `open` marks it expanded.
+import { Text } from "../Text/Text.ptsx";
+
+export type ColorValueProps = {
+  id?: string;
+  classes?: string;
+  label: string;
+  value: string;
+  color: string;
+  empty: boolean;
+  open: boolean;
+  /** Where an inherited color comes from ("From Base"). */
+  note?: string;
+  disabled?: boolean;
+  onClick?: (event: MouseEvent) => void;
+};
+
+
+export function ColorValue({ id, classes = "", label, value, color, empty, open, note = "", disabled = false, onClick }: ColorValueProps) {
+  return (
+    <button
+      id={id}
+      type="button"
+      class={["flex min-h-12 w-full cursor-pointer items-center gap-2.5 rounded-md border border-input bg-card px-2.5 py-[7px] text-foreground hover:border-primary hover:shadow-[0_0_0_2px_color-mix(in_oklch,var(--primary)_18%,transparent)] aria-expanded:border-primary aria-expanded:shadow-[0_0_0_2px_color-mix(in_oklch,var(--primary)_18%,transparent)]", classes]}
+      aria-expanded={open}
+      disabled={disabled}
+      data-part="color-value"
+     
+      onClick={onClick}
+    >
+      <span
+        class={[
+          "size-7 flex-none rounded-full border border-black/15",
+          empty ? "bg-card" : "",
+        ]}
+        style={empty ? "" : `background-color:${color}`}
+        aria-hidden="true"
+      ></span>
+      <span class="min-w-0 flex-1 text-left">
+        <Text as="strong" variant="label-md-strong" classes="block font-bold">
+          {label}
+        </Text>
+        <Text variant="label-xs" tone="muted" classes="block truncate font-normal">
+          {value}
+        </Text>
+      </span>
+      {note && (
+        <Text variant="label-3xs" tone="muted" classes="flex-none rounded-full bg-muted px-1.5 py-[3px] font-semibold">
+          {note}
+        </Text>
+      )}
+      <Text variant="label-md">
+        ⌄
+      </Text>
+    </button>
+  );
+}

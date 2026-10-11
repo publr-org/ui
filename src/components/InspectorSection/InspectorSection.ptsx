@@ -1,0 +1,108 @@
+// One section of a block inspector: a bordered band with a title, an optional
+// collapse chevron and an actions menu whose one item is Reset. Three header shapes,
+// as the editor draws them: `section` (a collapsible settings group: menu, then the
+// chevron at the edge), `panel` (a style panel: always open, menu at the edge) and
+// `accordion` (title then chevron, the menu on the far edge). The parent owns `open`.
+import { Publr } from "publr-jsx";
+import { DropdownMenu } from "../Dropdown/Dropdown.ptsx";
+import { DropdownMenuContent } from "../Dropdown/DropdownMenuContent.ptsx";
+import { DropdownMenuItem } from "../Dropdown/DropdownMenuItem.ptsx";
+import { DropdownMenuTrigger } from "../Dropdown/DropdownMenuTrigger.ptsx";
+import { Icon } from "../Icon/Icon.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export const INSPECTOR_SECTION_LAYOUTS = ["section", "panel", "accordion"] as const;
+export type InspectorSectionLayout = (typeof INSPECTOR_SECTION_LAYOUTS)[number];
+
+export type InspectorSectionProps = {
+  id?: string;
+  classes?: string;
+  title: string;
+  layout?: InspectorSectionLayout;
+  open?: boolean;
+  /** The section's key, carried as `data-section` on its toggle. */
+  sectionKey?: string;
+  /** The actions menu's accessible name ("Typography actions"); none draws no menu. */
+  actionsLabel?: string;
+  /** A muted line under the header (an accordion's note). */
+  note?: string;
+  children?: JSX.Element;
+  onToggle?: (event: MouseEvent) => void;
+  onReset?: (event: MouseEvent) => void;
+};
+
+
+export function InspectorSection({
+  id,
+  classes = "",
+  title,
+  layout = "panel",
+  open = true,
+  sectionKey = "",
+  actionsLabel = "",
+  note = "",
+  children,
+  onToggle,
+  onReset,
+}: InspectorSectionProps) {
+  return (
+    <section
+      id={id}
+      class={["relative border-t border-border px-4", layout === "panel" ? "pb-6" : open ? (layout === "accordion" ? "pb-6" : "pb-4") : "", classes]}
+      data-part="inspector-section"
+      data-layout={layout}
+    >
+      <header class="relative m-0 flex min-h-14 items-center gap-2 text-foreground">
+        {layout === "panel" ? (
+          <Text as="h3" variant="heading-sm" classes="m-0">
+            {title}
+          </Text>
+        ) : (
+          <button
+            type="button"
+            class={["group flex min-h-14 w-full cursor-pointer items-center gap-2 text-left", layout === "section" ? "pr-[68px]" : "pr-[72px]"]}
+            aria-expanded={open}
+            data-section={sectionKey}
+           
+            onClick={onToggle}
+          >
+            <Text as="span" variant="heading-sm" classes="m-0">
+              {title}
+            </Text>
+            <span class={["flex size-[18px] flex-none transition-transform duration-[120ms] group-aria-expanded:rotate-180", layout === "section" ? "absolute right-0" : "ml-auto"]}>
+              <Icon name="chevron-down" size="sm" classes="size-[18px]" />
+            </span>
+          </button>
+        )}
+        {actionsLabel !== "" && (
+          <div class={layout === "panel" ? "ml-auto flex-none" : layout === "section" ? "absolute right-7 flex-none" : "absolute top-3.5 right-0 z-[1] flex-none"}>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  class="flex size-7 cursor-pointer items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground"
+                  aria-label={actionsLabel}
+                  title={actionsLabel}
+                 
+                >
+                  <Icon name="more" size="md" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="right" size="sm">
+                <DropdownMenuItem size="sm" onClick={onReset}>
+                  {Publr.t("Reset")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
+      </header>
+      {open && note !== "" && (
+        <Text as="p" variant="label-xs" tone="muted" classes="mt-0 mb-4 block font-normal">
+          {note}
+        </Text>
+      )}
+      {open && children}
+    </section>
+  );
+}

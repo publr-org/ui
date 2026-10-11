@@ -1,0 +1,21 @@
+
+export type ColorSwatchProps = { id?: string; label: string; color: string; pressed: boolean; disabled?: boolean; /** `square`: the box pane's small rounded chips. */ shape?: "round" | "square"; onClick?: (event: MouseEvent) => void };
+
+/** One color to pick: a round chip, ringed when chosen. */
+export function ColorSwatch({ id, label, color, pressed, disabled = false, shape = "round", onClick }: ColorSwatchProps) {
+  return (
+    <button
+      id={id}
+      type="button"
+      class={[shape === "square" ? "size-6 rounded-[5px]" : "size-[26px] rounded-full", "cursor-pointer border-2 border-transparent shadow-[inset_0_0_0_1px_rgb(0_0_0/0.16)] hover:scale-[1.08] aria-[pressed=true]:border-popover aria-[pressed=true]:outline-2 aria-[pressed=true]:outline-offset-1 aria-[pressed=true]:outline-primary"]}
+      style={`background-color:${color}`}
+      aria-pressed={pressed}
+      aria-label={label}
+      title={label}
+      disabled={disabled}
+      data-part="color-swatch"
+     
+      onClick={onClick}
+    ></button>
+  );
+}

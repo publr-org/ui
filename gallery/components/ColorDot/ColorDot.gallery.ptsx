@@ -1,0 +1,34 @@
+import { ColorDot } from "../../../src/components/ColorDot/ColorDot.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "color-dot",
+  label: "ColorDot",
+  source: "src/components/ColorDot/ColorDot.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description: "A color shown as a round mark at the start of a row.",
+  tags: ["design system builder"],
+  usage: `<ColorDot color="#203439" />`,
+  preview: "demo",
+  previewLabel: "ColorDot in the design system builder",
+  docs: {
+    purpose: ["A color shown as a round mark at the start of a row."],
+    useWhen: ["The Site theme builder's semantic colors and similar palette editors."],
+    avoidWhen: ["Ordinary forms; use the form primitives."],
+    rules: [{ title: "Default look only", description: "Pass data through props; never restyle it from the app." }],
+    accessibility: ["Interactive variants are native buttons with an accessible name."],
+    composition: ["Text runs are Text; colors come in as props."],
+    agentNotes: ["Do not restyle from the app; change this component."],
+    props: [
+      { name: "color", type: "string", description: "The color.", required: true },
+      { name: "size", type: "\"md\" | \"lg\"", description: "32px or 40px.", default: "md" },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="flex gap-2"><ColorDot color="#f4f3ec" /><ColorDot color="#203439" size="lg" /></div>
+  );
+}

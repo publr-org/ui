@@ -1,0 +1,10 @@
+export type BlockToolbarGroupProps = { id?: string; classes?: string; children?: JSX.Element };
+
+/** One segment of a BlockToolbar. */
+export function BlockToolbarGroup({ id, classes = "", children }: BlockToolbarGroupProps) {
+  return (
+    <div id={id} class={["flex items-stretch gap-0.5 border-r border-border p-1 last:border-r-0", classes]} data-part="block-toolbar-group">
+      {children}
+    </div>
+  );
+}

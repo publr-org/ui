@@ -1,0 +1,32 @@
+// What a place that takes dropped files shows over itself while files are held over it:
+// a dashed primary frame and a tint over the whole place, and in the middle what letting
+// go does. Render it inside the place (which is `relative`) while files hover; it lets
+// every pointer event through, so the place keeps hearing the drag.
+import { Icon } from "../Icon/Icon.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type DropOverlayProps = {
+  /** What letting go does: "Drop to upload". */
+  label: string;
+  /** Reach a little past the place, for a place without padding of its own. */
+  bleed?: boolean;
+  classes?: string;
+};
+
+export function DropOverlay({ label, bleed = false, classes = "" }: DropOverlayProps) {
+  return (
+    <div
+      class={[
+        "pointer-events-none absolute z-30 flex items-center justify-center border-2 border-dashed border-primary bg-primary/10",
+        bleed ? "-inset-2 rounded-2xl" : "inset-0",
+        classes,
+      ]}
+      data-part="drop-overlay"
+    >
+      <span class="flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 shadow-lg [&>svg]:text-primary">
+        <Icon name="upload" size="sm" />
+        <Text as="span" variant="heading-sm">{label}</Text>
+      </span>
+    </div>
+  );
+}

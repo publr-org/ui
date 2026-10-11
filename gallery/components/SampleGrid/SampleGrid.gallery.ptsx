@@ -1,0 +1,45 @@
+import { SampleGrid } from "../../../src/components/SampleGrid/SampleGrid.ptsx";
+import { SampleCell } from "../../../src/components/SampleGrid/SampleCell.ptsx";
+import { ValueSample } from "../../../src/components/ValueSample/ValueSample.ptsx";
+import { Input } from "../../../src/components/Input/Input.ptsx";
+import type { ComponentDemoMeta, DemoNode } from "../../gallery-types";
+
+export const meta = {
+  name: "sample-grid",
+  label: "SampleGrid",
+  source: "src/components/SampleGrid/SampleGrid.ptsx",
+  kind: "composite",
+  group: "Editor",
+  description: "A ruled grid of value cells, each a drawing of the value, its name with a remove action and its editor.",
+  tags: ["sample-grid"],
+  usage: `<SampleGrid><SampleCell name="sm" sample={…}>…</SampleCell></SampleGrid>`,
+  preview: "demo",
+  previewLabel: "A scale as a ruled grid of value cells",
+  docs: {
+    purpose: ["A ruled grid of value cells, each a drawing of the value, its name with a remove action and its editor."],
+    useWhen: ["A scale as a ruled grid of value cells."],
+    avoidWhen: ["A look this component does not offer: add it here, never restyle it at the call site."],
+    rules: [{ title: "Default look only", description: "Pass data and callbacks; the classes prop is for layout only." }],
+    accessibility: ["Interactive parts are native buttons and inputs with accessible names."],
+    composition: ["Built from Text and the other primitives."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [],
+  },
+} satisfies ComponentDemoMeta;
+
+export const node = { component: "SampleGrid", props: {}, wrapper: "w-full max-w-xl" } satisfies DemoNode;
+
+export function Demo() {
+  return (
+    <div class="w-full max-w-xl">
+      <SampleGrid>
+        <SampleCell name="sm" removeLabel="Remove radius-sm" onRemove={() => undefined} sample={<ValueSample kind="radius" value="4px" />}>
+          <Input size="micro" mono value="4px" label="sm" />
+        </SampleCell>
+        <SampleCell name="md" sample={<ValueSample kind="radius" value="8px" />}>
+          <Input size="micro" mono value="8px" label="md" />
+        </SampleCell>
+      </SampleGrid>
+    </div>
+  );
+}

@@ -1,0 +1,16 @@
+// The raised frame a live preview sits in: rounded, hairline-bordered, with a long soft
+// shadow, clipping what it holds. The preview itself (a frame drawn by the site's own
+// styles) is its child.
+
+export type PreviewFrameProps = {
+  children?: JSX.Element;
+  classes?: string;
+};
+
+export function PreviewFrame({ children, classes = "" }: PreviewFrameProps) {
+  return (
+    <section class={["overflow-hidden rounded-2xl border border-black/10 shadow-[0_18px_50px_rgb(0_0_0/0.12)]", classes]} data-part="preview-frame">
+      {children}
+    </section>
+  );
+}

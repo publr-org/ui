@@ -1,0 +1,43 @@
+// A button in an inspector panel: `outline`, the full-width square-cornered action of a
+// section (Set featured image); `accent`, the outlined accent action beside a section's
+// title (Edit); `overlay`, an action laid over a preview image (Replace, Remove).
+export const PANEL_BUTTON_VARIANTS = ["outline", "accent", "overlay"] as const;
+export type PanelButtonVariant = (typeof PANEL_BUTTON_VARIANTS)[number];
+
+export type PanelButtonProps = {
+  id?: string;
+  label?: string;
+  title?: string;
+  variant?: PanelButtonVariant;
+  disabled?: boolean;
+  classes?: string;
+  children?: JSX.Element;
+  onClick?: (event: MouseEvent) => void;
+};
+
+const LOOKS: Record<PanelButtonVariant, string> = {
+  outline:
+    "flex min-h-10 w-full items-center justify-center border border-input bg-card px-3 py-2.5 text-body-sm font-semibold text-foreground hover:border-muted-foreground/50",
+  accent: "inline-flex shrink-0 items-center border border-primary bg-transparent px-3 py-2 text-body-sm font-medium text-primary hover:bg-muted",
+  overlay: "flex min-h-10 w-full items-center justify-center bg-background/95 px-3 py-2 text-body-sm font-semibold text-foreground shadow-sm hover:bg-background",
+};
+
+export function PanelButton({ id, label, title, variant = "outline", disabled, classes = "", children, onClick }: PanelButtonProps) {
+  return (
+    <button
+      id={id}
+      type="button"
+      class={[
+        "cursor-pointer rounded-xs outline-ring transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-default disabled:opacity-60",
+        LOOKS[variant],
+        classes,
+      ]}
+      title={title}
+      aria-label={label}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}

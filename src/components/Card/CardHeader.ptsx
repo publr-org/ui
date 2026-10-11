@@ -1,0 +1,19 @@
+// The card's top row, ruled off from its body: tabs or a title with actions.
+
+export type CardHeaderProps = {
+  children?: JSX.Element;
+  classes?: string;
+  id?: string;
+};
+
+export function CardHeader({ children, classes = "", id }: CardHeaderProps) {
+  return (
+    <div
+      id={id}
+      class={["flex items-center gap-1 border-b border-border px-4", classes]}
+      data-part="card-header"
+    >
+      {children}
+    </div>
+  );
+}

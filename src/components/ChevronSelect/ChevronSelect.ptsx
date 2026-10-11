@@ -1,0 +1,25 @@
+// A native select drawn with its disclosure chevron, as an inspector's choices are.
+import { Icon } from "../Icon/Icon.ptsx";
+import { NativeSelect } from "../NativeSelect/NativeSelect.ptsx";
+
+export type ChevronSelectProps = {
+  id?: string;
+  classes?: string;
+  label?: string;
+  disabled?: boolean;
+  children?: JSX.Element;
+  onChange?: (event: Event) => void;
+};
+
+export function ChevronSelect({ id, classes = "", label, disabled = false, children, onChange }: ChevronSelectProps) {
+  return (
+    <span class={["relative flex h-10 w-full min-w-0", classes]} data-part="chevron-select">
+      <NativeSelect id={id} size="sm" label={label} disabled={disabled} classes="h-full pr-9" onChange={onChange}>
+        {children}
+      </NativeSelect>
+      <span class="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-foreground" aria-hidden="true">
+        <Icon name="chevron-down" size="sm" />
+      </span>
+    </span>
+  );
+}

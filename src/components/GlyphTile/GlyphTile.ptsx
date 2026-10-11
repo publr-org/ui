@@ -1,0 +1,47 @@
+// A small square tile holding a glyph: a few characters set in one face ("Ag", "{ }")
+// or an Icon passed as children. Leading marks of navigation rows and list entries.
+
+export const GLYPH_TILE_FACES = ["sans", "serif", "mono"] as const;
+export const GLYPH_TILE_SIZES = ["sm", "md"] as const;
+export type GlyphTileFace = (typeof GLYPH_TILE_FACES)[number];
+export type GlyphTileSize = (typeof GLYPH_TILE_SIZES)[number];
+
+export type GlyphTileProps = {
+  /** Characters to show; children (an Icon) are shown when absent. */
+  glyph?: string;
+  face?: GlyphTileFace;
+  /** `sm` 20px (navigation rows), `md` 32px (list entries). */
+  size?: GlyphTileSize;
+  /** A border around the tile. */
+  framed?: boolean;
+  children?: JSX.Element;
+  classes?: string;
+};
+
+const FACE_CLASSES: Record<GlyphTileFace, string> = {
+  sans: "font-sans font-semibold",
+  serif: "font-serif",
+  mono: "font-mono",
+};
+
+const SIZE_CLASSES: Record<GlyphTileSize, string> = {
+  sm: "size-5 rounded-md text-[9px]",
+  md: "size-8 rounded-lg text-[10px]",
+};
+
+export function GlyphTile({ glyph, face = "sans", size = "sm", framed = false, children, classes = "" }: GlyphTileProps) {
+  return (
+    <span
+      aria-hidden="true"
+      class={[
+        "flex shrink-0 items-center justify-center leading-none text-foreground",
+        SIZE_CLASSES[size],
+        FACE_CLASSES[face],
+        framed ? "border border-border" : "",
+        classes,
+      ]}
+    >
+      {glyph ? glyph : children}
+    </span>
+  );
+}

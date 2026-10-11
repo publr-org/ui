@@ -1,0 +1,53 @@
+// A row of equal options inside one outlined group, divided by hairlines; the chosen
+// option fills with the ring color. Options are an icon or a short label.
+import { Icon } from "../Icon/Icon.ptsx";
+import type { IconName } from "../Icon/Icon.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type SegmentedOption = { key: string; label: string; icon?: IconName; pressed: boolean };
+
+export type SegmentedControlProps = {
+  id?: string;
+  classes?: string;
+  label: string;
+  options: SegmentedOption[];
+  disabled?: boolean;
+  /** `ring`: the chosen option fills with the ring color; `contrast`: with the foreground. */
+  tone?: "ring" | "contrast";
+  /** `xs`: a picker's tier tabs (24px, 8px labels). */
+  size?: "md" | "xs";
+  /** Each option carries its key as `data-option`; the handler reads it off the event. */
+  onSelect?: (event: MouseEvent) => void;
+};
+
+const TONES = {
+  ring: "border-input text-muted-foreground [&:not([aria-pressed=true]):hover]:bg-muted [&:not([aria-pressed=true]):hover]:text-foreground aria-[pressed=true]:relative aria-[pressed=true]:z-[1] aria-[pressed=true]:bg-primary aria-[pressed=true]:text-primary-foreground aria-[pressed=true]:shadow-[inset_0_0_0_1px_color-mix(in_oklch,var(--primary)_74%,black)]",
+  contrast: "border-input bg-card text-foreground [&:not([aria-pressed=true]):hover]:bg-muted aria-[pressed=true]:bg-foreground aria-[pressed=true]:text-background",
+} as const;
+
+
+export function SegmentedControl({ id, classes = "", label, options, disabled = false, tone = "ring", size = "md", onSelect }: SegmentedControlProps) {
+  return (
+    <div id={id} class={["flex overflow-hidden border border-input bg-card", size === "xs" ? "rounded" : "rounded-lg", classes]} role="group" aria-label={label} data-part="segmented-control">
+      {options.map((option) => (
+        <button
+          type="button"
+          class={["flex flex-1 cursor-pointer items-center justify-center border-r px-1 last:border-r-0 disabled:cursor-default disabled:opacity-40", size === "xs" ? "h-6" : "h-10", TONES[tone]]}
+          aria-pressed={option.pressed}
+          aria-label={option.label}
+          title={option.label}
+          disabled={disabled}
+          data-option={option.key}
+         
+          onClick={onSelect}
+        >
+          {option.icon ? (
+            <Icon name={option.icon} size="md" />
+          ) : (
+            <Text variant={size === "xs" ? "label-3xs" : tone === "contrast" ? "label-sm" : "label-md-strong"}>{option.label}</Text>
+          )}
+        </button>
+      ))}
+    </div>
+  );
+}

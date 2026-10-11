@@ -1,0 +1,21 @@
+// A ruled grid of value cells: four across (three on narrower screens), every cell
+// divided from its neighbours by a hairline.
+
+export type SampleGridProps = {
+  children?: JSX.Element;
+  classes?: string;
+};
+
+export function SampleGrid({ children, classes = "" }: SampleGridProps) {
+  return (
+    <div
+      class={[
+        "grid grid-cols-4 overflow-hidden border border-border max-lg:grid-cols-3 [&>*]:border-r [&>*]:border-b [&>*]:border-border [&>*:nth-child(4n)]:border-r-0 max-lg:[&>*:nth-child(4n)]:border-r max-lg:[&>*:nth-child(3n)]:border-r-0",
+        classes,
+      ]}
+      data-part="sample-grid"
+    >
+      {children}
+    </div>
+  );
+}
