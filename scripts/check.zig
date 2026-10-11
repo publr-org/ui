@@ -9,7 +9,11 @@ const components_dir = "src/components";
 const file_bytes_max = 4 << 20;
 const components_min = 100;
 
-const Entry = struct { path: []const u8, source: []const u8, module: *const pjsx.compiler.ModuleIR };
+const Entry = struct {
+    path: []const u8,
+    source: []const u8,
+    module: *const pjsx.compiler.ModuleIR,
+};
 
 const Corpus = struct {
     entries: []const Entry,
@@ -19,7 +23,9 @@ const Corpus = struct {
 };
 
 fn read_corpus(arena: std.mem.Allocator, io: std.Io, dir_path: []const u8) !Corpus {
-    var dir = try std.Io.Dir.cwd().openDir(io, dir_path, .{ .iterate = true });
+    var dir = try std.Io.Dir.cwd().openDir(io, dir_path, .{
+        .iterate = true,
+    });
     defer dir.close(io);
 
     var entries: std.ArrayList(Entry) = .empty;
@@ -35,7 +41,9 @@ fn read_corpus(arena: std.mem.Allocator, io: std.Io, dir_path: []const u8) !Corp
 
         const source = try dir.readFileAlloc(io, entry.path, arena, .limited(file_bytes_max));
         const label = try std.fs.path.join(arena, &.{ dir_path, entry.path });
-        var resolver = pjsx.FileResolver{ .io = io };
+        var resolver = pjsx.FileResolver{
+            .io = io,
+        };
         const module = pjsx.compiler.createPjsxModuleWithResolver(arena, source, label, resolver.resolver()) catch {
             std.debug.print("{s}/{s}: {s}\n", .{ dir_path, entry.path, pjsx.lastError() });
             failures += 1;
@@ -43,20 +51,34 @@ fn read_corpus(arena: std.mem.Allocator, io: std.Io, dir_path: []const u8) !Corp
             continue;
         };
         try modules.append(arena, module);
-        try entries.append(arena, .{ .path = try arena.dupe(u8, entry.path), .source = source, .module = module });
+        try entries.append(arena, .{
+            .path = try arena.dupe(u8, entry.path),
+            .source = source,
+            .module = module,
+        });
     }
 
     std.debug.assert(modules.items.len + failures > 0);
 
-    return .{ .entries = entries.items, .modules = modules.items, .failures = failures };
+    return .{
+        .entries = entries.items,
+        .modules = modules.items,
+        .failures = failures,
+    };
 }
 
 fn lower_dom(arena: std.mem.Allocator, corpus: Corpus, label: []const u8) u32 {
     var failures: u32 = 0;
 
-    var resolver = pjsx.FileResolver{ .io = std.testing.io };
+    var resolver = pjsx.FileResolver{
+        .io = std.testing.io,
+    };
     for (corpus.entries) |entry| {
-        _ = pjsx.dom.transformPjsxToDom(arena, entry.source, .{ .filename = entry.module.filename, .runtime_import = "publr-jsx", .resolver = resolver.resolver() }) catch {
+        _ = pjsx.dom.transformPjsxToDom(arena, entry.source, .{
+            .filename = entry.module.filename,
+            .runtime_import = "publr-jsx",
+            .resolver = resolver.resolver(),
+        }) catch {
             std.debug.print("{s}: {s} does not lower to DOM: {s}\n", .{ label, entry.path, pjsx.lastError() });
             failures += 1;
         };
@@ -76,7 +98,13 @@ test "every component parses and lowers to DOM and, as one program, to Zig" {
     try std.testing.expectEqual(@as(u32, 0), corpus.failures);
     try std.testing.expectEqual(@as(u32, 0), lower_dom(arena, corpus, "components"));
 
-    const program = try pjsx.targets.zig.Program.init(arena, corpus.modules);
+    var program = try pjsx.targets.zig.Program.init(arena, corpus.modules);
+    // As publr's admin compiles them: the server's engine gives live expressions their
+    // first values, and runs what the render cannot lower.
+    program.request = pjsx.targets.zig.requestFields(struct {
+        path: []const u8,
+    });
+    program.expressions_field = "publr_expressions";
     var failures: u32 = 0;
 
     for (corpus.modules) |module| {
@@ -99,21 +127,29 @@ test "every recipe and the gallery app lower to DOM" {
     const arena = arena_state.allocator();
     const io = std.testing.io;
 
-    var dir = try std.Io.Dir.cwd().openDir(io, "gallery", .{ .iterate = true });
+    var dir = try std.Io.Dir.cwd().openDir(io, "gallery", .{
+        .iterate = true,
+    });
     defer dir.close(io);
     var walker = try dir.walk(arena);
     defer walker.deinit();
 
     var checked: u32 = 0;
     var failures: u32 = 0;
-    var resolver = pjsx.FileResolver{ .io = io };
+    var resolver = pjsx.FileResolver{
+        .io = io,
+    };
     while (try walker.next(io)) |entry| {
         const name = entry.basename;
         const source_file = std.mem.endsWith(u8, name, ".ptsx") or (std.mem.endsWith(u8, name, ".ts") and !std.mem.endsWith(u8, name, ".d.ts"));
         if (entry.kind != .file or !source_file) continue;
         const path = try std.fs.path.join(arena, &.{ "gallery", entry.path });
         const source = try dir.readFileAlloc(io, entry.path, arena, .limited(file_bytes_max));
-        _ = pjsx.dom.transformPjsxToDom(arena, source, .{ .filename = path, .runtime_import = "publr-jsx", .resolver = resolver.resolver() }) catch {
+        _ = pjsx.dom.transformPjsxToDom(arena, source, .{
+            .filename = path,
+            .runtime_import = "publr-jsx",
+            .resolver = resolver.resolver(),
+        }) catch {
             std.debug.print("gallery: {s} does not lower to DOM: {s}\n", .{ path, pjsx.lastError() });
             failures += 1;
         };
@@ -174,7 +210,9 @@ test "tiers: primitives import no composite, and no component reaches a data sou
     const arena = arena_state.allocator();
     const io = std.testing.io;
 
-    var dir = try std.Io.Dir.cwd().openDir(io, components_dir, .{ .iterate = true });
+    var dir = try std.Io.Dir.cwd().openDir(io, components_dir, .{
+        .iterate = true,
+    });
     defer dir.close(io);
     var walker = try dir.walk(arena);
     defer walker.deinit();

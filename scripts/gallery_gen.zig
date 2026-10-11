@@ -15,7 +15,10 @@ const pjsx = @import("pjsx");
 const file_bytes_max = 4 << 20;
 const runtime_import = "publr-jsx";
 
-const Export = struct { name: []const u8, path: []const u8 };
+const Export = struct {
+    name: []const u8,
+    path: []const u8,
+};
 
 const Gen = struct {
     arena: std.mem.Allocator,
@@ -58,7 +61,11 @@ fn run(init: std.process.Init) !u8 {
 
     const cwd = std.Io.Dir.cwd();
     try cwd.createDirPath(io, out_dir_path);
-    var gen: Gen = .{ .arena = arena, .io = io, .out = try cwd.openDir(io, out_dir_path, .{}) };
+    var gen: Gen = .{
+        .arena = arena,
+        .io = io,
+        .out = try cwd.openDir(io, out_dir_path, .{}),
+    };
     defer gen.out.close(io);
 
     try lower_tree(&gen, ui_dir, "src", "ui/src");
@@ -78,8 +85,14 @@ fn run(init: std.process.Init) !u8 {
     try copy_file(&gen, try std.fs.path.join(arena, &.{ ui_dir, "gallery/app/styles/gallery.css" }), "gallery.css");
     try write_recipes(&gen);
     try write_components(&gen);
-    try gen.out.writeFile(io, .{ .sub_path = "index.html", .data = try page_html(&gen, index_body, true) });
-    try gen.out.writeFile(io, .{ .sub_path = "preview.html", .data = try page_html(&gen, preview_body, false) });
+    try gen.out.writeFile(io, .{
+        .sub_path = "index.html",
+        .data = try page_html(&gen, index_body, true),
+    });
+    try gen.out.writeFile(io, .{
+        .sub_path = "preview.html",
+        .data = try page_html(&gen, preview_body, false),
+    });
 
     return 0;
 }
@@ -87,7 +100,9 @@ fn run(init: std.process.Init) !u8 {
 /// Lowers every source file under `<root>/<sub>` into `<out>/<prefix>/...`.
 fn lower_tree(gen: *Gen, root: []const u8, sub: []const u8, prefix: []const u8) !void {
     const base = try std.fs.path.join(gen.arena, &.{ root, sub });
-    var dir = try std.Io.Dir.cwd().openDir(gen.io, base, .{ .iterate = true });
+    var dir = try std.Io.Dir.cwd().openDir(gen.io, base, .{
+        .iterate = true,
+    });
     defer dir.close(gen.io);
     var walker = try dir.walk(gen.arena);
     defer walker.deinit();
@@ -123,7 +138,9 @@ fn lower_tree(gen: *Gen, root: []const u8, sub: []const u8, prefix: []const u8) 
 fn lower_file(gen: *Gen, root: []const u8, sub_path: []const u8, out_path: []const u8) !void {
     const filename = try std.fs.path.join(gen.arena, &.{ root, sub_path });
     const source = try std.Io.Dir.cwd().readFileAlloc(gen.io, filename, gen.arena, .limited(file_bytes_max));
-    var resolver = pjsx.FileResolver{ .io = gen.io };
+    var resolver = pjsx.FileResolver{
+        .io = gen.io,
+    };
     const output = pjsx.dom.transformPjsxToDom(gen.arena, source, .{
         .filename = filename,
         .runtime_import = runtime_import,
@@ -150,7 +167,10 @@ fn collect_exports(gen: *Gen, out_path: []const u8, code: []const u8) !void {
         var end = start;
         while (end < rest.len and (std.ascii.isAlphanumeric(rest[end]) or rest[end] == '_' or rest[end] == '$')) end += 1;
         if (end > start and std.ascii.isUpper(rest[start])) {
-            try gen.exports.append(gen.arena, .{ .name = try gen.arena.dupe(u8, rest[start..end]), .path = out_path });
+            try gen.exports.append(gen.arena, .{
+                .name = try gen.arena.dupe(u8, rest[start..end]),
+                .path = out_path,
+            });
         }
         rest = rest[end..];
     }
@@ -191,7 +211,10 @@ fn browser_specifiers(arena: std.mem.Allocator, code: []const u8) ![]const u8 {
 
 fn write_out(gen: *Gen, out_path: []const u8, data: []const u8) !void {
     if (std.fs.path.dirname(out_path)) |dir| try gen.out.createDirPath(gen.io, dir);
-    try gen.out.writeFile(gen.io, .{ .sub_path = out_path, .data = data });
+    try gen.out.writeFile(gen.io, .{
+        .sub_path = out_path,
+        .data = data,
+    });
 }
 
 fn copy_file(gen: *Gen, from: []const u8, out_path: []const u8) !void {
@@ -200,7 +223,9 @@ fn copy_file(gen: *Gen, from: []const u8, out_path: []const u8) !void {
 }
 
 fn copy_tree(gen: *Gen, from: []const u8, out_prefix: []const u8, extension: []const u8) !void {
-    var dir = try std.Io.Dir.cwd().openDir(gen.io, from, .{ .iterate = true });
+    var dir = try std.Io.Dir.cwd().openDir(gen.io, from, .{
+        .iterate = true,
+    });
     defer dir.close(gen.io);
     var walker = try dir.walk(gen.arena);
     defer walker.deinit();
