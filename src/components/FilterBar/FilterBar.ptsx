@@ -2,7 +2,7 @@
 // filter pills, the search input and the control that adds a filter, on the muted surface
 // between two rules. Pills are links the server filters by, the search is an inset Input
 // inside the caller's form, the adder is a DropdownMenu that is the band's own child. The
-// caller gives the band the page's gutter (`px-8`); every segment stretches to its height.
+// caller gives the band the page's gutter (`px-5`); every segment stretches to its height.
 // The band's behaviour is small: in an empty search box Backspace follows the last pill's
 // remove link and `/` opens the adder (the last menu outside a pill, or the one inside a
 // `data-part="filter-bar-adder"` when other menus follow it); and a page that arrives at `#<pill id>` (the adder's

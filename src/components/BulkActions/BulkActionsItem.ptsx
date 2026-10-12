@@ -12,6 +12,9 @@ export type BulkActionsItemBaseProps = {
   id?: string;
   classes?: string;
   variant?: BulkActionsItemVariant;
+  /** What the action is about, read back by a handler shared between items. */
+  value?: string;
+  onClick?: (event: Event) => void;
   children: JSX.Element;
 };
 
@@ -24,6 +27,8 @@ export function BulkActionsItem({
   variant = "default",
   href,
   disabled = false,
+  value,
+  onClick,
   children,
 }: BulkActionsItemProps) {
   return (
@@ -33,6 +38,8 @@ export function BulkActionsItem({
       href={href}
       type={href === undefined ? "button" : undefined}
       disabled={href === undefined ? disabled : undefined}
+      value={value}
+      onClick={onClick}
       data-part="item"
       class={[
         "group relative inline-flex h-8 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-md border border-transparent px-2.5 text-xs font-semibold transition duration-150 ease-out hover:underline active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50",

@@ -25,6 +25,7 @@ export type CheckboxProps = {
   form?: string;
   classes?: string;
   onChange?: (event: Event) => void;
+  onClick?: (event: Event) => void;
 };
 
 export function Checkbox({
@@ -39,6 +40,7 @@ export function Checkbox({
   form,
   classes = "",
   onChange,
+  onClick,
 }: CheckboxProps) {
   return (
     <Dynamic
@@ -59,6 +61,7 @@ export function Checkbox({
         classes,
       ]}
       onChange={onChange}
+      onClick={onClick}
     />
   );
 }

@@ -1,15 +1,24 @@
 // Dense h-7 context-nav row: a real anchor (APG link pattern) with the
 // active link announced via aria-current="page". No menu or tree roles —
 // site navigation is a labeled landmark of links. Children compose an
-// optional leading Icon before the label. Rows live on the sidebar surface
-// (a dark one), so they colour themselves from the sidebar tokens only.
+// optional leading Icon before the label. Rows live on the sidebar surface,
+// so they colour themselves from the sidebar tokens only. An app that
+// navigates by state (the design builder) gives `onClick` and no `href`: the
+// row is a button then, the same row, its current one aria-current="true". A
+// row inside a form (picking which app the admin shows) is its submit button.
+import { Dynamic } from "publr-jsx";
 
 export type SidebarNavItemProps = {
   active?: boolean;
   children?: JSX.Element;
   classes?: string;
-  href: string;
+  href?: string;
   id?: string;
+  onClick?: (event: MouseEvent) => void;
+  /** Without `href`: `submit` sends the form the row is in. */
+  type?: "button" | "submit";
+  /** With `href`: `_blank` for a row that leaves the admin, like a site. */
+  target?: "_blank";
 };
 
 export function SidebarNavItem({
@@ -18,21 +27,28 @@ export function SidebarNavItem({
   classes = "",
   href,
   id,
+  onClick,
+  type = "button",
+  target,
 }: SidebarNavItemProps) {
   return (
-    <a
+    <Dynamic
+      as={href === undefined ? "button" : "a"}
       id={id}
       href={href}
-      aria-current={active ? "page" : undefined}
+      target={href === undefined ? undefined : target}
+      type={href === undefined ? type : undefined}
+      onClick={onClick}
+      aria-current={active ? (href === undefined ? "true" : "page") : undefined}
       class={[
-        "my-px flex h-7 items-center gap-2.5 rounded-lg px-2.5 text-body-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sidebar-ring",
+        "my-px flex h-7 w-full cursor-pointer items-center gap-2.5 rounded-lg border-0 px-2.5 text-left text-body-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sidebar-ring",
         active
           ? "bg-sidebar-accent text-sidebar-accent-foreground"
-          : "text-sidebar-foreground hover:bg-sidebar-accent/50",
+          : "bg-transparent text-sidebar-foreground hover:bg-sidebar-accent/50",
         classes,
       ]}
     >
       {children}
-    </a>
+    </Dynamic>
   );
 }

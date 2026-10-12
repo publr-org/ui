@@ -70,7 +70,7 @@ export function FolderNavItem({
       />
       <div
         data-part="folder-nav-row"
-        class="group/folder-row flex h-8 w-full items-center gap-2 rounded-md pl-2 pr-2 text-xs transition-colors hover:bg-sidebar-accent has-[a[aria-current]]:bg-sidebar-accent"
+        class="group/folder-row my-px flex h-7 w-full items-center gap-2.5 rounded-lg px-2.5 text-nav font-medium transition-colors hover:bg-sidebar-accent/50 has-[a[aria-current]]:bg-sidebar-accent"
       >
         {children}
       </div>

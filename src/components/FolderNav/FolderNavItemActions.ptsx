@@ -14,7 +14,7 @@ export function FolderNavItemActions({ children, classes = "", id }: FolderNavIt
       id={id}
       data-part="folder-nav-actions"
       class={[
-        "hidden shrink-0 items-center gap-0.5 group-hover/folder-row:flex group-focus-within/folder-row:flex",
+        "hidden shrink-0 items-center gap-0.5 group-hover/folder-row:flex group-focus-within/folder-row:flex has-[[aria-expanded=true]]:flex",
         classes,
       ]}
     >

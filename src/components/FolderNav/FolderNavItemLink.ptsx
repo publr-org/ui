@@ -40,16 +40,14 @@ export function FolderNavItemLink({
       aria-busy={busy ? "true" : undefined}
       onClick={onClick}
       class={[
-        "flex min-w-0 flex-1 items-center gap-2 no-underline hover:no-underline",
+        "flex min-w-0 flex-1 items-center gap-2.5 no-underline hover:no-underline",
         disabled
           ? "text-muted-foreground opacity-50"
           : tone === "success"
-            ? current
-              ? "font-medium text-success"
-              : "text-success hover:text-success/80"
+            ? "text-success hover:text-success/80"
             : current
-              ? "font-medium text-foreground"
-              : "text-muted-foreground hover:text-foreground",
+              ? "text-sidebar-accent-foreground"
+              : "text-sidebar-foreground",
         classes,
       ]}
     >

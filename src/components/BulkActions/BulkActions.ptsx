@@ -3,6 +3,7 @@
 // shows itself via the data-table store's anySelected, the count reads
 // selectedCount, and BulkActionsClear invokes clearSelection — the old
 // "consumer wires the JS" contract is superseded by the store bindings.
+import { Publr } from "publr-jsx";
 import { state } from "../DataTable/DataTable.ptsx";
 
 export type BulkActionsProps = {
@@ -16,14 +17,16 @@ export function BulkActions({ id, classes = "", children }: BulkActionsProps) {
     <div
       id={id}
       class={[
-        "hidden h-10 items-center gap-3 border-b border-border bg-primary/10 px-5 text-xs text-primary",
+        "h-10 items-center gap-3 border-b border-border bg-primary/10 px-5 text-xs text-primary",
+        state.anySelected ? "flex" : "hidden",
         classes,
       ]}
       data-part="bulk-actions"
       hidden={!state.anySelected}
     >
-      <strong data-part="count">{state.selectedCount}</strong>
-      <span>selected</span>
+      <strong data-part="count">
+        {Publr.tn("{count} selected", "{count} selected", state.selectedCount)}
+      </strong>
       {children}
     </div>
   );

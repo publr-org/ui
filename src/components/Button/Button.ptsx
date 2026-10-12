@@ -39,6 +39,8 @@ type SharedButtonProps = {
   marked?: boolean;
   /** The id of the form a submit button outside it submits. */
   form?: string;
+  /** The id of a popover the button opens and closes, with no script. */
+  popovertarget?: string;
   /** A submit button's own form pair, so one form can tell its submit buttons apart. */
   name?: string;
   value?: string;
@@ -180,6 +182,7 @@ export function Button({
   pressed,
   marked = false,
   form,
+  popovertarget,
   name,
   value,
   onClick,
@@ -200,6 +203,7 @@ export function Button({
       target={target}
       rel={href === undefined ? undefined : "noopener"}
       form={form}
+      popovertarget={popovertarget}
       name={name}
       value={value}
       type={href === undefined ? (type ?? "button") : undefined}

@@ -38,6 +38,8 @@ export type StatusButtonProps = {
   /** A link instead of a button: where it goes. */
   href?: string;
   target?: "_blank";
+  /** On a phone, only its stripe and icon, standing alone: the label stays as its name. */
+  compact?: boolean;
   children?: JSX.Element;
   onClick?: (event: MouseEvent) => void;
 };
@@ -97,6 +99,7 @@ export function StatusButton({
   merge = "none",
   href,
   target,
+  compact = false,
   children,
   onClick,
 }: StatusButtonProps) {
@@ -121,6 +124,7 @@ export function StatusButton({
         TONE_CLASSES[tone],
         merge === "previous" ? MERGED_ATTACH_CLASSES[attach] : ATTACH_CLASSES[attach],
         MERGE_CLASSES[merge],
+        compact ? "max-md:ml-0 max-md:rounded-md max-md:border max-md:pr-2" : "",
         classes,
       ]}
       aria-label={label}
@@ -137,13 +141,15 @@ export function StatusButton({
           as="span"
           variant="body-sm"
           tone="muted"
-          classes="flex h-full items-center border-r border-border bg-muted/60 px-2.5"
+          classes={compact
+            ? "flex h-full items-center border-r border-border bg-muted/60 px-2.5 max-md:hidden"
+            : "flex h-full items-center border-r border-border bg-muted/60 px-2.5"}
         >
           {prefix}
         </Text>
       )}
       {children !== undefined && (
-        <Text as="span" variant="heading-xs" classes="whitespace-nowrap">{children}</Text>
+        <Text as="span" variant="heading-xs" classes={compact ? "whitespace-nowrap max-md:hidden" : "whitespace-nowrap"}>{children}</Text>
       )}
       {icon_name && <Icon name={icon_name} size="sm" />}
     </Dynamic>

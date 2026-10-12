@@ -1,4 +1,4 @@
-// The row's trailing mono count. By default it yields to the row's revealed
+// The row's trailing count. By default it yields to the row's revealed
 // actions (hidden on row hover/focus-within); `persistent` keeps it visible
 // for rows without actions.
 
@@ -19,8 +19,8 @@ export function FolderNavItemCount({
     <span
       id={id}
       class={[
-        "ml-auto shrink-0 font-mono text-3xs text-muted-foreground",
-        persistent ? "" : "group-hover/folder-row:hidden group-focus-within/folder-row:hidden",
+        "ml-auto shrink-0 text-body-sm font-normal tabular-nums text-muted-foreground",
+        persistent ? "" : "group-hover/folder-row:hidden group-focus-within/folder-row:hidden group-has-[[aria-expanded=true]]/folder-row:hidden",
         classes,
       ]}
     >

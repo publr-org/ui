@@ -11,7 +11,7 @@ export function ReferenceAddCard({ children, classes = "", id }: ReferenceAddCar
     <div
       id={id}
       class={[
-        "flex min-h-28 items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-muted/10 px-4 py-6 transition-colors hover:border-input hover:bg-muted/20",
+        "flex min-h-28 flex-wrap items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-muted/10 px-4 py-6 transition-colors hover:border-input hover:bg-muted/20",
         classes,
       ]}
       data-part="add-reference-card"

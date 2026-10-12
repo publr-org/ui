@@ -1,8 +1,9 @@
 // Row selector: the row identity comes from the ancestor DataTableRow's
 // data-row-id (both for the membership binding and for the store action), so
-// the checkbox itself carries no row props.
+// the checkbox itself carries no row props. A shift-click selects the range from the
+// row clicked last.
 import { Publr } from "publr-jsx";
-import { state, rowSelectionChanged } from "./DataTable.ptsx";
+import { state, rowSelectionChanged, rowSelectionClicked } from "./DataTable.ptsx";
 import { Checkbox } from "../Checkbox/Checkbox.ptsx";
 
 export type DataTableRowSelectProps = {
@@ -21,6 +22,7 @@ export function DataTableRowSelect({
       id={id}
       classes={classes}
       aria-label={label !== "" ? label : Publr.t("Select row")}
+      onClick={rowSelectionClicked}
       onChange={rowSelectionChanged}
       checked={state.selectedRowIds.includes(Publr.dataset("rowId"))}
     />
