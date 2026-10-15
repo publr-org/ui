@@ -1,13 +1,15 @@
 export type DropdownMenuSeparatorProps = {
   id?: string;
   classes?: string;
+  /** `xs`: in an editor's dense menu (a faint line across, 8 px around). */
+  size?: "xs" | "md";
 };
 
-export function DropdownMenuSeparator({ id, classes = "" }: DropdownMenuSeparatorProps) {
+export function DropdownMenuSeparator({ id, classes = "", size = "md" }: DropdownMenuSeparatorProps) {
   return (
     <div
       id={id}
-      class={["-mx-1 my-1 h-px bg-border", classes]}
+      class={[size === "xs" ? "-mx-2 my-2 h-px bg-popover-foreground/10" : "-mx-1 my-1 h-px bg-border", classes]}
       role="separator"
       data-part="separator"
     ></div>

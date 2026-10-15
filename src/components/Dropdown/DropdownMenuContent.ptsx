@@ -1,15 +1,22 @@
-import { state, content, contentKeydown, activate, dismiss } from "./Dropdown.ptsx";
+import { state, trigger, content, contentKeydown, activate, dismiss, subEnter, subLeave } from "./Dropdown.ptsx";
 
 export type DropdownMenuContentProps = {
   id?: string;
   classes?: string;
-  align?: "left" | "right";
-  /** `sm`: a compact actions menu (inspector sections); `lg`: the block toolbar's menus. */
-  size?: "sm" | "md" | "lg";
+  /** `sub`: a submenu, beside its DropdownMenuSubTrigger. */
+  align?: "left" | "right" | "sub";
+  /** `xs`: an editor's dense menu (24 px rows, 11 px text); `sm`: a compact actions
+   * menu (inspector sections); `lg`: the block toolbar's menus. */
+  size?: "xs" | "sm" | "md" | "lg";
   children?: JSX.Element;
 };
 
-const SIZE_CLASSES = { sm: "min-w-36 p-1", md: "p-1", lg: "min-w-56 p-1.5" } as const;
+const SIZE_CLASSES = {
+  xs: "min-w-40 rounded-[13px] p-2 text-[11px] leading-4 shadow-[0_5px_17px_rgba(0,0,0,0.2),0_2px_7px_rgba(0,0,0,0.15)]",
+  sm: "min-w-36 rounded-lg border border-border p-1 text-sm shadow-lg",
+  md: "rounded-lg border border-border p-1 text-sm shadow-lg",
+  lg: "min-w-56 rounded-lg border border-border p-1.5 text-sm shadow-lg",
+} as const;
 
 export function DropdownMenuContent({
   id,
@@ -22,7 +29,7 @@ export function DropdownMenuContent({
     <div
       id={id}
       class={[
-        "hidden fixed z-50 max-h-[var(--publr-available-height)] min-w-[var(--publr-anchor-width)] max-w-[calc(100vw-1rem)] overflow-auto rounded-lg border border-border bg-popover text-sm text-popover-foreground shadow-lg",
+        "hidden fixed z-50 max-h-[var(--publr-available-height)] min-w-[var(--publr-anchor-width)] max-w-[calc(100vw-1rem)] overflow-auto bg-popover text-popover-foreground",
         SIZE_CLASSES[size],
         classes,
       ]}
@@ -30,11 +37,14 @@ export function DropdownMenuContent({
       data-part="content"
       data-publr-position-offset="2"
       ref={content}
+      data-submenu={align === "sub" ? "" : undefined}
       onKeyDown={contentKeydown}
       onClick={activate}
       onDismiss={dismiss}
+      onPointerEnter={subEnter}
+      onPointerLeave={subLeave}
       portal
-      position={align}
+      position={align === "sub" ? { anchor: trigger, placement: "right-start", offset: 8 } : align}
       hidden={!state.open}
     >
       {children}

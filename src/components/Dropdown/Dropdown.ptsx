@@ -99,6 +99,13 @@ export const triggerKeydown = (event: Event) => {
 
 export const contentKeydown = (event: Event) => {
   if (!(event instanceof KeyboardEvent)) return;
+  // ArrowLeft in a submenu goes back to its row in the parent menu.
+  if (event.key === "ArrowLeft" && isSub(event)) {
+    event.preventDefault();
+    event.stopPropagation();
+    close(true);
+    return;
+  }
   const enabled = items();
   const current = enabled.indexOf(
     (content.current as HTMLElement | null)?.ownerDocument.activeElement as HTMLElement,
@@ -149,11 +156,48 @@ export const activate = (event: Event) => {
   const item = (event.target as Element | null)?.closest<HTMLElement>('[role="menuitem"]');
   if (
     item &&
+    // A submenu's trigger opens its submenu; the menu stays.
+    !item.hasAttribute("aria-haspopup") &&
     (content.current as HTMLElement | null)?.contains(item) &&
     !isDisabled(item) &&
     !event.defaultPrevented
   ) {
     close();
+  }
+};
+
+let subTimer = 0;
+
+/** A submenu opens while the pointer is on its trigger (DropdownMenuSubTrigger)… */
+export const subOpen = () => {
+  window.clearTimeout(subTimer);
+  state.open = true;
+};
+
+/** A submenu's own content (`align="sub"`) or its trigger. */
+const isSub = (event: Event) => {
+  const el = event.currentTarget as HTMLElement | null;
+  return !!el && (el.hasAttribute("data-submenu") || el.getAttribute("aria-haspopup") === "menu");
+};
+
+/** …and closes a moment after it leaves both the trigger and the submenu. */
+export const subLeave = (event: Event) => {
+  if (!state.open || !isSub(event)) return;
+  window.clearTimeout(subTimer);
+  subTimer = window.setTimeout(() => close(), 180);
+};
+
+export const subEnter = (event: Event) => {
+  if (isSub(event)) window.clearTimeout(subTimer);
+};
+
+/** ArrowRight (or Enter) on a submenu's trigger opens it at its first item. */
+export const subTriggerKeydown = (event: Event) => {
+  if (!(event instanceof KeyboardEvent)) return;
+  if (event.key === "ArrowRight" || event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    event.stopPropagation();
+    openAt("first");
   }
 };
 
@@ -217,12 +261,14 @@ Publr.effect(() => {
 export type DropdownMenuProps = {
   id?: string;
   classes?: string;
+  /** A submenu inside another menu's content (a whole row wide). */
+  sub?: boolean;
   children: JSX.Element;
 };
 
-export function DropdownMenu({ id, classes = "", children }: DropdownMenuProps) {
+export function DropdownMenu({ id, classes = "", sub = false, children }: DropdownMenuProps) {
   return (
-    <div id={id} class={["inline-block", classes]} data-part="dropdown-menu">
+    <div id={id} class={[sub ? "block" : "inline-block", classes]} data-part="dropdown-menu">
       {children}
     </div>
   );

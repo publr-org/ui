@@ -1,0 +1,51 @@
+import { GlowPill } from "../../../src/components/GlowPill/GlowPill.ptsx";
+import { CloseButton } from "../../../src/components/CloseButton/CloseButton.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "glow-pill",
+  label: "Glow pill",
+  source: "src/components/GlowPill/GlowPill.ptsx",
+  kind: "composite",
+  group: "Essentials",
+  description: "A pill floating over the work, its edge glowing while something listens or works.",
+  tags: ["pill", "assistant", "voice", "status", "floating"],
+  usage: `<GlowPill text="Add a recipes section" detail="Sends in a moment" glowing filled="40%" />`,
+  preview: "demo",
+  previewLabel: "Words heard, about to be sent",
+  docs: {
+    purpose: ["Shows what an assistant heard or is doing, over any page, without taking the page."],
+    useWhen: ["Something started outside a form (a paste, a key held) needs its own small place."],
+    avoidWhen: ["A confirmation that needs no action; use Toast."],
+    rules: [
+      { title: "The caller places it", description: "Fixed at the bottom centre, or wherever the host wants it." },
+      { title: "Glow means busy", description: "Glowing only while it listens or works; still once it has an answer." },
+    ],
+    accessibility: ["role=status, polite: each new line is read once."],
+    composition: ["Built from Text; actions are the caller's buttons."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [
+      { name: "text", type: `string`, description: "The words." },
+      { name: "detail", type: `string`, description: "A quieter line under them." },
+      { name: "glowing", type: `boolean`, description: "The edge turns." },
+      { name: "filled", type: `string`, description: "The waiting line's width as CSS; empty draws none." },
+      { name: "actions", type: `JSX.Element`, description: "Buttons at its end." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="flex w-full max-w-xl flex-col gap-4">
+      <GlowPill
+        text="Add a recipes section with ingredients and steps"
+        detail="Sends in a moment. Enter sends now, Esc cancels."
+        glowing
+        filled="40%"
+        actions={<CloseButton label="Cancel" />}
+      />
+      <GlowPill text="Created content type Recipe" detail="Working… 0:12" glowing />
+      <GlowPill text="Added a Recipes section with 3 drafts." detail="Done" actions={<CloseButton label="Close" />} />
+    </div>
+  );
+}

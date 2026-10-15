@@ -1,0 +1,49 @@
+// A submenu's row in its parent menu: inside a `<DropdownMenu sub>`, before that
+// submenu's `<DropdownMenuContent align="sub">`. Hovering it opens the submenu beside
+// it, as does a click, ArrowRight or Enter; the parent menu stays open.
+import { Icon } from "../Icon/Icon.ptsx";
+import { Text } from "../Text/Text.ptsx";
+import { state, trigger, subOpen, subLeave, subTriggerKeydown } from "./Dropdown.ptsx";
+
+export type DropdownMenuSubTriggerProps = {
+  id?: string;
+  classes?: string;
+  /** As the menu's items (DropdownMenuItem). */
+  size?: "xs" | "sm" | "md";
+  disabled?: boolean;
+  children?: JSX.Element;
+};
+
+const SIZE_CLASSES = {
+  xs: "h-6 rounded-[5px] px-2 text-popover-foreground hover:bg-ui-accent focus-visible:bg-ui-accent aria-expanded:bg-ui-accent",
+  sm: "rounded-[calc(var(--radius)-2px)] px-2.5 py-2 text-foreground hover:bg-ui-accent focus-visible:bg-ui-accent aria-expanded:bg-ui-accent",
+  md: "rounded-md px-2 py-1.5 text-foreground hover:bg-ui-accent focus-visible:bg-ui-accent aria-expanded:bg-ui-accent",
+} as const;
+
+const TEXT_SIZES = { xs: "label-sm", sm: "label-md", md: "body-md" } as const;
+
+export function DropdownMenuSubTrigger({ id, classes = "", size = "md", disabled = false, children }: DropdownMenuSubTriggerProps) {
+  return (
+    <button
+      id={id}
+      type="button"
+      class={["flex w-full cursor-pointer items-center gap-2 text-left outline-none disabled:pointer-events-none disabled:opacity-50", SIZE_CLASSES[size], classes]}
+      role="menuitem"
+      aria-haspopup="menu"
+      aria-expanded={state.open}
+      tabindex={-1}
+      disabled={disabled}
+      data-part="sub-trigger"
+      ref={trigger}
+      onClick={subOpen}
+      onPointerEnter={subOpen}
+      onPointerLeave={subLeave}
+      onKeyDown={subTriggerKeydown}
+    >
+      <Text variant={TEXT_SIZES[size]} classes="flex min-w-0 flex-1 items-center gap-2">
+        {children}
+      </Text>
+      <Icon name="chevron-right" size="xs" />
+    </button>
+  );
+}

@@ -1,0 +1,63 @@
+import { ChatPanel } from "../../../src/components/ChatPanel/ChatPanel.ptsx";
+import { Button } from "../../../src/components/Button/Button.ptsx";
+import { CloseButton } from "../../../src/components/CloseButton/CloseButton.ptsx";
+import { MessageBubble } from "../../../src/components/MessageBubble/MessageBubble.ptsx";
+import { Status } from "../../../src/components/Status/Status.ptsx";
+import { Text } from "../../../src/components/Text/Text.ptsx";
+import { Textarea } from "../../../src/components/Textarea/Textarea.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "chat-panel",
+  label: "Chat panel",
+  source: "src/components/ChatPanel/ChatPanel.ptsx",
+  kind: "composite",
+  group: "Essentials",
+  description: "A conversation in a corner of the window, over whatever page is open.",
+  tags: ["chat", "assistant", "conversation", "floating", "corner"],
+  usage: `<ChatPanel title="Add a recipes section" status={<Status tone="accent">Working</Status>} footer={…}>…</ChatPanel>`,
+  preview: "demo",
+  previewLabel: "A conversation while it works",
+  docs: {
+    purpose: ["Lets a person talk to an assistant without leaving the page the assistant works on."],
+    useWhen: ["A conversation follows the person from page to page."],
+    avoidWhen: ["A conversation that is the page itself; lay it out in the page."],
+    rules: [
+      { title: "The caller places it", description: "Fixed at the bottom right, over the page." },
+      { title: "The caller scrolls it", description: "The conversation is the caller's element, which keeps to its newest line." },
+    ],
+    accessibility: ["A section named by its title."],
+    composition: ["Built from Text; status, actions, conversation and foot are the caller's."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [
+      { name: "title", type: `string`, description: "What the conversation is about." },
+      { name: "status", type: `JSX.Element`, description: "Under the title: where it is." },
+      { name: "actions", type: `JSX.Element`, description: "Buttons at the title row's end." },
+      { name: "children", type: `JSX.Element`, description: "The conversation." },
+      { name: "footer", type: `JSX.Element`, description: "The reply box, or Stop." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <ChatPanel
+      title="Add a recipes section"
+      status={<Status tone="accent" label="plain">Working… 0:12</Status>}
+      actions={<CloseButton label="Close" />}
+      footer={
+        <div class="flex flex-col gap-2">
+          <Textarea name="reply" rows={2} placeholder="Reply…" />
+          <div class="flex justify-end">
+            <Button hierarchy="primary" size="sm">Send</Button>
+          </div>
+        </div>
+      }
+    >
+      <div class="flex flex-col gap-3 p-4">
+        <MessageBubble>Add a recipes section with ingredients and steps</MessageBubble>
+        <Text as="p" variant="body-sm">Created content type Recipe</Text>
+      </div>
+    </ChatPanel>
+  );
+}

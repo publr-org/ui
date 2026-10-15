@@ -1,0 +1,53 @@
+// A pill floating over the work, its edge glowing while something listens or works: a line
+// of words, a quieter line under it, actions at its end, and a line along its foot that
+// fills (`filled`, a CSS width) while it waits to act on its own. The caller places it.
+import { Text } from "../Text/Text.ptsx";
+
+export type GlowPillProps = {
+  /** The words: what was heard, what is being done, the answer. */
+  text: string;
+  /** A quieter line under them: "Sends in a moment", the time it took. */
+  detail?: string;
+  /** The edge turns: listening or working. Still, it is a plain edge. */
+  glowing?: boolean;
+  /** How much of the waiting line is filled, as CSS (`40%`); empty draws no line. */
+  filled?: string;
+  /** Buttons at the end: send, open, close. */
+  actions?: JSX.Element;
+  classes?: string;
+};
+
+export function GlowPill({ text, detail = "", glowing = false, filled = "", actions, classes = "" }: GlowPillProps) {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      class={["relative overflow-hidden rounded-full p-[2px] shadow-xl", glowing ? "" : "bg-border", classes]}
+      data-part="glow-pill"
+    >
+      <div
+        aria-hidden="true"
+        hidden={!glowing}
+        class="absolute left-1/2 top-1/2 -ml-[400px] -mt-[400px] size-[800px] animate-spin bg-conic from-info via-review to-info [animation-duration:3s]"
+      ></div>
+      <div class="relative flex min-h-12 items-center gap-3 rounded-full bg-card py-1.5 pr-1.5 pl-5 text-card-foreground">
+        <div class="flex min-w-0 flex-1 flex-col">
+          <Text as="span" variant="label-sm-strong" classes="truncate">
+            {text}
+          </Text>
+          {detail !== "" && (
+            <Text as="span" variant="body-xs" tone="muted" classes="truncate">
+              {detail}
+            </Text>
+          )}
+        </div>
+        {actions && <div class="flex shrink-0 items-center gap-1">{actions}</div>}
+        {filled !== "" && (
+          <div aria-hidden="true" class="absolute inset-x-5 bottom-0 h-0.5 overflow-hidden rounded-full bg-muted">
+            <div class="h-full bg-primary" style={`width: ${filled}`}></div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

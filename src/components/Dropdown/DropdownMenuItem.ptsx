@@ -8,8 +8,9 @@ type DropdownMenuItemSharedProps = {
   id?: string;
   classes?: string;
   variant?: DropdownMenuItemVariant;
-  /** `sm`: a compact actions menu's item; `lg`: a block toolbar menu's item. */
-  size?: "sm" | "md" | "lg";
+  /** `xs`: an editor's dense menu's item; `sm`: a compact actions menu's item; `lg`: a
+   * block toolbar menu's item. */
+  size?: "xs" | "sm" | "md" | "lg";
   /** The current choice in a menu of choices: ringed. */
   active?: boolean;
   children?: JSX.Element;
@@ -23,12 +24,13 @@ export type DropdownMenuItemProps = DropdownMenuItemSharedProps &
   );
 
 const SIZE_CLASSES = {
+  xs: "h-6 rounded-[5px] px-2",
   sm: "rounded-[calc(var(--radius)-2px)] px-2.5 py-2",
   md: "rounded-md px-2 py-1.5",
   lg: "min-h-9 gap-2.5 rounded-md px-2.5 py-2",
 } as const;
 
-const TEXT_SIZES = { sm: "label-md", md: "body-md", lg: "label-lg" } as const;
+const TEXT_SIZES = { xs: "label-sm", sm: "label-md", md: "body-md", lg: "label-lg" } as const;
 
 const VARIANT_CLASSES: Record<DropdownMenuItemVariant, string> = {
   default: "text-foreground hover:bg-ui-accent",
@@ -59,10 +61,12 @@ export function DropdownMenuItem({
       as={href === undefined ? "button" : "a"}
       id={id}
       class={[
-        "flex w-full cursor-pointer items-center gap-2 text-left outline-none transition-colors focus-visible:bg-ui-accent focus-visible:text-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
+        "flex w-full cursor-pointer items-center gap-2 text-left outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
+        // A dense menu is drawn on the popover's colour, its highlight the accent.
+        size === "xs" ? "text-popover-foreground hover:bg-ui-accent focus-visible:bg-ui-accent" : "transition-colors focus-visible:bg-ui-accent focus-visible:text-foreground",
         SIZE_CLASSES[size],
         active ? "shadow-[inset_0_0_0_1.5px_var(--primary)]" : "",
-        VARIANT_CLASSES[variant],
+        size === "xs" && variant === "default" ? "" : VARIANT_CLASSES[variant],
         classes,
       ]}
       href={href}
