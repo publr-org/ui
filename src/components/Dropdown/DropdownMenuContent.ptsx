@@ -1,10 +1,11 @@
-import { state, trigger, content, contentKeydown, activate, dismiss, subEnter, subLeave } from "./Dropdown.ptsx";
+import { state, trigger, content, point, contentKeydown, activate, dismiss, subEnter, subLeave } from "./Dropdown.ptsx";
 
 export type DropdownMenuContentProps = {
   id?: string;
   classes?: string;
-  /** `sub`: a submenu, beside its DropdownMenuSubTrigger. */
-  align?: "left" | "right" | "sub";
+  /** `sub`: a submenu, beside its DropdownMenuSubTrigger; `pointer`: a context menu, at
+   * the pointer (DropdownMenuContextArea). */
+  align?: "left" | "right" | "sub" | "pointer";
   /** `xs`: an editor's dense menu (24 px rows, 11 px text); `sm`: a compact actions
    * menu (inspector sections); `lg`: the block toolbar's menus. */
   size?: "xs" | "sm" | "md" | "lg";
@@ -29,7 +30,8 @@ export function DropdownMenuContent({
     <div
       id={id}
       class={[
-        "hidden fixed z-50 max-h-[var(--publr-available-height)] min-w-[var(--publr-anchor-width)] max-w-[calc(100vw-1rem)] overflow-auto bg-popover text-popover-foreground",
+        "hidden fixed z-50 max-h-[var(--publr-available-height)] max-w-[calc(100vw-1rem)] overflow-auto bg-popover text-popover-foreground outline-none",
+        align === "pointer" ? "" : "min-w-[var(--publr-anchor-width)]",
         SIZE_CLASSES[size],
         classes,
       ]}
@@ -44,7 +46,8 @@ export function DropdownMenuContent({
       onPointerEnter={subEnter}
       onPointerLeave={subLeave}
       portal
-      position={align === "sub" ? { anchor: trigger, placement: "right-start", offset: 8 } : align}
+      tabindex={-1}
+      position={align === "sub" ? { anchor: trigger, placement: "right-start", offset: 8 } : align === "pointer" ? { anchor: point, placement: "right-start", offset: 2 } : align}
       hidden={!state.open}
     >
       {children}

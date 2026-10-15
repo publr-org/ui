@@ -1,0 +1,20 @@
+// A context menu's area: a right-click (or the context menu key) anywhere inside it opens
+// the menu at the pointer, its `<DropdownMenuContent align="pointer">` beside it in the
+// same `<DropdownMenu>`. Handlers inside the area run first (a canvas selects what was
+// clicked), so the menu lists what applies to it.
+import { contextOpen, point } from "./Dropdown.ptsx";
+
+export type DropdownMenuContextAreaProps = {
+  id?: string;
+  classes?: string;
+  children?: JSX.Element;
+};
+
+export function DropdownMenuContextArea({ id, classes = "", children }: DropdownMenuContextAreaProps) {
+  return (
+    <div id={id} class={classes} data-part="context-area" onContextMenu={contextOpen}>
+      {children}
+      <span ref={point} class="pointer-events-none fixed size-0" aria-hidden="true" data-part="context-point"></span>
+    </div>
+  );
+}

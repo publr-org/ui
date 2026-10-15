@@ -1,0 +1,219 @@
+// An editor's colour picker, as a design tool draws it: the saturation and brightness
+// square for the hue, then the hue and opacity sliders (with an optional tool beside
+// them, such as an eyedropper), then the hex value and the opacity typed. Controlled:
+// the parent owns hue, saturation, brightness and alpha (kept apart, so the hue stays
+// while the colour is grey) and hears every pick as a `pick` event with its phase, so a
+// drag can be one undo step: `start` on press, `move` while dragging, `end` on release.
+// Typed values arrive as `hex` (the text) and `alpha` (percent) events.
+
+import { Publr } from "publr-jsx";
+
+/** The family's store: whether a drag is under way (its pointer is captured). */
+export const state = Publr.reactive({
+  dragging: false,
+});
+
+export type ColorPickPhase = "start" | "move" | "end";
+export type ColorPick = { hue: number; saturation: number; brightness: number; alpha: number; phase: ColorPickPhase };
+
+export type ColorPickerProps = {
+  id?: string;
+  classes?: string;
+  /** 0..360 */
+  hue: number;
+  /** 0..1 */
+  saturation: number;
+  /** 0..1 (HSV value) */
+  brightness: number;
+  /** 0..1 */
+  alpha: number;
+  /** The colour as six hex digits, no "#". */
+  hex: string;
+  /** A pick in the square or on a slider (`event.detail`: ColorPick). */
+  onPick?: (event: CustomEvent<ColorPick>) => void;
+  /** Hex text typed, Enter or leaving the field (`event.detail`: the text). */
+  onHex?: (event: CustomEvent<string>) => void;
+  /** Opacity typed, in percent (`event.detail`). */
+  onAlpha?: (event: CustomEvent<number>) => void;
+  /** A tool beside the sliders (an eyedropper). */
+  children?: JSX.Element;
+};
+
+type Drag = { root: HTMLElement; el: HTMLElement; part: string; id: number; h: number; s: number; v: number; a: number };
+
+let drag: Drag | null = null;
+
+const clamp = (x: number) => Math.max(0, Math.min(1, x));
+
+const rootOf = (el: HTMLElement) => el.closest<HTMLElement>('[data-part="color-picker"]');
+
+function emit(d: Drag, phase: ColorPickPhase): void {
+  d.root.dispatchEvent(new CustomEvent("pick", { detail: { hue: d.h, saturation: d.s, brightness: d.v, alpha: d.a, phase } }));
+}
+
+function pickAt(d: Drag, event: PointerEvent): void {
+  const r = d.el.getBoundingClientRect();
+  const x = clamp((event.clientX - r.left) / Math.max(1, r.width));
+  const y = clamp((event.clientY - r.top) / Math.max(1, r.height));
+  if (d.part === "square") {
+    d.s = x;
+    d.v = 1 - y;
+  } else if (d.part === "hue") d.h = x * 360;
+  else d.a = x;
+}
+
+export const press = (event: Event) => {
+  if (!(event instanceof PointerEvent) || event.button !== 0) return;
+  const el = event.currentTarget as HTMLElement;
+  const root = rootOf(el);
+  if (!root) return;
+  event.preventDefault();
+  el.setPointerCapture(event.pointerId);
+  const n = (k: string) => Number.parseFloat(root.dataset[k] ?? "0") || 0;
+  const d: Drag = { root, el, part: el.dataset.part ?? "", id: event.pointerId, h: n("hue"), s: n("saturation"), v: n("brightness"), a: n("alpha") };
+  drag = d;
+  state.dragging = true;
+  pickAt(d, event);
+  emit(d, "start");
+};
+
+export const move = (event: Event) => {
+  const d = drag;
+  if (!d || !(event instanceof PointerEvent) || d.id !== event.pointerId) return;
+  pickAt(d, event);
+  emit(d, "move");
+};
+
+export const release = (event: Event) => {
+  const d = drag;
+  if (!d || !(event instanceof PointerEvent) || d.id !== event.pointerId) return;
+  drag = null;
+  state.dragging = false;
+  emit(d, "end");
+};
+
+export const keys = (event: Event) => {
+  if (!(event instanceof KeyboardEvent)) return;
+  const input = event.currentTarget as HTMLInputElement;
+  if (event.key === "Enter") input.blur();
+  if (event.key === "Escape") {
+    input.value = input.dataset.value ?? input.value;
+    input.blur();
+  }
+};
+
+export const focusSelect = (event: Event) => (event.currentTarget as HTMLInputElement).select();
+
+/** Leaving the hex or opacity field with a changed value: its event. */
+export const typed = (event: Event) => {
+  const input = event.currentTarget as HTMLInputElement;
+  const root = rootOf(input);
+  if (!root || input.value === input.dataset.value) return;
+  if (input.dataset.part === "hex") root.dispatchEvent(new CustomEvent("hex", { detail: input.value }));
+  else {
+    const n = Number.parseFloat(input.value);
+    if (Number.isFinite(n)) root.dispatchEvent(new CustomEvent("alpha", { detail: Math.max(0, Math.min(100, n)) }));
+    else input.value = input.dataset.value ?? "";
+  }
+};
+
+const CHECKER = "repeating-conic-gradient(#d4d4d4 0 25%, #ffffff 0 50%) 0 0 / 8px 8px";
+
+export function ColorPicker({ id, classes = "", hue, saturation, brightness, alpha, hex, onPick, onHex, onAlpha, children }: ColorPickerProps) {
+  return (
+    <div
+      id={id}
+      class={["flex w-full flex-col gap-3 text-[11px] text-popover-foreground", classes]}
+      data-part="color-picker"
+      data-hue={String(hue)}
+      data-saturation={String(saturation)}
+      data-brightness={String(brightness)}
+      data-alpha={String(alpha)}
+      onPick={onPick}
+      onHex={onHex}
+      onAlpha={onAlpha}
+    >
+      <div
+        class="relative aspect-square w-full cursor-crosshair touch-none overflow-hidden rounded-[2px]"
+        style={{ background: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, hsl(${hue}, 100%, 50%))` }}
+        data-part="square"
+        onPointerDown={press}
+        onPointerMove={move}
+        onPointerUp={release}
+        onPointerCancel={release}
+      >
+        <span
+          class="pointer-events-none absolute size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.25),0_1px_3px_rgba(0,0,0,0.3)]"
+          style={{ left: `${saturation * 100}%`, top: `${(1 - brightness) * 100}%`, background: `#${hex}` }}
+        ></span>
+      </div>
+      <div class="flex items-center gap-2 px-1">
+        {children}
+        <div class="flex min-w-0 flex-1 flex-col gap-2">
+          <div
+            class="relative h-3 w-full cursor-pointer touch-none rounded-full bg-[linear-gradient(to_right,#f00,#ff0_17%,#0f0_33%,#0ff_50%,#00f_67%,#f0f_83%,#f00)]"
+            data-part="hue"
+            role="slider"
+            aria-label="Hue"
+            aria-valuemin={0}
+            aria-valuemax={360}
+            aria-valuenow={hue}
+            onPointerDown={press}
+            onPointerMove={move}
+            onPointerUp={release}
+            onPointerCancel={release}
+          >
+            <span
+              class="pointer-events-none absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.25)]"
+              style={{ left: `${(hue / 360) * 100}%`, background: `hsl(${hue}, 100%, 50%)` }}
+            ></span>
+          </div>
+          <div
+            class="relative h-3 w-full cursor-pointer touch-none rounded-full"
+            style={{ background: `linear-gradient(to right, transparent, #${hex}), ${CHECKER}` }}
+            data-part="alpha"
+            role="slider"
+            aria-label="Opacity"
+            aria-valuemin={0}
+            aria-valuemax={1}
+            aria-valuenow={alpha}
+            onPointerDown={press}
+            onPointerMove={move}
+            onPointerUp={release}
+            onPointerCancel={release}
+          >
+            <span class="pointer-events-none absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.25)]" style={{ left: `${alpha * 100}%` }}></span>
+          </div>
+        </div>
+      </div>
+      <div class="flex h-6 items-center gap-2 px-1">
+        <span class="w-8 shrink-0 text-popover-foreground/60">Hex</span>
+        <input
+          class="h-6 min-w-0 flex-1 rounded-[5px] bg-transparent px-1.5 uppercase outline outline-1 -outline-offset-1 outline-popover-foreground/15 focus:outline-primary"
+          value={hex}
+          data-value={hex}
+          spellcheck={false}
+          aria-label="Hex"
+          data-part="hex"
+          onFocus={focusSelect}
+          onKeyDown={keys}
+          onBlur={typed}
+        />
+        <span class="flex h-6 w-14 shrink-0 items-center rounded-[5px] outline outline-1 -outline-offset-1 outline-popover-foreground/15 focus-within:outline-primary">
+          <input
+            class="h-6 min-w-0 flex-1 bg-transparent pl-1.5 tabular-nums outline-none"
+            value={`${Math.round(alpha * 100)}`}
+            data-value={`${Math.round(alpha * 100)}`}
+            spellcheck={false}
+            aria-label="Opacity"
+            data-part="opacity"
+            onFocus={focusSelect}
+            onKeyDown={keys}
+            onBlur={typed}
+          />
+          <span class="pr-1.5 text-popover-foreground/60">%</span>
+        </span>
+      </div>
+    </div>
+  );
+}

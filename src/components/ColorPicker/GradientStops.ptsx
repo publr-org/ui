@@ -1,0 +1,132 @@
+// A gradient's stops on a bar, as a design tool's gradient editor shows them: the bar
+// draws the gradient (`background`, the parent's CSS), each stop is a small swatch on
+// it; a click on a stop picks it (`stopselect`), a drag moves it (`stopmove` events: one
+// `start`, the moves, an `end`), a click on the bar between stops adds one there
+// (`stopadd`), and Delete or Backspace on the picked stop removes it (`stopremove`; a gradient
+// keeps two at least). Controlled: the parent owns the stops and which one is picked.
+
+import { Publr } from "publr-jsx";
+
+/** The family's store: whether a drag is under way (its pointer is captured). */
+export const state = Publr.reactive({
+  dragging: false,
+});
+
+/** A stop: where (0..1), its colour as CSS, and its index in the paint's stops. */
+export type GradientStop = { at: number; css: string; index: number };
+export type GradientStopMove = { index: number; at: number; phase: "start" | "move" | "end" };
+
+export type GradientStopsProps = {
+  id?: string;
+  classes?: string;
+  stops: GradientStop[];
+  /** The bar's CSS background (the gradient over a checkerboard). */
+  background: string;
+  /** The picked stop's index. */
+  selected: number;
+  /** `event.detail`: the stop's index. */
+  onSelect?: (event: CustomEvent<number>) => void;
+  onMove?: (event: CustomEvent<GradientStopMove>) => void;
+  /** `event.detail`: where (0..1). */
+  onAdd?: (event: CustomEvent<number>) => void;
+  /** `event.detail`: the stop's index. */
+  onRemove?: (event: CustomEvent<number>) => void;
+};
+
+type Drag = { bar: HTMLElement; index: number; id: number; at: number; moved: boolean };
+
+let drag: Drag | null = null;
+
+function along(bar: HTMLElement, event: PointerEvent): number {
+  const r = bar.getBoundingClientRect();
+  return Math.max(0, Math.min(1, (event.clientX - r.left) / Math.max(1, r.width)));
+}
+
+const send = (bar: HTMLElement, name: string, detail: unknown) => bar.dispatchEvent(new CustomEvent(name, { detail }));
+
+export const pressBar = (event: Event) => {
+  if (!(event instanceof PointerEvent) || event.button !== 0 || event.target !== event.currentTarget) return;
+  const bar = event.currentTarget as HTMLElement;
+  send(bar, "stopadd", along(bar, event));
+};
+
+export const pressStop = (event: Event) => {
+  if (!(event instanceof PointerEvent) || event.button !== 0) return;
+  event.preventDefault();
+  event.stopPropagation();
+  const stop = event.currentTarget as HTMLElement;
+  const bar = stop.parentElement as HTMLElement;
+  stop.setPointerCapture(event.pointerId);
+  stop.focus();
+  const index = Number(stop.dataset.index ?? "0");
+  send(bar, "stopselect", index);
+  state.dragging = true;
+  drag = { bar, index, id: event.pointerId, at: Number(stop.dataset.at ?? "0"), moved: false };
+};
+
+export const moveStop = (event: Event) => {
+  const d = drag;
+  if (!d || !(event instanceof PointerEvent) || d.id !== event.pointerId) return;
+  const at = Math.round(along(d.bar, event) * 1000) / 1000;
+  if (at === d.at) return;
+  if (!d.moved) send(d.bar, "stopmove", { index: d.index, at: d.at, phase: "start" });
+  d.moved = true;
+  d.at = at;
+  send(d.bar, "stopmove", { index: d.index, at, phase: "move" });
+};
+
+export const releaseStop = (event: Event) => {
+  const d = drag;
+  if (!d || !(event instanceof PointerEvent) || d.id !== event.pointerId) return;
+  drag = null;
+  state.dragging = false;
+  if (d.moved) send(d.bar, "stopmove", { index: d.index, at: d.at, phase: "end" });
+};
+
+export const stopKey = (event: Event) => {
+  if (!(event instanceof KeyboardEvent) || (event.key !== "Delete" && event.key !== "Backspace")) return;
+  const stop = event.currentTarget as HTMLElement;
+  const bar = stop.parentElement as HTMLElement;
+  if (bar.querySelectorAll('[data-part="stop"]').length <= 2) return;
+  event.preventDefault();
+  event.stopPropagation();
+  send(bar, "stopremove", Number(stop.dataset.index ?? "0"));
+};
+
+export function GradientStops({ id, classes = "", stops, background, selected, onSelect, onMove, onAdd, onRemove }: GradientStopsProps) {
+  return (
+    <div
+      id={id}
+      class={["relative mx-2 h-6 cursor-copy rounded-[3px] shadow-[inset_0_0_0_1px_rgba(0,0,0,0.1)]", classes]}
+      style={{ background: background }}
+      data-part="gradient-stops"
+      onPointerDown={pressBar}
+      onStopSelect={onSelect}
+      onStopMove={onMove}
+      onStopAdd={onAdd}
+      onStopRemove={onRemove}
+    >
+      {stops.map((s) => (
+        <button
+          key={`${s.index}`}
+          type="button"
+          class={[
+            "absolute top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-[3px] border-2 outline-none",
+            s.index === selected ? "border-primary shadow-[0_0_0_1px_white]" : "border-white shadow-[0_0_0_1px_rgba(0,0,0,0.3)]",
+          ]}
+          style={{ left: `${s.at * 100}%`, background: s.css }}
+          aria-label="Gradient stop"
+          aria-pressed={s.index === selected}
+          data-part="stop"
+          data-index={`${s.index}`}
+          data-at={`${s.at}`}
+          onPointerDown={pressStop}
+          onPointerMove={moveStop}
+          onPointerUp={releaseStop}
+          onPointerCancel={releaseStop}
+          onKeyDown={stopKey}
+        ></button>
+      ))}
+    </div>
+  );
+}

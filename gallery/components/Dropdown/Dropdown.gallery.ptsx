@@ -68,7 +68,10 @@ export const meta = {
       "DropdownMenu is the composition root for a trigger and its action-menu content.",
       "The component owns focus, keyboard navigation, portal placement, collision handling, and dismissal; callers provide the trigger and menu items.",
     ],
-    useWhen: ["A control reveals a short list of immediate actions or navigation choices."],
+    useWhen: [
+      "A control reveals a short list of immediate actions or navigation choices.",
+      "A right-click menu: wrap the area in DropdownMenuContextArea and give the content align=\"pointer\"; the menu opens at the pointer.",
+    ],
     avoidWhen: [
       "The popup contains inputs, arbitrary forms, or a workflow; use Popover or Dialog.",
       "The user is choosing one submitted value; use Select.",

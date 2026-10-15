@@ -1,0 +1,40 @@
+import { ColorPicker } from "../../../src/components/ColorPicker/ColorPicker.ptsx";
+import { GradientStops } from "../../../src/components/ColorPicker/GradientStops.ptsx";
+import type { ComponentDemoMeta, DemoNode } from "../../gallery-types";
+
+export const meta = {
+  name: "color-picker",
+  label: "ColorPicker",
+  source: "src/components/ColorPicker/ColorPicker.ptsx",
+  kind: "primitive",
+  group: "Editor",
+  description: "An editor's colour picker: the saturation and brightness square, hue and opacity sliders, hex and opacity typed; GradientStops edits a gradient's stops above it.",
+  tags: ["color-picker", "gradient", "editor"],
+  usage: `<ColorPicker hue={210} saturation={0.9} brightness={0.9} alpha={1} hex="1779E6" onPick={pick} />`,
+  preview: "demo",
+  previewLabel: "A colour picker with a gradient's stops",
+  docs: {
+    purpose: ["Picks a colour by hue, saturation, brightness and opacity, as design tools do; controlled, every pick reported with its phase so a drag can be one undo step."],
+    useWhen: ["An editor's paint, stroke or effect colour; a gradient's stops with GradientStops."],
+    avoidWhen: ["A form's plain colour value: use ColorSwatchInput."],
+    rules: [
+      { title: "Controlled", description: "The parent keeps hue, saturation, brightness and alpha apart (the hue stays on greys) and writes them back from onPick." },
+      { title: "One step per drag", description: "onPick reports start, move and end: open an undo step on start and close it on end." },
+    ],
+    accessibility: ["The sliders are role=slider with their values; hex and opacity are text inputs with names."],
+    composition: ["Pass a tool such as an eyedropper as children: it sits beside the sliders."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [],
+  },
+} satisfies ComponentDemoMeta;
+
+export const node = { component: "ColorPicker", props: {}, wrapper: "w-60" } satisfies DemoNode;
+
+export function Demo() {
+  return (
+    <div class="flex w-60 flex-col gap-3 rounded-lg bg-popover p-2 text-popover-foreground">
+      <GradientStops stops={[{ at: 0, css: "#1779e6", index: 0 }, { at: 1, css: "rgba(23,121,230,0)", index: 1 }]} background="linear-gradient(to right, #1779e6, rgba(23,121,230,0))" selected={0} />
+      <ColorPicker hue={212} saturation={0.9} brightness={0.9} alpha={1} hex="1779E6" />
+    </div>
+  );
+}

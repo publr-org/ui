@@ -11,10 +11,15 @@ export const state = Publr.reactive({
   restoreFocusRevision: 0,
   activationIndex: -1,
   activationRevision: 0,
+  /** A context menu's place: where the pointer was (viewport px). */
+  x: 0,
+  y: 0,
 });
 
 export const trigger = Publr.ref();
 export const content = Publr.ref();
+/** A context menu's anchor: a point at the pointer (DropdownMenuContextArea). */
+export const point = Publr.ref();
 
 let focusedRevision = 0;
 let restoredRevision = 0;
@@ -44,6 +49,11 @@ const isSearchBox = (target: EventTarget | null) =>
 
 // Index -1 is the search box: the menu opens there when it has one.
 const focusItem = (index: number) => {
+  if (index === -2) {
+    items().forEach((item) => (item.tabIndex = -1));
+    (content.current as HTMLElement | null)?.focus();
+    return;
+  }
   const box = searchBox();
   if (index < 0 && box) {
     items().forEach((item) => (item.tabIndex = -1));
@@ -64,6 +74,20 @@ const openAt = (index: "first" | "last") => {
   if (box) box.value = "";
   state.focusIndex = index === "first" ? (box ? -1 : 0) : items().length - 1;
   state.focusRevision++;
+};
+
+/** A right-click in a DropdownMenuContextArea: the menu opens at the pointer (the
+ * browser's own menu stays closed). The area's own handlers inside it run first, so
+ * they can change what the menu lists. */
+export const contextOpen = (event: Event) => {
+  if (!(event instanceof MouseEvent) || event.defaultPrevented) return;
+  event.preventDefault();
+  state.x = event.clientX;
+  state.y = event.clientY;
+  if (state.open) close();
+  openAt("first");
+  // The menu takes the keys without showing a focused item, as a pointer menu does.
+  state.focusIndex = -2;
 };
 
 export const search = (event: Event) => {
@@ -235,6 +259,14 @@ Publr.effect(() => {
     panel.id = candidate;
   }
   control.setAttribute("aria-controls", panel.id);
+});
+
+// The point a context menu opens at follows the pointer.
+Publr.effect(() => {
+  const anchor = point.current as HTMLElement | null;
+  if (!anchor) return;
+  anchor.style.left = `${state.x}px`;
+  anchor.style.top = `${state.y}px`;
 });
 
 Publr.effect(() => {
