@@ -15,7 +15,7 @@ export function EmptyTitle({
   children,
   classes = "",
   id,
-  level = 3,
+  level = 2,
   size = "lg",
 }: EmptyTitleProps) {
   return (

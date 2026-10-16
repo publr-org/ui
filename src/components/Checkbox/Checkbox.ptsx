@@ -23,6 +23,8 @@ export type CheckboxProps = {
   required?: boolean;
   /** The id of the form it posts with, when it sits outside that form. */
   form?: string;
+  /** The accessible name, when no Field or <label> names it: "Select photo.jpg". */
+  label?: string;
   classes?: string;
   onChange?: (event: Event) => void;
   onClick?: (event: Event) => void;
@@ -38,6 +40,7 @@ export function Checkbox({
   invalid = false,
   required = false,
   form,
+  label,
   classes = "",
   onChange,
   onClick,
@@ -55,6 +58,7 @@ export function Checkbox({
       disabled={disabled}
       required={required}
       aria-invalid={invalid}
+      aria-label={label}
       class={[
         "size-4 shrink-0 cursor-pointer rounded-[5px] border bg-card text-primary accent-primary shadow-xs transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/15 disabled:cursor-not-allowed disabled:opacity-50",
         invalid ? "border-destructive" : "border-input",

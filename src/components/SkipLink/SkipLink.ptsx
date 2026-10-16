@@ -1,0 +1,20 @@
+// The first stop of the keyboard on a page: hidden until focused, then a pill in the top left
+// that jumps past the navigation to the page's main region (WCAG 2.4.1).
+
+export type SkipLinkProps = {
+  /** The main region's id, without the "#". */
+  target: string;
+  /** "Skip to content", in the page's language. */
+  children: JSX.Element;
+};
+
+export function SkipLink({ target, children }: SkipLinkProps) {
+  return (
+    <a
+      href={`#${target}`}
+      class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-foreground focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-background focus:outline-2 focus:outline-offset-2 focus:outline-primary"
+    >
+      {children}
+    </a>
+  );
+}

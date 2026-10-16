@@ -5,6 +5,8 @@ export type DropdownMenuTriggerProps = {
   id?: string;
   classes?: string;
   asChild?: boolean;
+  /** The accessible name, when the children are only a picture: "Account". */
+  label?: string;
   children: JSX.Element;
 };
 
@@ -12,6 +14,7 @@ export function DropdownMenuTrigger({
   id,
   classes = "",
   asChild = false,
+  label,
   children,
 }: DropdownMenuTriggerProps) {
   return (
@@ -27,6 +30,7 @@ export function DropdownMenuTrigger({
           onKeyDown={triggerKeydown}
           aria-haspopup="menu"
           aria-expanded={state.open}
+          aria-label={label}
         >
           {children}
         </Slot>
@@ -42,6 +46,7 @@ export function DropdownMenuTrigger({
           onKeyDown={triggerKeydown}
           aria-haspopup="menu"
           aria-expanded={state.open}
+          aria-label={label}
         >
           {children}
         </button>
