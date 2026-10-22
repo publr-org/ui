@@ -1,0 +1,125 @@
+// The table's view options, behind the knob beside Filter: what the rows are sorted by and
+// which way, how many show on a page, and each property's column, filter and sort. Every
+// choice is an address the server wrote; picking one loads the table there, like a pill.
+import { Publr } from "publr-jsx";
+import {
+  state,
+  onChoose,
+  onNavigate,
+  onSortField,
+  onPropertyDragStart,
+  onPropertyDragOver,
+  onPropertyDrop,
+  onPropertyDragEnd,
+} from "./DataTable.ptsx";
+import { Button } from "../Button/Button.ptsx";
+import { DropdownMenu } from "../Dropdown/Dropdown.ptsx";
+import { DropdownMenuContent } from "../Dropdown/DropdownMenuContent.ptsx";
+import { DropdownMenuTrigger } from "../Dropdown/DropdownMenuTrigger.ptsx";
+import { Icon } from "../Icon/Icon.ptsx";
+import { NativeSelect } from "../NativeSelect/NativeSelect.ptsx";
+import { SegmentedControl } from "../SegmentedControl/SegmentedControl.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type DataTableOptionsProps = {
+  id?: string;
+};
+
+export function DataTableOptions({ id }: DataTableOptionsProps) {
+  return (
+    <DropdownMenu classes="flex items-center">
+      <DropdownMenuTrigger asChild>
+        <Button
+          id={id}
+          type="button"
+          hierarchy="tertiary"
+          size="sm"
+          label={Publr.t("View options")}
+          title={Publr.t("View options")}
+        >
+          <Icon name="sliders" size="sm" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="right">
+        <div class="flex w-72 flex-col gap-4 p-3" data-part="view-options">
+          <div class="flex gap-3">
+            <div class="flex min-w-0 flex-1 flex-col gap-1.5">
+              <Text as="span" variant="eyebrow-section" tone="muted">
+                {Publr.t("Sort by")}
+              </Text>
+              <NativeSelect size="md" label={Publr.t("Sort by")} onChange={onSortField}>
+                {state.sort_options.map((choice) => (
+                  <option key={choice.id} value={choice.href} selected={choice.selected}>
+                    {choice.label}
+                  </option>
+                ))}
+              </NativeSelect>
+            </div>
+            <div class="flex w-24 flex-col gap-1.5">
+              <Text as="span" variant="eyebrow-section" tone="muted">
+                {Publr.t("Order")}
+              </Text>
+              <SegmentedControl
+                label={Publr.t("Order")}
+                tone="contrast"
+                options={state.direction_options}
+                onSelect={onChoose}
+              />
+            </div>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <Text as="span" variant="eyebrow-section" tone="muted">
+              {Publr.t("Items per page")}
+            </Text>
+            <SegmentedControl
+              label={Publr.t("Items per page")}
+              tone="contrast"
+              options={state.page_size_options}
+              onSelect={onChoose}
+            />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <Text as="span" variant="eyebrow-section" tone="muted">
+              {Publr.t("Properties")}
+            </Text>
+            <ul class="flex max-h-72 flex-col overflow-y-auto rounded-md border border-border">
+              {state.properties.map((property) => (
+                <li
+                  key={property.id}
+                  data-property={property.id}
+                  data-shown={property.shown ? "true" : "false"}
+                  draggable={property.shown ? "true" : "false"}
+                  onDragStart={onPropertyDragStart}
+                  onDragOver={onPropertyDragOver}
+                  onDrop={onPropertyDrop}
+                  onDragEnd={onPropertyDragEnd}
+                  class="flex items-center border-b border-border last:border-b-0"
+                >
+                  <a
+                    href={property.show_href}
+                    onClick={onNavigate}
+                    role="menuitemcheckbox"
+                    aria-checked={property.shown ? "true" : "false"}
+                    class="flex min-w-0 flex-1 cursor-pointer items-center gap-2 px-2 py-1.5 text-foreground outline-none hover:bg-ui-accent focus-visible:bg-ui-accent"
+                  >
+                    <span class={property.shown ? "inline-flex" : "inline-flex invisible"}>
+                      <Icon name="check" size="xs" />
+                    </span>
+                    <Text as="span" variant="body-sm" classes="min-w-0 flex-1 truncate">
+                      {property.label}
+                    </Text>
+                  </a>
+                  {property.shown && (
+                    <span class="inline-flex cursor-grab px-2 text-muted-foreground" title={Publr.t("Drag to reorder")}>
+                      <Icon name="grip-vertical" size="xs" />
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}

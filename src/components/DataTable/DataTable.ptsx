@@ -39,6 +39,8 @@ import { PaginationLink } from "../Pagination/PaginationLink.ptsx";
 import { PaginationPrevious } from "../Pagination/PaginationPrevious.ptsx";
 import { PaginationNext } from "../Pagination/PaginationNext.ptsx";
 import { PaginationEllipsis } from "../Pagination/PaginationEllipsis.ptsx";
+import { DataTableOptions } from "./DataTableOptions.ptsx";
+import { NativeSelect } from "../NativeSelect/NativeSelect.ptsx";
 
 export type DataTableProps = {
   id?: string;
@@ -46,7 +48,18 @@ export type DataTableProps = {
   search_name?: string;
   children?: JSX.Element;
   address?: string;
-  columns?: Array<{ id: string; label: string; href: string; active: boolean }>;
+  /** A column's header: its label, the address that sorts by it (`active` while it does,
+   * `sort` the direction), `end` alignment for numbers, and its menu: sort either way,
+   * hide, move, filter by. */
+  columns?: Array<{
+    id: string;
+    label: string;
+    href: string;
+    active: boolean;
+    sort: string;
+    align: string;
+    menu: Array<{ id: string; label: string; icon: string; href: string }>;
+  }>;
   rows?: Array<{
     id: string;
     cells: Array<{
@@ -57,6 +70,8 @@ export type DataTableProps = {
       tone: string;
       extra: string;
       extra_tone: string;
+      /** `links`: records a field points at, by title; `thumbs`: its media files. */
+      items: Array<{ id: string; label: string; href: string; thumb: string }>;
     }>;
   }>;
   filters?: Array<{
@@ -68,8 +83,19 @@ export type DataTableProps = {
     operator_name: string;
     operators: Array<{ label: string; href: string; selected: boolean }>;
     value: string;
+    /** What the value is chosen with: `options` (a menu), `day`, `text`, `number`, a range
+     * (`number_range`, `day_range`: `low` and `high`), `span` (`count` and `unit`), or
+     * `none`. */
     value_kind: string;
     day: string;
+    low: string;
+    high: string;
+    low_name: string;
+    high_name: string;
+    count: string;
+    unit: string;
+    count_name: string;
+    unit_name: string;
     options: Array<{ label: string; href: string; selected: boolean }>;
     carried: Array<{ id: string; name: string; value: string }>;
     remove_href: string;
@@ -95,6 +121,14 @@ export type DataTableProps = {
   next_href?: string;
   /** Which rows of how many: "21–40 of 300". */
   range_text?: string;
+  /** The view options behind the knob beside Filter, each choice an address: what to sort
+   * by, which way, how many rows a page shows, and the properties: the columns shown, in
+   * their order (dragged into another), then the rest. No properties, no knob. */
+  sort_options?: Array<{ id: string; label: string; href: string; selected: boolean }>;
+  /** Segmented choices: each `key` is the choice's address. */
+  direction_options?: Array<{ key: string; label: string; icon: "arrow-up" | "arrow-down"; pressed: boolean }>;
+  page_size_options?: Array<{ key: string; label: string; pressed: boolean }>;
+  properties?: Array<{ id: string; label: string; shown: boolean; show_href: string }>;
 };
 
 export const state = Publr.reactive({
@@ -111,6 +145,10 @@ export const state = Publr.reactive({
   previous_href: "",
   next_href: "",
   range_text: "",
+  sort_options: [] as NonNullable<DataTableProps["sort_options"]>,
+  direction_options: [] as NonNullable<DataTableProps["direction_options"]>,
+  page_size_options: [] as NonNullable<DataTableProps["page_size_options"]>,
+  properties: [] as NonNullable<DataTableProps["properties"]>,
   empty: true,
   request_url: "",
   busy: false,
@@ -212,6 +250,57 @@ export const onNavigate = (event: Event) => {
   event.preventDefault();
   to_top = anchor.closest('[data-part="pagination"]') !== null;
   navigate(url, true);
+};
+
+/** The table at an address the server wrote, kept in the history. */
+export const goTo = (href: string) => {
+  const url = table_url(href);
+  if (url) navigate(url, true);
+};
+
+/** A view option picked: its address is its key. */
+export const onChoose = (event: MouseEvent) => {
+  const option = (event.currentTarget as HTMLElement).dataset.option;
+  if (option) goTo(option);
+};
+
+// A shown property dragged onto another takes its place: the table loads with the columns
+// in the new order.
+let dragged = "";
+export const onPropertyDragStart = (event: DragEvent) => {
+  const row = event.currentTarget as HTMLElement;
+  dragged = row.dataset.property ?? "";
+  event.dataTransfer?.setData("text/plain", dragged);
+  if (event.dataTransfer) event.dataTransfer.effectAllowed = "move";
+};
+export const onPropertyDragOver = (event: DragEvent) => {
+  const row = event.currentTarget as HTMLElement;
+  if (dragged && row.dataset.shown === "true") event.preventDefault();
+};
+export const onPropertyDrop = (event: DragEvent) => {
+  const row = event.currentTarget as HTMLElement;
+  const target = row.dataset.property ?? "";
+  event.preventDefault();
+  if (!dragged || !target || dragged === target || !state.address) return;
+  const order = state.properties.filter((property) => property.shown).map((property) => property.id);
+  const from = order.indexOf(dragged);
+  const to = order.indexOf(target);
+  dragged = "";
+  if (from < 0 || to < 0) return;
+  order.splice(to, 0, ...order.splice(from, 1));
+  const url = new URL(state.address, location.href);
+  url.searchParams.set("columns", order.join(","));
+  url.searchParams.delete("page");
+  navigate(url, true);
+};
+export const onPropertyDragEnd = () => {
+  dragged = "";
+};
+
+/** A field picked to sort by: the option's value is its address. */
+export const onSortField = (event: Event) => {
+  const select = event.target;
+  if (select instanceof HTMLSelectElement && select.value) goTo(select.value);
 };
 
 export const onSubmit = (event: Event) => {
@@ -360,6 +449,10 @@ Publr.effect(() => {
     state.previous_href = next.data.previous_href;
     state.next_href = next.data.next_href;
     state.range_text = next.data.range_text;
+    state.sort_options = next.data.sort_options ?? [];
+    state.direction_options = next.data.direction_options ?? [];
+    state.page_size_options = next.data.page_size_options ?? [];
+    state.properties = next.data.properties ?? [];
     clearSelection();
     state.filters = next.data.filters;
     state.hidden = next.data.hidden;
@@ -402,6 +495,10 @@ export function DataTable({
   previous_href = "",
   next_href = "",
   range_text = "",
+  sort_options = [],
+  direction_options = [],
+  page_size_options = [],
+  properties = [],
   search_name = "q",
   children,
 }: DataTableProps) {
@@ -419,6 +516,10 @@ export function DataTable({
   state.previous_href = previous_href;
   state.next_href = next_href;
   state.range_text = range_text;
+  state.sort_options = sort_options;
+  state.direction_options = direction_options;
+  state.page_size_options = page_size_options;
+  state.properties = properties;
 
   return (
     <div
@@ -468,7 +569,9 @@ export function DataTable({
                       <DropdownMenuTrigger asChild ref={trigger_ref} data-table-trigger={filter.id}>
                         <FilterPillValue attached>{filter.value}</FilterPillValue>
                       </DropdownMenuTrigger>
-                      {filter.value_kind === "day" ? (
+                      {(filter.value_kind === "day" ||
+                        filter.value_kind === "text" ||
+                        filter.value_kind === "number") && (
                         <DropdownMenuContent>
                           <form
                             onSubmit={onSubmit}
@@ -490,10 +593,17 @@ export function DataTable({
                               value={filter.operator_id}
                             />
                             <Input
-                              type="date"
+                              type={
+                                filter.value_kind === "day"
+                                  ? "date"
+                                  : filter.value_kind === "number"
+                                    ? "number"
+                                    : "text"
+                              }
                               size="sm"
                               name={filter.name}
                               value={filter.day}
+                              aria-label={filter.label}
                               required
                               classes="w-40"
                             />
@@ -502,7 +612,106 @@ export function DataTable({
                             </Button>
                           </form>
                         </DropdownMenuContent>
-                      ) : (
+                      )}
+                      {(filter.value_kind === "number_range" || filter.value_kind === "day_range") && (
+                        <DropdownMenuContent>
+                          <form
+                            onSubmit={onSubmit}
+                            method="get"
+                            action={state.address}
+                            class="flex items-center gap-2 p-1"
+                          >
+                            {filter.carried.map((field) => (
+                              <input
+                                key={field.id}
+                                type="hidden"
+                                name={field.name}
+                                value={field.value}
+                              />
+                            ))}
+                            <input
+                              type="hidden"
+                              name={filter.operator_name}
+                              value={filter.operator_id}
+                            />
+                            <Input
+                              type={filter.value_kind === "day_range" ? "date" : "number"}
+                              size="sm"
+                              name={filter.low_name}
+                              value={filter.low}
+                              aria-label={Publr.t("From")}
+                              required
+                              classes="w-36"
+                            />
+                            <Text as="span" variant="body-sm" tone="muted">
+                              {Publr.t("and")}
+                            </Text>
+                            <Input
+                              type={filter.value_kind === "day_range" ? "date" : "number"}
+                              size="sm"
+                              name={filter.high_name}
+                              value={filter.high}
+                              aria-label={Publr.t("To")}
+                              required
+                              classes="w-36"
+                            />
+                            <Button type="submit" size="sm">
+                              {Publr.t("Apply")}
+                            </Button>
+                          </form>
+                        </DropdownMenuContent>
+                      )}
+                      {filter.value_kind === "span" && (
+                        <DropdownMenuContent>
+                          <form
+                            onSubmit={onSubmit}
+                            method="get"
+                            action={state.address}
+                            class="flex items-center gap-2 p-1"
+                          >
+                            {filter.carried.map((field) => (
+                              <input
+                                key={field.id}
+                                type="hidden"
+                                name={field.name}
+                                value={field.value}
+                              />
+                            ))}
+                            <input
+                              type="hidden"
+                              name={filter.operator_name}
+                              value={filter.operator_id}
+                            />
+                            <Input
+                              type="number"
+                              size="sm"
+                              name={filter.count_name}
+                              value={filter.count}
+                              aria-label={Publr.t("How many")}
+                              required
+                              classes="w-20"
+                            />
+                            <NativeSelect size="sm" name={filter.unit_name} label={Publr.t("Unit")} classes="w-28">
+                              <option value="d" selected={filter.unit === "d"}>
+                                {Publr.t("days")}
+                              </option>
+                              <option value="w" selected={filter.unit === "w"}>
+                                {Publr.t("weeks")}
+                              </option>
+                              <option value="m" selected={filter.unit === "m"}>
+                                {Publr.t("months")}
+                              </option>
+                              <option value="y" selected={filter.unit === "y"}>
+                                {Publr.t("years")}
+                              </option>
+                            </NativeSelect>
+                            <Button type="submit" size="sm">
+                              {Publr.t("Apply")}
+                            </Button>
+                          </form>
+                        </DropdownMenuContent>
+                      )}
+                      {filter.value_kind === "choice" && (
                         <DropdownMenuContent>
                           {filter.searchable && <DropdownMenuSearch placeholder={Publr.t("Search options")} />}
                           {filter.options.map((option) => (
@@ -574,6 +783,7 @@ export function DataTable({
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+            {state.properties.length > 0 && <DataTableOptions />}
           </FilterBar>
         </div>
       )}
@@ -631,8 +841,48 @@ export function DataTable({
                   </TableHead>
                 )}
                 {state.columns.map((column) => (
-                  <TableHead key={column.id} classes="first-of-type:pl-5">
-                    {column.href ? (
+                  <TableHead
+                    key={column.id}
+                    data-align={column.align}
+                    classes="first-of-type:pl-5 data-[align=end]:text-right"
+                  >
+                    {column.menu.length > 0 ? (
+                      <DropdownMenu classes="inline-flex">
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            type="button"
+                            data-sort-active={column.active ? "true" : "false"}
+                            class="inline-flex cursor-pointer items-center gap-1 rounded text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring data-[sort-active=true]:text-foreground"
+                          >
+                            <Text as="span" variant="body-sm" tone="default">
+                              {column.label}
+                            </Text>
+                            {column.sort === "asc" && <Icon name="arrow-up" size="xs" />}
+                            {column.sort === "desc" && <Icon name="arrow-down" size="xs" />}
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          {column.menu.map((item) => (
+                            <DropdownMenuItem key={item.id} onClick={onNavigate} href={item.href}>
+                              {item.icon === "arrow-up" ? (
+                                <Icon name="arrow-up" size="sm" />
+                              ) : item.icon === "arrow-down" ? (
+                                <Icon name="arrow-down" size="sm" />
+                              ) : item.icon === "arrow-left" ? (
+                                <Icon name="arrow-left" size="sm" />
+                              ) : item.icon === "arrow-right" ? (
+                                <Icon name="arrow-right" size="sm" />
+                              ) : item.icon === "eye-off" ? (
+                                <Icon name="eye-off" size="sm" />
+                              ) : (
+                                <Icon name="filter-lines" size="sm" />
+                              )}
+                              {item.label}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    ) : column.href ? (
                       <Link
                         onClick={onNavigate}
                         href={column.href}
@@ -662,9 +912,47 @@ export function DataTable({
                     <TableCell
                       key={cell.id}
                       data-cell-kind={cell.kind}
-                      classes="first-of-type:pl-5 data-[cell-kind=numeric]:whitespace-nowrap data-[cell-kind=numeric]:tabular-nums data-[cell-kind=action]:text-right"
+                      classes="first-of-type:pl-5 data-[cell-kind=numeric]:whitespace-nowrap data-[cell-kind=numeric]:tabular-nums data-[cell-kind=amount]:whitespace-nowrap data-[cell-kind=amount]:text-right data-[cell-kind=amount]:tabular-nums data-[cell-kind=action]:text-right"
                     >
-                      {cell.kind === "action" ? (
+                      {cell.kind === "thumbs" ? (
+                        <span class="inline-flex items-center gap-1">
+                          {cell.items.map((item) => (
+                            <span key={item.id} class="contents">
+                              {item.thumb ? (
+                                <img
+                                  src={item.thumb}
+                                  alt={item.label}
+                                  title={item.label}
+                                  loading="lazy"
+                                  class="size-8 rounded object-cover"
+                                />
+                              ) : (
+                                <Text as="span" variant="body-sm" tone="muted">
+                                  {item.label}
+                                </Text>
+                              )}
+                            </span>
+                          ))}
+                          {cell.text && (
+                            <Text as="span" variant="body-sm" tone="muted">
+                              {cell.text}
+                            </Text>
+                          )}
+                        </span>
+                      ) : cell.kind === "links" ? (
+                        <span class="inline-flex flex-wrap items-center gap-x-2">
+                          {cell.items.map((item) => (
+                            <Link key={item.id} href={item.href} variant="body-sm" tone="default">
+                              {item.label}
+                            </Link>
+                          ))}
+                          {cell.text && (
+                            <Text as="span" variant="body-sm" tone="muted">
+                              {cell.text}
+                            </Text>
+                          )}
+                        </span>
+                      ) : cell.kind === "action" ? (
                         <Link href={cell.href} label={cell.text} tone="quiet" classes="inline-flex">
                           <Icon name="chevron-right" size="sm" />
                         </Link>
