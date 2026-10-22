@@ -141,8 +141,7 @@ fn lower_file(gen: *Gen, root: []const u8, sub_path: []const u8, out_path: []con
     var resolver = pjsx.FileResolver{
         .io = gen.io,
     };
-    const output = pjsx.dom.transformPjsxToDom(gen.arena, source, .{
-        .filename = filename,
+    const output = pjsx.dom.transformPjsxToDom(gen.arena, source, filename, .{
         .runtime_import = runtime_import,
         .resolver = resolver.resolver(),
     }) catch {

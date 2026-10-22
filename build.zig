@@ -23,7 +23,8 @@ pub fn build(b: *std.Build) void {
     });
     const run_check = b.addRunArtifact(check);
     run_check.setCwd(b.path("."));
-    b.step("test", "Compile every component and demo with pjsx; lower the component set to Zig").dependOn(&run_check.step);
+    const test_step = b.step("test", "Compile every component and demo with pjsx; lower the component set to Zig");
+    test_step.dependOn(&run_check.step);
 
     // The gallery: a static site under zig-out/gallery, rendered in the
     // browser from the recipes with the runtime and the jit engine.
@@ -98,6 +99,22 @@ pub fn build(b: *std.Build) void {
     serve.addArgs(&.{ "--response-bytes-max", "8388608", "--port", "8200" });
     if (b.args) |args| serve.addArgs(args);
     b.step("serve", "Serve the gallery at http://127.0.0.1:8200").dependOn(&serve.step);
+
+    // Publr's tidy, holding this repo to the workspace's options rule (STYLE.md) alone so far.
+    const tidy = b.addExecutable(.{
+        .name = "tidy",
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("../publr/scripts/tidy.zig"),
+            .target = b.graph.host,
+            .optimize = .Debug,
+        }),
+    });
+    const run_tidy = b.addRunArtifact(tidy);
+    run_tidy.addArgs(&.{ "--only=options", "build.zig", "scripts" });
+    run_tidy.setCwd(b.path("."));
+    run_tidy.has_side_effects = true;
+    b.step("tidy", "Check the workspace's options rule").dependOn(&run_tidy.step);
+    test_step.dependOn(&run_tidy.step);
 }
 
 /// A directory argument is hashed by path, so every file under it is declared

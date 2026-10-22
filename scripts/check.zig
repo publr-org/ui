@@ -44,7 +44,9 @@ fn read_corpus(arena: std.mem.Allocator, io: std.Io, dir_path: []const u8) !Corp
         var resolver = pjsx.FileResolver{
             .io = io,
         };
-        const module = pjsx.compiler.createPjsxModuleWithResolver(arena, source, label, resolver.resolver()) catch {
+        const module = pjsx.compiler.createPjsxModule(arena, source, label, .{
+            .resolver = resolver.resolver(),
+        }) catch {
             std.debug.print("{s}/{s}: {s}\n", .{ dir_path, entry.path, pjsx.lastError() });
             failures += 1;
 
@@ -74,8 +76,7 @@ fn lower_dom(arena: std.mem.Allocator, corpus: Corpus, label: []const u8) u32 {
         .io = std.testing.io,
     };
     for (corpus.entries) |entry| {
-        _ = pjsx.dom.transformPjsxToDom(arena, entry.source, .{
-            .filename = entry.module.filename,
+        _ = pjsx.dom.transformPjsxToDom(arena, entry.source, entry.module.filename, .{
             .runtime_import = "publr-jsx",
             .resolver = resolver.resolver(),
         }) catch {
@@ -145,8 +146,7 @@ test "every recipe and the gallery app lower to DOM" {
         if (entry.kind != .file or !source_file) continue;
         const path = try std.fs.path.join(arena, &.{ "gallery", entry.path });
         const source = try dir.readFileAlloc(io, entry.path, arena, .limited(file_bytes_max));
-        _ = pjsx.dom.transformPjsxToDom(arena, source, .{
-            .filename = path,
+        _ = pjsx.dom.transformPjsxToDom(arena, source, path, .{
             .runtime_import = "publr-jsx",
             .resolver = resolver.resolver(),
         }) catch {
