@@ -1,4 +1,4 @@
-import { state, trigger, content, point, contentKeydown, activate, dismiss, subEnter, subLeave } from "./Dropdown.ptsx";
+import { state, trigger, content, point, contentKeydown, activate, dismiss, rowHover, subEnter, subLeave } from "./Dropdown.ptsx";
 
 export type DropdownMenuContentProps = {
   id?: string;
@@ -43,6 +43,7 @@ export function DropdownMenuContent({
       onKeyDown={contentKeydown}
       onClick={activate}
       onDismiss={dismiss}
+      onPointerMove={rowHover}
       onPointerEnter={subEnter}
       onPointerLeave={subLeave}
       portal

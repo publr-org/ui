@@ -94,7 +94,19 @@ export const search = (event: Event) => {
   state.query = (event.target as HTMLInputElement).value;
 };
 
+/** The submenus open from this menu's rows (their contents). */
+const openSubs = () => {
+  const panel = content.current as HTMLElement | null;
+  if (!panel) return [];
+  return [...panel.querySelectorAll<HTMLElement>('[aria-haspopup="menu"][aria-expanded="true"]')]
+    .filter((row) => row.closest('[role="menu"]') === panel)
+    .map((row) => panel.ownerDocument.getElementById(row.getAttribute("aria-controls") ?? ""))
+    .filter((sub): sub is HTMLElement => sub !== null);
+};
+
 const close = (restoreFocus = false) => {
+  // A submenu goes with the menu it opened from.
+  for (const sub of openSubs()) sub.dispatchEvent(new CustomEvent("dismiss", { detail: { reason: "pointer" } }));
   state.open = false;
   if (restoreFocus) state.restoreFocusRevision++;
 };
@@ -105,6 +117,10 @@ export const toggle = (event: Event) => {
   if (state.open) close();
   else openAt("first");
 };
+
+/** This menu's opener, for a key that opens it from anywhere (DropdownMenuTrigger
+ * `openOn`): called where the trigger renders, it is bound to that trigger's menu. */
+export const opener = () => () => openAt("first");
 
 export const triggerKeydown = (event: Event) => {
   if (!(event instanceof KeyboardEvent)) return;
@@ -146,6 +162,12 @@ export const contentKeydown = (event: Event) => {
     else if (event.key === "ArrowUp" && current === 0 && searchBox()) state.focusIndex = -1;
     else state.focusIndex = current + (event.key === "ArrowDown" ? 1 : -1);
     state.focusRevision++;
+  } else if (typing && event.key === "Enter") {
+    // Enter in the search box chooses the first item it left.
+    event.preventDefault();
+    if (!enabled.length) return;
+    state.activationIndex = 0;
+    state.activationRevision++;
   } else if (typing) {
     return;
   } else if (event.key === "Home" || event.key === "End") {
@@ -174,6 +196,20 @@ export const contentKeydown = (event: Event) => {
   }
 };
 
+/** The menu a submenu opens from (its trigger's menu), or null for a menu of its own. */
+const parentMenu = () => {
+  const panel = content.current as HTMLElement | null;
+  if (!panel?.hasAttribute("data-submenu")) return null;
+  return (trigger.current as HTMLElement | null)?.closest<HTMLElement>('[role="menu"]') ?? null;
+};
+
+/** Closes this menu and every menu it opened from: an item chosen in a submenu closes
+ * the whole menu, as a click on one does. */
+const closeChain = () => {
+  close();
+  parentMenu()?.dispatchEvent(new CustomEvent("dismiss", { detail: { reason: "chosen" } }));
+};
+
 export const activate = (event: Event) => {
   // Only plain menuitems dismiss the menu on activation — checkbox items
   // (role="menuitemcheckbox") toggle in place and stay open.
@@ -182,12 +218,40 @@ export const activate = (event: Event) => {
     item &&
     // A submenu's trigger opens its submenu; the menu stays.
     !item.hasAttribute("aria-haspopup") &&
-    (content.current as HTMLElement | null)?.contains(item) &&
+    // In this menu when clicked: the path the event took holds the menu even when the
+    // item's own handler changed the list and took the item out.
+    (event.composedPath().includes(content.current as HTMLElement) || (content.current as HTMLElement | null)?.contains(item)) &&
     !isDisabled(item) &&
     !event.defaultPrevented
   ) {
-    close();
+    closeChain();
   }
+};
+
+/** The pointer over a row of this menu: that row is the one highlighted. It takes the
+ * focus (a row the keys reached before loses it), and a submenu open from another row
+ * of this menu closes at once, so one row shows highlighted and it follows the pointer
+ * with no delay. A search box being typed in keeps the focus. */
+export const rowHover = (event: Event) => {
+  const panel = content.current as HTMLElement | null;
+  if (!panel || !(event instanceof MouseEvent)) return;
+  const rows = '[role="menuitem"], [role="menuitemcheckbox"]';
+  // A greyed row takes no pointer events: it is found by where it is.
+  const row =
+    (event.target as Element | null)?.closest<HTMLElement>(rows) ??
+    [...panel.querySelectorAll<HTMLElement>(rows)].find((r) => {
+      const b = r.getBoundingClientRect();
+      return event.clientX >= b.left && event.clientX < b.right && event.clientY >= b.top && event.clientY < b.bottom;
+    });
+  if (!row || row.closest('[role="menu"]') !== panel) return;
+  const own = row.getAttribute("aria-controls");
+  for (const sub of openSubs())
+    if (sub.id !== own) sub.dispatchEvent(new CustomEvent("dismiss", { detail: { reason: "pointer" } }));
+  const active = panel.ownerDocument.activeElement;
+  if (active === row || isSearchBox(active)) return;
+  if (!isDisabled(row)) row.focus({ preventScroll: true });
+  // On a greyed row nothing is highlighted: the row the keys reached lets go.
+  else if (active instanceof HTMLElement && active.closest('[role="menu"]') === panel) panel.focus({ preventScroll: true });
 };
 
 let subTimer = 0;
@@ -227,7 +291,8 @@ export const subTriggerKeydown = (event: Event) => {
 
 export const dismiss = (event: Event) => {
   const reason = (event as CustomEvent<{ reason?: string }>).detail?.reason;
-  close(reason === "escape");
+  if (reason === "chosen") closeChain();
+  else close(reason === "escape");
 };
 
 Publr.effect(() => {

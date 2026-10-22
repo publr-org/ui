@@ -1,5 +1,5 @@
-import { Slot } from "publr-jsx";
-import { state, toggle, trigger, triggerKeydown } from "./Dropdown.ptsx";
+import { Publr, Slot } from "publr-jsx";
+import { opener, state, toggle, trigger, triggerKeydown } from "./Dropdown.ptsx";
 
 export type DropdownMenuTriggerProps = {
   id?: string;
@@ -7,6 +7,9 @@ export type DropdownMenuTriggerProps = {
   asChild?: boolean;
   /** The accessible name, when the children are only a picture: "Account". */
   label?: string;
+  /** A key that opens the menu from anywhere on the page (a search box in it takes the
+   * focus): `(event) => event.metaKey && event.code === "KeyK"`. */
+  openOn?: (event: KeyboardEvent) => boolean;
   children: JSX.Element;
 };
 
@@ -15,8 +18,21 @@ export function DropdownMenuTrigger({
   classes = "",
   asChild = false,
   label,
+  openOn,
   children,
 }: DropdownMenuTriggerProps) {
+  if (openOn) {
+    const open = opener();
+    Publr.effect(() => {
+      const onKey = (event: KeyboardEvent) => {
+        if (event.defaultPrevented || !openOn(event)) return;
+        event.preventDefault();
+        open();
+      };
+      window.addEventListener("keydown", onKey);
+      return () => window.removeEventListener("keydown", onKey);
+    });
+  }
   return (
     <>
       {asChild ? (
