@@ -16,11 +16,14 @@ export type IconSize = keyof typeof ICON_SIZES;
 export type IconProps = {
   id?: string;
   name: IconName;
+  /** A plugin's own icon (`products.bag`), in the page's sprite; `name` is ignored when
+   * given. */
+  custom_icon?: string;
   size?: IconSize;
   classes?: string;
 };
 
-export function Icon({ classes = "", id, name, size = "md" }: IconProps) {
+export function Icon({ classes = "", id, name, custom_icon = "", size = "md" }: IconProps) {
   return (
     <svg
       id={id}
@@ -30,7 +33,7 @@ export function Icon({ classes = "", id, name, size = "md" }: IconProps) {
       aria-hidden="true"
       data-part="icon"
     >
-      <use href={`#publr-icon-${name}`} />
+      <use href={custom_icon !== "" ? `#publr-icon-${custom_icon}` : `#publr-icon-${name}`} />
     </svg>
   );
 }

@@ -1,5 +1,5 @@
 // One form field as the admin lays it out: the label with its required mark, the control,
-// then the help under it and an error last. A composite of Field's parts; the control is
+// then the help under it, the field's rules beside the help, and an error last. A composite of Field's parts; the control is
 // whatever comes as children. A row whose control names itself (a group, a heading) leaves
 // the label empty.
 import { Field } from "../Field/Field.ptsx";
@@ -15,6 +15,8 @@ export type FieldRowProps = {
   required?: boolean;
   /** The line under the control; empty draws none. */
   description?: string;
+  /** The field's rules (`Up to 280 characters`), drawn with the help; empty draws none. */
+  hint?: string;
   /** What is wrong with the value; empty draws none. */
   error?: string;
   classes?: string;
@@ -27,6 +29,7 @@ export function FieldRow({
   htmlFor,
   required = false,
   description = "",
+  hint = "",
   error = "",
   classes = "",
   id,
@@ -41,6 +44,7 @@ export function FieldRow({
       )}
       {children}
       {description !== "" && <FieldDescription>{description}</FieldDescription>}
+      {hint !== "" && <FieldDescription>{hint}</FieldDescription>}
       {error !== "" && <FieldError>{error}</FieldError>}
     </Field>
   );
