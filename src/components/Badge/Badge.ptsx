@@ -16,7 +16,7 @@ export type BadgeProps = {
   /** `pill` fully rounded (states, counts), `tag` a small-cornered label ("Bold 700"),
    * `segment` square, one part of a BadgeGroup, which rounds the outside. */
   shape?: BadgeShape;
-  /** The one chosen among its group (the language a form shows): filled in its tone's color. */
+  /** The one chosen among its group (the language a form shows): a deeper tint of its tone. */
   selected?: boolean;
   classes?: string;
 };
@@ -28,12 +28,12 @@ const TONE_CLASSES: Record<BadgeTone, string> = {
   surface: "bg-card text-muted-foreground",
 };
 
-/** A selected badge filled in its tone's own color, so it reads at a glance among the rest. */
+/** A selected badge a quiet step up from its tone: a deeper tint, darker text. */
 const SELECTED_CLASSES: Record<BadgeTone, string> = {
-  neutral: "bg-muted-foreground text-background",
-  success: "bg-success text-background font-semibold",
-  outline: "bg-muted-foreground text-background",
-  surface: "bg-muted-foreground text-background",
+  neutral: "bg-foreground/10 text-foreground",
+  success: "bg-success/25 text-success font-semibold",
+  outline: "bg-foreground/10 text-foreground",
+  surface: "bg-foreground/10 text-foreground",
 };
 
 const SIZE_CLASSES: Record<BadgeSize, string> = {
