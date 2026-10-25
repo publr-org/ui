@@ -34,7 +34,7 @@ const SIZE_CLASSES: Record<BadgeSize, string> = {
 export function Badge({ children, tone = "neutral", size = "sm", shape = "pill", classes = "" }: BadgeProps) {
   return (
     <span
-      class={["inline-flex shrink-0 items-center justify-center font-medium whitespace-nowrap tabular-nums", shape === "tag" ? "rounded-sm" : shape === "segment" ? "rounded-none" : "rounded-full", TONE_CLASSES[tone], SIZE_CLASSES[size], shape === "tag" ? "px-1.5" : "", classes]}
+      class={["inline-flex shrink-0 items-center justify-center font-medium whitespace-nowrap tabular-nums", shape === "tag" ? "rounded-sm" : shape === "segment" ? "rounded-none" : "rounded-full", TONE_CLASSES[tone], SIZE_CLASSES[size], shape === "tag" ? "px-1.5" : "", shape === "segment" ? "h-full py-0" : "", classes]}
       data-badge-tone={tone}
     >
       {children}
