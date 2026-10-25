@@ -1,0 +1,43 @@
+import { Badge } from "../../../src/components/Badge/Badge.ptsx";
+import { BadgeGroup } from "../../../src/components/Badge/BadgeGroup.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "badge-group",
+  label: "Badge group",
+  source: "src/components/Badge/BadgeGroup.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description: "Badges that belong together as one pill: an optional label, then each value as a segment.",
+  tags: ["badge", "segment", "markers"],
+  usage: `<BadgeGroup label="Variation"><Badge shape="segment">Control</Badge></BadgeGroup>`,
+  preview: "demo",
+  previewLabel: "Badge group",
+  docs: {
+    purpose: ["Several values of one thing side by side, as one pill: a field's languages, a test's variations."],
+    useWhen: ["Markers beside a field's label that share a dimension."],
+    avoidWhen: ["Use a single Badge for one state or count."],
+    rules: [{ title: "Segments", description: "Children are Badges with shape=\"segment\"; the group rounds the outside." }],
+    accessibility: ["Put each segment in a button when it does something; the group itself is only layout."],
+    composition: ["Badge segments inside one bordered, rounded frame."],
+    agentNotes: ["Do not restyle it from the app; change this component."],
+    props: [
+      { name: "label", type: "string", description: "What the values are of, first and quieter; empty draws none." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="flex items-center gap-3">
+      <BadgeGroup label="Variation">
+        <Badge shape="segment" tone="success">Control</Badge>
+        <Badge shape="segment" tone="neutral">Variation B</Badge>
+      </BadgeGroup>
+      <BadgeGroup>
+        <Badge shape="segment" tone="success">EN</Badge>
+        <Badge shape="segment" tone="neutral">PL</Badge>
+      </BadgeGroup>
+    </div>
+  );
+}

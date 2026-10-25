@@ -1,0 +1,26 @@
+// Badges that belong together as one pill: an optional label, then each value as a segment
+// (`<Badge shape="segment">`), rounded only on the outside, a hairline between segments.
+// "Variation | Control | Variation B", "EN | PL".
+
+export type BadgeGroupProps = {
+  /** What the values are of, first and quieter: "Variation". Empty draws none. */
+  label?: string;
+  children: JSX.Element;
+  classes?: string;
+};
+
+export function BadgeGroup({ label = "", children, classes = "" }: BadgeGroupProps) {
+  return (
+    <span
+      class={["inline-flex shrink-0 items-stretch divide-x divide-border overflow-hidden rounded-full border border-border bg-background align-middle", classes]}
+      data-part="badge-group"
+    >
+      {label !== "" && (
+        <span class="inline-flex items-center px-2 text-[10px] leading-4 font-medium whitespace-nowrap text-muted-foreground">
+          {label}
+        </span>
+      )}
+      {children}
+    </span>
+  );
+}

@@ -5,7 +5,7 @@ export const BADGE_TONES = ["neutral", "success", "outline", "surface"] as const
 export const BADGE_SIZES = ["xs", "sm"] as const;
 export type BadgeTone = (typeof BADGE_TONES)[number];
 export type BadgeSize = (typeof BADGE_SIZES)[number];
-export const BADGE_SHAPES = ["pill", "tag"] as const;
+export const BADGE_SHAPES = ["pill", "tag", "segment"] as const;
 export type BadgeShape = (typeof BADGE_SHAPES)[number];
 
 export type BadgeProps = {
@@ -13,7 +13,8 @@ export type BadgeProps = {
   tone?: BadgeTone;
   /** `xs` 8–9px counts and tags, `sm` 10px states. */
   size?: BadgeSize;
-  /** `pill` fully rounded (states, counts), `tag` a small-cornered label ("Bold 700"). */
+  /** `pill` fully rounded (states, counts), `tag` a small-cornered label ("Bold 700"),
+   * `segment` square, one part of a BadgeGroup, which rounds the outside. */
   shape?: BadgeShape;
   classes?: string;
 };
@@ -33,7 +34,7 @@ const SIZE_CLASSES: Record<BadgeSize, string> = {
 export function Badge({ children, tone = "neutral", size = "sm", shape = "pill", classes = "" }: BadgeProps) {
   return (
     <span
-      class={["inline-flex shrink-0 items-center justify-center font-medium whitespace-nowrap tabular-nums", shape === "tag" ? "rounded-sm" : "rounded-full", TONE_CLASSES[tone], SIZE_CLASSES[size], shape === "tag" ? "px-1.5" : "", classes]}
+      class={["inline-flex shrink-0 items-center justify-center font-medium whitespace-nowrap tabular-nums", shape === "tag" ? "rounded-sm" : shape === "segment" ? "rounded-none" : "rounded-full", TONE_CLASSES[tone], SIZE_CLASSES[size], shape === "tag" ? "px-1.5" : "", classes]}
       data-badge-tone={tone}
     >
       {children}
