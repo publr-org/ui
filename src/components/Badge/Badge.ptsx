@@ -16,6 +16,8 @@ export type BadgeProps = {
   /** `pill` fully rounded (states, counts), `tag` a small-cornered label ("Bold 700"),
    * `segment` square, one part of a BadgeGroup, which rounds the outside. */
   shape?: BadgeShape;
+  /** The one chosen among its group (the language a form shows): filled in its tone's color. */
+  selected?: boolean;
   classes?: string;
 };
 
@@ -26,15 +28,23 @@ const TONE_CLASSES: Record<BadgeTone, string> = {
   surface: "bg-card text-muted-foreground",
 };
 
+/** A selected badge filled in its tone's own color, so it reads at a glance among the rest. */
+const SELECTED_CLASSES: Record<BadgeTone, string> = {
+  neutral: "bg-muted-foreground text-background",
+  success: "bg-success text-background font-semibold",
+  outline: "bg-muted-foreground text-background",
+  surface: "bg-muted-foreground text-background",
+};
+
 const SIZE_CLASSES: Record<BadgeSize, string> = {
   xs: "px-1.5 py-0.5 text-[8px] leading-3",
   sm: "px-2 py-0.5 text-[10px] leading-4",
 };
 
-export function Badge({ children, tone = "neutral", size = "sm", shape = "pill", classes = "" }: BadgeProps) {
+export function Badge({ children, tone = "neutral", size = "sm", shape = "pill", selected = false, classes = "" }: BadgeProps) {
   return (
     <span
-      class={["inline-flex shrink-0 items-center justify-center font-medium whitespace-nowrap tabular-nums", shape === "tag" ? "rounded-sm" : shape === "segment" ? "rounded-none" : "rounded-full", TONE_CLASSES[tone], SIZE_CLASSES[size], shape === "tag" ? "px-1.5" : "", shape === "segment" ? "h-full py-0" : "", classes]}
+      class={["inline-flex shrink-0 items-center justify-center font-medium whitespace-nowrap tabular-nums", shape === "tag" ? "rounded-sm" : shape === "segment" ? "rounded-none" : "rounded-full", selected ? SELECTED_CLASSES[tone] : TONE_CLASSES[tone], SIZE_CLASSES[size], shape === "tag" ? "px-1.5" : "", shape === "segment" ? "h-full py-0" : "", classes]}
       data-badge-tone={tone}
     >
       {children}

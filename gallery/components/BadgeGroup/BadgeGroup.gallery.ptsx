@@ -31,7 +31,7 @@ export function Demo() {
   return (
     <div class="flex items-center gap-3">
       <BadgeGroup label="Variation">
-        <Badge shape="segment" tone="success">Control</Badge>
+        <Badge shape="segment" tone="success" selected>Control</Badge>
         <Badge shape="segment" tone="neutral">Variation B</Badge>
       </BadgeGroup>
       <BadgeGroup>
