@@ -10,6 +10,8 @@ import { FieldLabel } from "../Field/FieldLabel.ptsx";
 export type FieldRowProps = {
   /** The label; empty draws none. */
   label?: string;
+  /** Beside the label: markers a plugin adds (`Translated`), a count. */
+  aside?: JSX.Element;
   /** The control's id, so the label names it. */
   htmlFor?: string;
   required?: boolean;
@@ -26,6 +28,7 @@ export type FieldRowProps = {
 
 export function FieldRow({
   label = "",
+  aside,
   htmlFor,
   required = false,
   description = "",
@@ -38,9 +41,12 @@ export function FieldRow({
   return (
     <Field id={id} classes={classes}>
       {label !== "" && (
-        <FieldLabel htmlFor={htmlFor} required={required}>
-          {label}
-        </FieldLabel>
+        <div class="flex min-w-0 flex-wrap items-center gap-2">
+          <FieldLabel htmlFor={htmlFor} required={required}>
+            {label}
+          </FieldLabel>
+          {aside}
+        </div>
       )}
       {children}
       {description !== "" && <FieldDescription>{description}</FieldDescription>}
