@@ -1,6 +1,7 @@
 // One feed entry: gutter marker then TimelineContent, connected to the next
-// entry by a component-owned rail. The rail is pure CSS — group-last:hidden
-// drops it on the final item, so callers never thread positional state. Its
+// entry by a component-owned rail. The rail is pure CSS — it hides when its own
+// item is the last of its list, so callers never thread positional state, and a
+// Timeline nested in an item's content (a hierarchy) keeps every rail. Its
 // offsets (left-4, top-8) center under a size-md Avatar, the demonstrated
 // gutter marker.
 
@@ -15,7 +16,7 @@ export function TimelineItem({ children, classes = "", id }: TimelineItemProps) 
     <li id={id} class={["group relative flex gap-3.5 pb-6 last:pb-0", classes]}>
       <span
         aria-hidden="true"
-        class="absolute bottom-0 left-4 top-8 w-px bg-border group-last:hidden"
+        class="absolute bottom-0 left-4 top-8 w-px bg-border [li:last-child>&]:hidden"
       ></span>
       {children}
     </li>

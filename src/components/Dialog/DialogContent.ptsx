@@ -9,13 +9,16 @@ import { backdrop, backdropDismiss, closeOnSubmit, dialogKeydown, panel, state }
 export type DialogContentProps = {
   id?: string;
   classes?: string;
+  /** `full`: the panel fills the screen but a 1rem margin (a comparison, a long table);
+   * `default` sits a little below the top, as wide as its content asks. */
+  size?: "default" | "full";
   children?: JSX.Element;
 };
 
-export function DialogContent({ id, classes = "", children }: DialogContentProps) {
+export function DialogContent({ id, classes = "", size = "default", children }: DialogContentProps) {
   return (
     <div
-      class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/50 p-4 pt-[12vh]"
+      class={["hidden fixed inset-0 z-50 overflow-y-auto bg-black/50 p-4", size === "full" ? "" : "pt-[12vh]"]}
       data-part="backdrop"
       ref={backdrop}
       onClick={backdropDismiss}
@@ -27,7 +30,8 @@ export function DialogContent({ id, classes = "", children }: DialogContentProps
       <div
         id={id}
         class={[
-          "relative mx-auto w-full max-w-md rounded-lg border border-border bg-popover p-5 text-popover-foreground shadow-2xl outline-none",
+          "relative mx-auto w-full rounded-lg border border-border bg-popover text-popover-foreground shadow-2xl outline-none",
+          size === "full" ? "flex h-full max-w-none flex-col overflow-hidden" : "max-w-md p-5",
           classes,
         ]}
         role="dialog"

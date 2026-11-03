@@ -216,8 +216,8 @@ export const activate = (event: Event) => {
   const item = (event.target as Element | null)?.closest<HTMLElement>('[role="menuitem"]');
   if (
     item &&
-    // A submenu's trigger opens its submenu; the menu stays.
-    !item.hasAttribute("aria-haspopup") &&
+    // A submenu's trigger opens its submenu; the menu stays. One opening a dialog is chosen.
+    item.getAttribute("aria-haspopup") !== "menu" &&
     // In this menu when clicked: the path the event took holds the menu even when the
     // item's own handler changed the list and took the item out.
     (event.composedPath().includes(content.current as HTMLElement) || (content.current as HTMLElement | null)?.contains(item)) &&

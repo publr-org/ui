@@ -62,7 +62,7 @@ export const meta = {
       {
         title: "Items own the rail",
         description:
-          "TimelineItem draws the connector to the next entry and hides it on the last item via group-last. Never thread an is-last flag through data.",
+          "TimelineItem draws the connector to the next entry and hides it when its own item is the last of its list, so a Timeline nested in an item's content keeps its rails. Never thread an is-last flag through data.",
       },
       {
         title: "The gutter marker is composed",

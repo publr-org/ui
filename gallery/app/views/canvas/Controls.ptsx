@@ -394,10 +394,8 @@ function ChildrenControl({ entry, control, wide, parent, scope }: { entry: DemoE
 }
 
 export function Control({ entry, control, wide, parent, scope }: { entry: DemoEntry; control: ComponentCanvasControl; wide: boolean; parent?: string; scope: string }) {
-  if (control.visibleWhen) {
-    const dependency = fieldDefinition(entry, control.visibleWhen.control);
-    if (!dependency || canvasValue(entry, dependency, scope) !== control.visibleWhen.equals) return <span hidden></span>;
-  }
+  const dependency = control.visibleWhen ? fieldDefinition(entry, control.visibleWhen.control) : null;
+  if (control.visibleWhen && (!dependency || canvasValue(entry, dependency, scope) !== control.visibleWhen.equals)) return <span hidden></span>;
   if (control.type === "group") return <GroupTrigger entry={entry} control={control} parent={parent} scope={scope} />;
   if (control.type === "children") return <ChildrenControl entry={entry} control={control} wide={wide} parent={parent} scope={scope} />;
   return <FieldControl entry={entry} control={control} wide={wide} scope={scope} />;
