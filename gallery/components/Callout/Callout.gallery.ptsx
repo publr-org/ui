@@ -1,0 +1,48 @@
+import { Callout } from "../../../src/components/Callout/Callout.ptsx";
+import { Button } from "../../../src/components/Button/Button.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "callout",
+  label: "Callout",
+  source: "src/components/Callout/Callout.ptsx",
+  kind: "primitive",
+  group: "Cards and callouts",
+  description: "A short notice inside a page: a state to know about, with what can be done about it at its end.",
+  tags: ["notice", "status", "review"],
+  usage: `<Callout tone="success" title="You approved these changes" actions={<Button hierarchy="secondary">Withdraw approval</Button>}>Deploy when you are ready.</Callout>`,
+  preview: "demo",
+  previewLabel: "Each tone, one with actions",
+  docs: {
+    purpose: ["Says what state something is in, or why something is not available, where it applies."],
+    useWhen: ["A state the person should see while they work: approved, waiting, refused."],
+    avoidWhen: ["A confirmation that should fade; use Toast."],
+    rules: [{ title: "Actions at its end", description: "Buttons or a menu that act on what it says go in actions, never beside the notice." }],
+    accessibility: ["role=note; the icon is decorative; the title says the state in words."],
+    composition: ["Icon for the tone, title, a line or two of children or a list of items, then actions."],
+    agentNotes: ["Do not restyle from the app; change this component."],
+    props: [
+      { name: "tone", type: "\"info\" | \"success\" | \"warning\" | \"error\"", description: "What kind of notice it is." },
+      { name: "title", type: "string", description: "The state, in a few words." },
+      { name: "items", type: "Array<{ code, text }>", description: "Several problems at once." },
+      { name: "actions", type: "JSX.Element", description: "Buttons or a menu at its end." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="flex w-[40rem] flex-col gap-3">
+      <Callout
+        tone="success"
+        title="You approved these changes"
+        actions={<Button hierarchy="secondary">Withdraw approval</Button>}
+      >
+        Deploy when you are ready, or keep working with your agent.
+      </Callout>
+      <Callout tone="warning" title="Changes requested">Waiting for your agent.</Callout>
+      <Callout tone="info" title="Nothing to deploy">Everything is on Production already.</Callout>
+      <Callout tone="error" title="The deploy failed">Production changed since; review again.</Callout>
+    </div>
+  );
+}

@@ -1,0 +1,37 @@
+import { AddressBar } from "../../../src/components/AddressBar/AddressBar.ptsx";
+import { StatusButton } from "../../../src/components/StatusButton/StatusButton.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "address-bar",
+  label: "AddressBar",
+  source: "src/components/AddressBar/AddressBar.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description: "Where a preview is, read only, as a browser shows it: a chip saying which version, and the page's address.",
+  tags: ["preview", "compare"],
+  usage: `<AddressBar address="/recipes" label={<StatusButton tone="success" icon_name="rocket">Production</StatusButton>} />`,
+  preview: "demo",
+  previewLabel: "AddressBar over a preview",
+  docs: {
+    purpose: ["Says which page a preview shows, and which version of it."],
+    useWhen: ["Above a page preview, especially two side by side."],
+    avoidWhen: ["Where the address can be typed; use an input."],
+    rules: [{ title: "Default look only", description: "Pass the address and the chip; never restyle it from the app." }],
+    accessibility: ["The address is text; the chip is whatever it is given."],
+    composition: ["A chip (StatusButton) before the address."],
+    agentNotes: ["Do not restyle from the app; change this component."],
+    props: [
+      { name: "address", type: "string", description: "The page's address." },
+      { name: "label", type: "JSX.Element", description: "What the preview is, as a chip." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="w-[32rem]">
+      <AddressBar address="/recipes" label={<StatusButton tone="success" icon_name="rocket">Production</StatusButton>} />
+    </div>
+  );
+}

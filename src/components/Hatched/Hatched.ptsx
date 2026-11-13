@@ -1,0 +1,31 @@
+// An area with nothing in it on purpose, hatched in light grey and white: a version that
+// does not exist yet, or no longer does, beside one that does. An icon and a line in the
+// middle say which.
+import { Icon } from "../Icon/Icon.ptsx";
+import type { IconName } from "../Icon/Icon.ptsx";
+import { Text } from "../Text/Text.ptsx";
+
+export type HatchedProps = {
+  /** The line in the middle; empty for none. */
+  label?: string;
+  icon?: IconName;
+  classes?: string;
+};
+
+const HATCH =
+  "background-image: repeating-linear-gradient(135deg, var(--muted) 0 6px, var(--background) 6px 12px)";
+
+export function Hatched({ label = "", icon, classes = "" }: HatchedProps) {
+  return (
+    <div
+      class={["flex h-full min-h-32 w-full flex-col items-center justify-center gap-2 p-6 text-center", classes]}
+      style={HATCH}
+      data-part="hatched"
+    >
+      {icon && <Icon name={icon} size="lg" classes="text-muted-foreground" />}
+      {label !== "" && (
+        <Text as="p" variant="body-sm" tone="muted" classes="rounded-md bg-background px-2 py-0.5">{label}</Text>
+      )}
+    </div>
+  );
+}

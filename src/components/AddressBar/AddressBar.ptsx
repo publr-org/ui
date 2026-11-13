@@ -1,0 +1,22 @@
+// Where a preview is, read only, as a browser shows it: what it is labelled (a chip, say
+// which version) and the page's address beside it.
+import { Text } from "../Text/Text.ptsx";
+
+export type AddressBarProps = {
+  /** The page's address: `/recipes`. */
+  address: string;
+  /** Before the address: what this preview is, as a chip. */
+  label?: JSX.Element;
+  classes?: string;
+};
+
+export function AddressBar({ address, label, classes = "" }: AddressBarProps) {
+  return (
+    <div class={["flex min-w-0 items-center gap-2 border-b border-border bg-card px-3 py-2", classes]} data-part="address-bar">
+      {label}
+      <div class="flex min-w-0 flex-1 items-center rounded-md border border-input bg-muted/40 px-3 py-1">
+        <Text as="span" variant="body-sm" classes="truncate font-mono">{address}</Text>
+      </div>
+    </div>
+  );
+}

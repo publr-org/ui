@@ -1,0 +1,41 @@
+import { PanelTab } from "../../../src/components/PanelTab/PanelTab.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "panel-tab",
+  label: "PanelTab",
+  source: "src/components/PanelTab/PanelTab.ptsx",
+  kind: "primitive",
+  group: "Navigation",
+  description: "One tab of a tab list that switches a panel in place, with how many things it holds when that helps.",
+  tags: ["tabs", "review"],
+  usage: `<PanelTab selected label="Content" count={9} onClick={open} />`,
+  preview: "demo",
+  previewLabel: "A review's tabs, with counts",
+  docs: {
+    purpose: ["Switches between panels of one page without leaving it."],
+    useWhen: ["Several panels share one place, one shown at a time."],
+    avoidWhen: ["Tabs that go to other pages; use TabNav."],
+    rules: [{ title: "Default look only", description: "Pass the label, count and selection; never restyle it from the app." }],
+    accessibility: ["A role=tab button; the selected one is aria-selected and in the tab order."],
+    composition: ["Put them in a role=tablist row; the page owns which is selected."],
+    agentNotes: ["Leave count out when a number would not help."],
+    props: [
+      { name: "label", type: "string", description: "What the panel is." },
+      { name: "count", type: "number", description: "How many things it holds, after the label." },
+      { name: "selected", type: "boolean", description: "Whether its panel is shown." },
+      { name: "variant", type: "\"default\" | \"rail\"", description: "rail is the tall tab of an editor's side panels." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div role="tablist" class="flex border-b border-border">
+      <PanelTab selected label="Conversation" count={4} />
+      <PanelTab selected={false} label="Site" count={7} />
+      <PanelTab selected={false} label="Content" count={9} />
+      <PanelTab selected={false} label="Structure" />
+    </div>
+  );
+}

@@ -1,17 +1,19 @@
 // A short notice inside a page: why something is not available, what to watch out
 // for, what was refused. An icon for the tone, a title, and a line or two of children
-// (or a list of problems).
+// (or a list of problems); what can be done about it, at its end (`actions`).
 import { Code } from "../Code/Code.ptsx";
 import { Icon } from "../Icon/Icon.ptsx";
 import { Text } from "../Text/Text.ptsx";
 
 export type CalloutProps = {
-  tone?: "info" | "warning" | "error";
+  tone?: "info" | "success" | "warning" | "error";
   title: string;
   children?: JSX.Element;
   /** Several things at once, each with what it is about (`code`, optional) and what to
    * know: the problems that stopped a save. */
   items?: Array<{ code: string; text: string }>;
+  /** What can be done about it: buttons, a menu, at the notice's end. */
+  actions?: JSX.Element;
   classes?: string;
   id?: string;
 };
@@ -21,6 +23,7 @@ export function Callout({
   title,
   children,
   items = [],
+  actions,
   classes = "",
   id,
 }: CalloutProps) {
@@ -32,7 +35,9 @@ export function Callout({
         "flex items-start gap-3 rounded-xl border px-5 py-4",
         tone === "warning"
           ? "border-warning/40 bg-warning/5"
-          : tone === "error"
+          : tone === "success"
+            ? "border-success/40 bg-success/5"
+            : tone === "error"
             ? "border-destructive/30 bg-destructive/5"
             : "border-border bg-muted/40",
         classes,
@@ -45,7 +50,9 @@ export function Callout({
           "mt-0.5",
           tone === "warning"
             ? "text-warning"
-            : tone === "error"
+            : tone === "success"
+              ? "text-success"
+              : tone === "error"
               ? "text-destructive"
               : "text-muted-foreground",
         ]}
@@ -53,8 +60,9 @@ export function Callout({
         {tone === "warning" && <Icon name="alert-triangle" size="md" />}
         {tone === "error" && <Icon name="alert-hexagon" size="md" />}
         {tone === "info" && <Icon name="info-circle" size="md" />}
+        {tone === "success" && <Icon name="check" size="md" />}
       </span>
-      <div class="flex min-w-0 flex-col gap-1">
+      <div class="flex min-w-0 flex-1 flex-col gap-1">
         <Text as="span" variant="heading-xs">
           {title}
         </Text>
@@ -76,6 +84,7 @@ export function Callout({
           </ul>
         )}
       </div>
+      {actions && <div class="flex shrink-0 items-center gap-2 self-center">{actions}</div>}
     </div>
   );
 }

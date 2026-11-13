@@ -1,0 +1,37 @@
+import { Hatched } from "../../../src/components/Hatched/Hatched.ptsx";
+import type { ComponentDemoMeta } from "../../gallery-types";
+
+export const meta = {
+  name: "hatched",
+  label: "Hatched",
+  source: "src/components/Hatched/Hatched.ptsx",
+  kind: "primitive",
+  group: "Essentials",
+  description: "An area empty on purpose, hatched light grey and white: a version that does not exist yet, or no longer does.",
+  tags: ["compare", "review"],
+  usage: `<Hatched icon="trash" label="Removed when you approve" />`,
+  preview: "demo",
+  previewLabel: "Hatched beside a version that exists",
+  docs: {
+    purpose: ["Stands in for the side of a comparison that has nothing: brand new, or gone."],
+    useWhen: ["Two versions side by side where one of them does not exist."],
+    avoidWhen: ["A list with no items yet; use Empty."],
+    rules: [{ title: "Default look only", description: "Pass the icon and the line; never restyle it from the app." }],
+    accessibility: ["The line is text; the icon is decorative."],
+    composition: ["Icon and Text inside; the area fills its parent."],
+    agentNotes: ["Do not restyle from the app; change this component."],
+    props: [
+      { name: "label", type: "string", description: "The line in the middle." },
+      { name: "icon", type: "IconName", description: "An icon above it." },
+    ],
+  },
+} satisfies ComponentDemoMeta;
+
+export function Demo() {
+  return (
+    <div class="grid h-48 w-[32rem] grid-cols-2 gap-4">
+      <Hatched label="Not on Production yet" />
+      <Hatched icon="trash" label="Removed when you approve" />
+    </div>
+  );
+}

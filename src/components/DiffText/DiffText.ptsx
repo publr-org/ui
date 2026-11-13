@@ -1,12 +1,13 @@
 // A value as one version has it beside another: unchanged text plain, what this version
-// added marked green, what it dropped red and struck through. A word diff's segments come
-// from the caller (the server computes them); this only draws them.
+// added marked green, what it dropped red and struck through, a run left out (a file's
+// unchanged lines, folded) muted. The segments come from the caller (the server computes
+// them); this only draws them.
 export type DiffTextProps = {
   /** Plain text, nothing marked: a value shown the same way beside marked ones. */
   text?: string;
   segments?: Array<{
     text: string;
-    /** `same`, `added` or `removed`. */
+    /** `same`, `added`, `removed` or `skipped`. */
     mark: string;
   }>;
   /** Drawn in a field's box, as a value on a form reads. */
@@ -32,7 +33,9 @@ export function DiffText({ text = "", segments = [], boxed = false, classes = ""
               ? "rounded-sm bg-success/15 text-success"
               : segment.mark === "removed"
                 ? "rounded-sm bg-destructive/10 text-destructive line-through"
-                : ""
+                : segment.mark === "skipped"
+                  ? "text-muted-foreground italic"
+                  : ""
           }
           data-mark={segment.mark}
         >
